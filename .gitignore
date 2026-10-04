@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment: commit only .env.example
+.env
+.env.*
+!.env.example
+
+# Local file storage used by the disk driver in development
+Backend/storage/
+Backend/uploads/
+
+# Tests and coverage
+coverage/
+playwright-report/
+test-results/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Hosting
+.vercel
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code personal settings
+.claude/settings.local.json
