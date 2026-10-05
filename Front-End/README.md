@@ -18,7 +18,8 @@ Front-End/
 │  │  ├─ staff/             awards, cycle setup, applications, masking, jury pool, assignment, judging, approval, results
 │  │  ├─ jury/              assignments, scoring
 │  │  ├─ dept/              staff, jury pool, approval queue, round review, dashboard
-│  │  └─ leader/            dashboard, departments, read-only award view
+│  │  └─ leader/            leader and PAs: dashboard, departments, people, awards, master data,
+│  │                        organisations, read-only award view; PA team and PA activity (leader only)
 │  ├─ components/
 │  │  ├─ ui/                shadcn/ui
 │  │  ├─ form-builder/      questionnaire builder (staff)

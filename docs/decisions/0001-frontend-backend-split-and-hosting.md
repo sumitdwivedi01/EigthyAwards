@@ -22,7 +22,7 @@ The project owner wants the **frontend on Vercel, the backend on Render and the 
 
 ## Decision
 
-Option 3. `Front-End/` is a Next.js app deployed to Vercel. It holds **no business rules** and never touches the database. `Backend/` is an Express + TypeScript API deployed to Render: a **modular monolith** with the 15 modules from the architecture PDF, one PostgreSQL database on Supabase, and files in a private Supabase Storage bucket.
+Option 3. `Front-End/` is a Next.js app deployed to Vercel. It holds **no business rules** and never touches the database. `Backend/` is an Express + TypeScript API deployed to Render: a **modular monolith** with the 15 modules from the architecture PDF plus `master-data` (16; ADR 0006), one PostgreSQL database on Supabase, and files in a private Supabase Storage bucket.
 
 ## Why
 

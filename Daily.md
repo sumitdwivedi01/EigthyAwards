@@ -1,22 +1,20 @@
 # Here You can see my daily working in the project so you can understand better what's going on in Daily bases
 
+Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan changed). Details live in [docs/PROGRESS.md](docs/PROGRESS.md).
+
 # DAY 1
  prepared questions I am gonna ask to my client before assuming things by my own to give a structure and design a high level architecture of the problem statement and which will eventually gonna help me to understand the problem more breifly and deep dive more 
 
-# DAY 2
+# DAY 2 (4 Oct)
  Finally back on the work after some break , now will update regularly what's going on - and keep updating and pushing in github
 
-**Done**
-- Moved the brief, the spec and the architecture PDF into the repo (`docs/`), so everything lives in GitHub.
-- Wrote the build plan: 15 phases (0 to 14), backend first. Each phase gets its own branch, is tested, and is then merged into `main`. See [docs/PHASES.md](docs/PHASES.md).
-- Started the progress tracker ([docs/PROGRESS.md](docs/PROGRESS.md)) and the gaps list ([docs/GAPS.md](docs/GAPS.md)). Found 11 places where the spec contradicts itself, and 15 new gaps that come from hosting on Vercel + Render + Supabase.
-- Wrote down 4 decisions in [docs/decisions/](docs/decisions/): splitting the frontend and the API, the tech stack, how login works, and the git workflow.
+- **Done:** Put the brief, spec and architecture into `docs/`. Wrote the plan (15 phases), the progress tracker, the gaps list and 4 decisions. Phase 0 merged.
+- **Next:** Phase 1, the backend foundation.
+- **Stuck:** Nothing.
+- **Plan changed:** First plan. The frontend goes on Vercel, the API on Render and the database on Supabase, so it is two apps instead of one ([ADR 0001](docs/decisions/0001-frontend-backend-split-and-hosting.md)).
 
-**Next**
-- Merge Phase 0. Then Phase 1: the backend foundation (Express + TypeScript, the full database schema, test setup, CI).
-
-**Stuck**
-- Nothing is blocking. 10 decisions are still open in GAPS.md §A; I'm building on the defaults until they're answered.
-
-**Plan changed**
-- This is the first version of the plan. The main change from the spec: two apps (frontend on Vercel, API on Render, database on Supabase) instead of one Next.js app. See [ADR 0001](docs/decisions/0001-frontend-backend-split-and-hosting.md).
+# DAY 3 (5 Oct)
+- **Done:** Call with the leader. Updated all docs: a staff member can run many awards; the award goes to the organisation, not its plants; no signed authorisation letter; a new **Leader's PA** role; data consistency is now a main goal.
+- **Next:** Merge these changes, then start Phase 1.
+- **Stuck:** Need the leader to confirm what replaces the letter, and the PAs' exact powers ([GAPS §A](docs/GAPS.md), A11–A14).
+- **Plan changed:** Added Phase 0.1. Phase 2 got bigger (PA role, master data), so the later phases moved half a day ([PHASES.md](docs/PHASES.md)).

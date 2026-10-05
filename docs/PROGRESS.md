@@ -6,12 +6,12 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-04 · Day 2 |
-| **Current phase** | Phase 0: Planning and tracking setup (🚧 docs written, waiting for review, commit and merge) |
-| **Current branch** | `phase/00-planning-docs` (local only, not pushed yet) |
+| **Last updated** | 2026-10-05 · Day 3 |
+| **Current phase** | Phase 0.1: Leader-call changes (🚧 docs updated, waiting for review, commit and merge) |
+| **Current branch** | `phase/00.1-leader-call-changes` (local only, not pushed yet) |
 | **What runs today** | Nothing yet. The repo holds docs only. |
-| **Next action** | 1) Review the Phase 0 docs, 2) answer the decisions in [GAPS.md §A](GAPS.md), 3) commit, push and merge Phase 0 into `main`, 4) start Phase 1 on `phase/01-be-foundation`. |
-| **Blockers** | None. GAPS §A decisions have defaults, so work can go on without them. |
+| **Next action** | 1) Review the Phase 0.1 changes, 2) answer the new decisions A11–A14 in [GAPS.md §A](GAPS.md) (and A1–A4, still open), 3) commit, push, PR and merge, then tag `phase-00.1-done`, 4) start Phase 1 on `phase/01-be-foundation`. |
+| **Blockers** | None. Every open decision has a default. |
 
 ## Phase status board
 
@@ -19,9 +19,10 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 
 | # | Phase | Branch | Status | PR | Merged | Tests |
 |---|---|---|---|---|---|---|
-| 0 | Planning and tracking setup | `phase/00-planning-docs` | 🚧 In progress | — | — | n/a |
+| 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
+| 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | 🚧 In progress | — | — | n/a |
 | 1 | Backend foundation | `phase/01-be-foundation` | ⬜ | — | — | — |
-| 2 | Identity, departments, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
+| 2 | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
 | 3 | Award configuration engine (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
 | 4 | Frontend foundation | `phase/04-fe-foundation` | ⬜ | — | — | — |
 | 5 | Setup screens | `phase/05-fe-award-setup` | ⬜ | — | — | — |
@@ -46,13 +47,44 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 | R3 Who changed a score, and why | Phases 1 (audit trigger), 9 | — | ⬜ |
 | R4 Last year's applications still read correctly | Phases 1 (FormVersion trigger), 3, 6 | — | ⬜ |
 
+## Leader-call goals: where they stand
+
+| Goal | Built in | Status |
+|---|---|---|
+| Staff assigned to many awards | Phases 1 (schema), 3, 5 | ⬜ |
+| Award goes to the organisation, never to plants | Phase 1 (schema; one organisation per PAN) | ⬜ |
+| No signed authorisation letter | Removed from spec and plan (Phase 0.1) | ✅ docs |
+| Leader's PA role | Phases 1, 2, 5, 11, 12 | ⬜ |
+| Data consistency | Phases 1 (normalize, indexes), 2 (master data, organisations), 6 (identity snapshot) | ⬜ |
+
 ---
 
 ## What has been achieved (newest first)
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
-### Phase 0: Planning and tracking setup · 🚧 · 2026-10-04 (Day 2)
+### Phase 0.1: Leader-call changes · 🚧 · 2026-10-05 (Day 3)
+
+Goal: bring every document in line with the leader call before writing code.
+
+What the leader said:
+1. One staff member can work on many awards.
+2. The award goes to the organisation, not to its units or plants.
+3. No signed authorisation letter. For now, every application from a member of the organisation is accepted.
+4. The leader has a personal team (PAs) who do the leader's work: creating departments and awards, appointing heads, assigning staff. The leader creates the PAs.
+5. Data inconsistency was the main problem before this platform.
+
+- [x] Spec ([requirements.md](requirements.md)): revision log; roles grow to six (Leader's PA); new permission matrix; new §5.17 Leader's PA team and §5.18 Data consistency; letter removed from §2, §5.2, §5.3, §5.6, §7, §10, §12, §14, §17; data model (LEADER_PA, master data tables, identity snapshot, actorRole, deactivation); screens, scope, tests and §18 answers updated; glossary "Evaluation" fixed (G-D01).
+- [x] ADRs: 0005 Leader's PA role, 0006 Data consistency by design, 0007 Drop the authorisation letter.
+- [x] [GAPS.md](GAPS.md): A5, A6, C08 and C09 removed (letter); A7 and C07 decided; E01 and E03 answered; new decisions A11–A14; new section H (12 gaps).
+- [x] [PHASES.md](PHASES.md): Phase 0.1 added; Phases 1, 2, 3, 5, 6, 7, 10, 11 and 12 updated; days shifted; cut order extended.
+- [x] CLAUDE.md, the READMEs and Daily.md (shortened) updated.
+- [ ] You review, and answer A11–A14 (or accept the defaults).
+- [ ] Commit, push, PR, merge, and tag `phase-00.1-done`.
+
+Found: proof of authority is now weak, because the PAN is inside the GSTIN, which is printed on every invoice (G-H01). Recommended fix: confirm joining through the organisation's official email (A13).
+
+### Phase 0: Planning and tracking setup · ✅ · 2026-10-04 (Day 2)
 
 Goal: put everything a new person (or a new AI session) needs into the repo, and fix the plan before writing code.
 
@@ -68,8 +100,7 @@ Goal: put everything a new person (or a new AI session) needs into the repo, and
 - [x] `.gitignore` for Node, Next.js, env files, uploads and coverage.
 - [x] README updates: root `README.md`, `Backend/README.md`, and `Front-End/README.md` (renamed from `Frontend.md`).
 - [x] `Daily.md`: today's entry.
-- [ ] You review the docs and answer [GAPS.md §A](GAPS.md), or accept the defaults.
-- [ ] Commit, push the branch, open a PR, merge into `main`, tag `phase-00-done`.
+- [x] Reviewed by you; merged into `main` through sumitdwivedi01/EigthyAwards#1 and tagged `phase-00-done`.
 
 Decisions made: ADR 0001 (accepted), 0002 (proposed), 0003 (proposed), 0004 (accepted).
 Things found: the spec contradicts itself in 11 places (GAPS §D), and the deployment split adds 15 gaps (GAPS §B). The most serious is **G-B04** (Supabase's Data API could expose our tables).
@@ -103,6 +134,9 @@ Added in Phase 2. Passwords live only in `Backend/.env` and `.env.example` place
 | Our own auth in the API instead of Auth.js | Auth.js doesn't fit a separate API | ADR 0003 |
 | Phase branches → `main` instead of `develop` | The owner's workflow; one builder | ADR 0004 |
 | EmailLog used as an outbox instead of sending during the request | Bulk emails and rollbacks | GAPS G-C03 |
+| New role: Leader's PA | Leader call, 5 Oct | ADR 0005, spec §5.17 |
+| Data consistency rules and master data | Leader call, 5 Oct | ADR 0006, spec §5.18 |
+| No authorisation letter | Leader call, 5 Oct | ADR 0007 |
 
 ---
 

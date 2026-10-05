@@ -9,7 +9,7 @@
 The spec chose Auth.js inside the single Next.js app (§9). After ADR 0001 the API lives on another site (`*.onrender.com`) from the frontend (`*.vercel.app`). The spec's requirements still hold:
 
 - Email and password login for everyone.
-- Applicants register themselves; everyone else is invited (leader → department head → staff → jury).
+- Applicants register themselves; everyone else is invited (leader → PAs; leader or PA → department heads; department head, leader or PA → staff; staff or department head → jury). Accounts can be deactivated (ADR 0005), and deactivation ends sessions at once through `sessionVersion`.
 - Expiring password-reset links.
 - **Role assignments loaded from our database on every request.** The UI never decides permissions.
 
