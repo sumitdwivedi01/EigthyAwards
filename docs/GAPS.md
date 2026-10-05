@@ -4,21 +4,24 @@
 >
 > **Status values:** `Open` (nobody has decided; the default is used) · `Decision needed` (we need your answer, or the reviewer's) · `Default adopted` (we are building the default; it can still change) · `Decided` (an ADR records it) · `Fixed` (done and tested) · `Accepted risk` (known and deliberately left).
 >
-> Last updated: 2026-10-04 (Day 2, Phase 0). Update this file at the end of every phase.
+> **Status values (continued):** `Answered` (the client answered it) · `Removed` (no longer applies after a client decision).
+>
+> Last updated: 2026-10-05 (Day 3, Phase 0.1: leader call). Update this file at the end of every phase.
 
 ## Summary
 
 | Section | What it covers | Count | Not yet closed* |
 |---|---|---|---|
-| A | Decisions we need from you before or during the build | 10 | 10 |
+| A | Decisions we need from you before or during the build | 14 | 11 |
 | B | Gaps caused by splitting frontend and backend across Vercel, Render and Supabase | 15 | 13 |
-| C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 14 |
-| D | Contradictions and holes found in the spec while planning | 11 | 10 |
-| E | Client questions still open from spec §18 | 16 | 16 |
+| C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 11 |
+| D | Contradictions and holes found in the spec while planning | 11 | 9 |
+| E | Client questions still open from spec §18 | 16 | 14 |
 | F | Brief deliverables not yet in the repo | 9 | 6 |
 | G | Repository and process gaps | 7 | 4 |
+| H | Gaps from the leader call: PA role and data consistency (new, Day 3) | 12 | 11 |
 
-\* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk` or `Done`. "Default adopted" still counts as open until the code that implements it is merged and tested.
+\* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
 ---
 
@@ -26,18 +29,22 @@
 
 Until you answer, the **default** is what gets built. Each one points to the detailed gap.
 
-| ID | Question | Default until answered | Needed by |
-|---|---|---|---|
-| A1 | Build order: backend and frontend phases **alternating** (as in PHASES.md), or **all backend first, then all frontend**? | Alternating, backend first (G-B13) | Phase 1 |
-| A2 | Is a throw-away "hello world" deploy of the empty skeletons acceptable around Phase 4, to test the cookie proxy and the Supabase connection early? No real features would be deployed. | No early deploy (your instruction); risks stay open until Phase 13 | Phase 4 |
-| A3 | Login: a session cookie through the Next.js `/api` proxy (ADR 0003), or a bearer token in the browser? | Cookie through the proxy (G-B02) | Phase 2 |
-| A4 | Email provider for production (Render may block SMTP): Resend, Brevo or another? Do we have a domain to send from? | An HTTP email API behind the mailer interface; provider chosen in Phase 13 (G-B06) | Phase 13 |
-| A5 | Authorisation letter template: DOCX or PDF? | DOCX, so organisations can print it on their letterhead (G-C09) | Phase 6 |
-| A6 | Does an unverified authorisation letter **block** masking and assignment, or only show a warning? | A warning only (G-C08) | Phase 6 |
-| A7 | Snapshot the organisation's identity onto the application at submit (frozen at the deadline)? | Yes (G-C07) | Phase 1 (schema) |
-| A8 | Editing an already-submitted application: an explicit "Save changes" that runs full validation (no autosave)? | Yes (G-D02) | Phase 6 |
-| A9 | Indicator scores: whole numbers 0–10, or decimals like 7.5? | Whole numbers (G-D09) | Phase 3 |
-| A10 | Module folders: 15 (adding `departments` and `jury-pool`), or fold them into identity and judging? | 15 folders (G-C01) | Phase 1 |
+| ID | Question | Default until answered | Needed by | Status |
+|---|---|---|---|---|
+| A1 | Build order: backend and frontend phases **alternating** (as in PHASES.md), or **all backend first, then all frontend**? | Alternating, backend first (G-B13) | Phase 1 | Decision needed |
+| A2 | Is a throw-away "hello world" deploy of the empty skeletons acceptable around Phase 4, to test the cookie proxy and the Supabase connection early? No real features would be deployed. | No early deploy (your instruction); risks stay open until Phase 13 | Phase 4 | Decision needed |
+| A3 | Login: a session cookie through the Next.js `/api` proxy (ADR 0003), or a bearer token in the browser? | Cookie through the proxy (G-B02) | Phase 2 | Decision needed |
+| A4 | Email provider for production (Render may block SMTP): Resend, Brevo or another? Do we have a domain to send from? | An HTTP email API behind the mailer interface; provider chosen in Phase 13 (G-B06) | Phase 13 | Decision needed |
+| A5 | ~~Authorisation letter template: DOCX or PDF?~~ | No letter any more (ADR 0007) | — | Removed |
+| A6 | ~~Does an unverified authorisation letter block masking and assignment?~~ | No letter any more (ADR 0007) | — | Removed |
+| A7 | Snapshot the organisation's identity onto the application at submit (frozen at the deadline)? | Yes. Now part of data consistency (ADR 0006) | Phase 1 (schema) | Decided |
+| A8 | Editing an already-submitted application: an explicit "Save changes" that runs full validation (no autosave)? | Yes (G-D02) | Phase 6 | Decision needed |
+| A9 | Indicator scores: whole numbers 0–10, or decimals like 7.5? | Whole numbers (G-D09) | Phase 3 | Decision needed |
+| A10 | Module folders: 16 (adding `departments`, `jury-pool` and the new `master-data`), or fold some together? | 16 folders (G-C01) | Phase 1 | Decision needed |
+| A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Decision needed |
+| A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Decision needed |
+| A13 | What replaces the signed letter as proof that an applicant may act for the organisation? | Nothing for now (leader's decision). **Recommended:** a confirmation link sent to the organisation's official email (G-H01) | Phase 2 | Decision needed |
+| A14 | "Accept all the applications of the same organisation": does that mean one organisation may have **several active** applications in one cycle? | No. We read it as "accept applications from any member". The duplicate rule stays (one active per cycle, flagged), because of the data consistency goal | Phase 6 | Decision needed |
 
 ---
 
@@ -71,16 +78,16 @@ The numbers match the PDF's cards. The spec does not answer any of them. The PDF
 
 | ID | Gap | Default we build | Phase | Status |
 |---|---|---|---|---|
-| G-C01 | The module list disagrees with itself (12 vs 13 vs 15). | 15 module folders, including `departments` and `jury-pool` (A10). | 1 | Decision needed |
+| G-C01 | The module list disagrees with itself (12 vs 13 vs 15). | 16 module folders: `departments`, `jury-pool` and (since the leader call) `master-data` (A10). | 1 | Decision needed |
 | G-C02 | 10 MB files won't fit through a Vercel function. | Partly solved by the API moving to Render; the rest is G-B03 (signed URLs). | 6 | Default adopted |
 | G-C03 | Emails are sent during the request. One request can mean about 1,000 emails, and an email can go out for a change that later rolls back. | Treat **EmailLog as an outbox**: insert PENDING rows in the same transaction, send in batches after commit. | 1, 11 | Default adopted |
 | G-C04 | Some statuses change with time ("Closed", "Not submitted") but no job runs. | Derive them from `clock.now()` on read, and store them on the next write. Dashboards use the derived value. | 3, 6, 11 | Default adopted |
 | G-C05 | Invite and reset tokens have no table. | An `AuthToken` table: hashed token, type, expiry, used-at, single use. | 1, 2 | Default adopted |
 | G-C06 | Removing an assignment conflicts with "never hard-delete". | A `REVOKED` evaluation status with a reason, and a partial unique index allowing one **active** evaluation per (round, application). | 1, 8 | Default adopted |
-| G-C07 | The identity section reads the live organisation profile, so last year's application would show this year's name and address. | Copy identity onto the application at submit, refresh it until the deadline, freeze it at the lock (A7). | 1, 6 | Decision needed |
-| G-C08 | "Verify authorisation letters" has no operation or outcome. | `verifyAuthLetter` with status PENDING / VERIFIED / REJECTED plus a reason, audited (A6). | 6 | Decision needed |
-| G-C09 | The pre-filled letter template needs a generator. | Generated on the server from one platform template, as DOCX (A5). | 6 | Decision needed |
-| G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes and letter verification. | 1 | Default adopted |
+| G-C07 | The identity section reads the live organisation profile, so last year's application would show this year's name and address. | Copy identity onto the application at submit, refresh it until the deadline, freeze it at the lock. Part of data consistency (spec §5.18). | 1, 6 | Decided (ADR 0006) |
+| G-C08 | "Verify authorisation letters" has no operation or outcome. | No letter any more. | — | Removed (ADR 0007) |
+| G-C09 | The pre-filled letter template needs a generator. | No letter any more. | — | Removed (ADR 0007) |
+| G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes, PA actions (with the actor's role), master data changes and organisation edits. | 1 | Default adopted |
 | G-C11 | Unique keys with NULL scope columns let duplicates in, and "exactly one leader" isn't enforced. | `NULLS NOT DISTINCT` (PostgreSQL 15+, which Supabase has) or partial unique indexes, plus a partial unique index on LEADER. | 1 | Default adopted |
 | G-C12 | No login throttling and no monitoring. | Rate limits per email and per IP on login and reset; structured pino logs; an error tracker is optional. | 2, 13 | Default adopted |
 | G-C13 | "Safe as is" files need a representation. | A MASKED_EVIDENCE row pointing at the same storage key, so the jury file check stays one rule. | 8 | Default adopted |
@@ -93,7 +100,7 @@ The numbers match the PDF's cards. The spec does not answer any of them. The PDF
 
 | ID | Where | Problem | Default we build | Phase | Status |
 |---|---|---|---|---|---|
-| G-D01 | §2 Glossary vs §10 Data model | The glossary defines an Evaluation as one jury member scoring *multiple* applications. The data model has one Evaluation per (round, application, jury member). | The data model wins: **one Evaluation = one jury member × one application × one round.** Fix the glossary wording. | 0 | Default adopted |
+| G-D01 | §2 Glossary vs §10 Data model | The glossary defined an Evaluation as one jury member scoring *multiple* applications. The data model has one Evaluation per (round, application, jury member). | The data model wins: **one Evaluation = one jury member × one application × one round.** Glossary fixed on 5 Oct. | 0 | Fixed (Phase 0.1) |
 | G-D02 | §5.6 | "Each save [of a submitted application] must pass the same checks as submitting" can't coexist with autosave, which saves half-typed answers. | Drafts autosave. Submitted applications are edited with an explicit **Save changes** that runs full validation (A8). | 6, 7 | Decision needed |
 | G-D03 | §4 table vs §5.4 | "Update requested" shows the applicant "Pending: your application is not submitted yet", but §5.4 says the application **stays submitted**. | Show "Submitted, update requested: questions changed, please review the highlighted ones before the deadline". | 6 | Open |
 | G-D04 | §4 Round status | Nothing says what moves a round from "Not started" to "Judging". | Derived: Judging as soon as the round has any active evaluation. | 9 | Default adopted |
@@ -113,9 +120,9 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 
 | ID | Question (short) | Default in use | Status |
 |---|---|---|---|
-| G-E01 | The legal company applies, or each plant separately? | The legal entity, by PAN; one application per cycle | Open |
+| G-E01 | The legal company applies, or each plant separately? | **The organisation (legal entity, by PAN).** Plants and units never apply separately | Answered (5 Oct) |
 | G-E02 | Is the department head's approval final? | Yes; the leader only watches | Open |
-| G-E03 | Who creates staff: the department head or the leader? | The department head | Open |
+| G-E03 | Who creates staff: the department head or the leader? | **The department head, or the leader's PAs** | Answered (5 Oct) |
 | G-E04 | Can a department head create awards? | No, only staff | Open |
 | G-E05 | Can a department head edit scores? | No; approve or send back only | Open |
 | G-E06 | Exactly one leader? | Yes | Open |
@@ -136,15 +143,36 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 
 | ID | Deliverable | Where | Phase | Status |
 |---|---|---|---|---|
-| G-F01 | The plan, kept up to date | [PHASES.md](PHASES.md) | 0 | Done (on merge) |
+| G-F01 | The plan, kept up to date | [PHASES.md](PHASES.md) | 0 | Done (Phase 0 merged) |
 | G-F02 | Daily progress: done, next, stuck | [Daily.md](../Daily.md) | Daily | Ongoing |
-| G-F03 | Decisions: options, choice, why, what would change it | [decisions/](decisions/) | Ongoing | Started |
+| G-F03 | Decisions: options, choice, why, what would change it | [decisions/](decisions/) | Ongoing | Ongoing |
 | G-F04 | Code, with a README a stranger can run from | README.md, Backend/, Front-End/ | 14 | Open |
 | G-F05 | One page: the journey of each user | docs/user-journeys.md (content drafted in spec §7) | 14 | Open |
-| G-F06 | A simple drawing of how the parts fit | The PDF exists but shows **one** Next.js app, so it needs a redraw for the split | 14 | Open |
+| G-F06 | A simple drawing of how the parts fit | The PDF exists but shows **one** Next.js app, with no PA role and no master-data module, so it needs a redraw | 14 | Open |
 | G-F07 | What the tests check and what they don't | docs/testing.md (drafted in spec §15) | 14 | Open |
 | G-F08 | One place AI looked right but was wrong, and how it was caught | docs/ai-notes.md, recorded as soon as it happens | Ongoing | Open |
 | G-F09 | Two awards that work differently, configured with no code change | Phases 5 and 12 | 12 | Open |
+
+---
+
+## H. Gaps from the leader call: PA role and data consistency (Day 3)
+
+Raised by the 5 October 2026 call (ADRs 0005, 0006, 0007; spec §5.17, §5.18).
+
+| ID | Gap | Impact | Default / proposed fix | Phase | Status |
+|---|---|---|---|---|---|
+| G-H01 | **Proof of authority is now weak.** With no letter, joining an organisation needs only its PAN and GSTIN, but the PAN is inside the GSTIN, and a GSTIN is printed on every invoice. | Anyone with an invoice could apply in a company's name. | For now: accepted (the leader's decision), and the duplicate flag shows staff a second application. **Recommended:** confirm joining with a link sent to the organisation's official email (A13). | 2 | Decision needed |
+| G-H02 | PA powers are a fixed set; the leader can't tailor them per person. | A PA may get more power than the leader intends. | Same powers for all PAs, and every action audited with the role (A11). Per-PA switches are later work. | 2 | Default adopted |
+| G-H03 | Can PAs create awards? The call mentioned "creating new award[s]". | Changes the permission matrix. | Yes, in any department; cycle configuration stays with staff (A12). | 3 | Decision needed |
+| G-H04 | Deactivating people who still own work: a staff member who is the only one on an award, a jury member with unsubmitted evaluations, a department head with a round waiting. | Work gets stuck with someone who can't log in. | Deactivation is allowed but first shows what they still own. Their awards and evaluations stay assigned until staff, the department head or a PA reassigns them. The dashboard flags "awards with no active staff". Approval always goes to the **current** head of the department. | 2, 11 | Default adopted |
+| G-H05 | One organisation can have **several GSTINs** (one per state), but the profile stores one. | A second user may know a different GSTIN and fail to join, then create a "new" organisation, which is refused because the PAN is unique. | One GSTIN on record (the one the organisation registers with). Joining needs that GSTIN; the error message says which state's GSTIN is on record. Several GSTINs is later work. | 2 | Default adopted |
+| G-H06 | The GSTIN state code can differ from the registered address state. | False refusals for genuine organisations. | A warning, not a refusal (spec assumption A17). | 2 | Default adopted |
+| G-H07 | **Old data** from the 80 old award systems is exactly what was inconsistent. Importing and cleaning it is out of scope (spec §14). | The leader may expect history to appear on day one. | Not imported. Consistency starts with the first cycle run here. Say so in the walkthrough, and ask the leader whether a one-time import and clean-up is wanted later. | 14 | Open |
+| G-H08 | Case-insensitive uniqueness needs expression or `citext` indexes, which Prisma doesn't declare natively. | Duplicates slip in if only the service checks. | Raw SQL migration with unique indexes on `lower(...)`, plus the service check for a friendly error. | 1 | Default adopted |
+| G-H09 | Normalisation must happen in **one** place, or the seed and any future import will bypass it. | Inconsistent data again. | A single `lib/normalize.ts` used by every service **and** the seed, with unit tests for each normaliser. | 1, 2 | Default adopted |
+| G-H10 | Renaming a master data value changes how every old record displays it. | History reads differently. | Renaming is for spelling fixes only. A change of meaning means retiring the old value and adding a new one. Renames are audited. | 2 | Default adopted |
+| G-H11 | The leader's dashboard needs a way to see what PAs did. | The leader can't check delegated work. | A "PA activity" view, built from audit events filtered by role = LEADER_PA. | 11, 12 | Default adopted |
+| G-H12 | With staff spread over many awards in several departments, a department head only sees their own department's awards. | A head can't see that a staff member is overloaded elsewhere. | Accept for now. The leader and PAs see everything; a per-staff workload view is later work. | — | Accepted risk |
 
 ---
 
@@ -167,3 +195,4 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-05 | Leader call: the letter gaps removed (A5, A6, C08, C09); E01 and E03 answered; A7 and C07 decided; D01 fixed; new decisions A11–A14; new section H (12 gaps on the PA role and data consistency). |

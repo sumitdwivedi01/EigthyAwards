@@ -1,6 +1,6 @@
 # CLAUDE.md: Awards Platform (EightyAwards)
 
-One configurable platform that runs about 80 award programmes for an Indian industry body. Differences between awards are **configuration, not code**. This is a 10-working-day build, read daily by a reviewer ([docs/brief.md](docs/brief.md)).
+One configurable platform that runs about 80 award programmes for an Indian industry body. Differences between awards are **configuration, not code**, and shared data (organisations, people, departments, lists) is kept **consistent**: that was the client's biggest problem before. This is a 10-working-day build, read daily by a reviewer ([docs/brief.md](docs/brief.md)).
 
 ## Read these first, every session
 
@@ -11,7 +11,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 ## Repo map
 
-- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. Modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests).
+- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 16 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data`.
 - `Front-End/`: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui, deployed to Vercel. It proxies `/api/*` to the backend.
 - `docs/`: brief, spec, plan, progress, gaps, ADRs, architecture PDF.
 - `Daily.md`: the daily log for the reviewer (Done · Next · Stuck · Plan changed).
@@ -39,6 +39,15 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - TypeScript strict, no `any`. Zod at every boundary (input, configuration, env).
 - Rule tests (R1–R4) are written **from the rule's wording**, against a real PostgreSQL, **with** the feature, not after it.
 - The frontend holds no business rules. It shows what the API decides.
+
+## Roles and the leader-call rules (5 Oct 2026)
+
+- Six roles: Leader, **Leader's PA** (`LEADER_PA`), Department head, Staff, Jury, Applicant user. Matrix: spec §3.
+- The leader and PAs only do **organisational** writes (departments, heads, staff assignment, award creation, master data, organisation corrections, accounts). They never write judging data. Only the leader creates or removes PAs. Every audit event stores `actorRole`.
+- One staff member can hold **many awards** (one AWARD_STAFF row per award).
+- The award goes to the **organisation** (one per PAN). Plants and units never apply.
+- **No authorisation letter** anywhere (ADR 0007). Don't reintroduce it.
+- **Data consistency** (spec §5.18, ADR 0006): every write of shared data goes through `lib/normalize.ts`; uniqueness is case-insensitive and backed by a DB index; award domains and organisation types come from master data (retired, never deleted); the application stores an identity snapshot.
 
 ## The four rules (the brief's)
 
