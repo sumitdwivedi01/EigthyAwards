@@ -2,7 +2,7 @@
 
 An Express 5 + TypeScript API on PostgreSQL (Prisma). It is deployed to **Render**, with the database and files on **Supabase**. Why it's built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-split-and-hosting.md), [ADR 0002](../docs/decisions/0002-tech-stack.md).
 
-> **Status:** not started. It is built in Phases 1, 2, 3, 6, 8, 9 and 11 ([docs/PHASES.md](../docs/PHASES.md)).
+> **Status:** not started. It is built in Phases 1, 2, 3, 6, 8, 9, 11 and 12 ([docs/PHASES.md](../docs/PHASES.md)).
 
 ## Planned structure
 
@@ -29,8 +29,9 @@ Backend/
 │     ├─ masking/           masked answers and files (R1)
 │     ├─ jury-pool/         pool per cycle, conflicts (R2)
 │     ├─ judging/           assignment, scores, corrections, disqualification (R1–R3)
-│     ├─ approval/          send for approval, approve, send back
-│     ├─ results/           shortlist, publish results
+│     ├─ onsite/            on-site rounds: slots, panels, backup entry, close, averages
+│     ├─ approval/          send for approval, approve, send back (document rounds only)
+│     ├─ results/           ranks, result labels (Shortlisted/Rejected, Gold/Silver/Bronze), publish
 │     ├─ reporting/         leader, PA and department dashboards; PA activity
 │     ├─ audit/             append-only history (R3)
 │     └─ notifications/     email templates, EmailLog outbox

@@ -18,3 +18,9 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** Merge these changes, then start Phase 1.
 - **Stuck:** Need the leader to confirm what replaces the letter, and the PAs' exact powers ([GAPS §A](docs/GAPS.md), A11–A14).
 - **Plan changed:** Added Phase 0.1. Phase 2 got bigger (PA role, master data), so the later phases moved half a day ([PHASES.md](docs/PHASES.md)).
+
+# DAY 4 (6 Oct)
+- **Done:** Got answers to my 15 questions. Shop-floor competitions (Kaizen, 5S) are judged on site by a panel of 2–5 jury, scored on their devices; the average counts, with no approval; winners get Gold, Silver or Bronze. One real application per organisation. Updated the spec, plan, gaps and decisions to match (new ADR 0008).
+- **Next:** Merge Phase 0.2, then start coding with Phase 1, the backend foundation.
+- **Stuck:** Nothing. Open risk: the timeline is tight (16 phases in 7 days).
+- **Plan changed:** Added Phase 12 (on-site rounds, backend), so the old Phases 12–14 are now 13–15. Days re-planned from today ([PHASES.md](docs/PHASES.md)).

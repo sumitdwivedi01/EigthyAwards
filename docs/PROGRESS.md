@@ -6,12 +6,13 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-05 · Day 3 |
-| **Current phase** | Phase 0.1: Leader-call changes (🚧 docs updated, waiting for review, commit and merge) |
-| **Current branch** | `phase/00.1-leader-call-changes` (local only, not pushed yet) |
+| **Last updated** | 2026-10-06 · Day 4 |
+| **Current phase** | Phase 0.2: On-site rounds and answers (🚧 docs updated, waiting for review, commit and merge) |
+| **Current branch** | `phase/00.2-onsite-rounds-and-answers` (local only, not pushed yet) |
 | **What runs today** | Nothing yet. The repo holds docs only. |
-| **Next action** | 1) Review the Phase 0.1 changes, 2) answer the new decisions A11–A14 in [GAPS.md §A](GAPS.md) (and A1–A4, still open), 3) commit, push, PR and merge, then tag `phase-00.1-done`, 4) start Phase 1 on `phase/01-be-foundation`. |
-| **Blockers** | None. Every open decision has a default. |
+| **Next action** | 1) Review the Phase 0.2 changes, 2) commit, push, PR and merge, then tag `phase-00.2-done`, 3) start **Phase 1** on `phase/01-be-foundation` (target: today). |
+| **Blockers** | None. Still open with defaults: A1–A4, A8–A10 ([GAPS.md §A](GAPS.md)). To confirm with the leader: G-I08 (what document-only awards should call a win). |
+| **Risk** | The timeline is tight: 16 phases in Days 4–10 (G-I09). The cut order is in PHASES.md §5. |
 
 ## Phase status board
 
@@ -20,10 +21,11 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | # | Phase | Branch | Status | PR | Merged | Tests |
 |---|---|---|---|---|---|---|
 | 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
-| 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | 🚧 In progress | — | — | n/a |
+| 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
+| 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | 🚧 In progress | — | — | n/a |
 | 1 | Backend foundation | `phase/01-be-foundation` | ⬜ | — | — | — |
 | 2 | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
-| 3 | Award configuration engine (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
+| 3 | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
 | 4 | Frontend foundation | `phase/04-fe-foundation` | ⬜ | — | — | — |
 | 5 | Setup screens | `phase/05-fe-award-setup` | ⬜ | — | — | — |
 | 6 | Applications and deadline lock (R4) | `phase/06-be-applications` | ⬜ | — | — | — |
@@ -31,10 +33,11 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 8 | Masking, jury pool, conflicts, assignment (R1, R2) | `phase/08-be-masking-assignment` | ⬜ | — | — | — |
 | 9 | Judging, score audit, disqualification (R3) | `phase/09-be-judging-audit` | ⬜ | — | — | — |
 | 10 | Staff operations and jury scoring | `phase/10-fe-masking-judging` | ⬜ | — | — | — |
-| 11 | Approval, results, emails, reporting, seed | `phase/11-be-approval-results` | ⬜ | — | — | — |
-| 12 | Approval, results, dashboards | `phase/12-fe-approval-results` | ⬜ | — | — | — |
-| 13 | E2E tests and deployment | `phase/13-e2e-deploy` | ⬜ | — | — | — |
-| 14 | Final deliverables and walkthrough | `phase/14-final-review` | ⬜ | — | — | — |
+| 11 | Approval, results and labels, emails, reporting, seed | `phase/11-be-approval-results` | ⬜ | — | — | — |
+| 12 | On-site rounds (backend) | `phase/12-be-onsite-rounds` | ⬜ | — | — | — |
+| 13 | Approval, results, on-site rounds, dashboards (frontend) | `phase/13-fe-results-onsite-dashboards` | ⬜ | — | — | — |
+| 14 | E2E tests and deployment | `phase/14-e2e-deploy` | ⬜ | — | — | — |
+| 15 | Final deliverables and walkthrough | `phase/15-final-review` | ⬜ | — | — | — |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · ✅ merged · ⛔ blocked
 
@@ -42,9 +45,9 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 
 | Rule | Enforced in | Tests | Status |
 |---|---|---|---|
-| R1 Blind judging hides who applied | Phase 8 | — | ⬜ |
-| R2 No assignment with a recorded conflict | Phase 8 | — | ⬜ |
-| R3 Who changed a score, and why | Phases 1 (audit trigger), 9 | — | ⬜ |
+| R1 Blind judging hides who applied (document rounds) | Phase 8 | — | ⬜ |
+| R2 No assignment with a recorded conflict | Phases 8 (document rounds), 12 (on-site panels) | — | ⬜ |
+| R3 Who changed a score, and why | Phases 1 (audit trigger), 9, 12 (closed rounds, staff backup entry) | — | ⬜ |
 | R4 Last year's applications still read correctly | Phases 1 (FormVersion trigger), 3, 6 | — | ⬜ |
 
 ## Leader-call goals: where they stand
@@ -54,8 +57,12 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 | Staff assigned to many awards | Phases 1 (schema), 3, 5 | ⬜ |
 | Award goes to the organisation, never to plants | Phase 1 (schema; one organisation per PAN) | ⬜ |
 | No signed authorisation letter | Removed from spec and plan (Phase 0.1) | ✅ docs |
-| Leader's PA role | Phases 1, 2, 5, 11, 12 | ⬜ |
+| Leader's PA role | Phases 1, 2, 5, 11, 13 | ⬜ |
 | Data consistency | Phases 1 (normalize, indexes), 2 (master data, organisations), 6 (identity snapshot) | ⬜ |
+| One real application per organisation per award | Phase 6 (duplicate flag and resolution) | ⬜ |
+| On-site rounds (shop-floor and live round 2): panels, averages, no approval | Phases 1 (schema), 3 (round types), 12, 13 | ⬜ |
+| Results: Shortlisted/Rejected, then Gold/Silver/Bronze | Phases 3 (labels), 11, 12, 13 | ⬜ |
+| GSTIN optional; fee per category | Phases 1, 2, 3, 6 | ⬜ |
 
 ---
 
@@ -63,7 +70,25 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
-### Phase 0.1: Leader-call changes · 🚧 · 2026-10-05 (Day 3)
+### Phase 0.2: On-site rounds and answers · 🚧 · 2026-10-06 (Day 4)
+
+Goal: record the answers to the 15 open questions and design on-site rounds before writing code.
+
+What was decided:
+- Only one real application per organisation per award. Every application is accepted; extras are flagged and staff keep one.
+- **Shop-floor competitions** register as usual (small or empty form) and are judged **on site**. The same round type serves the large award's live round 2.
+- On site: jury score on their own devices (internet assumed), with staff backup entry. A panel of 2–5 jury, each scoring separately; the average counts. **No approval**: staff close the round. The department head may sit on a panel.
+- Results: document rounds give Shortlisted / Rejected; on-site rounds give **Gold / Silver / Bronze** (others: Participated).
+- Defaults accepted: team members list, staff-set slots with an email, uploads only if staff add a file question, same powers for all PAs, PAs create awards, no proof-of-authority check for now, fee per category, GSTIN optional, the department head's approval is final, volume as before.
+
+- [x] Spec: revision log; glossary (round types, panel, slot, result label, shop-floor); matrix; statuses (two round tables, new applicant statuses); §5.2–5.6; §5.12 results by round; **§5.16 rewritten as On-site rounds**; rules, journeys, model limits, data model (PresentationSlot, RoundResult, round type and labels, evaluation backup entry, category fee, optional GSTIN); operations, screens, scope, tests, §18 answers and assumptions A18–A22.
+- [x] ADR 0008 On-site rounds; ADRs 0001, 0003, 0004 and 0006 renumbered.
+- [x] GAPS.md: A11–A14 closed; E02, E07, E08, E14 and E15 answered; C15 removed; new section I (13 gaps); summary recounted from the tables.
+- [x] PHASES.md: Phase 0.2 and a new **Phase 12 (on-site rounds, backend)**; old 12, 13 and 14 renumbered to 13, 14 and 15; Phases 1, 2, 3, 6, 8, 11, 13 and 14 updated; days re-planned; cut order extended.
+- [x] CLAUDE.md, the READMEs and Daily.md updated.
+- [ ] Commit, push, PR, merge, and tag `phase-00.2-done`.
+
+### Phase 0.1: Leader-call changes · ✅ · 2026-10-05 (Day 3)
 
 Goal: bring every document in line with the leader call before writing code.
 
@@ -79,8 +104,8 @@ What the leader said:
 - [x] [GAPS.md](GAPS.md): A5, A6, C08 and C09 removed (letter); A7 and C07 decided; E01 and E03 answered; new decisions A11–A14; new section H (12 gaps).
 - [x] [PHASES.md](PHASES.md): Phase 0.1 added; Phases 1, 2, 3, 5, 6, 7, 10, 11 and 12 updated; days shifted; cut order extended.
 - [x] CLAUDE.md, the READMEs and Daily.md (shortened) updated.
-- [ ] You review, and answer A11–A14 (or accept the defaults).
-- [ ] Commit, push, PR, merge, and tag `phase-00.1-done`.
+- [x] A11–A14 answered on 6 Oct (see Phase 0.2).
+- [x] Merged through sumitdwivedi01/EigthyAwards#2 and tagged `phase-00.1-done`.
 
 Found: proof of authority is now weak, because the PAN is inside the GSTIN, which is printed on every invoice (G-H01). Recommended fix: confirm joining through the organisation's official email (A13).
 
@@ -119,7 +144,7 @@ Filled in as things get built. Never put secrets here; only names and where they
 | Frontend local URL | `http://localhost:3000` (planned) |
 | PostgreSQL (Docker) | `localhost:5432`, databases `awards` and `awards_test` (planned) |
 | Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` (planned) |
-| Production | Frontend → Vercel · API → Render · DB and files → Supabase. Not created yet (Phase 13) |
+| Production | Frontend → Vercel · API → Render · DB and files → Supabase. Not created yet (Phase 14) |
 | Pinned versions | Recorded here in Phases 1 and 4 |
 
 ## Seeded test accounts
@@ -137,6 +162,8 @@ Added in Phase 2. Passwords live only in `Backend/.env` and `.env.example` place
 | New role: Leader's PA | Leader call, 5 Oct | ADR 0005, spec §5.17 |
 | Data consistency rules and master data | Leader call, 5 Oct | ADR 0006, spec §5.18 |
 | No authorisation letter | Leader call, 5 Oct | ADR 0007 |
+| On-site rounds built now (were "future"); no approval for them; medals | Answers, 6 Oct | ADR 0008, spec §5.16 |
+| GSTIN optional | Answers, 6 Oct | Spec §5.2 |
 
 ---
 
