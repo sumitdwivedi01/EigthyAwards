@@ -7,10 +7,10 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-06 · Day 4 |
-| **Current phase** | Phase 1: Backend foundation (🚧 started: final decisions recorded; code next) |
+| **Current phase** | Phase 1: Backend foundation (🧪 done locally: 62 tests pass, lint, types, build and drift check clean; **waiting for the PR review and merge**) |
 | **Current branch** | `phase/01-be-foundation` (local only, not pushed yet) |
 | **What runs today** | Nothing yet. The repo holds docs only. |
-| **Next action** | Build Phase 1 as listed in [PHASES.md](PHASES.md): Express + TypeScript skeleton, Docker (PostgreSQL + Mailpit), the full Prisma schema with triggers and case-insensitive indexes, shared libs (clock, errors, normalize, storage, mailer), audit and notifications modules, test harness, CI. |
+| **Next action** | 1) You review the Phase 1 PR, check CI is green, merge with a merge commit, tag `phase-01-done`. 2) Then Phase 2 (identity, PA role, departments, master data, organisations) on `phase/02-be-identity-orgs`. |
 | **Blockers** | None. Only A4 (email provider, needed in Phase 14) is undecided. **Ask the leader:** G-I08 (what a document-only award calls a win) and G-H07 (import of old data). |
 | **Risk** | The timeline is tight: 16 phases in Days 4–10 (G-I09). The cut order is in PHASES.md §5. |
 
@@ -23,7 +23,7 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
 | 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
 | 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | ✅ Merged | sumitdwivedi01/EigthyAwards#3 | 2026-10-06 · `phase-00.2-done` | n/a |
-| 1 | Backend foundation | `phase/01-be-foundation` | 🚧 In progress | — | — | — |
+| 1 | Backend foundation | `phase/01-be-foundation` | 🧪 In review | — | — | 62 passing |
 | 2 | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
 | 3 | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
 | 4 | Frontend foundation | `phase/04-fe-foundation` | ⬜ | — | — | — |
@@ -85,17 +85,18 @@ Final decisions recorded before coding (all answered by you on 6 Oct):
 - ADRs 0002 and 0003 are accepted.
 
 - [x] Decisions recorded in the spec, GAPS, PHASES, ADRs and CLAUDE.md.
-- [ ] `package.json`, TypeScript strict, ESLint, Prettier, Node version pinned
-- [ ] `docker-compose.yml` (PostgreSQL 16 with `awards` and `awards_test`, Mailpit)
-- [ ] `config/env.ts` (Zod) and `.env.example`
-- [ ] `app.ts` and `server.ts` (helmet, CORS, cookies, logging, error handler, 404)
-- [ ] `lib/`: db, clock, errors, ids, normalize, states, storage (disk), mailer (SMTP)
-- [ ] The full Prisma schema plus a raw SQL migration (audit and form-version triggers, a single-leader index, case-insensitive unique indexes, a partial GSTIN index)
-- [ ] `audit` module (record in the caller's transaction) and `notifications` module (EmailLog outbox)
-- [ ] `GET /api/health`
-- [ ] Test harness (test DB reset, factories, clock control) and the Phase 1 tests
-- [ ] `.github/workflows/backend-ci.yml`
-- [ ] `docs/API.md` started; PROGRESS environment facts and pinned versions filled in
+- [x] `package.json` (exact versions), TypeScript 6 strict, ESLint, Prettier, Node 22 pinned (`.nvmrc`)
+- [x] `docker-compose.yml` (PostgreSQL 16 on port 5433 with `awards` and `awards_test`, Mailpit)
+- [x] `config/env.ts` (Zod) and `.env.example`
+- [x] `app.ts` and `server.ts` (helmet, CORS, cookies, request ids and logging, error handler, 404, graceful shutdown)
+- [x] `lib/`: db, clock, errors, logger, ids, normalize, states, storage (disk), mailer (SMTP)
+- [x] The full Prisma schema (28 tables, citext, partial unique indexes, cycle-aware composite foreign keys) and two migrations: `init` and `rules_and_guards` (append-only triggers, CHECK constraints, the one-jury trigger). Applied locally, plus a third corrective migration (`fix_guard_errors_and_null_checks`) for two bugs the tests found (see ai-notes 5 and 6). The drift check reports "No difference detected".
+- [x] `audit` module (record in the caller's transaction) and `notifications` module (EmailLog outbox and dispatcher)
+- [x] `GET /api/health`
+- [x] Test harness (test DB reset, factories, clock control) and the Phase 1 tests: **11 files, 62 tests, all passing** against real PostgreSQL. Built server smoke-tested (`/api/health` 200, unknown route 404).
+- [x] `.github/workflows/backend-ci.yml` (lint, types, drift check on a shadow DB, tests, build)
+- [x] `docs/API.md` started, `docs/ai-notes.md` (6 cases), `creating.md` (owner's learning notes), root `.gitattributes` (LF line endings)
+- [x] Pinned versions and commands recorded (below and in CLAUDE.md); Backend README has run instructions
 - [ ] Exit checklist ticked, PR merged, tagged `phase-01-done`
 
 ### Phase 0.2: On-site rounds and answers · ✅ · 2026-10-06 (Day 4)
@@ -168,12 +169,13 @@ Filled in as things get built. Never put secrets here; only names and where they
 |---|---|
 | Local machine | Windows 11; Node v22.17.0, npm 11.8.0; Docker 29.7; Git Bash; Python 3.12. The `gh` CLI is **not** installed |
 | GitHub repo | `https://github.com/sumitdwivedi01/EigthyAwards` (note the typo in the repo name, G-G05) |
-| Backend local URL | `http://localhost:4000` (planned) |
+| Backend local URL | `http://localhost:4000` (`/api/health`) |
 | Frontend local URL | `http://localhost:3000` (planned) |
-| PostgreSQL (Docker) | `localhost:5432`, databases `awards` and `awards_test` (planned) |
-| Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` (planned) |
+| PostgreSQL (Docker) | `localhost:5433`, user/password `awards`/`awards` (local only); databases `awards` (dev), `awards_test` (tests), `awards_shadow` (drift check) |
+| Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` |
 | Production | Frontend → Vercel · API → Render · DB and files → Supabase. Not created yet (Phase 14) |
-| Pinned versions | Recorded here in Phases 1 and 4 |
+| Pinned versions (backend) | Node 22 · Express 5.2.1 · TypeScript 6.0.3 · Prisma 7.10.0 + @prisma/adapter-pg 7.10.0 (preview: partialIndexes) · pg 8.23.1 · Zod 4.6.5 · Vitest 5.0.3 · Supertest 7.3.1 · ESLint 10.12 + typescript-eslint 8.71.1 · pino 10.4 · helmet 8.3 · nodemailer 10.0.15 · dotenv 18.0.5 · PostgreSQL 16 (Docker) |
+| Pinned versions (frontend) | Recorded in Phase 4 |
 
 ## Seeded test accounts
 

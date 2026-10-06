@@ -22,6 +22,7 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 # DAY 4 (6 Oct)
 - **Done:** Got answers to my 15 questions. Shop-floor competitions (Kaizen, 5S) are judged on site by a panel of 2–5 jury, scored on their devices; the average counts, with no approval; winners get Gold, Silver or Bronze. One real application per organisation. Updated the spec, plan, gaps and decisions to match (new ADR 0008).
 - **Decided:** Confirmed the last open points: backend and frontend phases alternate; a test deploy of the empty apps in Phase 4; scores are whole numbers 0–10; one Gold/Silver/Bronze set per award.
-- **Next:** Phase 0.2 is merged; Phase 1 (backend foundation) has started.
+- **Done (Phase 1):** Built the backend foundation: the full database (28 tables) with database-level safety rules, shared helpers, the audit log, the email outbox, a health check, and automatic checks on GitHub. 62 tests pass. The tests caught two of my own bugs on day one; they're fixed and written up in `docs/ai-notes.md`.
+- **Next:** Review and merge Phase 1, then Phase 2 (logins, roles, PA, departments, organisations).
 - **Stuck:** Nothing. Open risk: the timeline is tight (16 phases in 7 days).
 - **Plan changed:** Added Phase 12 (on-site rounds, backend), so the old Phases 12–14 are now 13–15. Days re-planned from today ([PHASES.md](docs/PHASES.md)).

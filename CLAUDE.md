@@ -71,4 +71,15 @@ The brief asks for one example of AI output that looked right but was wrong. Rec
 
 ## Commands
 
-Filled in as phases land (Phase 1: backend; Phase 4: frontend).
+Backend (run from `Backend/`; Docker Desktop must be running):
+
+- `docker compose up -d`: PostgreSQL 16 on port **5433** (databases `awards`, `awards_test`, `awards_shadow`) and Mailpit (inbox http://localhost:8025)
+- `npm run db:deploy` → apply migrations · `npm run db:seed` → master data lists
+- `npm run dev` → API on http://localhost:4000 (`/api/health`)
+- `npm test` · `npm run lint` · `npm run typecheck` · `npm run build`
+- Drift check: `npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code`
+- New schema change: edit `prisma/schema.prisma`, then `npx prisma migrate dev --name <name>`. Raw SQL rules go in a migration created with `--create-only`. Never edit an applied migration; add a corrective one.
+- **Never run `prisma migrate reset`** without the owner's explicit consent (Prisma blocks it for AI agents).
+- Pinned versions: Prisma 7.10.0 (not the 8.0 RC tagged "latest"), TypeScript 6.0.3 (typescript-eslint doesn't support 7). Trigger errors use SQLSTATE P0001 so Prisma keeps the message.
+
+Frontend: added in Phase 4.

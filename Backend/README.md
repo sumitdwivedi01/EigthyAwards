@@ -2,7 +2,7 @@
 
 An Express 5 + TypeScript API on PostgreSQL (Prisma). It is deployed to **Render**, with the database and files on **Supabase**. Why it's built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-split-and-hosting.md), [ADR 0002](../docs/decisions/0002-tech-stack.md).
 
-> **Status:** not started. It is built in Phases 1, 2, 3, 6, 8, 9, 11 and 12 ([docs/PHASES.md](../docs/PHASES.md)).
+> **Status:** Phase 1 (foundation) done: schema, migrations, shared libraries, audit, email outbox, health route, 62 tests. Business features come in Phases 2, 3, 6, 8, 9, 11 and 12 ([docs/PHASES.md](../docs/PHASES.md)).
 
 ## Planned structure
 
@@ -42,4 +42,26 @@ Each module folder holds `routes.ts` (Zod parse → one service call), `service.
 
 ## Running it
 
-Added in Phase 1.
+You need **Node.js 22** and **Docker Desktop** (running).
+
+```bash
+cd Backend
+cp .env.example .env        # then set AUTH_SECRET (see the comment inside)
+npm ci
+docker compose up -d        # PostgreSQL (port 5433) + Mailpit (inbox: http://localhost:8025)
+npm run db:deploy           # create the tables
+npm run db:seed             # starter lists (award domains, organisation types)
+npm test                    # every test, against the separate awards_test database
+npm run dev                 # API on http://localhost:4000 -> try /api/health
+```
+
+| Script | What it does |
+|---|---|
+| `npm run dev` | Start the API with auto-reload |
+| `npm test` | Run all tests (they use `awards_test`, never your data) |
+| `npm run lint` / `npm run typecheck` | Code quality checks (CI runs them too) |
+| `npm run build` / `npm start` | Production build and start |
+| `npm run db:deploy` | Apply new migrations |
+| `npm run db:seed` | Add the starter lists (safe to repeat) |
+
+Stop the services with `docker compose stop` (data is kept).

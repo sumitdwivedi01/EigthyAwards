@@ -13,14 +13,14 @@
 | Section | What it covers | Count | Not yet closed* |
 |---|---|---|---|
 | A | Decisions we need from you before or during the build | 14 | 1 |
-| B | Gaps caused by splitting frontend and backend across Vercel, Render and Supabase | 15 | 11 |
-| C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 10 |
-| D | Contradictions and holes found in the spec while planning | 11 | 6 |
+| B | Gaps caused by splitting frontend and backend across Vercel, Render and Supabase | 17 | 12 |
+| C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 6 |
+| D | Contradictions and holes found in the spec while planning | 11 | 5 |
 | E | Client questions from spec §18 | 16 | 9 |
 | F | Brief deliverables not yet in the repo | 9 | 6 |
 | G | Repository and process gaps | 7 | 4 |
-| H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
-| I | Gaps from on-site rounds (Day 4) | 13 | 10 |
+| H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 6 |
+| I | Gaps from on-site rounds (Day 4) | 13 | 9 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -70,6 +70,8 @@ The spec (§8, §9) and the architecture PDF describe **one Next.js app** using 
 | G-B13 | Building all of the backend before any UI would leave the UI (about 30 screens) squeezed into about 2 days, and the brief's success test is staff configuring awards **in the UI**. | The UI is late or thin. | Alternate the phases: three backend phases first, then each frontend phase right after the backend phase it needs. See A1. | Plan | Decided (6 Oct): alternate |
 | G-B14 | **Library versions have moved.** Prisma 7, Express 5, Next.js 15/16 and Tailwind 4 changed setup compared with older tutorials (and older AI training data). | Plausible-looking but wrong config. | Pin versions in Phase 1 and Phase 4 and follow each library's current docs. Log any AI mistakes in `docs/ai-notes.md`; the brief asks for one. | 1, 4 | Open |
 | G-B15 | The leader account in production is "created at setup". | Credentials leak, or there's no way to log in. | The seed reads `LEADER_EMAIL` and `LEADER_PASSWORD` from the environment and never commits them. The password is changed after first login. | 2, 14 | Default adopted |
+| G-B16 | The schema uses PostgreSQL's `citext` extension for case-insensitive names (ADR 0006). | Migrations fail on a host that doesn't allow the extension. | Supabase supports `citext`; confirm in the Phase 4 skeleton check that `CREATE EXTENSION citext` succeeds there. | 4 | Open |
+| G-B17 | `npm audit` reports 4 high-severity issues, all inside the Prisma CLI: `mysql2` (only used for MySQL; we use PostgreSQL) and `deepmerge-ts` (merges our own config file, never user input). | Low for us. The suggested `npm audit fix --force` would downgrade to Prisma 6 and break the setup. | Accept for now; re-check when Prisma releases a stable fix, and never run `audit fix --force`. | 1 | Accepted risk |
 
 ---
 
@@ -83,13 +85,13 @@ The numbers match the PDF's cards. The spec does not answer any of them. The PDF
 | G-C02 | 10 MB files won't fit through a Vercel function. | Partly solved by the API moving to Render; the rest is G-B03 (signed URLs). | 6 | Default adopted |
 | G-C03 | Emails are sent during the request. One request can mean about 1,000 emails, and an email can go out for a change that later rolls back. | Treat **EmailLog as an outbox**: insert PENDING rows in the same transaction, send in batches after commit. | 1, 11 | Default adopted |
 | G-C04 | Some statuses change with time ("Closed", "Not submitted") but no job runs. | Derive them from `clock.now()` on read, and store them on the next write. Dashboards use the derived value. | 3, 6, 11 | Default adopted |
-| G-C05 | Invite and reset tokens have no table. | An `AuthToken` table: hashed token, type, expiry, used-at, single use. | 1, 2 | Default adopted |
-| G-C06 | Removing an assignment conflicts with "never hard-delete". | A `REVOKED` evaluation status with a reason, and a partial unique index allowing one **active** evaluation per (round, application). | 1, 8 | Default adopted |
+| G-C05 | Invite and reset tokens have no table. | An `AuthToken` table: hashed token, type, expiry, used-at, single use. | 1, 2 | Fixed (Phase 1: schema, migrations, tests) |
+| G-C06 | Removing an assignment conflicts with "never hard-delete". | A `REVOKED` evaluation status with a reason, and a partial unique index allowing one **active** evaluation per (round, application). | 1, 8 | Fixed (Phase 1: schema, migrations, tests) |
 | G-C07 | The identity section reads the live organisation profile, so last year's application would show this year's name and address. | Copy identity onto the application at submit, refresh it until the deadline, freeze it at the lock. Part of data consistency (spec §5.18). | 1, 6 | Decided (ADR 0006) |
 | G-C08 | "Verify authorisation letters" has no operation or outcome. | No letter any more. | — | Removed (ADR 0007) |
 | G-C09 | The pre-filled letter template needs a generator. | No letter any more. | — | Removed (ADR 0007) |
-| G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes, PA actions (with the actor's role), master data changes and organisation edits. | 1 | Default adopted |
-| G-C11 | Unique keys with NULL scope columns let duplicates in, and "exactly one leader" isn't enforced. | `NULLS NOT DISTINCT` (PostgreSQL 15+, which Supabase has) or partial unique indexes, plus a partial unique index on LEADER. | 1 | Default adopted |
+| G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes, PA actions (with the actor's role), master data changes and organisation edits. | 1 | Fixed (Phase 1: schema, migrations, tests) |
+| G-C11 | Unique keys with NULL scope columns let duplicates in, and "exactly one leader" isn't enforced. | `NULLS NOT DISTINCT` (PostgreSQL 15+, which Supabase has) or partial unique indexes, plus a partial unique index on LEADER. | 1 | Fixed (Phase 1: schema, migrations, tests) |
 | G-C12 | No login throttling and no monitoring. | Rate limits per email and per IP on login and reset; structured pino logs; an error tracker is optional. | 2, 13 | Default adopted |
 | G-C13 | "Safe as is" files need a representation. | A MASKED_EVIDENCE row pointing at the same storage key, so the jury file check stays one rule. | 8 | Default adopted |
 | G-C14 | Should totals be computed or stored? | Computed with `computeScore` on read; totals and ranks snapshotted on approval so results never shift. | 9, 11 | Default adopted |
@@ -106,7 +108,7 @@ The numbers match the PDF's cards. The spec does not answer any of them. The PDF
 | G-D03 | §4 table vs §5.4 | "Update requested" shows the applicant "Pending: your application is not submitted yet", but §5.4 says the application **stays submitted**. | Show "Submitted, update requested: questions changed, please review the highlighted ones before the deadline". | 6 | Decided (6 Oct) |
 | G-D04 | §4 Round status | Nothing says what moves a round from "Not started" to "Judging". | Derived: Judging as soon as the round has any active evaluation. | 9 | Default adopted |
 | G-D05 | §16 Git workflow | The spec uses a `develop` branch. We are using phase branches merged straight into `main` via PR. | ADR 0004. | 0 | Decided |
-| G-D06 | §11 Errors | Only 4 typed errors, with no "not logged in" case. | Add `UnauthenticatedError` → 401. | 1 | Default adopted |
+| G-D06 | §11 Errors | Only 4 typed errors, with no "not logged in" case. | Add `UnauthenticatedError` → 401. | 1 | Fixed (Phase 1: schema, migrations, tests) |
 | G-D07 | §5.3 vs §5.5 | The publish gate checks weights only at publish, but the scoring sheet stays editable until the first score, and questions can be added mid-cycle. | Every scoring sheet save after publish must also pass weight and reference validation. Indicators for new questions can be added until the first score. | 3 | Default adopted |
 | G-D08 | §5.11 | "Every non-disqualified application has a submitted evaluation" doesn't define the set. What about Withdrawn, Not submitted, Rejected as duplicate, or unresolved duplicate flags? | Eligible = submitted at the lock, and not withdrawn, rejected as duplicate or disqualified. Send for approval is refused while duplicate flags are unresolved. | 11 | Default adopted |
 | G-D09 | §5.5 | "Score 0 to 10": whole numbers or decimals? | Whole numbers (A9). | 3 | Decided (6 Oct): whole numbers |
@@ -169,8 +171,8 @@ Raised by the 5 October 2026 call (ADRs 0005, 0006, 0007; spec §5.17, §5.18).
 | G-H05 | One organisation can have **several GSTINs** (one per state), but the profile stores one. | A second user may know a different GSTIN and fail to join, then create a "new" organisation, which is refused because the PAN is unique. | One GSTIN on record (the one the organisation registers with). Joining needs that GSTIN; the error message says which state's GSTIN is on record. Several GSTINs is later work. | 2 | Default adopted |
 | G-H06 | The GSTIN state code can differ from the registered address state. | False refusals for genuine organisations. | A warning, not a refusal (spec assumption A17). | 2 | Default adopted |
 | G-H07 | **Old data** from the 80 old award systems is exactly what was inconsistent. Importing and cleaning it is out of scope (spec §14). | The leader may expect history to appear on day one. | Not imported. Consistency starts with the first cycle run here. Say so in the walkthrough, and ask the leader whether a one-time import and clean-up is wanted later. | 15 | Open: ask the leader |
-| G-H08 | Case-insensitive uniqueness needs expression or `citext` indexes, which Prisma doesn't declare natively. | Duplicates slip in if only the service checks. | Raw SQL migration with unique indexes on `lower(...)`, plus the service check for a friendly error. | 1 | Default adopted |
-| G-H09 | Normalisation must happen in **one** place, or the seed and any future import will bypass it. | Inconsistent data again. | A single `lib/normalize.ts` used by every service **and** the seed, with unit tests for each normaliser. | 1, 2 | Default adopted |
+| G-H08 | Case-insensitive uniqueness needs expression or `citext` indexes, which Prisma doesn't declare natively. | Duplicates slip in if only the service checks. | Raw SQL migration with unique indexes on `lower(...)`, plus the service check for a friendly error. | 1 | Fixed (Phase 1: schema, migrations, tests) |
+| G-H09 | Normalisation must happen in **one** place, or the seed and any future import will bypass it. | Inconsistent data again. | A single `lib/normalize.ts` used by every service **and** the seed, with unit tests for each normaliser. | 1, 2 | Fixed (Phase 1: schema, migrations, tests) |
 | G-H10 | Renaming a master data value changes how every old record displays it. | History reads differently. | Renaming is for spelling fixes only. A change of meaning means retiring the old value and adding a new one. Renames are audited. | 2 | Default adopted |
 | G-H11 | The leader's dashboard needs a way to see what PAs did. | The leader can't check delegated work. | A "PA activity" view, built from audit events filtered by role = LEADER_PA. | 11, 13 | Default adopted |
 | G-H12 | With staff spread over many awards in several departments, a department head only sees their own department's awards. | A head can't see that a staff member is overloaded elsewhere. | Accept for now. The leader and PAs see everything; a per-staff workload view is later work. | — | Accepted risk |
@@ -195,7 +197,7 @@ Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
 | G-I10 | Internet at venues is assumed (client answer). | No scoring if the network fails. | Staff backup entry from paper sheets covers it (G-I04). No offline mode. | — | Accepted risk |
 | G-I11 | Team member names reveal who applied. | A leak in a blind document round. | The TEAM_MEMBERS answer is treated as identity: never sent to jury in blind document rounds. | 6, 8 | Default adopted |
 | G-I12 | A shortlisted entry doesn't come to present. | No scores, so the round can't close. | Staff disqualify it with the reason "did not present" (kept on record; shows Rejected). | 12 | Default adopted |
-| G-I13 | With GSTIN optional, two organisations could still share one GSTIN by mistake. | Inconsistent data. | GSTIN unique when present (a partial unique index), and it must contain the PAN. | 1 | Default adopted |
+| G-I13 | With GSTIN optional, two organisations could still share one GSTIN by mistake. | Inconsistent data. | GSTIN unique when present (a partial unique index), and it must contain the PAN. | 1 | Fixed (Phase 1: schema, migrations, tests) |
 
 ---
 
@@ -204,7 +206,7 @@ Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
 | ID | Gap | Fix | Status |
 |---|---|---|---|
 | G-G01 | No `.gitignore`, so `node_modules`, `.env` and uploads could get committed. | Added in Phase 0. | Fixed (Phase 0) |
-| G-G02 | No CI. | Backend CI in Phase 1, frontend CI in Phase 4. | Open |
+| G-G02 | No CI. | Backend CI added in Phase 1 (lint, types, drift check, tests, build); frontend CI comes in Phase 4. | Open (backend done) |
 | G-G03 | `main` is not protected on GitHub. | **You:** GitHub → Settings → Branches → protect `main` (require a PR and green CI). | Open |
 | G-G04 | No GitHub Issues or Project board. The spec wants one issue per feature, and the `gh` CLI isn't installed on this machine. | One issue per phase (the "Done when" list as acceptance criteria), created on the web or after installing `gh`. | Open |
 | G-G05 | The GitHub repo is named `EigthyAwards` (typo) while the project is `EightyAwards`. | Optional: rename in GitHub settings (old URLs redirect), then `git remote set-url`. | Open |
@@ -218,6 +220,8 @@ Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-06 | Phase 1 done locally: C05, C06, C10, C11, D06, H08, H09 and I13 fixed by the schema, migrations and tests. |
+| 2026-10-06 | Phase 1 started: G-B16 (citext on Supabase) and G-B17 (audit warnings inside the Prisma CLI) added. |
 | 2026-10-06 | Final decisions before Phase 1: A1, A2, A3, A8, A9 and A10 decided; G-B02, G-B13, G-C01, G-D02, G-D03, G-D09 and G-I05 decided (medals: one set per award); G-I08 and G-H07 marked for the leader. |
 | 2026-10-06 | Answers on shop-floor and open questions: A11–A14 decided or answered; E02, E07, E08, E14 and E15 answered; C15 removed; phase numbers after 11 shifted by one (new Phase 12, on-site rounds); new section I (13 gaps). |
 | 2026-10-05 | Leader call: the letter gaps removed (A5, A6, C08, C09); E01 and E03 answered; A7 and C07 decided; D01 fixed; new decisions A11–A14; new section H (12 gaps on the PA role and data consistency). |

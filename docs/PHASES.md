@@ -53,7 +53,7 @@ The brief gives 10 working days. Days 1–2 went on understanding, questions and
 | 0 | Docs | Planning and tracking setup | `phase/00-planning-docs` | Day 2 | ✅ Merged (`phase-00-done`) |
 | 0.1 | Docs | Leader-call changes: PA role, data consistency, no letter | `phase/00.1-leader-call-changes` | Day 3 | ✅ Merged (`phase-00.1-done`) |
 | 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | ✅ Merged (`phase-00.2-done`) |
-| 1 | Backend | Backend foundation | `phase/01-be-foundation` | Day 4 | 🚧 In progress |
+| 1 | Backend | Backend foundation | `phase/01-be-foundation` | Day 4 | 🧪 In review |
 | 2 | Backend | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | Day 5 | ⬜ |
 | 3 | Backend | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | Day 5 | ⬜ |
 | 4 | Frontend | Frontend foundation, login, public pages | `phase/04-fe-foundation` | Day 6 | ⬜ |
