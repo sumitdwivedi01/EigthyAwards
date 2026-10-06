@@ -13,6 +13,7 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | [0005](0005-leader-pa-role.md) | A "Leader's PA" role for the leader's personal team (organisational work only) | Accepted (powers proposed) | 2026-10-05 |
 | [0006](0006-data-consistency-by-design.md) | Data consistency by design: one record, normalised, controlled lists, DB constraints | Accepted | 2026-10-05 |
 | [0007](0007-drop-authorisation-letter.md) | Drop the signed authorisation letter for now; what replaces it is open | Accepted | 2026-10-05 |
+| [0008](0008-onsite-rounds.md) | On-site rounds as a round type (live presentations and shop-floor competitions): panels, averages, no approval, Gold/Silver/Bronze | Accepted | 2026-10-06 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 

@@ -11,7 +11,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 ## Repo map
 
-- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 16 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data`.
+- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 17 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data` and `onsite`.
 - `Front-End/`: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui, deployed to Vercel. It proxies `/api/*` to the backend.
 - `docs/`: brief, spec, plan, progress, gaps, ADRs, architecture PDF.
 - `Daily.md`: the daily log for the reviewer (Done · Next · Stuck · Plan changed).
@@ -21,7 +21,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - **One branch per phase:** `phase/NN-<track>-<name>`, cut from an up-to-date `main`. Never commit straight to `main`.
 - A backend phase is merged before the frontend phase that uses it.
 - A phase merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-NN-done`.
-- **No deployment before Phase 13.**
+- **No deployment before Phase 14.**
 - Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - Ask before committing, pushing or opening a PR, unless the owner already asked for it this session.
 - **End of every session:** update PROGRESS.md, GAPS.md and Daily.md (see the routine at the bottom of PROGRESS.md).
@@ -48,6 +48,14 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - The award goes to the **organisation** (one per PAN). Plants and units never apply.
 - **No authorisation letter** anywhere (ADR 0007). Don't reintroduce it.
 - **Data consistency** (spec §5.18, ADR 0006): every write of shared data goes through `lib/normalize.ts`; uniqueness is case-insensitive and backed by a DB index; award domains and organisation types come from master data (retired, never deleted); the application stores an identity snapshot.
+
+## Rounds and results (answers of 6 Oct 2026, ADR 0008)
+
+- A cycle's rounds are configuration: `DOCUMENT_REVIEW`, `ON_SITE`, or document review then on-site. Shop-floor competitions are on-site-only cycles; never branch on "shop-floor" or an award name.
+- **Document review:** one jury member per application; blind if the cycle says so; the department head approves (they are never a juror in their own department's document rounds). Labels: Shortlisted / Rejected.
+- **On-site:** never blind; a panel of 2–5 per entry, each scoring separately on any device; the final score is the average; staff can enter a member's scores (record `enteredById`); **no approval**; staff close the round, which locks the scores. Labels: Gold / Silver / Bronze / Participated. Panel members never see each other's scores.
+- Result labels live on the round (`resultLabels`), renamable per cycle. Results are stored in `RoundResult`, not on the application.
+- Only one real application per organisation per cycle: accept all, flag extras, staff keep one. GSTIN is optional. A category's fee overrides the cycle's fee. The questionnaire may be empty for on-site-first cycles.
 
 ## The four rules (the brief's)
 

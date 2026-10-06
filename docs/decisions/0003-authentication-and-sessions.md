@@ -42,7 +42,7 @@ Option 3 with transport (a).
 - CSRF protection: SameSite=Lax, the `Origin` header is checked on writes, and the CORS allowlist holds only the frontend origin (G-B11).
 - Rate limiting on login and reset (G-C12).
 - In local development, Next.js rewrites `/api/*` to `http://localhost:4000`, so production and local behave the same.
-- Must be **verified on the real hosts**. That happens in Phase 13, or earlier if GAPS A2 allows a skeleton deploy.
+- Must be **verified on the real hosts**. That happens in Phase 14, or earlier if GAPS A2 allows a skeleton deploy.
 
 ## What would change our mind
 

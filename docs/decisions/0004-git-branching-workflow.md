@@ -22,7 +22,7 @@ Option 2.
 - Commits follow Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - A phase merges only when its **exit checklist** in [PHASES.md](../PHASES.md) is fully ticked: tests green, CI green, tracking docs updated, diff reviewed.
 - Merge with a **merge commit** (not squash), so the phase's commits stay readable. Then tag `phase-NN-done`.
-- `main` is always runnable locally. Nothing is deployed until Phase 13.
+- `main` is always runnable locally. Nothing is deployed until Phase 14.
 
 ## Why
 

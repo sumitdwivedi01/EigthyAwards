@@ -2,9 +2,11 @@
 
 An industry body in India runs about 80 awards (business excellence, energy, safety, design, innovation, sustainability, regional awards, Kaizen and 5S). This project is **one configurable platform** that runs all of them. Staff set up a new award, with its questionnaire, scoring sheet and weights, deadline, entry fee and blind judging, **in the UI, without a developer**. Shared data stays **consistent** across all awards: one record per organisation, person and department, and controlled lists instead of free text. This fixes the client's biggest problem with the old award systems.
 
+Awards are judged in rounds that staff configure: **document review** (jury score the written application; Shortlisted / Rejected, approved by the department head) and **on-site** (a panel of 2–5 jury score a live presentation on their devices; the average counts; Gold / Silver / Bronze). Shop-floor competitions such as Kaizen and 5S are simply on-site-only cycles.
+
 It is a 10-working-day build. The problem statement is in [docs/brief.md](docs/brief.md).
 
-> **Status:** planning complete (Phase 0), updated after the leader call (Phase 0.1). No runnable code yet. See [docs/PROGRESS.md](docs/PROGRESS.md) for the live state.
+> **Status:** planning complete (Phase 0), updated after the leader call (Phase 0.1) and the answers on shop-floor competitions (Phase 0.2). No runnable code yet. See [docs/PROGRESS.md](docs/PROGRESS.md) for the live state.
 
 ## Where to look
 
@@ -21,7 +23,7 @@ It is a 10-working-day build. The problem statement is in [docs/brief.md](docs/b
 ## Shape of the system
 
 - **`Front-End/`**: a Next.js app on **Vercel**. Screens for each role area: public, applicant, jury, staff, department head, and leader with their PAs (the leader's personal team). No business rules.
-- **`Backend/`**: an Express + TypeScript API on **Render**. A modular monolith of 16 modules; every check happens in a service that takes the acting user first.
+- **`Backend/`**: an Express + TypeScript API on **Render**. A modular monolith of 17 modules; every check happens in a service that takes the acting user first.
 - **Database and files**: PostgreSQL and private file storage on **Supabase**.
 
 The four rules from the brief (blind judging, conflicts of interest, score audit, question versioning) are enforced on the server and covered by automated tests.

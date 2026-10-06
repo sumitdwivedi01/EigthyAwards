@@ -36,7 +36,7 @@ Option 3, in five layers:
 
 ## Consequences
 
-- A new `master-data` module (16 modules in total). Two new tables: AwardDomain and OrganisationType.
+- A new `master-data` module (16 modules at the time; 17 after ADR 0008 added `onsite`). Two new tables: AwardDomain and OrganisationType.
 - Unit tests for every normaliser. Service tests for case-insensitive duplicates and the GSTIN/PAN check.
 - The GSTIN state code differing from the address state gives a **warning, not a refusal**, because a GSTIN can belong to a branch in another state (spec assumption A17).
 

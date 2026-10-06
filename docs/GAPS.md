@@ -6,20 +6,21 @@
 >
 > **Status values (continued):** `Answered` (the client answered it) · `Removed` (no longer applies after a client decision).
 >
-> Last updated: 2026-10-05 (Day 3, Phase 0.1: leader call). Update this file at the end of every phase.
+> Last updated: 2026-10-06 (Day 4, Phase 0.2: on-site rounds and answers). Update this file at the end of every phase.
 
 ## Summary
 
 | Section | What it covers | Count | Not yet closed* |
 |---|---|---|---|
-| A | Decisions we need from you before or during the build | 14 | 11 |
+| A | Decisions we need from you before or during the build | 14 | 7 |
 | B | Gaps caused by splitting frontend and backend across Vercel, Render and Supabase | 15 | 13 |
 | C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 11 |
 | D | Contradictions and holes found in the spec while planning | 11 | 9 |
-| E | Client questions still open from spec §18 | 16 | 14 |
+| E | Client questions from spec §18 | 16 | 9 |
 | F | Brief deliverables not yet in the repo | 9 | 6 |
 | G | Repository and process gaps | 7 | 4 |
-| H | Gaps from the leader call: PA role and data consistency (new, Day 3) | 12 | 11 |
+| H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
+| I | Gaps from on-site rounds (Day 4) | 13 | 11 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -32,19 +33,19 @@ Until you answer, the **default** is what gets built. Each one points to the det
 | ID | Question | Default until answered | Needed by | Status |
 |---|---|---|---|---|
 | A1 | Build order: backend and frontend phases **alternating** (as in PHASES.md), or **all backend first, then all frontend**? | Alternating, backend first (G-B13) | Phase 1 | Decision needed |
-| A2 | Is a throw-away "hello world" deploy of the empty skeletons acceptable around Phase 4, to test the cookie proxy and the Supabase connection early? No real features would be deployed. | No early deploy (your instruction); risks stay open until Phase 13 | Phase 4 | Decision needed |
+| A2 | Is a throw-away "hello world" deploy of the empty skeletons acceptable around Phase 4, to test the cookie proxy and the Supabase connection early? No real features would be deployed. | No early deploy (your instruction); risks stay open until Phase 14 | Phase 4 | Decision needed |
 | A3 | Login: a session cookie through the Next.js `/api` proxy (ADR 0003), or a bearer token in the browser? | Cookie through the proxy (G-B02) | Phase 2 | Decision needed |
-| A4 | Email provider for production (Render may block SMTP): Resend, Brevo or another? Do we have a domain to send from? | An HTTP email API behind the mailer interface; provider chosen in Phase 13 (G-B06) | Phase 13 | Decision needed |
+| A4 | Email provider for production (Render may block SMTP): Resend, Brevo or another? Do we have a domain to send from? | An HTTP email API behind the mailer interface; provider chosen in Phase 14 (G-B06) | Phase 14 | Decision needed |
 | A5 | ~~Authorisation letter template: DOCX or PDF?~~ | No letter any more (ADR 0007) | — | Removed |
 | A6 | ~~Does an unverified authorisation letter block masking and assignment?~~ | No letter any more (ADR 0007) | — | Removed |
 | A7 | Snapshot the organisation's identity onto the application at submit (frozen at the deadline)? | Yes. Now part of data consistency (ADR 0006) | Phase 1 (schema) | Decided |
 | A8 | Editing an already-submitted application: an explicit "Save changes" that runs full validation (no autosave)? | Yes (G-D02) | Phase 6 | Decision needed |
 | A9 | Indicator scores: whole numbers 0–10, or decimals like 7.5? | Whole numbers (G-D09) | Phase 3 | Decision needed |
 | A10 | Module folders: 16 (adding `departments`, `jury-pool` and the new `master-data`), or fold some together? | 16 folders (G-C01) | Phase 1 | Decision needed |
-| A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Decision needed |
-| A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Decision needed |
-| A13 | What replaces the signed letter as proof that an applicant may act for the organisation? | Nothing for now (leader's decision). **Recommended:** a confirmation link sent to the organisation's official email (G-H01) | Phase 2 | Decision needed |
-| A14 | "Accept all the applications of the same organisation": does that mean one organisation may have **several active** applications in one cycle? | No. We read it as "accept applications from any member". The duplicate rule stays (one active per cycle, flagged), because of the data consistency goal | Phase 6 | Decision needed |
+| A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Decided (6 Oct): same powers |
+| A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Decided (6 Oct): as default |
+| A13 | What replaces the signed letter as proof that an applicant may act for the organisation? | Nothing for now (leader's decision). **Recommended:** a confirmation link sent to the organisation's official email (G-H01) | Phase 2 | Decided (6 Oct): nothing for now |
+| A14 | "Accept all the applications of the same organisation": does that mean one organisation may have **several active** applications in one cycle? | **Answered:** only one real application per organisation per award; all are accepted, extras are flagged, staff keep one | Phase 6 | Answered (6 Oct) |
 
 ---
 
@@ -55,20 +56,20 @@ The spec (§8, §9) and the architecture PDF describe **one Next.js app** using 
 | ID | Gap | Impact | Default / proposed fix | Phase | Status |
 |---|---|---|---|---|---|
 | G-B01 | Parts of the spec assume one Next.js app: Auth.js, server actions, Next.js middleware as the gate, `/api/files/:id` inside Next.js. | The spec no longer matches the build in §8, §9, §11 and §16. | ADR 0001 lists what is superseded. Server actions become REST endpoints on the Express API, Auth.js becomes our own auth (ADR 0003), and the access layer moves into the Express services unchanged in spirit. | 0 | Decided |
-| G-B02 | **Cross-site cookies.** `*.vercel.app` and `*.onrender.com` are different sites. Safari blocks third-party cookies, so a cookie set by the API would not be sent. | Login would fail in some browsers. | The Next.js rewrite proxies `/api/*` to Render, so the browser only talks to the Vercel origin and the cookie is first-party (httpOnly, Secure, SameSite=Lax). Fallback: a bearer token. Confirm with A3 and A2. | 2, 4, 13 | Decision needed |
-| G-B03 | **10 MB files.** Uploads through the Vercel proxy may hit body-size limits (4.5 MB for functions; the limit for external rewrites needs checking). Render's disk is wiped on every deploy and restart. | Uploads fail, or files vanish. | Files live in **Supabase Storage** (private bucket, S3-compatible). The browser uploads and downloads using short-lived **signed URLs** that the API issues only after its access checks (R1 still holds). Locally, a disk driver behind the same storage interface. | 6, 13 | Default adopted |
-| G-B04 | **Supabase Data API exposure.** Supabase serves tables in the `public` schema over its REST API to anyone holding the anon key, unless row-level security (RLS) is on. Prisma creates tables in `public`. | **Security:** applicant identity, scores and audit could be read directly, bypassing every rule. | Turn on RLS for every table with no policies (our API connects as the owner, which bypasses RLS), and/or turn off Data API exposure of `public`. Test it in Phase 13 with a `curl` using the anon key, which must return nothing. | 13 | Open, **high** |
-| G-B05 | Supabase connections: the app needs the pooled connection string (transaction mode), while migrations need a direct or session connection. | Migrations hang, or the app runs out of connections. | Two env variables (`DATABASE_URL` pooled, `DIRECT_URL` direct). Configure them the way the Prisma version we pin expects. | 1, 13 | Open |
-| G-B06 | **Email in production.** Render's free tier may block outbound SMTP ports (needs checking). Sending to arbitrary inboxes usually needs a verified sender domain. | No emails in production. | The mailer interface gets an HTTP API driver (Resend or Brevo) for production and SMTP with Mailpit locally. Every email is logged in EmailLog either way. Provider: see A4. | 13 | Decision needed |
-| G-B07 | **Render free tier sleeps** after about 15 minutes idle; the first request then takes about 30–60 seconds. The outbox dispatcher only runs while awake. | The walkthrough looks broken; emails are delayed. | The frontend shows a "waking the server" state. Call `/api/health` before a demo. Consider a paid instance for walkthrough week. | 13 | Open |
-| G-B08 | Supabase free tier pauses projects after about a week of inactivity, and its backups are limited. The spec's NFR asks for managed backups. | A paused database during review. | Accept for the demo, and say so in the README. Upgrade if it becomes a real system. | 13 | Accepted risk |
-| G-B09 | Running migrations on Render: a pre-deploy command may need a paid plan. | The schema is out of date after a deploy. | Run `prisma migrate deploy` in the build or start command. Check this in Phase 13. | 13 | Open |
+| G-B02 | **Cross-site cookies.** `*.vercel.app` and `*.onrender.com` are different sites. Safari blocks third-party cookies, so a cookie set by the API would not be sent. | Login would fail in some browsers. | The Next.js rewrite proxies `/api/*` to Render, so the browser only talks to the Vercel origin and the cookie is first-party (httpOnly, Secure, SameSite=Lax). Fallback: a bearer token. Confirm with A3 and A2. | 2, 4, 14 | Decision needed |
+| G-B03 | **10 MB files.** Uploads through the Vercel proxy may hit body-size limits (4.5 MB for functions; the limit for external rewrites needs checking). Render's disk is wiped on every deploy and restart. | Uploads fail, or files vanish. | Files live in **Supabase Storage** (private bucket, S3-compatible). The browser uploads and downloads using short-lived **signed URLs** that the API issues only after its access checks (R1 still holds). Locally, a disk driver behind the same storage interface. | 6, 14 | Default adopted |
+| G-B04 | **Supabase Data API exposure.** Supabase serves tables in the `public` schema over its REST API to anyone holding the anon key, unless row-level security (RLS) is on. Prisma creates tables in `public`. | **Security:** applicant identity, scores and audit could be read directly, bypassing every rule. | Turn on RLS for every table with no policies (our API connects as the owner, which bypasses RLS), and/or turn off Data API exposure of `public`. Test it in Phase 14 with a `curl` using the anon key, which must return nothing. | 14 | Open, **high** |
+| G-B05 | Supabase connections: the app needs the pooled connection string (transaction mode), while migrations need a direct or session connection. | Migrations hang, or the app runs out of connections. | Two env variables (`DATABASE_URL` pooled, `DIRECT_URL` direct). Configure them the way the Prisma version we pin expects. | 1, 14 | Open |
+| G-B06 | **Email in production.** Render's free tier may block outbound SMTP ports (needs checking). Sending to arbitrary inboxes usually needs a verified sender domain. | No emails in production. | The mailer interface gets an HTTP API driver (Resend or Brevo) for production and SMTP with Mailpit locally. Every email is logged in EmailLog either way. Provider: see A4. | 14 | Decision needed |
+| G-B07 | **Render free tier sleeps** after about 15 minutes idle; the first request then takes about 30–60 seconds. The outbox dispatcher only runs while awake. | The walkthrough looks broken; emails are delayed. | The frontend shows a "waking the server" state. Call `/api/health` before a demo. Consider a paid instance for walkthrough week. | 14 | Open |
+| G-B08 | Supabase free tier pauses projects after about a week of inactivity, and its backups are limited. The spec's NFR asks for managed backups. | A paused database during review. | Accept for the demo, and say so in the README. Upgrade if it becomes a real system. | 14 | Accepted risk |
+| G-B09 | Running migrations on Render: a pre-deploy command may need a paid plan. | The schema is out of date after a deploy. | Run `prisma migrate deploy` in the build or start command. Check this in Phase 14. | 14 | Open |
 | G-B10 | **API contract drift.** Two apps, and no shared types package. | The frontend breaks quietly when the backend changes. | `docs/API.md` is the contract, updated in every backend phase. The frontend keeps its own Zod schemas for forms. E2E tests catch drift. Generate an OpenAPI client later if needed. | 1+ | Default adopted |
 | G-B11 | CSRF and CORS for cookie auth. | Cross-site request forgery. | The proxy keeps requests same-origin. Cookies use SameSite=Lax. The CORS allowlist holds only the frontend origin, and state-changing requests have their `Origin` header checked. | 2 | Default adopted |
 | G-B12 | Two apps, one notion of time. | The UI shows "open" while the API says "closed". | Only the backend decides deadline state, using `clock.now()`. The frontend only shows what the API returns: times in IST, stored in UTC. | 4+ | Default adopted |
 | G-B13 | Building all of the backend before any UI would leave the UI (about 30 screens) squeezed into about 2 days, and the brief's success test is staff configuring awards **in the UI**. | The UI is late or thin. | Alternate the phases: three backend phases first, then each frontend phase right after the backend phase it needs. See A1. | Plan | Decision needed |
 | G-B14 | **Library versions have moved.** Prisma 7, Express 5, Next.js 15/16 and Tailwind 4 changed setup compared with older tutorials (and older AI training data). | Plausible-looking but wrong config. | Pin versions in Phase 1 and Phase 4 and follow each library's current docs. Log any AI mistakes in `docs/ai-notes.md`; the brief asks for one. | 1, 4 | Open |
-| G-B15 | The leader account in production is "created at setup". | Credentials leak, or there's no way to log in. | The seed reads `LEADER_EMAIL` and `LEADER_PASSWORD` from the environment and never commits them. The password is changed after first login. | 2, 13 | Default adopted |
+| G-B15 | The leader account in production is "created at setup". | Credentials leak, or there's no way to log in. | The seed reads `LEADER_EMAIL` and `LEADER_PASSWORD` from the environment and never commits them. The password is changed after first login. | 2, 14 | Default adopted |
 
 ---
 
@@ -92,7 +93,7 @@ The numbers match the PDF's cards. The spec does not answer any of them. The PDF
 | G-C12 | No login throttling and no monitoring. | Rate limits per email and per IP on login and reset; structured pino logs; an error tracker is optional. | 2, 13 | Default adopted |
 | G-C13 | "Safe as is" files need a representation. | A MASKED_EVIDENCE row pointing at the same storage key, so the jury file check stays one rule. | 8 | Default adopted |
 | G-C14 | Should totals be computed or stored? | Computed with `computeScore` on read; totals and ranks snapshotted on approval so results never shift. | 9, 11 | Default adopted |
-| G-C15 | The live round would need realtime updates. | Not built. When it is: short polling first. Render (unlike Vercel functions) can hold a WebSocket if needed. | Future | Accepted risk |
+| G-C15 | The live round would need realtime updates. | Not needed: on-site panel members score independently and there is no live scoreboard (ADR 0008). Staff progress pages refresh. | — | Removed (6 Oct) |
 
 ---
 
@@ -121,20 +122,20 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | ID | Question (short) | Default in use | Status |
 |---|---|---|---|
 | G-E01 | The legal company applies, or each plant separately? | **The organisation (legal entity, by PAN).** Plants and units never apply separately | Answered (5 Oct) |
-| G-E02 | Is the department head's approval final? | Yes; the leader only watches | Open |
+| G-E02 | Is the department head's approval final? | **Yes, for document rounds; on-site rounds have no approval** | Answered (6 Oct) |
 | G-E03 | Who creates staff: the department head or the leader? | **The department head, or the leader's PAs** | Answered (5 Oct) |
 | G-E04 | Can a department head create awards? | No, only staff | Open |
 | G-E05 | Can a department head edit scores? | No; approve or send back only | Open |
 | G-E06 | Exactly one leader? | Yes | Open |
-| G-E07 | Several judges per application in the live round? | Yes, in future; round 1 has one | Open |
-| G-E08 | Duplicates: block, or allow and flag? | Allow, flag both, staff resolve | Open |
+| G-E07 | Several judges per application in the live round? | **Yes: a panel of 2 to 5, average counts; built now** | Answered (6 Oct) |
+| G-E08 | Duplicates: block, or allow and flag? | **Allow, flag, staff keep the one real application** | Answered (6 Oct) |
 | G-E09 | Must the applicant resubmit after questions are added? | No; flagged "Update requested" | Open |
 | G-E10 | How do weights work? | Section weight, then indicator weight within the section | Open |
 | G-E11 | Does anyone approve the shortlist? | No | Open |
 | G-E12 | What does a disqualified applicant see? | "Under review", then "Rejected" | Open |
 | G-E13 | Is recording conflicts acceptable for rule 2? | Yes; recorded conflicts are blocked | Open |
-| G-E14 | Must every organisation have a GSTIN? | Yes (NGOs and government bodies may not have one) | Open |
-| G-E15 | How do shop-floor competitions (Kaizen, 5S) work? | Not modelled; documented as where the model breaks | Open |
+| G-E14 | Must every organisation have a GSTIN? | **No, GSTIN optional**; without one, joining needs PAN and official email | Answered (6 Oct) |
+| G-E15 | How do shop-floor competitions (Kaizen, 5S) work? | **Registered as usual, judged on site by a panel; modelled as an on-site round (ADR 0008)** | Answered (6 Oct) |
 | G-E16 | Withdraw after the deadline? | No | Open |
 
 ---
@@ -146,12 +147,12 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | G-F01 | The plan, kept up to date | [PHASES.md](PHASES.md) | 0 | Done (Phase 0 merged) |
 | G-F02 | Daily progress: done, next, stuck | [Daily.md](../Daily.md) | Daily | Ongoing |
 | G-F03 | Decisions: options, choice, why, what would change it | [decisions/](decisions/) | Ongoing | Ongoing |
-| G-F04 | Code, with a README a stranger can run from | README.md, Backend/, Front-End/ | 14 | Open |
-| G-F05 | One page: the journey of each user | docs/user-journeys.md (content drafted in spec §7) | 14 | Open |
-| G-F06 | A simple drawing of how the parts fit | The PDF exists but shows **one** Next.js app, with no PA role and no master-data module, so it needs a redraw | 14 | Open |
-| G-F07 | What the tests check and what they don't | docs/testing.md (drafted in spec §15) | 14 | Open |
+| G-F04 | Code, with a README a stranger can run from | README.md, Backend/, Front-End/ | 15 | Open |
+| G-F05 | One page: the journey of each user | docs/user-journeys.md (content drafted in spec §7) | 15 | Open |
+| G-F06 | A simple drawing of how the parts fit | The PDF exists but shows **one** Next.js app, with no PA role and no master-data module, so it needs a redraw | 15 | Open |
+| G-F07 | What the tests check and what they don't | docs/testing.md (drafted in spec §15) | 15 | Open |
 | G-F08 | One place AI looked right but was wrong, and how it was caught | docs/ai-notes.md, recorded as soon as it happens | Ongoing | Open |
-| G-F09 | Two awards that work differently, configured with no code change | Phases 5 and 12 | 12 | Open |
+| G-F09 | Three cycles that work differently (including on-site rounds), configured with no code change | Phases 5 and 13 | 13 | Open |
 
 ---
 
@@ -161,18 +162,40 @@ Raised by the 5 October 2026 call (ADRs 0005, 0006, 0007; spec §5.17, §5.18).
 
 | ID | Gap | Impact | Default / proposed fix | Phase | Status |
 |---|---|---|---|---|---|
-| G-H01 | **Proof of authority is now weak.** With no letter, joining an organisation needs only its PAN and GSTIN, but the PAN is inside the GSTIN, and a GSTIN is printed on every invoice. | Anyone with an invoice could apply in a company's name. | For now: accepted (the leader's decision), and the duplicate flag shows staff a second application. **Recommended:** confirm joining with a link sent to the organisation's official email (A13). | 2 | Decision needed |
-| G-H02 | PA powers are a fixed set; the leader can't tailor them per person. | A PA may get more power than the leader intends. | Same powers for all PAs, and every action audited with the role (A11). Per-PA switches are later work. | 2 | Default adopted |
-| G-H03 | Can PAs create awards? The call mentioned "creating new award[s]". | Changes the permission matrix. | Yes, in any department; cycle configuration stays with staff (A12). | 3 | Decision needed |
+| G-H01 | **Proof of authority is now weak.** With no letter, joining an organisation needs only its PAN and GSTIN, but the PAN is inside the GSTIN, and a GSTIN is printed on every invoice. | Anyone with an invoice could apply in a company's name. | For now: accepted (the leader's decision), and the duplicate flag shows staff a second application. **Recommended:** confirm joining with a link sent to the organisation's official email (A13). | 2 | Accepted risk (6 Oct: nothing for now; recommendation kept) |
+| G-H02 | PA powers are a fixed set; the leader can't tailor them per person. | A PA may get more power than the leader intends. | Same powers for all PAs, and every action audited with the role (A11). Per-PA switches are later work. | 2 | Decided (6 Oct: same powers) |
+| G-H03 | Can PAs create awards? The call mentioned "creating new award[s]". | Changes the permission matrix. | Yes, in any department; cycle configuration stays with staff (A12). | 3 | Decided (6 Oct: yes) |
 | G-H04 | Deactivating people who still own work: a staff member who is the only one on an award, a jury member with unsubmitted evaluations, a department head with a round waiting. | Work gets stuck with someone who can't log in. | Deactivation is allowed but first shows what they still own. Their awards and evaluations stay assigned until staff, the department head or a PA reassigns them. The dashboard flags "awards with no active staff". Approval always goes to the **current** head of the department. | 2, 11 | Default adopted |
 | G-H05 | One organisation can have **several GSTINs** (one per state), but the profile stores one. | A second user may know a different GSTIN and fail to join, then create a "new" organisation, which is refused because the PAN is unique. | One GSTIN on record (the one the organisation registers with). Joining needs that GSTIN; the error message says which state's GSTIN is on record. Several GSTINs is later work. | 2 | Default adopted |
 | G-H06 | The GSTIN state code can differ from the registered address state. | False refusals for genuine organisations. | A warning, not a refusal (spec assumption A17). | 2 | Default adopted |
-| G-H07 | **Old data** from the 80 old award systems is exactly what was inconsistent. Importing and cleaning it is out of scope (spec §14). | The leader may expect history to appear on day one. | Not imported. Consistency starts with the first cycle run here. Say so in the walkthrough, and ask the leader whether a one-time import and clean-up is wanted later. | 14 | Open |
+| G-H07 | **Old data** from the 80 old award systems is exactly what was inconsistent. Importing and cleaning it is out of scope (spec §14). | The leader may expect history to appear on day one. | Not imported. Consistency starts with the first cycle run here. Say so in the walkthrough, and ask the leader whether a one-time import and clean-up is wanted later. | 15 | Open |
 | G-H08 | Case-insensitive uniqueness needs expression or `citext` indexes, which Prisma doesn't declare natively. | Duplicates slip in if only the service checks. | Raw SQL migration with unique indexes on `lower(...)`, plus the service check for a friendly error. | 1 | Default adopted |
 | G-H09 | Normalisation must happen in **one** place, or the seed and any future import will bypass it. | Inconsistent data again. | A single `lib/normalize.ts` used by every service **and** the seed, with unit tests for each normaliser. | 1, 2 | Default adopted |
 | G-H10 | Renaming a master data value changes how every old record displays it. | History reads differently. | Renaming is for spelling fixes only. A change of meaning means retiring the old value and adding a new one. Renames are audited. | 2 | Default adopted |
-| G-H11 | The leader's dashboard needs a way to see what PAs did. | The leader can't check delegated work. | A "PA activity" view, built from audit events filtered by role = LEADER_PA. | 11, 12 | Default adopted |
+| G-H11 | The leader's dashboard needs a way to see what PAs did. | The leader can't check delegated work. | A "PA activity" view, built from audit events filtered by role = LEADER_PA. | 11, 13 | Default adopted |
 | G-H12 | With staff spread over many awards in several departments, a department head only sees their own department's awards. | A head can't see that a staff member is overloaded elsewhere. | Accept for now. The leader and PAs see everything; a per-staff workload view is later work. | — | Accepted risk |
+
+---
+
+## I. Gaps from on-site rounds (Day 4)
+
+Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
+
+| ID | Gap | Impact | Default / proposed fix | Phase | Status |
+|---|---|---|---|---|---|
+| G-I01 | The department head approves document rounds but may also sit on on-site panels. | They could approve their own scores. | Never a juror in a document round of their own department; allowed on on-site panels, which have no approval (spec A18). | 8, 12 | Default adopted |
+| G-I02 | A blind award with an on-site round reveals the applicant at the presentation. | Blind judging only covers the document round. | Accepted by design: an on-site panel meets the team. Stated in R1's known limit. | — | Accepted risk |
+| G-I03 | A panel member doesn't turn up. | The round can't close. | Staff remove them with a reason (evaluation Revoked); the average uses those who submitted, at least one (spec A19). | 12 | Default adopted |
+| G-I04 | Staff typing a juror's scores could be misused. | Scores nobody on the panel gave. | Each such evaluation records who typed it, and is audited. The progress page and the department head's view show how many evaluations staff entered. | 12 | Default adopted |
+| G-I05 | Medal ties, and medals per category or per cycle. | Disputed results. | Per entry category; Gold, Silver and Bronze suggested for ranks 1 to 3; ties flagged for staff to settle (spec A20). | 11, 12 | Default adopted |
+| G-I06 | Slot clashes: one juror on two panels at the same time, or two entries in one venue at once. | A confusing day on site. | Not blocked; a warning shows when a panel member's slots overlap. | 12 | Default adopted |
+| G-I07 | Moving a slot after scoring started. | Scores for a presentation that "moved". | A slot can move only until the entry has scores (spec A21). | 12 | Default adopted |
+| G-I08 | A document-only award ends at "Shortlisted / Rejected". Is "Shortlisted" the win for such awards? | Applicants might not understand their result. | Labels can be renamed per round (e.g. "Winner / Not selected") with no code change. **Confirm with the leader** what document-only awards should say. | 3, 11 | Open |
+| G-I09 | **Timeline.** On-site rounds add a backend phase (12) and more frontend work (13), with no extra days. | Late phases get squeezed. | Cut order extended (PHASES §5). Watch it daily from Phase 8 on. | Plan | Open |
+| G-I10 | Internet at venues is assumed (client answer). | No scoring if the network fails. | Staff backup entry from paper sheets covers it (G-I04). No offline mode. | — | Accepted risk |
+| G-I11 | Team member names reveal who applied. | A leak in a blind document round. | The TEAM_MEMBERS answer is treated as identity: never sent to jury in blind document rounds. | 6, 8 | Default adopted |
+| G-I12 | A shortlisted entry doesn't come to present. | No scores, so the round can't close. | Staff disqualify it with the reason "did not present" (kept on record; shows Rejected). | 12 | Default adopted |
+| G-I13 | With GSTIN optional, two organisations could still share one GSTIN by mistake. | Inconsistent data. | GSTIN unique when present (a partial unique index), and it must contain the PAN. | 1 | Default adopted |
 
 ---
 
@@ -195,4 +218,5 @@ Raised by the 5 October 2026 call (ADRs 0005, 0006, 0007; spec §5.17, §5.18).
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-06 | Answers on shop-floor and open questions: A11–A14 decided or answered; E02, E07, E08, E14 and E15 answered; C15 removed; phase numbers after 11 shifted by one (new Phase 12, on-site rounds); new section I (13 gaps). |
 | 2026-10-05 | Leader call: the letter gaps removed (A5, A6, C08, C09); E01 and E03 answered; A7 and C07 decided; D01 fixed; new decisions A11–A14; new section H (12 gaps on the PA role and data consistency). |
