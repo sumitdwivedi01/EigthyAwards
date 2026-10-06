@@ -39,3 +39,7 @@ Thumbs.db
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+# Prisma generated client (rebuilt by `prisma generate`)
+Backend/src/generated/
+Backend/storage-test/
