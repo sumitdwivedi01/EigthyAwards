@@ -21,7 +21,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - **One branch per phase:** `phase/NN-<track>-<name>`, cut from an up-to-date `main`. Never commit straight to `main`.
 - A backend phase is merged before the frontend phase that uses it.
 - A phase merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-NN-done`.
-- **No deployment before Phase 14.**
+- **No deployment before Phase 14**, except the throw-away skeleton check at the end of Phase 4 (GAPS A2).
 - Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - Ask before committing, pushing or opening a PR, unless the owner already asked for it this session.
 - **End of every session:** update PROGRESS.md, GAPS.md and Daily.md (see the routine at the bottom of PROGRESS.md).
@@ -53,8 +53,9 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 - A cycle's rounds are configuration: `DOCUMENT_REVIEW`, `ON_SITE`, or document review then on-site. Shop-floor competitions are on-site-only cycles; never branch on "shop-floor" or an award name.
 - **Document review:** one jury member per application; blind if the cycle says so; the department head approves (they are never a juror in their own department's document rounds). Labels: Shortlisted / Rejected.
-- **On-site:** never blind; a panel of 2–5 per entry, each scoring separately on any device; the final score is the average; staff can enter a member's scores (record `enteredById`); **no approval**; staff close the round, which locks the scores. Labels: Gold / Silver / Bronze / Participated. Panel members never see each other's scores.
+- **On-site:** never blind; a panel of 2–5 per entry, each scoring separately on any device; the final score is the average; staff can enter a member's scores (record `enteredById`); **no approval**; staff close the round, which locks the scores. Labels: Gold / Silver / Bronze / Participated. Medals go to ranks 1–3 of the **whole round** (one set per award, not per category). Panel members never see each other's scores.
 - Result labels live on the round (`resultLabels`), renamable per cycle. Results are stored in `RoundResult`, not on the application.
+- Indicator scores are **whole numbers 0–10** (or Yes/No). A submitted application is edited through an explicit Save changes with full checks, never autosaved.
 - Only one real application per organisation per cycle: accept all, flag extras, staff keep one. GSTIN is optional. A category's fee overrides the cycle's fee. The questionnaire may be empty for on-site-first cycles.
 
 ## The four rules (the brief's)

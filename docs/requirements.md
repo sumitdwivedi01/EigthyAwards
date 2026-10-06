@@ -8,6 +8,7 @@
 | 2026-10-04 | §8, §9, §11, §16 and §17 partly superseded: two apps instead of one Next.js app; own login instead of Auth.js; phase plan instead of §17. | ADR 0001, 0003, 0004; docs/PHASES.md |
 | 2026-10-05 | **Leader call.** (1) A staff member can be assigned many awards. (2) The award goes to the organisation, never to its plants or units (Q1 answered). (3) **No signed authorisation letter**: removed everywhere; for now any member of the organisation applies on its behalf. (4) New role **Leader's PA**: the leader's personal team, created by the leader, doing the leader's organisational work (new §5.17). (5) **Data consistency** was the main problem before this platform: new §5.18, master data, normalisation and constraints. Sections changed: 1, 2, 3, 5.1, 5.2, 5.3, 5.6, 5.13–5.15, 5.17, 5.18, 7, 8, 10, 11, 12, 13, 14, 15, 17, 18. | ADR 0005, 0006, 0007 |
 | 2026-10-06 | **Answers on shop-floor and open questions.** **On-site rounds** are now built, not future: one round type serves both the live round 2 of large awards and shop-floor competitions (Kaizen, 5S) judged on site. A panel of 2–5 jury, each scoring separately; the final score is the average; no approval; staff close the round. Results: document rounds give Shortlisted / Rejected, on-site rounds give **Gold / Silver / Bronze** (others: Participated). The questionnaire may be empty for on-site-only cycles. Only one real application per organisation per award (extras accepted, flagged, resolved). GSTIN optional. Fees can differ per entry category. The department head's approval is final for document rounds. Sections changed: 1, 2, 3, 4, 5.2–5.6, 5.9, 5.11–5.13, 5.16, 6, 7, 8, 10–15, 18. | ADR 0008 |
+| 2026-10-06 | **Final decisions before building.** One set of medals per award cycle: Gold, Silver and Bronze for ranks 1 to 3 of the whole on-site round, not per category. Indicator scores are whole numbers 0 to 10. A submitted application is edited with an explicit Save changes that runs full checks. "Update requested" shows as Submitted. Sections changed: 4, 5.5, 5.6, 5.12, 5.16, 7, 10, 15, 18. | GAPS §A (A8, A9), G-D03, G-I05 |
 
 # Awards Platform — Product & Technical Specification
 
@@ -189,7 +190,8 @@ Result labels appear only after staff publish a round's results; until then a ju
 
 | Internal state | Applicant sees | Message |
 |---|---|---|
-| Draft, Update requested | Pending | Your application is not submitted yet |
+| Draft | Pending | Your application is not submitted yet |
+| Submitted, with Update requested | Submitted, update requested | Questions changed; please review the highlighted ones before the deadline |
 | Submitted | Submitted | We received your application |
 | Locked, Masked, Evaluated, Approved, Disqualified | Under review | Your application is being reviewed |
 | Shortlisted (published), no further round | Shortlisted | Keep an eye on your email; we will contact you soon |
@@ -266,7 +268,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 
 - Indicators are jury-only. They are never sent to applicants.
 - In a document review round, each indicator belongs to exactly one question; a question can have zero, one or many indicators. In an on-site round, criteria score the presentation, so they stand on their own: the score sheet has its own sections and criteria, with the same weight rules.
-- Indicator fields: key, label, type (score 0 to 10, or Yes/No), weight.
+- Indicator fields: key, label, type (score 0 to 10 in whole numbers, or Yes/No), weight.
 - Weights (assumption): each section has a weight as a share of the total, and all section weights add up to 100%. Each indicator has a weight as a share of its section, and the indicator weights in one section add up to 100%. The builder shows running totals and blocks publishing until every total is 100%.
 - A simple award with no areas uses one section with weight 100%.
 - The jury sees each indicator's weight next to it. There is no scoring guidance text; marks are the jury's judgement.
@@ -288,7 +290,7 @@ Score = 100 × Σ over sections s of ( W_s × Σ over indicators i in s of ( w_i
 - Fee: the fee is the entry category's fee if it has one, otherwise the cycle's fee. If it is above 0, the user sees the amount and a demo payment screen. "Pay" records a payment with a fake reference and unlocks the form. There are no refunds.
 - Drafts save automatically a few seconds after each change and on moving between sections. The user can leave and continue later; progress shows per section.
 - Submit checks all required answers and files, sets the status to Submitted, takes a snapshot of the organisation's identity fields onto the application (§5.18), and sends a confirmation email.
-- Until the deadline, the applicant can edit a submitted application. Assumption: it stays Submitted, and each save must pass the same checks as submitting.
+- Until the deadline, the applicant can edit a submitted application. It stays Submitted. Drafts autosave, but a submitted application is edited with an explicit **Save changes** that runs the same checks as submitting (no autosave), so it is always valid (decided 6 Oct 2026).
 - Withdraw is possible before the deadline, with an optional reason. The application is kept as Withdrawn. The organisation may start a new application in the same cycle; assumption: the fee is paid again.
 - At the deadline every application is locked. Drafts that were never submitted become "Not submitted" and go no further.
 - Staff can extend the deadline. This reopens editing for everyone until the new deadline. Assumption: not allowed once masking has started.
@@ -355,9 +357,9 @@ Score = 100 × Σ over sections s of ( W_s × Σ over indicators i in s of ( w_i
 ### 5.12 Results of a round
 
 - Staff decide a round's results once its scores are locked: after the department head approves a document review round, or after staff close an on-site round. Assumption: no further approval is needed for the results.
-- The ranked list is per entry category (or overall). Ties show the same rank, and staff decide manually.
+- The ranked list of a document review round is per entry category or overall. An on-site round's medals use the overall ranking of the round. Ties show the same rank, and staff decide manually.
 - **Document review round:** staff give each application **Shortlisted** or **Rejected**, using top N, a minimum score or manual selection. Shortlisted applications move on to the next round, if the cycle has one.
-- **On-site round:** the system suggests **Gold, Silver and Bronze** for ranks 1 to 3 in each entry category and **Participated** for the rest. Staff can change any label before publishing.
+- **On-site round:** the system suggests **Gold, Silver and Bronze** for ranks 1 to 3 of the whole round (one set per award cycle, across all entry categories; decided 6 Oct 2026) and **Participated** for the rest. Staff can change any label before publishing.
 - A cycle can rename a round's labels, and mark which label moves an entry on to the next round, without any code change.
 - Staff publish a round's results: applicants see their label, and emails go out. Disqualified applications show Rejected. When the last round is published, the cycle becomes Results published.
 - Accept when: published results show the correct label to every applicant; nothing gets a label before the round's scores are locked; only shortlisted entries enter the following on-site round.
@@ -406,7 +408,7 @@ One round type covers both the live round 2 of large awards and shop-floor compe
 - **Absent panel member.** Staff take them off the entry's panel with a reason. Their evaluation becomes Revoked and their draft scores are kept. An entry needs at least one submitted evaluation.
 - **Final score.** The average of the submitted panel members' scores (each from the score formula, §5.5), rounded to 2 decimals. Staff, the department head, the leader and PAs see each member's score and the average; jury see only their own.
 - **No approval** (client answer, 6 Oct 2026). When every active panel evaluation is submitted, staff close the round. Its scores then lock forever.
-- **Results.** After closing, see §5.12: Gold, Silver and Bronze per entry category, then publish.
+- **Results.** After closing, see §5.12: Gold, Silver and Bronze for the top three of the round, then publish.
 - Assumptions: there is internet at the venue (client answer), so there is no offline mode; there is no live scoreboard, and staff watch a progress page.
 - Accept when: an on-site-only cycle with no questions publishes; adding a conflicted panel member is refused; a panel member cannot read another member's scores; the final score equals the average; staff-entered scores are marked and audited; any change after closing is refused; published medals show to the applicant.
 
@@ -511,7 +513,7 @@ Works in the system every day while a cycle runs.
 - If sent back, reads the remark, fixes scores or reopens evaluations for jury, and resubmits.
 - After approval, builds the shortlist and publishes results.
 - For an on-site round: gives each entry a presentation slot (the applicants get an email) and a panel of 2 to 5 jury; on the day, watches the progress page and enters a panel member's scores from paper if their device fails; takes an absent member off a panel with a reason; closes the round when every panel member has submitted.
-- Reviews the suggested Gold, Silver and Bronze per category, adjusts ties, and publishes.
+- Reviews the suggested Gold, Silver and Bronze (the top three of the round), settles any ties, and publishes.
 
 ### Applicant user
 
@@ -661,7 +663,7 @@ All awards share the same tables. Every award-related row carries its cycle (and
 | Payment | id, applicationId, amountPaise, status, reference, paidAt | Demo only |
 | Conflict | id, juryUserId, organisationId, note, recordedById, createdAt | Unique (juryUserId, organisationId); applies across all awards |
 | Evaluation | id, roundId, applicationId, juryUserId, status (ASSIGNED, IN_PROGRESS, SUBMITTED, REDO, REVOKED), overallNote, submittedAt, enteredById?, revokedReason? | Unique (roundId, applicationId, juryUserId). The service allows exactly one active evaluation per application in a DOCUMENT_REVIEW round, and panelMin to panelMax in an ON_SITE round. enteredById is set when staff typed the scores on the juror's behalf |
-| IndicatorScore | evaluationId, indicatorKey, value, updatedAt | Unique (evaluationId, indicatorKey); value 0 to 10, or 0/1 for Yes/No |
+| IndicatorScore | evaluationId, indicatorKey, value, updatedAt | Unique (evaluationId, indicatorKey); value a whole number 0 to 10, or 0/1 for Yes/No |
 | QuestionComment | evaluationId, questionKey, comment | Unique (evaluationId, questionKey) |
 | ApprovalRequest | id, roundId, submittedById, submittedAt, decision (PENDING, APPROVED, SENT_BACK), decidedById, decidedAt, remark | One row per submission; history kept |
 | ApprovalRemark | approvalRequestId, applicationId, remark | Optional remarks on specific applications |
@@ -958,7 +960,7 @@ Tests for each rule are written on the day that rule is built, against a real Po
 - Fee gating: the form stays locked until payment is recorded.
 - Approval (document rounds): allowed only when every evaluation is submitted; send back requires a remark; approval locks scores.
 - On-site rounds: a conflicted panel member is refused; a panel member can't read another's scores; the final score is the average; staff-entered scores are marked and audited; closing needs every active evaluation submitted; nothing changes after closing; only shortlisted entries take part in a following on-site round; an on-site-only cycle publishes with an empty questionnaire.
-- Results: no label before scores lock; suggested medals follow the rank per category; published labels show correctly to applicants.
+- Results: no label before scores lock; suggested medals go to ranks 1 to 3 of the whole round; published labels show correctly to applicants.
 - Disqualify and reinstate require reasons and restore the previous state.
 - Permissions: each role refused outside its scope; the leader and PAs refused on every judging write (cycle setup, masking, assignment, scores, approval, results); only the leader creates or removes PAs; a removed PA is refused; only staff can assign applications to jury.
 - Data consistency: values are normalised on save; case-insensitive duplicates are refused; a GSTIN without the PAN is refused; retired list values stay readable but can't be picked; an application keeps its identity snapshot after the profile changes.
@@ -1140,7 +1142,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | A17 | A GSTIN whose state differs from the address state gives a warning, not a refusal | Refuse it |
 | A18 | The department head is never a juror in a document round of their own department (they approve it), but may sit on on-site panels | Allow it, with someone else approving |
 | A19 | An absent panel member is removed with a reason; the average uses the members who submitted (at least one) | Require the full panel |
-| A20 | Medals are per entry category: Gold, Silver and Bronze suggested for ranks 1 to 3; staff settle ties | One set of medals for the whole cycle |
+| A20 | **Decided 6 Oct:** one set of medals per award cycle: Gold, Silver and Bronze for ranks 1 to 3 of the on-site round across all categories; staff settle ties | Medals per entry category |
 | A21 | A presentation slot can move until the entry has scores | Lock slots once set |
 | A22 | Team members are listed on the entry (name and designation), never given accounts | Give team members accounts |
 

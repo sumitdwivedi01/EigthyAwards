@@ -7,11 +7,11 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-06 · Day 4 |
-| **Current phase** | Phase 0.2: On-site rounds and answers (🚧 docs updated, waiting for review, commit and merge) |
-| **Current branch** | `phase/00.2-onsite-rounds-and-answers` (local only, not pushed yet) |
+| **Current phase** | Phase 1: Backend foundation (🚧 started: final decisions recorded; code next) |
+| **Current branch** | `phase/01-be-foundation` (local only, not pushed yet) |
 | **What runs today** | Nothing yet. The repo holds docs only. |
-| **Next action** | 1) Review the Phase 0.2 changes, 2) commit, push, PR and merge, then tag `phase-00.2-done`, 3) start **Phase 1** on `phase/01-be-foundation` (target: today). |
-| **Blockers** | None. Still open with defaults: A1–A4, A8–A10 ([GAPS.md §A](GAPS.md)). To confirm with the leader: G-I08 (what document-only awards should call a win). |
+| **Next action** | Build Phase 1 as listed in [PHASES.md](PHASES.md): Express + TypeScript skeleton, Docker (PostgreSQL + Mailpit), the full Prisma schema with triggers and case-insensitive indexes, shared libs (clock, errors, normalize, storage, mailer), audit and notifications modules, test harness, CI. |
+| **Blockers** | None. Only A4 (email provider, needed in Phase 14) is undecided. **Ask the leader:** G-I08 (what a document-only award calls a win) and G-H07 (import of old data). |
 | **Risk** | The timeline is tight: 16 phases in Days 4–10 (G-I09). The cut order is in PHASES.md §5. |
 
 ## Phase status board
@@ -22,8 +22,8 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 |---|---|---|---|---|---|---|
 | 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
 | 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
-| 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | 🚧 In progress | — | — | n/a |
-| 1 | Backend foundation | `phase/01-be-foundation` | ⬜ | — | — | — |
+| 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | ✅ Merged | sumitdwivedi01/EigthyAwards#3 | 2026-10-06 · `phase-00.2-done` | n/a |
+| 1 | Backend foundation | `phase/01-be-foundation` | 🚧 In progress | — | — | — |
 | 2 | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
 | 3 | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
 | 4 | Frontend foundation | `phase/04-fe-foundation` | ⬜ | — | — | — |
@@ -61,7 +61,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 | Data consistency | Phases 1 (normalize, indexes), 2 (master data, organisations), 6 (identity snapshot) | ⬜ |
 | One real application per organisation per award | Phase 6 (duplicate flag and resolution) | ⬜ |
 | On-site rounds (shop-floor and live round 2): panels, averages, no approval | Phases 1 (schema), 3 (round types), 12, 13 | ⬜ |
-| Results: Shortlisted/Rejected, then Gold/Silver/Bronze | Phases 3 (labels), 11, 12, 13 | ⬜ |
+| Results: Shortlisted/Rejected, then Gold/Silver/Bronze (one set per award) | Phases 3 (labels), 11, 12, 13 | ⬜ |
 | GSTIN optional; fee per category | Phases 1, 2, 3, 6 | ⬜ |
 
 ---
@@ -70,7 +70,35 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
-### Phase 0.2: On-site rounds and answers · 🚧 · 2026-10-06 (Day 4)
+### Phase 1: Backend foundation · 🚧 · 2026-10-06 (Day 4)
+
+Goal: a running Express + TypeScript API with the complete database schema, shared libraries, a real-database test harness and CI (no business features).
+
+Final decisions recorded before coding (all answered by you on 6 Oct):
+- Build order: alternate, backend first (A1).
+- A throw-away skeleton deploy check at the end of Phase 4 (A2).
+- Login cookie through the Vercel proxy (A3).
+- A submitted application is edited with an explicit Save changes (A8).
+- Whole-number scores 0–10 (A9).
+- 17 module folders (A10).
+- On-site medals: **one Gold/Silver/Bronze set per award**, ranks 1–3 of the whole round (G-I05).
+- ADRs 0002 and 0003 are accepted.
+
+- [x] Decisions recorded in the spec, GAPS, PHASES, ADRs and CLAUDE.md.
+- [ ] `package.json`, TypeScript strict, ESLint, Prettier, Node version pinned
+- [ ] `docker-compose.yml` (PostgreSQL 16 with `awards` and `awards_test`, Mailpit)
+- [ ] `config/env.ts` (Zod) and `.env.example`
+- [ ] `app.ts` and `server.ts` (helmet, CORS, cookies, logging, error handler, 404)
+- [ ] `lib/`: db, clock, errors, ids, normalize, states, storage (disk), mailer (SMTP)
+- [ ] The full Prisma schema plus a raw SQL migration (audit and form-version triggers, a single-leader index, case-insensitive unique indexes, a partial GSTIN index)
+- [ ] `audit` module (record in the caller's transaction) and `notifications` module (EmailLog outbox)
+- [ ] `GET /api/health`
+- [ ] Test harness (test DB reset, factories, clock control) and the Phase 1 tests
+- [ ] `.github/workflows/backend-ci.yml`
+- [ ] `docs/API.md` started; PROGRESS environment facts and pinned versions filled in
+- [ ] Exit checklist ticked, PR merged, tagged `phase-01-done`
+
+### Phase 0.2: On-site rounds and answers · ✅ · 2026-10-06 (Day 4)
 
 Goal: record the answers to the 15 open questions and design on-site rounds before writing code.
 
@@ -86,7 +114,7 @@ What was decided:
 - [x] GAPS.md: A11–A14 closed; E02, E07, E08, E14 and E15 answered; C15 removed; new section I (13 gaps); summary recounted from the tables.
 - [x] PHASES.md: Phase 0.2 and a new **Phase 12 (on-site rounds, backend)**; old 12, 13 and 14 renumbered to 13, 14 and 15; Phases 1, 2, 3, 6, 8, 11, 13 and 14 updated; days re-planned; cut order extended.
 - [x] CLAUDE.md, the READMEs and Daily.md updated.
-- [ ] Commit, push, PR, merge, and tag `phase-00.2-done`.
+- [x] Merged through sumitdwivedi01/EigthyAwards#3 and tagged `phase-00.2-done`.
 
 ### Phase 0.1: Leader-call changes · ✅ · 2026-10-05 (Day 3)
 

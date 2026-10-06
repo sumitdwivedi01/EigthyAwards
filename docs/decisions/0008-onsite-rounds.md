@@ -48,4 +48,4 @@ Option 3.
 ## What would change our mind
 
 - Venues turn out to have no reliable internet: add an offline scoring mode, or a paper-sheet import flow, instead of the staff backup entry.
-- The client wants a live scoreboard, or a single set of medals per cycle instead of per category: both would extend this design rather than replace it.
+- The client wants a live scoreboard, or medals per entry category instead of one set per award (decided 6 Oct: one set per award): both would extend this design rather than replace it.

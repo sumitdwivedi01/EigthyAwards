@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-06 (Day 4) | **Final decisions before Phase 1.** Phase 4 gains a throw-away skeleton deploy check. On-site medals: one set per award (ranks 1 to 3 of the whole round). Scores are whole numbers. Phase 0.2 merged. | Owner's answers (GAPS A1, A2, A9; G-I05). |
 | 2026-10-06 (Day 4) | **Answers on shop-floor and open questions.** Added Phase 0.2 (docs only) and a new **Phase 12: on-site rounds (backend)**. The old Phases 12, 13 and 14 become 13, 14 and 15. Phases 1, 2, 3, 6, 8 and 11 updated (round types and result labels, an optional questionnaire, standalone on-site criteria, category fees, optional GSTIN, team members, three seeded cycles). Phase 13 gains the on-site screens. Days re-planned from Day 4, and the cut order extended. | Shop-floor competitions are judged on site by a panel; a live round with no approval; Gold/Silver/Bronze; one real application per organisation. ADR 0008. |
 | 2026-10-05 (Day 3) | **Leader call.** Added Phase 0.1 (docs only). Phase 1 schema: PA role, master data tables, case-insensitive unique indexes, identity snapshot; authorisation letter removed. Phase 2 grows: PA invites and removal, account deactivation, master-data module, organisation normalisation and audited corrections. Phase 3: awards also created by the leader or a PA; staff on many awards. Phases 5, 6, 7, 10, 11 and 12 updated to match. Phase 2 moves to Day 4, and Phases 12 and 13 now share Day 9. Two items added to the cut order. | Leader call: staff on many awards, award to the organisation, no signed letter, a Leader's PA role, data consistency as the main goal. ADRs 0005, 0006, 0007. |
 | 2026-10-04 (Day 2) | First version: 15 phases (0–14). Backend and frontend are separate apps, built in alternating phases with the backend first. | The spec planned one Next.js app on Vercel. We are hosting the frontend on Vercel, the backend on Render and the database on Supabase, so it splits into two apps. See [ADR 0001](decisions/0001-frontend-backend-split-and-hosting.md). |
@@ -26,7 +27,7 @@ These steps are the same for every phase. A phase is either **done** (all of the
 6. **Update tracking:** [PROGRESS.md](PROGRESS.md) (what was achieved), [GAPS.md](GAPS.md) (gaps closed or found), [Daily.md](../Daily.md), and an ADR if we made a decision.
 7. **Open a pull request** into `main` (the template has the checklist), wait for green CI, and read the diff line by line.
 8. **Merge** with a merge commit (no squash, so the phase history stays readable) and tag it: `git tag phase-NN-done && git push --tags`.
-9. **Deploy nothing** until Phase 14. `main` must stay runnable on a local machine after every merge.
+9. **Deploy nothing** until Phase 14, except the throw-away skeleton check at the end of Phase 4 (GAPS A2). `main` must stay runnable on a local machine after every merge.
 
 ### Phase exit checklist (definition of done)
 
@@ -51,8 +52,8 @@ The brief gives 10 working days. Days 1–2 went on understanding, questions and
 |---|---|---|---|---|---|
 | 0 | Docs | Planning and tracking setup | `phase/00-planning-docs` | Day 2 | ✅ Merged (`phase-00-done`) |
 | 0.1 | Docs | Leader-call changes: PA role, data consistency, no letter | `phase/00.1-leader-call-changes` | Day 3 | ✅ Merged (`phase-00.1-done`) |
-| 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | 🚧 In progress |
-| 1 | Backend | Backend foundation | `phase/01-be-foundation` | Day 4 | ⬜ Not started |
+| 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | ✅ Merged (`phase-00.2-done`) |
+| 1 | Backend | Backend foundation | `phase/01-be-foundation` | Day 4 | 🚧 In progress |
 | 2 | Backend | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | Day 5 | ⬜ |
 | 3 | Backend | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | Day 5 | ⬜ |
 | 4 | Frontend | Frontend foundation, login, public pages | `phase/04-fe-foundation` | Day 6 | ⬜ |
@@ -242,6 +243,7 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 - An app shell per role area, plus 403 and 404 pages.
 - Public pages: Open awards and Award details.
 - `.github/workflows/frontend-ci.yml`: lint, typecheck, build.
+- **Skeleton deploy check (throw-away, GAPS A2):** deploy the empty API to Render and the empty frontend to Vercel against a Supabase database, then check: the health route, `prisma migrate deploy`, login through the `/api` proxy with the cookie arriving in Chrome and Safari, and the Supabase Data API locked down (G-B04). This needs **your** Supabase, Render and Vercel accounts. Nothing real goes live, and the results go in GAPS (G-B02, G-B04, G-B05, G-B09).
 
 **Tests.** Unit tests for the api-client error mapping and the formatters.
 
@@ -374,11 +376,11 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 **Builds.**
 - **onsite** module: entries of the round (every eligible submitted application if it's the first round, otherwise those with the label that moves on); `scheduleSlot` and `moveSlot` (only until the entry has scores, G-I07; email; audit); `setPanel` for one or many entries (2 to 5 from the jury pool, conflicts refused per member, the department head allowed); a warning on overlapping slots for a panel member (G-I06); `removePanelMember` with a reason (Revoked, G-I03); `enterScoresOnBehalf` (staff; marks `enteredById`; audited, G-I04); `roundProgress`; `closeRound` (only when every active evaluation is submitted; locks scores; snapshots final averages and ranks into RoundResult).
 - **judging** reused for panel members: `saveScores` and `submitEvaluation` against the on-site score sheet. The jury view shows the organisation, team and slot (never blind) and never shows other panel members' scores or the average.
-- **results:** `suggestLabels` for on-site rounds (Gold, Silver and Bronze for ranks 1 to 3 per category, Participated for the rest; ties flagged, G-I05). Staff adjust, then `publishResults`.
+- **results:** `suggestLabels` for on-site rounds (Gold, Silver and Bronze for ranks 1 to 3 of the whole round, one set per award; Participated for the rest; ties flagged, G-I05). Staff adjust, then `publishResults`.
 - Disqualify with the reason "did not present" for an entry that doesn't come (G-I12).
 - Emails: presentation scheduled or moved; panel assigned (entries and slots).
 
-**Tests.** R2: a conflicted panel member is refused through the API. A panel member gets 404 on another member's evaluation, and no jury response contains another member's scores or the average. The final score equals the hand-calculated average (including a Revoked member). Staff-entered scores carry `enteredById` and an audit event. R3: after submission, a change needs a reason; after closing, every change is refused. Closing with an unsubmitted active evaluation is refused. A slot can't move once scores exist. Only shortlisted entries appear in a following on-site round. Suggested medals follow rank per category. A department head on a panel scores like any juror. Approval endpoints refuse on-site rounds.
+**Tests.** R2: a conflicted panel member is refused through the API. A panel member gets 404 on another member's evaluation, and no jury response contains another member's scores or the average. The final score equals the hand-calculated average (including a Revoked member). Staff-entered scores carry `enteredById` and an audit event. R3: after submission, a change needs a reason; after closing, every change is refused. Closing with an unsubmitted active evaluation is refused. A slot can't move once scores exist. Only shortlisted entries appear in a following on-site round. Suggested medals go to ranks 1 to 3 of the whole round. A department head on a panel scores like any juror. Approval endpoints refuse on-site rounds.
 
 **Done when.** Through the API: the shop-floor cycle runs from registration to published medals, and the two-round cycle runs from shortlist to medals.
 
