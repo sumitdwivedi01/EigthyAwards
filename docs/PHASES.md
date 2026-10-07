@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-07 (Day 5) | **New issues: branded award sites, organisers running their own awards, membership verification, entry limits, own domains, and showing the UI before building.** Added Phase 0.4 (analysis) and Phase 0.5 (UI flow and wireframes, for the lead call on 9 Oct). Draft build list: a new **Phase 4 (award sites)**, old Phases 8 and 9 merged, the frontend phases shifted by one. **Simpler branch names** (number plus one word). Target days on hold until the 9 Oct call agrees a smaller first release. Phase 1 code stays parked (tag `parked/phase-01-be-foundation`). | [docs/proposals/0.4-new-issues.md](proposals/0.4-new-issues.md) |
 | 2026-10-06 (Day 4) | **Answers on shop-floor and open questions.** Added Phase 0.2 (docs only) and a new **Phase 12: on-site rounds (backend)**. The old Phases 12, 13 and 14 become 13, 14 and 15. Phases 1, 2, 3, 6, 8 and 11 updated (round types and result labels, an optional questionnaire, standalone on-site criteria, category fees, optional GSTIN, team members, three seeded cycles). Phase 13 gains the on-site screens. Days re-planned from Day 4, and the cut order extended. | Shop-floor competitions are judged on site by a panel; a live round with no approval; Gold/Silver/Bronze; one real application per organisation. ADR 0008. |
 | 2026-10-05 (Day 3) | **Leader call.** Added Phase 0.1 (docs only). Phase 1 schema: PA role, master data tables, case-insensitive unique indexes, identity snapshot; authorisation letter removed. Phase 2 grows: PA invites and removal, account deactivation, master-data module, organisation normalisation and audited corrections. Phase 3: awards also created by the leader or a PA; staff on many awards. Phases 5, 6, 7, 10, 11 and 12 updated to match. Phase 2 moves to Day 4, and Phases 12 and 13 now share Day 9. Two items added to the cut order. | Leader call: staff on many awards, award to the organisation, no signed letter, a Leader's PA role, data consistency as the main goal. ADRs 0005, 0006, 0007. |
 | 2026-10-04 (Day 2) | First version: 15 phases (0–14). Backend and frontend are separate apps, built in alternating phases with the backend first. | The spec planned one Next.js app on Vercel. We are hosting the frontend on Vercel, the backend on Render and the database on Supabase, so it splits into two apps. See [ADR 0001](decisions/0001-frontend-backend-split-and-hosting.md). |
@@ -18,14 +19,14 @@
 
 These steps are the same for every phase. A phase is either **done** (all of them) or **not done**. There is no "mostly done".
 
-1. **Branch** from an up-to-date `main`: `git checkout main && git pull && git checkout -b phase/NN-<track>-<name>`.
+1. **Branch** from an up-to-date `main`: `git checkout main && git pull && git checkout -b phase-<number>-<word>` (for example `phase-2-people`; simple names from 7 Oct, GAPS J11). Older branches keep their old names.
 2. **Backend before frontend.** A frontend phase starts only after the backend phase it calls has been merged.
 3. **Write the tests with the feature.** Rule tests (R1–R4) come straight from the wording of the rule, not from the code.
 4. **Commit in small steps** using Conventional Commits: `feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`.
 5. **Run the phase exit checklist** (below). Every box must be ticked.
 6. **Update tracking:** [PROGRESS.md](PROGRESS.md) (what was achieved), [GAPS.md](GAPS.md) (gaps closed or found), [Daily.md](../Daily.md), and an ADR if we made a decision.
 7. **Open a pull request** into `main` (the template has the checklist), wait for green CI, and read the diff line by line.
-8. **Merge** with a merge commit (no squash, so the phase history stays readable) and tag it: `git tag phase-NN-done && git push --tags`.
+8. **Merge** with a merge commit (no squash, so the phase history stays readable) and tag it: `git tag phase-<number>-done && git push --tags`.
 9. **Deploy nothing** until Phase 14. `main` must stay runnable on a local machine after every merge.
 
 ### Phase exit checklist (definition of done)
@@ -51,22 +52,30 @@ The brief gives 10 working days. Days 1–2 went on understanding, questions and
 |---|---|---|---|---|---|
 | 0 | Docs | Planning and tracking setup | `phase/00-planning-docs` | Day 2 | ✅ Merged (`phase-00-done`) |
 | 0.1 | Docs | Leader-call changes: PA role, data consistency, no letter | `phase/00.1-leader-call-changes` | Day 3 | ✅ Merged (`phase-00.1-done`) |
-| 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | 🚧 In progress |
-| 1 | Backend | Backend foundation | `phase/01-be-foundation` | Day 4 | ⬜ Not started |
-| 2 | Backend | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | Day 5 | ⬜ |
-| 3 | Backend | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | Day 5 | ⬜ |
-| 4 | Frontend | Frontend foundation, login, public pages | `phase/04-fe-foundation` | Day 6 | ⬜ |
-| 5 | Frontend | Setup screens: leader and PA, department head, staff builders | `phase/05-fe-award-setup` | Day 6 | ⬜ |
-| 6 | Backend | Applications and deadline lock (R4) | `phase/06-be-applications` | Day 7 | ⬜ |
-| 7 | Frontend | Applicant journey | `phase/07-fe-applicant` | Day 7 | ⬜ |
-| 8 | Backend | Masking, jury pool, conflicts, assignment (R1, R2) | `phase/08-be-masking-assignment` | Day 8 | ⬜ |
-| 9 | Backend | Judging, score audit, disqualification (R3) | `phase/09-be-judging-audit` | Day 8 | ⬜ |
-| 10 | Frontend | Staff operations and jury scoring | `phase/10-fe-masking-judging` | Day 8 | ⬜ |
-| 11 | Backend | Approval, results and labels, emails, reporting, full seed | `phase/11-be-approval-results` | Day 9 | ⬜ |
-| 12 | Backend | On-site rounds: slots, panels, panel scoring, averages, close, medals | `phase/12-be-onsite-rounds` | Day 9 | ⬜ |
-| 13 | Frontend | Approval, results, on-site rounds, dashboards | `phase/13-fe-results-onsite-dashboards` | Day 9 | ⬜ |
-| 14 | Ops | End-to-end tests and deployment (Supabase, Render, Vercel) | `phase/14-e2e-deploy` | Day 10 | ⬜ |
-| 15 | Docs | Final deliverables, self-review, walkthrough | `phase/15-final-review` | Day 10 | ⬜ |
+| 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | ✅ Merged (`phase-00.2-done`) |
+| 0.3 | Docs | Plain-language overview with diagrams | `phase/00.3-overview-page` | Day 5 | ✅ Merged (`phase-00.3-done`) |
+| 0.4 | Docs | New issues: branding, organisers, verification, entry limits, domains | `phase-0.4-issues` | Day 5 | 🚧 In progress |
+| 0.5 | Docs | UI flow diagrams and wireframes for every role (for the 9 Oct lead call) | `phase-0.5-ui` | Day 6 | ⬜ |
+
+**Build phases: DRAFT until the 9 Oct call** agrees the first-release scope (GAPS J1). Target days are on hold.
+
+| # | Track | Phase | Branch | Was (old plan) | Status |
+|---|---|---|---|---|---|
+| 1 | Backend | Backend foundation, plus the new tables | `phase-1-setup` | 1 | ⏸ Built and tested, parked unmerged |
+| 2 | Backend | Logins, roles, PA, departments as organisers, master data, organisations, membership verification | `phase-2-people` | 2 | ⬜ |
+| 3 | Backend | Award setup: rounds, forms, score sheets (R4), entry limit | `phase-3-awards` | 3 | ⬜ |
+| 4 | Backend | **New:** brand kits, award sites, pages, sections, versions, public images | `phase-4-sites` | — | ⬜ |
+| 5 | Frontend | Frontend foundation, login, the public award site | `phase-5-web` | 4 | ⬜ |
+| 6 | Frontend | Setup screens and the page builder | `phase-6-builder` | 5 | ⬜ |
+| 7 | Backend | Applications, deadline lock (R4), entry limit | `phase-7-apply` | 6 | ⬜ |
+| 8 | Frontend | Applicant screens | `phase-8-applicant` | 7 | ⬜ |
+| 9 | Backend | Masking, jury pool, conflicts, assignment, scoring, audit (R1, R2, R3) | `phase-9-judging` | 8 + 9 | ⬜ |
+| 10 | Frontend | Staff operations and jury screens | `phase-10-jury` | 10 | ⬜ |
+| 11 | Backend | Approval, results, emails, dashboards, seed | `phase-11-results` | 11 | ⬜ |
+| 12 | Backend | On-site rounds | `phase-12-onsite` | 12 | ⬜ |
+| 13 | Frontend | Results, on-site and dashboard screens | `phase-13-results-ui` | 13 | ⬜ |
+| 14 | Ops | End-to-end tests and deployment | `phase-14-deploy` | 14 | ⬜ |
+| 15 | Docs | Final deliverables, self-review, walkthrough | `phase-15-final` | 15 | ⬜ |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 in testing or review · ✅ merged to `main` · ⛔ blocked. The live status is in [PROGRESS.md](PROGRESS.md). This table is updated whenever a phase merges.
 
@@ -126,6 +135,8 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 in testing or review · 
 ---
 
 ## 4. Phase details
+
+> **Note (7 Oct).** The descriptions below use the **old** phase numbers (the "Was" column in §2). They'll be rewritten once the 9 Oct call fixes the scope. Until then, read them through the mapping in §2. The new work (award sites, page builder, verification, entry limit) is described in [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md).
 
 Each phase lists its goal, what it builds, the tests that must pass, what "done" means, and a manual check you can run by hand.
 

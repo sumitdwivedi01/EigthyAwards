@@ -7,12 +7,12 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-07 · Day 5 |
-| **Current phase** | Phase 0.3: Plain-language overview (🧪 docs ready, waiting for review and merge) |
-| **Current branch** | `phase/00.3-overview-page` |
-| **What runs today** | Nothing yet. The repo holds docs only. |
-| **Next action** | 1) Review and merge Phase 0.3, tag `phase-00.3-done`. 2) A new problem has been added to the brief: update the spec, plan and gaps for it before any building. Building is on hold until then. |
-| **Blockers** | None. Still open with defaults: A1–A4, A8–A10 ([GAPS.md §A](GAPS.md)). To confirm with the leader: G-I08 (what document-only awards should call a win). |
-| **Risk** | The timeline is tight: 16 phases in Days 4–10 (G-I09). The cut order is in PHASES.md §5. |
+| **Current phase** | Phase 0.4: New issues (🚧 analysis and proposals written; waiting for the owner's answers to GAPS J1–J12) |
+| **Current branch** | `phase-0.4-issues` |
+| **What runs today** | Nothing on `main`. The backend foundation (Phase 1) is built and tested on its own branch, but **parked** (tag `parked/phase-01-be-foundation`). |
+| **Next action** | 1) Owner answers [GAPS §J](GAPS.md) (J1–J12). 2) Update the spec and plan with the answers; merge Phase 0.4. 3) Phase 0.5: UI flow diagrams and wireframes for the **lead call on 9 Oct**. 4) After the call: fix the first-release scope and restart building. |
+| **Blockers** | Building waits for the 9 Oct call (scope). |
+| **Risk** | Day 5 of 10, with no code merged, and new scope (branded sites, verification) added. The first release must be cut (proposal §6). |
 
 ## Phase status board
 
@@ -23,8 +23,10 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
 | 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
 | 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | ✅ Merged | sumitdwivedi01/EigthyAwards#3 | 2026-10-06 · `phase-00.2-done` | n/a |
-| 0.3 | Plain-language overview | `phase/00.3-overview-page` | 🧪 In review | — | — | n/a |
-| 1 | Backend foundation | `phase/01-be-foundation` | ⬜ | — | — | — |
+| 0.3 | Plain-language overview | `phase/00.3-overview-page` | ✅ Merged | sumitdwivedi01/EigthyAwards#4 | 2026-10-07 · `phase-00.3-done` | n/a |
+| 0.4 | New issues (branding, organisers, verification, limits, domains) | `phase-0.4-issues` | 🚧 In progress | — | — | n/a |
+| 0.5 | UI flow and wireframes | `phase-0.5-ui` | ⬜ | — | — | n/a |
+| 1 | Backend foundation | `phase/01-be-foundation` (becomes `phase-1-setup`) | ⏸ Parked: built, 62 tests passing, not merged | — | — | 62 passing |
 | 2 | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
 | 3 | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
 | 4 | Frontend foundation | `phase/04-fe-foundation` | ⬜ | — | — | — |

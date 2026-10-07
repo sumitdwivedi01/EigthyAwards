@@ -30,3 +30,7 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** A new problem has been added to the brief. Update the spec, plan and gaps for it, then restart building.
 - **Stuck:** Nothing.
 - **Plan changed:** Building is on hold until the plan is updated for the new problem.
+- **Later on Day 5:** New issues from the owner: organisers want to keep their **brand** (e.g. FPO Awards), run their award on their own, show the UI before building, verify applicants, and limit entries. Studied the FPO Awards site, wrote proposals (branded award sites built from ready-made sections, organiser = department, membership verification, entry limit, own domains in steps) and 12 questions. See [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md).
+- **Next:** Answers to the questions, then UI flow diagrams and wireframes for the lead call on 9 Oct.
+- **Stuck:** The first release has to be smaller; to agree on the call.
+- **Plan changed:** Added Phases 0.4 and 0.5, a new build phase for award sites, and simpler branch names. Target days on hold until 9 Oct.

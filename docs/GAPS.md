@@ -21,6 +21,7 @@
 | G | Repository and process gaps | 7 | 4 |
 | H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 11 |
+| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 16 | 16 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -199,6 +200,31 @@ Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
 
 ---
 
+## J. New issues (Day 5): branded sites, organisers, verification, entry limits, domains
+
+From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md). J1–J12 are questions for the owner; J13–J16 are gaps the proposal creates.
+
+| ID | Question or gap | Default / proposal | Phase | Status |
+|---|---|---|---|---|
+| G-J01 | Is the 10-day deadline fixed? If yes, which smaller first release? | Fixed; the cut in proposal §6 | Plan | Decision needed |
+| G-J02 | Page builder for all awards, or only external organisers? | All awards | 4, 6 | Decision needed |
+| G-J03 | Can a department head (the organiser's lead) create awards, or only staff? | Staff only | 3 | Decision needed |
+| G-J04 | Can one person head more than one department? | Yes | 2 | Decision needed |
+| G-J05 | Does an award site need the leader's or a PA's approval before going live? | No; the leader can unpublish | 4 | Decision needed |
+| G-J06 | Brand kit per department with per-award overrides, or per award only? | Per department, with overrides | 4 | Decision needed |
+| G-J07 | Entry limit: count submitted applications only? Show "places left" publicly? | Submitted only; hidden unless switched on | 3, 7 | Decision needed |
+| G-J08 | Delete verification documents 12 months after results, keeping only the "verified" record? | Yes (a written exception to "never hard-delete") | 2 | Decision needed |
+| G-J09 | Verify membership before submission, or after submission but before judging? | After submission, before judging | 2, 7, 9 | Decision needed |
+| G-J10 | Show past winners automatically on award sites? | Yes, switched on per site | 4, 11 | Decision needed |
+| G-J11 | Simpler branch names: number plus one word? | Yes, from Phase 0.4 | Plan | Decision needed |
+| G-J12 | Bring the 6 Oct decisions (scores, medals, build order, skeleton deploy) from the parked branch onto `main`? | Yes, in Phase 0.4 | 0.4 | Decision needed |
+| G-J13 | Personal documents (proof of employment) fall under India's DPDP Act 2023: consent, purpose, minimal data, retention. | Consent at upload; ID card or letter only, salary hidden; staff, department head, leader and PAs only, never jury; deletion per J08 | 2 | Open |
+| G-J14 | Page content must never become a security hole (scripts, phishing links, broken layouts). | Fixed section types; rich text limited to bold, italic, headings, lists and links; no HTML or scripts; images only, 5 MB, re-encoded | 4, 6 | Open |
+| G-J15 | Public images must never sit next to private applicant files. | A separate public storage bucket for site images | 4 | Open |
+| G-J16 | Sub-domains and own domains need a domain we own and Vercel domain setup, which can't be tested in the 10 days. | Store a slug and an empty `customDomain` field now; build sub-domains and own domains later | 4, later | Open |
+
+---
+
 ## G. Repository and process gaps
 
 | ID | Gap | Fix | Status |
@@ -218,5 +244,6 @@ Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-07 | New issues: section J added (12 questions, 4 gaps) from the branding, organiser, verification, entry-limit and domain discussion. |
 | 2026-10-06 | Answers on shop-floor and open questions: A11–A14 decided or answered; E02, E07, E08, E14 and E15 answered; C15 removed; phase numbers after 11 shifted by one (new Phase 12, on-site rounds); new section I (13 gaps). |
 | 2026-10-05 | Leader call: the letter gaps removed (A5, A6, C08, C09); E01 and E03 answered; A7 and C07 decided; D01 fixed; new decisions A11–A14; new section H (12 gaps on the PA role and data consistency). |

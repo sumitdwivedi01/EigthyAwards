@@ -7,7 +7,8 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 1. [docs/PROGRESS.md](docs/PROGRESS.md): where we are, the current phase and branch, the next action.
 2. [docs/PHASES.md](docs/PHASES.md): the plan. Work **only** on the current phase.
 3. [docs/GAPS.md](docs/GAPS.md) §A: open decisions. The defaults apply until they're answered.
-4. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
+4. **New (7 Oct):** [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): branded award sites, organisers, verification, entry limits, domains. Proposals until the owner answers GAPS §J and the 9 Oct lead call fixes the scope.
+5. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
 
 ## Repo map
 
@@ -18,7 +19,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 ## Workflow rules (the owner's)
 
-- **One branch per phase:** `phase/NN-<track>-<name>`, cut from an up-to-date `main`. Never commit straight to `main`.
+- **One branch per phase:** `phase-<number>-<word>` (e.g. `phase-2-people`; simple names from 7 Oct), cut from an up-to-date `main`. Never commit straight to `main`.
 - A backend phase is merged before the frontend phase that uses it.
 - A phase merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-NN-done`.
 - **No deployment before Phase 14.**

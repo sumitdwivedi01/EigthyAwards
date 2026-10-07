@@ -84,3 +84,15 @@ You won't see the client's documents or data. Make up your own test data.
 Ten working days at your own pace, from our office.
 
 If I can't see what I'm looking for along the way, I will tell you and we stop there. You keep everything you build.
+
+---
+
+## Addendum (7 Oct 2026): new needs raised during the build
+
+*Not part of the original brief. Recorded from the owner's discussion with the mentor, so the requirements stay in one place. Analysis and proposals: [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md).*
+
+- Show how the platform will **look and flow** (UI screens for each user) before building it.
+- Award organisers who already have their own website and brand value (example: FPO Awards, face-cii.in/fpo-awards) must be able to **keep that brand** when their award is listed on the platform. Staff need the freedom to build rich award pages (photos, several pages, categories, the form) **without a developer**, unlike today's minimal award listings.
+- An organisation that brings its award to the platform runs it **on its own**: the leader creates a department for it, makes the organiser's person its head, and they then add their own staff and jury and see only their own data.
+- **One entry per organisation** per award. Staff can **limit the number of entries**. The person filling in the form should prove they work for the organisation (for example a LinkedIn profile and a proof-of-employment document).
+- Explore whether an organiser's award can **stand out**, including having its own domain.
