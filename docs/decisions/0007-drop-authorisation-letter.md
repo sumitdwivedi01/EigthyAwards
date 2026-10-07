@@ -1,6 +1,6 @@
 # 0007. Drop the signed authorisation letter (for now)
 
-- Status: **Accepted** (leader call, 2026-10-05). What replaces it is **open**: GAPS A13, G-H01.
+- Status: **Accepted** (leader call, 2026-10-05). The letter stays dropped. What replaces it was decided on 7 Oct: proof documents with every application, see [ADR 0010](0010-proof-documents-and-entry-limit.md).
 - Date: 2026-10-05
 - Related: spec §5.2, §5.6; this supersedes the letter parts of GAPS G-C08 and G-C09
 

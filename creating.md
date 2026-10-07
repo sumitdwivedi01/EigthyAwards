@@ -103,7 +103,7 @@ Updated every working session. (The detailed versions live in `docs/`.)
 - It's cloud PostgreSQL plus file storage (for uploaded documents, from Phase 6).
 - Tables get there through the **migration files**, run by Render on deploy. My laptop data is never copied.
 - Only starter lists and the leader account are seeded. Everything else comes from real users.
-- First used at the **end of Phase 4** (test deploy), then for real in **Phase 14**.
+- First used at the **end of Phase 5** (test deploy), then for real in **Phase 14**.
 - Two addresses: `DIRECT_URL` for migrations, `DATABASE_URL` (pooled) for the running app.
 - Plan: two Supabase projects, *staging* (tests) and *prod* (real), so experiments can't hurt real data.
 
@@ -119,8 +119,18 @@ Updated every working session. (The detailed versions live in `docs/`.)
 - **One entry per organisation, plus a limit** → staff can cap the number of entries; fake duplicates count only once.
 - **Verify the applicant** → LinkedIn link + proof of employment, checked once per person per organisation and reused for every award. It's personal data, so: consent, minimal documents, deleted after a while, never shown to jury.
 - **Own domain** → in steps: `platform/awards/fpo` now → `fpo.platform.in` later → `fpoawards.in` on request. The brand matters more than the address.
-- **Honest scope** → it can't all fit in 10 days. The 9 Oct call decides the smaller first release.
+- **Honest scope** → it can't all fit in 10 days. We chose to extend the plan (see below), not to cut.
 - **Simple branch names** → `phase-2-people` instead of `phase/02-be-identity-orgs`.
+
+**What we decided (7 Oct, my answers)**
+- **Plan extended, nothing cut** → about one phase per day, to Day 21. The reviewer must agree on 9 Oct.
+- **Award sites for every award** → the same engine for all, so CII's own awards look good too.
+- **Staff decide what shows where, and can redesign after publishing** → each publish is a saved version, so mistakes can be undone.
+- **No approval to go live** → organisers are independent. The leader can look, not edit.
+- **Proof with every application** → an ID (masked Aadhaar only) + proof of employment + LinkedIn link. No proof, no submit; never shown to jury.
+- **Entry limit shown to everyone** → "499 / 500", so applicants know how many places are left.
+- **Only staff create awards**, and one person can head several departments.
+- **Old decisions brought over** (whole-number scores, one medal set per award, build order) → they were stuck on the parked branch.
 
 ---
 

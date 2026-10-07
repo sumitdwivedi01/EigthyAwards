@@ -7,13 +7,15 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | # | Decision | Status | Date |
 |---|---|---|---|
 | [0001](0001-frontend-backend-split-and-hosting.md) | Split into a Next.js frontend (Vercel) and an Express API (Render), with Supabase PostgreSQL and Storage | Accepted | 2026-10-04 |
-| [0002](0002-tech-stack.md) | Tech stack for the backend and the frontend | Proposed | 2026-10-04 |
-| [0003](0003-authentication-and-sessions.md) | Our own authentication in the API; session cookie through the Next.js proxy | Proposed | 2026-10-04 |
+| [0002](0002-tech-stack.md) | Tech stack for the backend and the frontend | Accepted (6 Oct) | 2026-10-04 |
+| [0003](0003-authentication-and-sessions.md) | Our own authentication in the API; session cookie through the Next.js proxy | Accepted (6 Oct) | 2026-10-04 |
 | [0004](0004-git-branching-workflow.md) | One branch per phase → pull request → `main`, tagged per phase | Accepted | 2026-10-04 |
 | [0005](0005-leader-pa-role.md) | A "Leader's PA" role for the leader's personal team (organisational work only) | Accepted (powers proposed) | 2026-10-05 |
 | [0006](0006-data-consistency-by-design.md) | Data consistency by design: one record, normalised, controlled lists, DB constraints | Accepted | 2026-10-05 |
 | [0007](0007-drop-authorisation-letter.md) | Drop the signed authorisation letter for now; what replaces it is open | Accepted | 2026-10-05 |
 | [0008](0008-onsite-rounds.md) | On-site rounds as a round type (live presentations and shop-floor competitions): panels, averages, no approval, Gold/Silver/Bronze | Accepted | 2026-10-06 |
+| [0009](0009-branded-award-sites.md) | Branded award sites built from ready-made sections, for all awards; staff change them any time; no approval | Accepted | 2026-10-07 |
+| [0010](0010-proof-documents-and-entry-limit.md) | Proof of identity and employment with every application; an entry limit with a public counter | Accepted | 2026-10-07 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 

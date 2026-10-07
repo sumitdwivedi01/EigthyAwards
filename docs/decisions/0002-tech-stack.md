@@ -1,6 +1,6 @@
 # 0002. Tech stack for the backend and the frontend
 
-- Status: **Proposed**. It's what we build unless you object. Versions are pinned during Phase 1 (backend) and Phase 4 (frontend), and the exact versions are recorded in PROGRESS.md.
+- Status: **Accepted** (6 Oct 2026, confirmed before Phase 1). Versions are pinned during Phase 1 (backend) and Phase 4 (frontend), and the exact versions are recorded in PROGRESS.md.
 - Date: 2026-10-04
 - Related gaps: G-B14
 

@@ -4,9 +4,11 @@ An industry body in India runs about 80 awards (business excellence, energy, saf
 
 Awards are judged in rounds that staff configure: **document review** (jury score the written application; Shortlisted / Rejected, approved by the department head) and **on-site** (a panel of 2–5 jury score a live presentation on their devices; the average counts; Gold / Silver / Bronze). Shop-floor competitions such as Kaizen and 5S are simply on-site-only cycles.
 
+**Branded award sites.** Every award gets its own site in the organiser's brand, built by staff from ready-made sections, with no developer. Outside organisers (for example the FPO Awards team) run their awards on the platform on their own. Every application carries proof of identity and employment, and awards can cap their entries, with the count shown publicly.
+
 It is a 10-working-day build. The problem statement is in [docs/brief.md](docs/brief.md).
 
-> **Status:** planning complete (Phase 0), updated after the leader call (Phase 0.1) and the answers on shop-floor competitions (Phase 0.2). No runnable code yet. See [docs/PROGRESS.md](docs/PROGRESS.md) for the live state.
+> **Status:** planning and client answers done (Phases 0–0.4). Next: UI flow and wireframes (Phase 0.5), then building. The backend foundation is built and tested but parked on its own branch. See [docs/PROGRESS.md](docs/PROGRESS.md) for the live state.
 
 ## Where to look
 
@@ -24,7 +26,7 @@ It is a 10-working-day build. The problem statement is in [docs/brief.md](docs/b
 ## Shape of the system
 
 - **`Front-End/`**: a Next.js app on **Vercel**. Screens for each role area: public, applicant, jury, staff, department head, and leader with their PAs (the leader's personal team). No business rules.
-- **`Backend/`**: an Express + TypeScript API on **Render**. A modular monolith of 17 modules; every check happens in a service that takes the acting user first.
+- **`Backend/`**: an Express + TypeScript API on **Render**. A modular monolith of 18 modules; every check happens in a service that takes the acting user first.
 - **Database and files**: PostgreSQL and private file storage on **Supabase**.
 
 The four rules from the brief (blind judging, conflicts of interest, score audit, question versioning) are enforced on the server and covered by automated tests.

@@ -34,3 +34,5 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** Answers to the questions, then UI flow diagrams and wireframes for the lead call on 9 Oct.
 - **Stuck:** The first release has to be smaller; to agree on the call.
 - **Plan changed:** Added Phases 0.4 and 0.5, a new build phase for award sites, and simpler branch names. Target days on hold until 9 Oct.
+- **Decided (Day 5, evening):** Answered all 12 questions. Every award gets a branded site that staff build and can change at any time; an outside organiser runs its award as its own department; each application carries an ID and a proof of employment; an entry limit shows publicly as "499 / 500". The deadline can move, so the plan is **extended, not cut**. Spec, plan, gaps and decision records (ADR 0009, 0010) updated.
+- **Plan changed:** A new Phase 4 (award sites); old Phases 8 and 9 merged; simple branch names; target days now run to Day 21, to agree with the reviewer on 9 Oct.

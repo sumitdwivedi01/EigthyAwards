@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-07 (Day 5, later) | **Owner's answers (GAPS §J).** The deadline can move, so the plan is **extended, not cut**: one build phase per working day, Days 7 to 21, to be agreed with the reviewer on the 9 Oct call. Award sites for all awards (new Phase 4); proof documents and the entry limit in Phases 7 and 8; the skeleton deploy check moves to the end of Phase 5; the 6 Oct decisions brought over from the parked branch. Phase descriptions rewritten in the new numbering. | Owner's answers; ADR 0009, 0010 |
 | 2026-10-07 (Day 5) | **New issues: branded award sites, organisers running their own awards, membership verification, entry limits, own domains, and showing the UI before building.** Added Phase 0.4 (analysis) and Phase 0.5 (UI flow and wireframes, for the lead call on 9 Oct). Draft build list: a new **Phase 4 (award sites)**, old Phases 8 and 9 merged, the frontend phases shifted by one. **Simpler branch names** (number plus one word). Target days on hold until the 9 Oct call agrees a smaller first release. Phase 1 code stays parked (tag `parked/phase-01-be-foundation`). | [docs/proposals/0.4-new-issues.md](proposals/0.4-new-issues.md) |
 | 2026-10-06 (Day 4) | **Answers on shop-floor and open questions.** Added Phase 0.2 (docs only) and a new **Phase 12: on-site rounds (backend)**. The old Phases 12, 13 and 14 become 13, 14 and 15. Phases 1, 2, 3, 6, 8 and 11 updated (round types and result labels, an optional questionnaire, standalone on-site criteria, category fees, optional GSTIN, team members, three seeded cycles). Phase 13 gains the on-site screens. Days re-planned from Day 4, and the cut order extended. | Shop-floor competitions are judged on site by a panel; a live round with no approval; Gold/Silver/Bronze; one real application per organisation. ADR 0008. |
 | 2026-10-05 (Day 3) | **Leader call.** Added Phase 0.1 (docs only). Phase 1 schema: PA role, master data tables, case-insensitive unique indexes, identity snapshot; authorisation letter removed. Phase 2 grows: PA invites and removal, account deactivation, master-data module, organisation normalisation and audited corrections. Phase 3: awards also created by the leader or a PA; staff on many awards. Phases 5, 6, 7, 10, 11 and 12 updated to match. Phase 2 moves to Day 4, and Phases 12 and 13 now share Day 9. Two items added to the cut order. | Leader call: staff on many awards, award to the organisation, no signed letter, a Leader's PA role, data consistency as the main goal. ADRs 0005, 0006, 0007. |
@@ -27,7 +28,7 @@ These steps are the same for every phase. A phase is either **done** (all of the
 6. **Update tracking:** [PROGRESS.md](PROGRESS.md) (what was achieved), [GAPS.md](GAPS.md) (gaps closed or found), [Daily.md](../Daily.md), and an ADR if we made a decision.
 7. **Open a pull request** into `main` (the template has the checklist), wait for green CI, and read the diff line by line.
 8. **Merge** with a merge commit (no squash, so the phase history stays readable) and tag it: `git tag phase-<number>-done && git push --tags`.
-9. **Deploy nothing** until Phase 14. `main` must stay runnable on a local machine after every merge.
+9. **Deploy nothing** until Phase 14, except the throw-away skeleton check at the end of Phase 5 (GAPS A2). `main` must stay runnable on a local machine after every merge.
 
 ### Phase exit checklist (definition of done)
 
@@ -46,7 +47,9 @@ These steps are the same for every phase. A phase is either **done** (all of the
 
 ## 2. Timeline at a glance
 
-The brief gives 10 working days. Days 1–2 went on understanding, questions and design. Today's planning is Phase 0. Phases 0.1 (Day 3) and 0.2 (Day 4) went on client answers. That leaves **days 4–10 for 16 phases (1 to 15)**, about two and a half a day, with Days 8 and 9 carrying three phases each. This is tight (G-I09), so the **cut order** at the end of this file says what gets dropped first.
+The brief gives 10 working days. Days 1–5 went on understanding, questions, design and client answers (Phases 0 to 0.4). On 7 Oct the owner decided the deadline **can move**: the plan is extended rather than cut, as long as every detail is covered. The build runs at **about one phase per working day**, which is realistic for phases of this size, from Day 7 to Day 21. The extension is to be agreed with the reviewer on the **9 Oct call** (Day 7).
+
+**Docs phases**
 
 | # | Track | Phase | Branch | Target day | Status |
 |---|---|---|---|---|---|
@@ -57,25 +60,26 @@ The brief gives 10 working days. Days 1–2 went on understanding, questions and
 | 0.4 | Docs | New issues: branding, organisers, verification, entry limits, domains | `phase-0.4-issues` | Day 5 | 🚧 In progress |
 | 0.5 | Docs | UI flow diagrams and wireframes for every role (for the 9 Oct lead call) | `phase-0.5-ui` | Day 6 | ⬜ |
 
-**Build phases: DRAFT until the 9 Oct call** agrees the first-release scope (GAPS J1). Target days are on hold.
+**Build phases** (simple branch names from 7 Oct; the "Was" column maps to the old numbering):
 
-| # | Track | Phase | Branch | Was (old plan) | Status |
-|---|---|---|---|---|---|
-| 1 | Backend | Backend foundation, plus the new tables | `phase-1-setup` | 1 | ⏸ Built and tested, parked unmerged |
-| 2 | Backend | Logins, roles, PA, departments as organisers, master data, organisations, membership verification | `phase-2-people` | 2 | ⬜ |
-| 3 | Backend | Award setup: rounds, forms, score sheets (R4), entry limit | `phase-3-awards` | 3 | ⬜ |
-| 4 | Backend | **New:** brand kits, award sites, pages, sections, versions, public images | `phase-4-sites` | — | ⬜ |
-| 5 | Frontend | Frontend foundation, login, the public award site | `phase-5-web` | 4 | ⬜ |
-| 6 | Frontend | Setup screens and the page builder | `phase-6-builder` | 5 | ⬜ |
-| 7 | Backend | Applications, deadline lock (R4), entry limit | `phase-7-apply` | 6 | ⬜ |
-| 8 | Frontend | Applicant screens | `phase-8-applicant` | 7 | ⬜ |
-| 9 | Backend | Masking, jury pool, conflicts, assignment, scoring, audit (R1, R2, R3) | `phase-9-judging` | 8 + 9 | ⬜ |
-| 10 | Frontend | Staff operations and jury screens | `phase-10-jury` | 10 | ⬜ |
-| 11 | Backend | Approval, results, emails, dashboards, seed | `phase-11-results` | 11 | ⬜ |
-| 12 | Backend | On-site rounds | `phase-12-onsite` | 12 | ⬜ |
-| 13 | Frontend | Results, on-site and dashboard screens | `phase-13-results-ui` | 13 | ⬜ |
-| 14 | Ops | End-to-end tests and deployment | `phase-14-deploy` | 14 | ⬜ |
-| 15 | Docs | Final deliverables, self-review, walkthrough | `phase-15-final` | 15 | ⬜ |
+| # | Track | Phase | Branch | Was | Target day | Status |
+|---|---|---|---|---|---|---|
+| — | Call | Lead call: show the UI flow, agree the extended plan | — | — | Day 7 (9 Oct) | ⬜ |
+| 1 | Backend | Backend foundation, plus the new tables | `phase-1-setup` | 1 | Day 7 | ⏸ Built and tested, parked unmerged |
+| 2 | Backend | Logins, roles, PA, departments (incl. external organisers), master data, organisations | `phase-2-people` | 2 | Day 8 | ⬜ |
+| 3 | Backend | Award setup: rounds, forms, score sheets (R4), entry limit setting | `phase-3-awards` | 3 | Day 9 | ⬜ |
+| 4 | Backend | **New:** brand kits, award sites, pages, sections, versions, public images | `phase-4-sites` | — | Day 10 | ⬜ |
+| 5 | Frontend | Frontend foundation, login, public award sites; skeleton deploy check | `phase-5-web` | 4 | Day 11 | ⬜ |
+| 6 | Frontend | Setup screens, brand kit and the site builder | `phase-6-builder` | 5 | Day 12 | ⬜ |
+| 7 | Backend | Applications, proof documents, entry limit, deadline lock (R4) | `phase-7-apply` | 6 | Day 13 | ⬜ |
+| 8 | Frontend | Applicant screens (proof upload, entry counter) | `phase-8-applicant` | 7 | Day 14 | ⬜ |
+| 9 | Backend | Proof check, masking, jury pool, conflicts, assignment, scoring, audit (R1, R2, R3) | `phase-9-judging` | 8 + 9 | Day 15 | ⬜ |
+| 10 | Frontend | Staff operations (incl. proof check) and jury screens | `phase-10-jury` | 10 | Day 16 | ⬜ |
+| 11 | Backend | Approval, results, emails, dashboards, seed | `phase-11-results` | 11 | Day 17 | ⬜ |
+| 12 | Backend | On-site rounds | `phase-12-onsite` | 12 | Day 18 | ⬜ |
+| 13 | Frontend | Results, on-site and dashboard screens | `phase-13-results-ui` | 13 | Day 19 | ⬜ |
+| 14 | Ops | End-to-end tests and deployment | `phase-14-deploy` | 14 | Day 20 | ⬜ |
+| 15 | Docs | Final deliverables, self-review, walkthrough | `phase-15-final` | 15 | Day 21 | ⬜ |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 in testing or review · ✅ merged to `main` · ⛔ blocked. The live status is in [PROGRESS.md](PROGRESS.md). This table is updated whenever a phase merges.
 
@@ -115,8 +119,8 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 in testing or review · 
 │  │  ├─ lib/                 db, clock, errors, logger, ids, normalize, states (GST codes), storage/, mailer/, auth/
 │  │  ├─ middleware/          actor (session → actor), error-handler, validate, rate-limit
 │  │  └─ modules/<module>/    routes.ts · service.ts · access.ts · schemas.ts · views.ts · *.test.ts
-│  │       modules (17): identity, departments, master-data, organisations, awards, forms,
-│  │                scoring, applications, masking, jury-pool, judging, onsite,
+│  │       modules (18): identity, departments, master-data, organisations, awards, forms,
+│  │                scoring, sites, applications, masking, jury-pool, judging, onsite,
 │  │                approval, results, reporting, audit, notifications
 │  └─ tests/                  helpers (test DB reset, factories, clock), integration suites
 └─ Front-End/                 Next.js + TypeScript UI, deployed to Vercel
@@ -136,7 +140,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 in testing or review · 
 
 ## 4. Phase details
 
-> **Note (7 Oct).** The descriptions below use the **old** phase numbers (the "Was" column in §2). They'll be rewritten once the 9 Oct call fixes the scope. Until then, read them through the mapping in §2. The new work (award sites, page builder, verification, entry limit) is described in [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md).
+> The descriptions use the **7 Oct numbering** (the old numbers are in the "Was" column in §2). The new work comes from [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md), spec §5.19–§5.20 and ADRs 0009–0010.
 
 Each phase lists its goal, what it builds, the tests that must pass, what "done" means, and a manual check you can run by hand.
 
@@ -168,9 +172,37 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ---
 
+### Phase 0.3: Plain-language overview (Docs) ✅
+
+The whole plan in plain language with diagrams ([docs/overview/](overview/)) for the mentor meeting; the out-of-date architecture PDF removed.
+
+---
+
+### Phase 0.4: New issues and the owner's answers (Docs)
+
+**Goal.** Analyse the new issues (branded award sites, external organisers, proof documents, entry limit, own domains, showing the UI first), get the owner's answers, and update every document. Bring the 6 Oct decisions over from the parked branch.
+
+**Builds.** [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md); spec §5.19–§5.20 and related sections; ADRs 0009–0010; GAPS §J; this plan; PROGRESS, CLAUDE.md, the overview, creating.md, Daily.md.
+
+**Done when.** Every answer is reflected in the spec, plan and gaps; merged and tagged `phase-0.4-done`.
+
+---
+
+### Phase 0.5: UI flow and wireframes (Docs)
+
+**Goal.** Show how the platform looks and flows, **before building**, for the lead call on 9 Oct.
+
+**Builds.** In `docs/ui/`: one flow diagram per role (applicant, staff including the site builder, jury for document and on-site rounds, department head or external organiser, leader and PA); simple grey wireframes of the key screens (Open awards, an award site, the site builder, the application form with proof upload and entry counter, proof check, jury scoring on desktop and phone, the staff, department and leader dashboards); a screen-share page, like the 0.3 overview.
+
+**Done when.** Every role's journey can be walked through on screen without code; merged and tagged `phase-0.5-done`.
+
+---
+
 ### Phase 1: Backend foundation (Backend)
 
 **Goal.** A running Express + TypeScript API with the complete database schema, shared libraries, a real-database test harness and CI. It has no business features yet.
+
+**Status.** Built and tested (62 tests) on `phase/01-be-foundation`, parked since 7 Oct. **To resume:** rebase it on `main` as `phase-1-setup`, then add the 7 Oct tables and fields in a new migration: `BrandKit`, `AwardSite`, `SitePage`, `SitePageVersion`, `MediaAsset`, `Cycle.maxEntries`, the application proof fields, and the `IDENTITY_PROOF` and `EMPLOYMENT_PROOF` file kinds with `purgedAt`.
 
 **Builds.**
 - `package.json` scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `test`, `db:migrate`, `db:seed`, `db:reset`. Node version pinned (`.nvmrc` and `engines`).
@@ -205,7 +237,7 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 **Builds.**
 - **identity:** register (applicants), login and logout (bcrypt; a signed session token in an httpOnly cookie, [ADR 0003](decisions/0003-authentication-and-sessions.md)), `GET /api/auth/me`, invites (AuthToken, hashed, single use, expiring), accept invite, forgot password and reset password, and rate limits on login and reset. Also `invitePA` and `removePA` (leader only); `resendInvite`, `deactivateUser` and `reactivateUser` (leader and PA; never the leader's or another PA's account; shows what the person still owns first, G-H04). A deactivated user or a removed PA is refused on their next request.
 - The actor middleware loads the user and every scoped role on each request. Access helpers: `requireLeader`, `requireLeaderOrPA`, `requireDeptHead(deptId)`, `requireDeptStaff(deptId)`, `requireStaffOfAward`, `requireStaffOfCycle`, `requireJuryOfCycle`, `requireOrgMember`.
-- **departments:** create a department and appoint or replace its head (leader or PA); add staff to a department (department head for their own; leader or PA for any); list departments.
+- **departments:** create a department (part of the industry body, or an external award organiser) and appoint or replace its head (leader or PA; one person may head several departments); add staff to a department (department head for their own; leader or PA for any); list departments.
 - **master-data:** award domains and organisation types (list for everyone; add, rename, retire for leader and PA; retired values can't be picked; renames audited, G-H10). The seed loads starter lists.
 - **organisations:** create (with PAN and GSTIN checks), join (needs PAN and GSTIN, or PAN and the official email when there is no GSTIN; the error says which state's GSTIN is on record, G-H05), list mine, edit profile; `correctOrganisation` with a reason (leader or PA). Every value is normalised; a GSTIN/state mismatch returns a warning (G-H06). Profile edits and corrections are audited. Also a privacy-safe view.
 - Every write in this phase records an audit event with the actor's role, including PA actions.
@@ -226,7 +258,7 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 **Builds.**
 - **awards:** create an award (department staff in their department, or the leader or a PA in any department; the domain comes from the master data list; the name is unique per department regardless of case; a staff creator becomes award staff), list, get. The department head (own department), the leader or a PA assigns staff to or removes staff from an award. **One staff member can hold many awards**, across departments; "my awards" lists them all.
-- **cycles:** create (label unique per award); update settings (dates, fee in paise for the cycle and optionally per entry category, blind judging, entry categories, and the **rounds in order**: document review, on-site, or both; each with its result labels (defaults Shortlisted/Rejected and Gold/Silver/Bronze/Participated, renamable, with the label that moves an entry on) and, for on-site, the panel size of 2 to 5); the publish gate (spec §5.3: questions are needed only when the first round is a document review); fee and blind judging frozen after publish; status derived from the clock (G-C04).
+- **cycles:** create (label unique per award); update settings (dates, fee in paise for the cycle and optionally per entry category, blind judging, entry categories, and the **rounds in order**: document review, on-site, or both; each with its result labels (defaults Shortlisted/Rejected and Gold/Silver/Bronze/Participated, renamable, with the label that moves an entry on) and, for on-site, the panel size of 2 to 5); an optional entry limit (`maxEntries`, never below the current count); the publish gate (spec §5.3: questions are needed only when the first round is a document review); fee and blind judging frozen after publish; status derived from the clock (G-C04).
 - **forms:** a draft editor (Zod questionnaire schema; the server generates keys; question types include TEAM_MEMBERS; an empty questionnaire is allowed for on-site-first cycles). Publishing a version is an insert only, with a change summary and a NEW/UPDATED/UNCHANGED diff. Within a cycle, nothing can be removed and no question type can change; options can only be added. Also: get a version, list versions, compare two versions.
 - **scoring:** a scoring sheet per round; `validateWeights` (100 at every level; in document rounds every indicator points to a real question; on-site criteria stand alone); `computeScore` and `averageScore` as pure functions.
 - **public:** the Open awards list and cycle details (published, and `opensAt ≤ now < deadline`).
@@ -240,7 +272,25 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ---
 
-### Phase 4: Frontend foundation, login, public pages (Frontend)
+### Phase 4: Award sites (Backend)
+
+**Goal.** Everything a branded award site needs on the server, with no developer involved (spec §5.19, ADR 0009).
+
+**Builds.**
+- **sites** module: brand kit per department (department head and department staff); award site per award (slug unique regardless of case, status, theme overrides, empty `customDomain`); pages (slug, title, menu order, shown in menu); page drafts; `publishPage` writes an immutable `SitePageVersion` (audited); `restoreVersion`; `unpublishSite`.
+- **Section schemas** (Zod, one per type): banner, rich text, icon cards, categories, eligibility, process, gallery, past winners, jury, partners, FAQ, contacts, video, each with its layout options. Rich text is stored as a safe structure (no HTML); links must be http(s).
+- **Automatic data** resolved at read time: the deadline, the entry count against the limit, categories and fees, key dates, past winners (published results only), jury (only those chosen, never in a blind award while judging runs).
+- **Images:** upload to a **public** bucket (separate from private files), JPG, PNG or WebP up to 5 MB, re-encoded and resized, alt text required.
+- **Public read API:** published site and page by slug, cache-friendly; never returns drafts.
+- Permission rules: staff and the department head of the award edit; the leader and PAs read only.
+
+**Tests.** Publishing creates a new version and the old one stays readable; editing a published version is refused (DB trigger); restore works. A draft never appears in the public API. A section with a script, an HTML string or a `javascript:` link is refused. Automatic sections match the cycle (deadline, categories, count). Past winners show only published results. The leader or a PA trying to edit gets 403; staff of another award get 403. A non-image upload is refused.
+
+**Done when.** Through the API, staff build a three-page site with five section types, publish it, change it, republish and restore, with no developer.
+
+---
+
+### Phase 5: Frontend foundation, login, public award sites (Frontend)
 
 **Goal.** A Next.js app that talks to the backend, logs people in and sends each role to its own area.
 
@@ -251,27 +301,30 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 - Pages: login, register, forgot password, reset password, accept invite.
 - `middleware.ts` coarse gate (logged in or not). Each role layout checks `/me` and redirects to the role's home page.
 - An app shell per role area, plus 403 and 404 pages.
-- Public pages: Open awards and Award details.
+- Public pages: **Open awards** as branded cards, and the **public award site renderer** (`/awards/[slug]` and its pages): every section type, responsive, cached, with share previews.
+- **Skeleton deploy check** at the end (GAPS A2): deploy the API to Render and this app to Vercel against a staging Supabase project; check health, migrations (including `citext`), login through the proxy in Chrome and Safari, the Data API locked down, and a published award site loading on a phone. Results go in GAPS (G-B02, G-B04, G-B05, G-B09, G-B16).
 - `.github/workflows/frontend-ci.yml`: lint, typecheck, build.
 
 **Tests.** Unit tests for the api-client error mapping and the formatters.
 
-**Done when.** Every seeded role logs in and lands in its own area. Visiting another role's area is refused. Open awards lists the published cycles.
+**Done when.** Every seeded role logs in and lands in its own area. Visiting another role's area is refused. Open awards lists the published cycles as branded cards, and a seeded award site renders on desktop and phone.
 
 **Manual check.** Log in as each seeded user, one after another.
 
 ---
 
-### Phase 5: Setup screens: leader and PA, department head, staff (Frontend)
+### Phase 6: Setup screens, brand kit and the site builder (Frontend)
 
-**Goal.** Everything from Phase 2 and Phase 3 can be done in the UI, so no code change is needed to create an award.
+**Goal.** Everything from Phases 2, 3 and 4 can be done in the UI: no code change is needed to create an award or build its branded site.
 
 **Builds.**
 - Leader and PA: departments (list, create), appoint or replace a head; people (find a user, add staff to departments, assign staff to awards, resend invite, deactivate or reactivate); create an award in any department; master data (domains, organisation types); organisations (find, correct with a reason).
 - Leader only: PA team (invite, remove).
 - Department head: department staff (invite or add), assign staff to awards.
 - Staff: My awards (all assigned awards, across departments), Create award, and **cycle setup** with these tabs: basics and dates · entry categories · settings (fee, blind, rounds) · **questionnaire builder** · **scoring sheet builder** (running weight totals) · publish (gate errors listed). Also the form versions list and "publish new version" with a change summary.
-- Components: `form-builder/`, `scoring-sheet/` (builder mode).
+- Department head and department staff: the **brand kit** screen.
+- Staff: the **site builder**: pages, sections (add, arrange, choose layouts, fill in), image upload with alt text, live preview on phone and desktop, publish, version history and restore; the entry limit setting.
+- Components: `form-builder/`, `scoring-sheet/` (builder mode), `site-builder/`, `site-sections/` (shared with the public renderer).
 
 **Done when.** Staff create and publish both demo awards **using the UI only**, and a third award can be configured live in the walkthrough.
 
@@ -279,14 +332,16 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ---
 
-### Phase 6: Applications and deadline lock (Backend, rule R4)
+### Phase 7: Applications, proof documents, entry limit and deadline lock (Backend, rule R4)
 
 **Goal.** The applicant's whole journey up to the deadline, and the lock that ends it.
 
 **Builds.**
 - Start an application (logged in, organisation member, category chosen, cycle open). Duplicate flag: a second active application from the same organisation in the same cycle flags both.
 - Fee gate: `payFee` (demo) writes a Payment row with a fake reference. The amount is the category's fee if set, otherwise the cycle's.
-- An on-site-only cycle with an empty questionnaire can be submitted with just the identity snapshot, the category and the optional team members.
+- An on-site-only cycle with an empty questionnaire can be submitted with just the identity snapshot, the category, the optional team members and the proof documents.
+- **Proof documents** (spec §5.20, ADR 0010): upload a photo identity document and a proof of employment (private storage, consent recorded) and a LinkedIn link; submit refused without them; `proofStatus` PENDING. A daily clean-up deletes proof files 12 months after the cycle's results (G-J19), keeping the check record.
+- **Entry limit:** `entryCount` (public); submit checks the limit inside one transaction that locks the cycle's row (G-J20); a withdrawal frees a place.
 - `saveAnswers`: stored by question key, partial drafts allowed, values checked against the question types.
 - File flow through the storage interface: request an upload → upload → confirm. Type and size (10 MB) checks; the disk driver is used locally (G-B03).
 - Submit (all required answers and files; takes the identity snapshot). Edit after submit, with a full-validation save (G-D02). Withdraw (with a reason, before the deadline). Reapplying after a withdrawal pays the fee again.
@@ -304,17 +359,21 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ---
 
-### Phase 7: Applicant journey (Frontend)
+### Phase 8: Applicant screens (Frontend)
 
 **Goal.** A real applicant can do everything in the browser.
 
-**Builds.** My organisation (create, join, edit) · My applications (with friendly status messages) · start an application (pick a category) · the demo payment screen · **`form-renderer/`**, which renders any FormVersion schema with sections, per-section progress, NEW/UPDATED badges, file upload, autosave (debounced and on section change) · submit · edit after submit · withdraw · the status page.
+**Builds.** My organisation (create, join, edit) · My applications (with friendly status messages) · start an application (pick a category) · the demo payment screen · **`form-renderer/`**, which renders any FormVersion schema with sections, per-section progress, NEW/UPDATED badges, file upload, autosave (debounced and on section change) · the **proof upload** step (identity document, proof of employment, LinkedIn link, consent) · the **entry counter** (e.g. 499 / 500) · submit · edit after submit · withdraw · the status page (proof pending, verified or rejected with the reason).
 
 **Done when.** An applicant submits to all three cycles through the UI. Closing the browser and coming back keeps the draft. A locked application shows as read-only.
 
 ---
 
-### Phase 8: Masking, jury pool, conflicts, assignment (Backend, rules R1 and R2)
+### Phase 9: Proof check, masking, jury pool, conflicts, assignment, judging and audit (Backend, rules R1, R2, R3)
+
+**Proof check** (spec §5.20): staff mark proof documents Verified, or Rejected with a reason (audited; the applicant is emailed and can upload again until the deadline). An application whose proof isn't verified **can't be assigned to jury**. Proof documents never appear in any jury response.
+
+**Part A: masking, jury pool, conflicts, assignment.**
 
 **Goal.** After the deadline, blind applications reach their jury masked, and conflicted pairs can never meet.
 
@@ -332,7 +391,7 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ---
 
-### Phase 9: Judging, score audit, disqualification (Backend, rule R3)
+**Part B: judging, score audit, disqualification.**
 
 **Goal.** Jury score, staff correct scores with a reason, and every change is audited.
 
@@ -351,10 +410,10 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ### Phase 10: Staff operations and jury scoring (Frontend)
 
-**Goal.** The screens for Phases 8 and 9.
+**Goal.** The screens for Phase 9, including the staff proof-check screen.
 
 **Builds.**
-- Staff: applications list (filters: status, category, duplicate, masking), application detail (original and masked copies, files, identity snapshot, duplicate resolution, history), masking workspace, jury pool and conflicts (also available to the department head), bulk assignment (conflicted jury hidden), judging progress (edit a score with a reason, reopen), disqualify and reinstate dialogs.
+- Staff: applications list (filters: status, category, duplicate, proof status, masking), the **proof check** screen (documents, LinkedIn link, Verified or Rejected with a reason), application detail (original and masked copies, files, identity snapshot, duplicate resolution, history), masking workspace, jury pool and conflicts (also available to the department head), bulk assignment (conflicted jury hidden), judging progress (edit a score with a reason, reopen), disqualify and reinstate dialogs.
 - Jury: My assignments (with counts), and the **scoring screen**: answers and files, indicators with their weights, 0–10 or Yes/No inputs, comments per question, overall note, autosave, submit, disqualify.
 
 **Done when.** In the browser, a blind application is masked, assigned, scored and corrected with a reason.
@@ -369,8 +428,8 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 - **approval** (document review rounds only): `sendForApproval` (only when every eligible application has a submitted evaluation; G-D08). `approve` (the department head of the award's department; one transaction: round APPROVED + snapshot of totals and ranks, G-C14). `sendBack` (remark required; optional remarks per application; emails staff and the named jury). The leader is refused.
 - **results** (shared by both round types): `RoundResult` per application with final score and rank per category (ties share a rank); `setResultLabels` (Shortlisted or Rejected by top N, cut-off or manual; only after scores lock); `publishResults` (labels, emails, audit). Entries with the label that moves on enter the next round. The cycle becomes Results published after its last round.
 - **notifications:** all 9 templates; the outbox dispatcher sends in batches; EmailLog statuses.
-- **reporting:** `leaderDashboard` (leader and PAs), `departmentDashboard`, `cycleSummary` (statuses derived on read), `paActivity` (leader only, G-H11), and a flag for awards with no active staff (G-H04).
-- **Full seed** (spec §15): 2 departments, leader, 1 PA, heads, 2 staff (one on awards in both departments), 4 jury, master data, 3 cycles with different settings (blind document review with a fee; document review then on-site; shop-floor on-site only), about 20 organisations and applications in mixed states, 1 conflict.
+- **reporting:** `leaderDashboard` (leader and PAs), `departmentDashboard` (**must have**: external organisers run their awards from it), `cycleSummary` (statuses derived on read), `paActivity` (leader only, G-H11), and a flag for awards with no active staff (G-H04).
+- **Full seed** (spec §15): 2 departments, leader, 1 PA, heads, 2 staff (one on awards in both departments), 4 jury, master data, 3 cycles with different settings (blind document review with a fee; document review then on-site; shop-floor on-site only), a brand kit and a published award site for each cycle, about 20 organisations and applications in mixed states, 1 conflict.
 
 **Tests.** Send for approval is refused while an evaluation is missing. Send back without a remark is refused. Approve locks every score (staff and jury edits then give 409). The leader or a PA trying to approve or send back gets 403. Shortlisting before approval is refused. Ties share a rank. Published statuses map correctly (disqualified → Rejected). A department head sees only their own department's dashboard. Every email is logged.
 
@@ -420,8 +479,8 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 **Goal.** Prove the journeys automatically, then deploy. The production checks need **your accounts** (Supabase, Render, Vercel). Claude does not create accounts or enter credentials.
 
 **Builds.**
-- Playwright (Chromium), four journeys: staff configure and publish; applicant pays, fills and submits; jury score and staff get approval; an on-site round from panel to published medals.
-- **Supabase:** the database (pooled URL for the app, direct URL for migrations, G-B05), the Data API locked down (G-B04), and a private Storage bucket with `originals/` and `masked/` prefixes.
+- Playwright (Chromium), five journeys: staff build and publish an award site; staff configure and publish; applicant pays, fills and submits; jury score and staff get approval; an on-site round from panel to published medals.
+- **Supabase:** the database (pooled URL for the app, direct URL for migrations, G-B05), the Data API locked down (G-B04), a private Storage bucket with `originals/`, `masked/` and `proofs/` prefixes, and a **public** bucket for award-site images; the daily proof clean-up scheduled.
 - **Render:** a web service from `Backend/` (build, migrate, start, health check path, env vars) and an email API provider (G-B06).
 - **Vercel:** a project from `Front-End/` with `BACKEND_URL` set.
 - `docs/DEPLOYMENT.md` runbook, plus a production smoke checklist: each role logs in, a file uploads and downloads, an email arrives, and the cold-start behaviour is acceptable.
@@ -442,7 +501,7 @@ Each phase lists its goal, what it builds, the tests that must pass, what "done"
 
 ## 5. If we fall behind: cut order
 
-Cut from the top first (from spec §17, adjusted for two apps):
+**The owner chose to extend the plan rather than cut it (7 Oct).** This list is only a fallback, if the reviewer insists on an earlier finish. Cut from the top first:
 
 1. The remaining email templates (keep: invite, questionnaire updated, jury assigned, results published)
 2. The department head dashboard (keep the leader dashboard)
@@ -454,5 +513,7 @@ Cut from the top first (from spec §17, adjusted for two apps):
 8. The master data **screens** (keep the API; the lists come from the seed)
 9. On-site slot-overlap warnings and the slot-moved email
 10. The on-site Playwright journey (keep its service tests)
+11. Site version history **screen** (keep restore in the API), and the jury, partners and video sections
+12. Section layout options beyond one default per section
 
-**Never cut:** the four rules and their tests, on-site panel scoring with averages, closing and medals, the PA permission boundaries and their tests, the data consistency rules (normalisation and case-insensitive uniqueness), the end-to-end cycle for two differently configured awards, and staff configuring an award with no code change.
+**Never cut:** the four rules and their tests, branded award sites with the core sections, proof documents and their check, the entry limit, on-site panel scoring with averages, closing and medals, the PA permission boundaries and their tests, the data consistency rules (normalisation and case-insensitive uniqueness), the end-to-end cycle for two differently configured awards, and staff configuring an award with no code change.

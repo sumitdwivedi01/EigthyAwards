@@ -7,12 +7,12 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 1. [docs/PROGRESS.md](docs/PROGRESS.md): where we are, the current phase and branch, the next action.
 2. [docs/PHASES.md](docs/PHASES.md): the plan. Work **only** on the current phase.
 3. [docs/GAPS.md](docs/GAPS.md) §A: open decisions. The defaults apply until they're answered.
-4. **New (7 Oct):** [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): branded award sites, organisers, verification, entry limits, domains. Proposals until the owner answers GAPS §J and the 9 Oct lead call fixes the scope.
+4. [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): how the 7 Oct decisions were reached (branded award sites, organisers, proof documents, entry limit, domains). Decided; see the spec §5.19–§5.20.
 5. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
 
 ## Repo map
 
-- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 17 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data` and `onsite`.
+- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 18 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data`, `onsite` and `sites`.
 - `Front-End/`: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui, deployed to Vercel. It proxies `/api/*` to the backend.
 - `docs/`: brief, spec, plan, progress, gaps, ADRs, and `overview/` (the plain-language plan with diagrams: README.md for GitHub, platform-flow.html for screen sharing). The old architecture PDF was removed on 7 Oct 2026 as out of date; it is still in git history (tag `phase-00-done`).
 - `Daily.md`: the daily log for the reviewer (Done · Next · Stuck · Plan changed).
@@ -22,7 +22,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - **One branch per phase:** `phase-<number>-<word>` (e.g. `phase-2-people`; simple names from 7 Oct), cut from an up-to-date `main`. Never commit straight to `main`.
 - A backend phase is merged before the frontend phase that uses it.
 - A phase merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-NN-done`.
-- **No deployment before Phase 14.**
+- **No deployment before Phase 14**, except the throw-away skeleton check at the end of Phase 5 (GAPS A2).
 - Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - Ask before committing, pushing or opening a PR, unless the owner already asked for it this session.
 - **End of every session:** update PROGRESS.md, GAPS.md and Daily.md (see the routine at the bottom of PROGRESS.md).
@@ -54,9 +54,20 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 - A cycle's rounds are configuration: `DOCUMENT_REVIEW`, `ON_SITE`, or document review then on-site. Shop-floor competitions are on-site-only cycles; never branch on "shop-floor" or an award name.
 - **Document review:** one jury member per application; blind if the cycle says so; the department head approves (they are never a juror in their own department's document rounds). Labels: Shortlisted / Rejected.
-- **On-site:** never blind; a panel of 2–5 per entry, each scoring separately on any device; the final score is the average; staff can enter a member's scores (record `enteredById`); **no approval**; staff close the round, which locks the scores. Labels: Gold / Silver / Bronze / Participated. Panel members never see each other's scores.
+- **On-site:** never blind; a panel of 2–5 per entry, each scoring separately on any device; the final score is the average; staff can enter a member's scores (record `enteredById`); **no approval**; staff close the round, which locks the scores. Labels: Gold / Silver / Bronze / Participated. Medals go to ranks 1–3 of the **whole round** (one set per award, not per category). Panel members never see each other's scores.
 - Result labels live on the round (`resultLabels`), renamable per cycle. Results are stored in `RoundResult`, not on the application.
+- Indicator scores are **whole numbers 0–10** (or Yes/No). A submitted application is edited through an explicit Save changes with full checks, never autosaved.
 - Only one real application per organisation per cycle: accept all, flag extras, staff keep one. GSTIN is optional. A category's fee overrides the cycle's fee. The questionnaire may be empty for on-site-first cycles.
+
+## Award sites, organisers, proof and entry limit (decided 7 Oct 2026; ADR 0009, 0010)
+
+- **Every** award has a branded site: a brand kit per department (overrides per award), pages built from **ready-made section types** that staff choose, place and lay out. Staff can change content and design **any time, also after publishing**; each publish is an immutable version (restore possible). **No approval**; the leader and PAs can view sites, never edit them.
+- **Never** allow custom HTML or scripts in sites. Rich text is a safe structure; links are http(s) only; images go to the **public** bucket, never next to private files.
+- Automatic sections (deadline, entry count, categories, dates, past winners, jury) read live data; never copy it into page content.
+- A department can be an **external award organiser** running its awards alone; one person may head several departments. Only staff create awards.
+- With **every application**: a photo identity document (masked Aadhaar only), a proof of employment and a LinkedIn link; submit is refused without them. Staff mark Verified or Rejected; unverified applications can't be assigned to jury. Proof documents are **never** shown to jury; they're deleted 12 months after results (the check record stays).
+- Optional **entry limit** per cycle: counts submitted applications; the public sees "499 / 500"; check and submit in one locking transaction.
+- Own domains: designed for (slug and `customDomain` stored), not built.
 
 ## The four rules (the brief's)
 

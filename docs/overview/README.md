@@ -70,6 +70,8 @@ The awards also work very differently. The largest scores about **250 indicators
 | Giving applications to jury, conflict checks | Blind judging on or off |
 | Scoring maths, approval, results, emails | Entry categories (1 or 38) |
 | A history of every important change | Rounds: written review, on-site, or both |
+| Checking each applicant's identity and employment proof | An entry limit (e.g. 500), shown as "499 / 500" |
+| The site builder: ready-made page sections | The award's own **branded site**: logo, colours, pages, photos |
 
 ---
 
@@ -78,7 +80,7 @@ The awards also work very differently. The largest scores about **250 indicators
 ```mermaid
 flowchart TD
     L["<b>Leader</b><br/>sees every award"] --> PA["<b>Leader's PA team</b><br/>does the leader's admin work"]
-    L --> DH["<b>Department head</b><br/>runs a department, gives final approval"]
+    L --> DH["<b>Department head</b><br/>runs a department, or an outside<br/>organiser's awards; gives final approval"]
     PA -.->|on the leader's behalf| DH
     DH --> S["<b>Staff</b><br/>set up and run awards every day"]
     S --> J["<b>Jury</b><br/>score applications in short gaps"]
@@ -91,13 +93,15 @@ flowchart TD
 
 | Person | Their day | What the platform gives them |
 |---|---|---|
-| **Applicant** | Comes once or twice a year, close to the deadline, with a long form | One company profile reused for every award. The form saves as they type |
+| **Applicant** | Comes once or twice a year, close to the deadline, with a long form | A branded award site that explains everything, with the places left. One company profile reused for every award. The form saves as they type. Uploads an ID and a proof of working there |
 | **Jury member** | A senior person scoring between meetings | Stop anytime and continue later. On site, they score on their phone |
-| **Staff** | Works in the system every day while a cycle runs | Set up awards on screens, track progress, publish results |
-| **Department head** | Owns a group of awards | Reviews the ranked results, then approves or sends them back |
+| **Staff** | Works in the system every day while a cycle runs | Set up awards and build each award's branded site on screens, check applicants' proof, track progress, publish results |
+| **Department head** | Owns a group of awards, or leads an **outside organiser** (e.g. the FPO Awards team) that runs its awards here on its own | Sets the brand kit, adds staff and jury, reviews the ranked results, then approves or sends them back |
 | **Leader and PAs** | Wants one view of everything | One dashboard across all awards. The leader also sees what each PA did |
 
-The award always goes to the **organisation** (identified by its PAN), never to one of its plants or units.
+The award always goes to the **organisation** (identified by its PAN), never to one of its plants or units. One real entry per organisation per award.
+
+**New (7 Oct): outside organisers.** An organisation that brings its award to the platform gets its own department. The leader appoints its lead as department head, and from then on it runs its award alone (staff, jury, branded site, approvals), seeing only its own data.
 
 ---
 
@@ -262,6 +266,9 @@ The full journey runs from setup to results. To fit the time, we keep every step
 | Apply, autosave, submit, withdraw | Offline scoring at venues |
 | Blind copies, conflict checks, scoring | Mobile app, other languages |
 | Approval, shortlist, on-site rounds, medals | Feedback reports for applicants |
+| **Branded award sites** built by staff from ready-made sections | Award sites on their own domain (e.g. fpoawards.in) |
+| Proof of identity and employment, checked by staff | Drag-and-drop free page layout |
+| An entry limit with a public counter | Page-visit analytics |
 | Clean, consistent company data | Copy last year's setup in one click |
 | Three different awards running end to end | A live scoreboard on site |
 
@@ -292,7 +299,7 @@ Each question has a default that we build until it is answered.
 |:---:|---|---|
 | 1 | In a written-review-only award, does the winner see "Shortlisted" or "Winner"? | Shortlisted, renamable |
 | 2 | Should past years' data be brought in later? | No, history starts on the platform |
-| 3 | Later, could a confirmation email to the company prove an applicant may act for it? | Nothing for now |
+| 3 | When should award sites get their own domain (fpo.platform.in, then fpoawards.in)? | After the first release |
 | 4 | Can a department head edit scores? | No, only approve or send back |
 | 5 | One leader only, or a backup leader? | One |
 | 6 | Must an applicant resubmit when a question is added? | No, they are flagged "update requested" |

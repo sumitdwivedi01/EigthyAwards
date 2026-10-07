@@ -18,11 +18,11 @@ The brief wants the repository to show where we are at any moment. The spec (§1
 
 Option 2.
 
-- Branch names: `phase/NN-<track>-<name>` (for example `phase/03-be-award-config`). `fix/<short-name>` from `main` for bugs found after a phase has merged.
+- Branch names: `phase-<number>-<word>` (for example `phase-3-awards`), simplified on 7 Oct 2026 at the owner's request. Earlier branches keep their old `phase/NN-<track>-<name>` names. `fix/<short-name>` from `main` for bugs found after a phase has merged.
 - Commits follow Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - A phase merges only when its **exit checklist** in [PHASES.md](../PHASES.md) is fully ticked: tests green, CI green, tracking docs updated, diff reviewed.
-- Merge with a **merge commit** (not squash), so the phase's commits stay readable. Then tag `phase-NN-done`.
-- `main` is always runnable locally. Nothing is deployed until Phase 14.
+- Merge with a **merge commit** (not squash), so the phase's commits stay readable. Then tag `phase-<number>-done`.
+- `main` is always runnable locally. Nothing is deployed until Phase 14, apart from the throw-away skeleton check at the end of Phase 5 (GAPS A2).
 
 ## Why
 

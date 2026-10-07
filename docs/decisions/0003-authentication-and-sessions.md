@@ -1,6 +1,6 @@
 # 0003. Our own authentication in the API; session cookie through the Next.js proxy
 
-- Status: **Proposed**. Confirm or answer GAPS A3.
+- Status: **Accepted** (6 Oct 2026, GAPS A3). Verified on the real hosts in the Phase 5 skeleton check (renumbered on 7 Oct).
 - Date: 2026-10-04
 - Related gaps: G-B02, G-B11, G-B15, G-C05, G-C12
 
@@ -42,7 +42,7 @@ Option 3 with transport (a).
 - CSRF protection: SameSite=Lax, the `Origin` header is checked on writes, and the CORS allowlist holds only the frontend origin (G-B11).
 - Rate limiting on login and reset (G-C12).
 - In local development, Next.js rewrites `/api/*` to `http://localhost:4000`, so production and local behave the same.
-- Must be **verified on the real hosts**. That happens in Phase 14, or earlier if GAPS A2 allows a skeleton deploy.
+- Must be **verified on the real hosts**. That happens in the Phase 5 skeleton check (GAPS A2), and again in Phase 14.
 
 ## What would change our mind
 

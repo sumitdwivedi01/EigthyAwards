@@ -42,10 +42,10 @@ Option 3.
 
 - It moves on-site rounds from "future" into the 10-day build. That means a new backend phase (Phase 12) and more frontend work in Phase 13, with no extra days. The timeline risk is recorded in GAPS (G-I09) and the cut order.
 - Approval applies to document rounds only. "Closed" joins "approved" as a state in which scores are locked.
-- A new `onsite` module (17 modules in total).
+- A new `onsite` module (17 modules at the time; 18 after ADR 0009 added `sites`).
 - The applicant gets new statuses: Presentation scheduled, Gold, Silver, Bronze, Participated.
 
 ## What would change our mind
 
 - Venues turn out to have no reliable internet: add an offline scoring mode, or a paper-sheet import flow, instead of the staff backup entry.
-- The client wants a live scoreboard, or a single set of medals per cycle instead of per category: both would extend this design rather than replace it.
+- The client wants a live scoreboard, or medals per entry category instead of one set per award (decided 6 Oct: one set per award): both would extend this design rather than replace it.
