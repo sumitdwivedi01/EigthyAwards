@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EightyAwards Platform Flow</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,650&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: a spacious screen-share page. Sections stack vertically; the journey is a numbered vertical path. */
+:root{--bg:#F4F6FA;--card:#FFFFFF;--ink:#16213A;--muted:#5A6479;--line:#D6DCE7;--accent:#1F4FA8;--soft:#E6EDFA;
+--gold:#9A6E0C;--goldsoft:#FBF1D9;--red:#B0432A;--redsoft:#FBE8E2;--green:#1E7A4F;--greensoft:#E1F3EA;
+--fd:"Source Serif 4",Georgia,serif;--fb:"Public Sans","Segoe UI",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1522;--card:#172034;--ink:#E6EBF4;--muted:#9CA7BB;--line:#2B3652;--accent:#8AACF3;--soft:#1D2B4A;--gold:#E3B852;--goldsoft:#2E2715;--red:#EE8F72;--redsoft:#3A2019;--green:#6BD3A0;--greensoft:#14301F;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1522;--card:#172034;--ink:#E6EBF4;--muted:#9CA7BB;--line:#2B3652;--accent:#8AACF3;--soft:#1D2B4A;--gold:#E3B852;--goldsoft:#2E2715;--red:#EE8F72;--redsoft:#3A2019;--green:#6BD3A0;--greensoft:#14301F;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);margin:0;line-height:1.55}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:48px 80px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
+nav a{font-size:14px;color:var(--accent);text-decoration:none;background:var(--soft);padding:6px 12px;border-radius:999px}
+nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{padding-top:72px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+h1{font-family:var(--fd);font-size:clamp(34px,6vw,56px);line-height:1.05;margin:8px 0 14px;text-wrap:balance}
+h1 span,h2 span{color:var(--gold)}
+h2{font-family:var(--fd);font-size:clamp(26px,4vw,36px);line-height:1.15;margin:6px 0 12px;text-wrap:balance}
+.sub{font-size:20px;color:var(--muted);margin:0 0 28px;max-width:720px}
+.lead{font-size:17px;color:var(--muted);max-width:700px;margin:0 0 24px}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;min-width:0}
+.card h3{margin:0 0 6px;font-size:18px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.icon{font-size:30px;line-height:1;margin-bottom:10px}
+/* before / after */
+.ba{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center}
+.ba .col{display:grid;gap:10px}
+.chip{border-radius:12px;padding:12px 16px;font-size:15px}
+.chip small{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.8;margin-bottom:2px}
+.chip.bad{background:var(--redsoft);border:1.5px solid var(--red)}
+.chip.good{background:var(--greensoft);border:1.5px solid var(--green);font-weight:700;font-size:17px}
+.chip.plain{background:var(--card);border:1px solid var(--line)}
+.arrow{font-size:40px;color:var(--muted);text-align:center}
+@media (max-width:640px){.ba{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+.idea{background:var(--goldsoft);border-radius:18px;padding:28px 30px;font-family:var(--fd);font-size:clamp(24px,3.6vw,34px);line-height:1.25;text-wrap:balance;margin:0 0 24px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.list li{background:var(--soft);border-radius:10px;padding:8px 12px;font-size:15px}
+.list.gold li{background:var(--goldsoft)}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+.tag.green{background:var(--greensoft);color:var(--green)}
+.tag.gold{background:var(--goldsoft);color:var(--gold)}
+/* people */
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.person{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.person .who{font-weight:700;font-size:17px;margin-bottom:4px}
+.person p{margin:0;font-size:14.5px;color:var(--muted)}
+/* journey */
+.stage{display:grid;grid-template-columns:64px 1fr;gap:20px;position:relative;padding-bottom:26px}
+.stage:not(:last-child)::after{content:"";position:absolute;left:31px;top:64px;bottom:0;width:2px;background:var(--line)}
+.dot{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--bg);display:grid;place-items:center;font-family:var(--fd);font-size:28px;font-weight:650;z-index:1}
+.stage.opt .dot{background:var(--card);color:var(--accent);border:2px dashed var(--accent)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 22px;min-width:0}
+.stage.opt .box{border:1.5px dashed var(--accent)}
+.role{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.box h3{font-family:var(--fd);font-size:25px;margin:2px 0 10px}
+.steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:15px}
+.steps span{background:var(--soft);padding:7px 12px;border-radius:999px}
+.steps span.opt{background:transparent;border:1.5px dashed var(--accent)}
+.steps i{color:var(--muted);font-style:normal}
+.rules{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.rule{font-size:13.5px;background:var(--goldsoft);color:var(--gold);padding:5px 10px;border-radius:8px;font-weight:600}
+.medals{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.medals b{font-size:14px;padding:5px 14px;border-radius:999px;border:1.5px solid var(--gold);color:var(--gold)}
+.legend{display:flex;flex-wrap:wrap;gap:20px;color:var(--muted);font-size:14px;margin:0 0 22px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:22px;height:22px;border-radius:50%;background:var(--accent);display:inline-block}
+.sw.opt{background:transparent;border:2px dashed var(--accent)}
+/* awards */
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.aw{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.aw h3{margin:0 0 4px;font-size:19px}
+.aw p{margin:0 0 14px;color:var(--muted);font-size:15px}
+.path{display:flex;gap:6px;flex-wrap:wrap}
+.path span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--accent);color:var(--bg)}
+.path span.off{background:transparent;color:var(--muted);border:2px solid var(--line)}
+.result{margin-top:12px;font-size:14px;font-weight:600;color:var(--gold)}
+/* rules */
+.rule4{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.r{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:14px;padding:18px}
+.r .n{font-family:var(--fd);font-size:30px;color:var(--gold);line-height:1}
+.r h3{margin:8px 0 6px;font-size:17px}
+.r p{margin:0;font-size:14.5px;color:var(--muted)}
+/* options */
+.opt-row{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.opt-row:last-child{border-bottom:0}
+.opt-row .name{font-weight:700}
+.opt-row .name small{display:block;font-weight:400;color:var(--muted);font-size:13.5px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14.5px}
+.flow span{padding:7px 12px;border-radius:10px;background:var(--soft)}
+.flow span.dev{background:var(--redsoft);border:1.5px solid var(--red)}
+.flow span.ok{background:var(--greensoft);border:1.5px solid var(--green)}
+.flow i{color:var(--muted);font-style:normal}
+.chosen{background:var(--greensoft);border-radius:12px;padding:4px 14px}
+@media (max-width:640px){.opt-row{grid-template-columns:1fr;gap:8px}.stage{grid-template-columns:44px 1fr;gap:12px}.dot{width:44px;height:44px;font-size:20px}.stage:not(:last-child)::after{left:21px;top:44px}}
+.close{margin-top:72px;background:var(--goldsoft);border-radius:18px;padding:28px 30px;font-family:var(--fd);font-size:clamp(22px,3.4vw,30px);line-height:1.3;text-wrap:balance}
+footer{margin-top:28px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Awards platform · plan overview</div>
+  <h1>One platform for <span>80 awards</span></h1>
+  <p class="sub">What the problem is, what we will build, and how one award moves from setup to results. No technical knowledge needed.</p>
+  <nav aria-label="Sections">
+    <a href="#problem">The problem</a><a href="#idea">The idea</a><a href="#people">Who uses it</a><a href="#journey">The journey</a><a href="#awards">Different awards</a><a href="#rules">The four rules</a><a href="#choice">Why this way</a><a href="#value">What it brings</a>
+  </nav>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="kicker">1 · The problem</div>
+    <h2>Eighty awards, eighty separate ways of working</h2>
+    <p class="lead">An Indian industry body runs about 80 awards, from business excellence to energy, safety and shop-floor Kaizen. Each award grew up on its own system.</p>
+    <div class="ba">
+      <div class="col">
+        <div class="chip bad"><small>Award website</small>"Acme Steel Ltd"</div>
+        <div class="chip bad"><small>Member portal</small>"ACME STEEL LIMITED"</div>
+        <div class="chip bad"><small>Largest award's portal</small>"Acme Steels, Pune unit"</div>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="col">
+        <div class="chip good">One company record<br>Acme Steel Ltd · one PAN</div>
+        <div class="chip plain">Used by every award, never copied</div>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:24px">
+      <div class="card"><div class="icon" aria-hidden="true">🧭</div><h3>A different system each time</h3><p>Applicants, jury and staff learn a new tool for every award.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">🧩</div><h3>Data nobody trusts</h3><p>The same company is written many ways, so there is no true combined view.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">🛠️</div><h3>A developer for every change</h3><p>Staff can't start a new award or change its questions on their own.</p></div>
+    </div>
+  </section>
+
+  <!-- IDEA -->
+  <section id="idea">
+    <div class="kicker">2 · The idea</div>
+    <h2>One shared journey, different settings</h2>
+    <div class="idea">An award is <em>settings</em>, not code. Staff choose the settings on screen, so a new award needs no developer.</div>
+    <div class="split">
+      <div class="card"><span class="tag green">Built once · shared by all 80</span>
+        <ul class="list"><li>Logins and roles</li><li>One record per company and person</li><li>Applying, deadlines, locking</li><li>Judging, approval, results, emails</li><li>A history of every important change</li></ul></div>
+      <div class="card"><span class="tag gold">Chosen per award · by staff</span>
+        <ul class="list gold"><li>Questions and sections</li><li>Scoring sheet and weights</li><li>Dates and entry fee</li><li>Blind judging on or off</li><li>Categories and rounds</li></ul></div>
+    </div>
+  </section>
+
+  <!-- PEOPLE -->
+  <section id="people">
+    <div class="kicker">3 · Who uses it</div>
+    <h2>Six kinds of people, one platform</h2>
+    <div class="people">
+      <div class="person"><div class="icon" aria-hidden="true">👑</div><div class="who">Leader</div><p>Sees every award on one dashboard.</p></div>
+      <div class="person"><div class="icon" aria-hidden="true">🗂️</div><div class="who">Leader's PA team</div><p>Does the leader's admin work: departments, staff, new awards.</p></div>
+      <div class="person"><div class="icon" aria-hidden="true">🏢</div><div class="who">Department head</div><p>Runs a group of awards and gives the final approval.</p></div>
+      <div class="person"><div class="icon" aria-hidden="true">🧑‍💼</div><div class="who">Staff</div><p>Set up and run awards every day.</p></div>
+      <div class="person"><div class="icon" aria-hidden="true">⚖️</div><div class="who">Jury</div><p>Senior experts scoring in short gaps, or live on site.</p></div>
+      <div class="person"><div class="icon" aria-hidden="true">🏭</div><div class="who">Applicant</div><p>Applies for their company, near the deadline, with a long form.</p></div>
+    </div>
+  </section>
+
+  <!-- JOURNEY -->
+  <section id="journey">
+    <div class="kicker">4 · The journey</div>
+    <h2>How one award moves from setup to results</h2>
+    <div class="legend"><span><i class="sw"></i>happens in every award</span><span><i class="sw opt"></i>only if the award's settings ask for it</span><span><b class="rule">Rule</b>one of the four rules is enforced here</span></div>
+
+    <div class="stage"><div class="dot">1</div><div class="box">
+      <div class="role">Leader · Department head · Staff</div><h3>Set up the award</h3>
+      <div class="steps"><span>Create department</span><i>→</i><span>Assign staff</span><i>→</i><span>Staff choose questions, scoring, fee, blind or not, rounds</span><i>→</i><span>Publish</span></div>
+      <div class="rules"><span class="rule">Rule 4: every published set of questions is saved for good</span></div>
+    </div></div>
+
+    <div class="stage"><div class="dot">2</div><div class="box">
+      <div class="role">Applicant</div><h3>Apply</h3>
+      <div class="steps"><span>Register company once</span><i>→</i><span>Pick award and category</span><i>→</i><span class="opt">Pay fee, if any</span><i>→</i><span>Fill form, saved automatically</span><i>→</i><span>Submit</span></div>
+    </div></div>
+
+    <div class="stage"><div class="dot">3</div><div class="box">
+      <div class="role">Automatic</div><h3>Deadline closes</h3>
+      <div class="steps"><span>All applications lock</span><i>→</i><span>Two entries from one company are flagged</span></div>
+    </div></div>
+
+    <div class="stage"><div class="dot">4</div><div class="box">
+      <div class="role">Staff · Jury · Department head</div><h3>Round 1: written review</h3>
+      <div class="steps"><span class="opt">Hide the company name (blind awards)</span><i>→</i><span>One juror per application</span><i>→</i><span>Juror scores 0 to 10</span><i>→</i><span>Department head approves or sends back</span><i>→</i><span>Shortlisted or Rejected</span></div>
+      <div class="rules"><span class="rule">Rule 1: jury never see who applied</span><span class="rule">Rule 2: a conflicted juror is refused</span><span class="rule">Rule 3: every score change records who and why</span></div>
+    </div></div>
+
+    <div class="stage opt"><div class="dot">5</div><div class="box">
+      <div class="role">Panel of 2 to 5 jury · only if the award has it</div><h3>Round 2: on site</h3>
+      <div class="steps"><span>Team presents live</span><i>→</i><span>Each juror scores alone, on a phone</span><i>→</i><span>The average decides</span></div>
+      <div class="medals"><b>Gold</b><b>Silver</b><b>Bronze</b></div>
+    </div></div>
+
+    <div class="stage"><div class="dot">6</div><div class="box">
+      <div class="role">Staff · Leader</div><h3>Publish results</h3>
+      <div class="steps"><span>Applicants see their result</span><i>→</i><span>Emails go out</span><i>→</i><span>Leader sees every award on one dashboard</span></div>
+    </div></div>
+  </section>
+
+  <!-- AWARDS -->
+  <section id="awards">
+    <div class="kicker">5 · Different awards</div>
+    <h2>Same journey, three very different awards</h2>
+    <p class="lead">Filled circles are the steps each award uses. No code changes between them, only settings.</p>
+    <div class="awards">
+      <div class="aw"><h3>Excellence award</h3><p>Paid entry, blind judging, long form with evidence.</p>
+        <div class="path"><span>1</span><span>2</span><span>3</span><span>4</span><span class="off">5</span><span>6</span></div><div class="result">Shortlisted / Rejected</div></div>
+      <div class="aw"><h3>Large award with a live final</h3><p>Written review first, then shortlisted teams present.</p>
+        <div class="path"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div><div class="result">Gold / Silver / Bronze</div></div>
+      <div class="aw"><h3>Kaizen / 5S competition</h3><p>Almost no form. Judged only on the shop floor.</p>
+        <div class="path"><span>1</span><span>2</span><span>3</span><span class="off">4</span><span>5</span><span>6</span></div><div class="result">Gold / Silver / Bronze</div></div>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section id="rules">
+    <div class="kicker">6 · The four rules</div>
+    <h2>Promises the platform always keeps</h2>
+    <div class="rule4">
+      <div class="r"><div class="n">1</div><h3>Blind judging</h3><p>In a blind award, jury only see a cleaned copy, never the company's name.</p></div>
+      <div class="r"><div class="n">2</div><h3>No conflicts</h3><p>Record "this juror knows this company" once, and that pairing is refused everywhere.</p></div>
+      <div class="r"><div class="n">3</div><h3>Score history</h3><p>Every change after submission keeps who, when, old, new and why. Approved scores never change.</p></div>
+      <div class="r"><div class="n">4</div><h3>Old forms still open</h3><p>Last year's applications always open with last year's questions.</p></div>
+    </div>
+  </section>
+
+  <!-- CHOICE -->
+  <section id="choice">
+    <div class="kicker">7 · Why this way</div>
+    <h2>What happens when award number 81 starts?</h2>
+    <p class="lead">We compared three ways to build it. The red steps are where a developer or a second copy of the data comes in.</p>
+    <div class="card">
+      <div class="opt-row"><div class="name">A · Site per award<small>Today's approach</small></div>
+        <div class="flow"><span>Staff ask</span><i>→</i><span class="dev">Developer copies a site</span><i>→</i><span class="dev">Company typed in again</span><i>→</i><span>Live after weeks</span></div></div>
+      <div class="opt-row"><div class="name">B · Fixed award types<small>Fast until an award doesn't fit</small></div>
+        <div class="flow"><span>Staff pick a type</span><i>→</i><span>Fits?</span><i>→ no →</i><span class="dev">Developer adds a type</span><i>→</i><span>Live</span></div></div>
+      <div class="opt-row chosen"><div class="name">C · Configurable ✔<small>Our choice</small></div>
+        <div class="flow"><span class="ok">Staff fill settings</span><i>→</i><span class="ok">System checks them</span><i>→</i><span class="ok">Live the same day</span></div></div>
+    </div>
+  </section>
+
+  <!-- VALUE -->
+  <section id="value">
+    <div class="kicker">8 · What it brings</div>
+    <h2>Why this matters to the organisation</h2>
+    <div class="grid g3">
+      <div class="card"><div class="icon" aria-hidden="true">🚀</div><h3>Staff launch awards themselves</h3><p>Same day, no developer cost.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">📊</div><h3>One picture you can trust</h3><p>One record per company across all 80 awards.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">⚖️</div><h3>Results you can defend</h3><p>Blind judging, conflict checks and score history protect the awards' name.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">⏱️</div><h3>Less manual work</h3><p>Deadlines lock, scores add up and emails send by themselves.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">🤝</div><h3>A better experience</h3><p>One login, one profile, and work is never lost.</p></div>
+      <div class="card"><div class="icon" aria-hidden="true">📈</div><h3>Room to grow</h3><p>About 40,000 applications a year fit comfortably.</p></div>
+    </div>
+  </section>
+
+  <div class="close">One platform, one journey, settings instead of code. Staff can launch award number 81 on their own, the same day.</div>
+  <footer>More detail in the repository: docs/overview/README.md (this overview with diagrams), docs/requirements.md (full spec), docs/PHASES.md (plan).</footer>
+</div>
+</body>
+</html>

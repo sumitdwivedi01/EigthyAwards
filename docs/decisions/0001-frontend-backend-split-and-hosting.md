@@ -44,7 +44,7 @@ Option 3. `Front-End/` is a Next.js app deployed to Vercel. It holds **no busine
   - §9 rows *Framework*, *Login*, *Files* and *Hosting* are replaced by ADRs 0002 and 0003.
   - §11 "server actions" become Express route handlers. The layering rule is unchanged: routes parse, services decide.
   - §16 folder structure is replaced by [PHASES.md §3](../PHASES.md).
-  - The architecture PDF (pages 2, 3, 5 and 9) shows one deployable and needs redrawing in Phase 15 (G-F06).
+  - The architecture PDF (pages 2, 3, 5 and 9) shows one deployable and needs redrawing in Phase 15 (G-F06). (The PDF was removed on 7 Oct 2026; a plain-language drawing is in docs/overview/.)
 
 ## What would change our mind
 

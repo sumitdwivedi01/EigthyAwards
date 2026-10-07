@@ -87,7 +87,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 in testing or review · 
 │  ├─ GAPS.md                 gaps, open questions, risks
 │  ├─ API.md                  endpoint contract between frontend and backend (from Phase 1)
 │  ├─ decisions/              one ADR per decision
-│  ├─ architecture/           architecture PDF, plus the updated drawing (Phase 15)
+│  ├─ overview/               the plan in plain language with diagrams (README.md, platform-flow.html)
 │  ├─ user-journeys.md        (Phase 15)
 │  ├─ testing.md              what the tests check and what they don't (Phase 15)
 │  ├─ ai-notes.md             where AI output looked right but was wrong (started when it first happens)

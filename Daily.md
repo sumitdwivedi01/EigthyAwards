@@ -24,3 +24,9 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** Merge Phase 0.2, then start coding with Phase 1, the backend foundation.
 - **Stuck:** Nothing. Open risk: the timeline is tight (16 phases in 7 days).
 - **Plan changed:** Added Phase 12 (on-site rounds, backend), so the old Phases 12–14 are now 13–15. Days re-planned from today ([PHASES.md](docs/PHASES.md)).
+
+# DAY 5 (7 Oct)
+- **Done:** Presented my understanding and the planned solution to the mentor. Added [docs/overview/](docs/overview/): the whole plan in plain language with diagrams (the problem, the idea, who uses it, the journey of one award, the four rules, why we chose this design), plus a screen-share version. Removed the old architecture PDF, which was out of date.
+- **Next:** A new problem has been added to the brief. Update the spec, plan and gaps for it, then restart building.
+- **Stuck:** Nothing.
+- **Plan changed:** Building is on hold until the plan is updated for the new problem.

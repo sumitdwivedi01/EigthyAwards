@@ -6,11 +6,11 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-06 · Day 4 |
-| **Current phase** | Phase 0.2: On-site rounds and answers (🚧 docs updated, waiting for review, commit and merge) |
-| **Current branch** | `phase/00.2-onsite-rounds-and-answers` (local only, not pushed yet) |
+| **Last updated** | 2026-10-07 · Day 5 |
+| **Current phase** | Phase 0.3: Plain-language overview (🧪 docs ready, waiting for review and merge) |
+| **Current branch** | `phase/00.3-overview-page` |
 | **What runs today** | Nothing yet. The repo holds docs only. |
-| **Next action** | 1) Review the Phase 0.2 changes, 2) commit, push, PR and merge, then tag `phase-00.2-done`, 3) start **Phase 1** on `phase/01-be-foundation` (target: today). |
+| **Next action** | 1) Review and merge Phase 0.3, tag `phase-00.3-done`. 2) A new problem has been added to the brief: update the spec, plan and gaps for it before any building. Building is on hold until then. |
 | **Blockers** | None. Still open with defaults: A1–A4, A8–A10 ([GAPS.md §A](GAPS.md)). To confirm with the leader: G-I08 (what document-only awards should call a win). |
 | **Risk** | The timeline is tight: 16 phases in Days 4–10 (G-I09). The cut order is in PHASES.md §5. |
 
@@ -22,7 +22,8 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 |---|---|---|---|---|---|---|
 | 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
 | 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
-| 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | 🚧 In progress | — | — | n/a |
+| 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | ✅ Merged | sumitdwivedi01/EigthyAwards#3 | 2026-10-06 · `phase-00.2-done` | n/a |
+| 0.3 | Plain-language overview | `phase/00.3-overview-page` | 🧪 In review | — | — | n/a |
 | 1 | Backend foundation | `phase/01-be-foundation` | ⬜ | — | — | — |
 | 2 | Identity, PA role, departments, master data, organisations | `phase/02-be-identity-orgs` | ⬜ | — | — | — |
 | 3 | Award configuration engine: rounds, forms, score sheets (R4) | `phase/03-be-award-config` | ⬜ | — | — | — |
@@ -116,7 +117,7 @@ Goal: put everything a new person (or a new AI session) needs into the repo, and
 - [x] Read the three source documents: the brief, the product and technical spec (2 Oct 2026), and the high-level architecture PDF (11 pages).
 - [x] `docs/brief.md`: the brief converted to Markdown, wording unchanged.
 - [x] `docs/requirements.md`: the full spec converted to Markdown (sections 1–18, tables, JSON schemas). The diagrams are not reproduced; they point to the PDF.
-- [x] `docs/architecture/Awards_Platform_High_Level_Architecture.pdf`: the architecture drawing, kept as is.
+- [x] `docs/architecture/Awards_Platform_High_Level_Architecture.pdf`: the architecture drawing, kept as is. (Removed on 7 Oct 2026 in Phase 0.3 as out of date; replaced by docs/overview/.)
 - [x] `docs/PHASES.md`: the plan. 15 phases (0–14), backend first and alternating with frontend, each with goal, scope, tests, "done when" and a manual check. Exit checklist, workflow and cut order.
 - [x] `docs/GAPS.md`: 83 tracked items across 7 sections. 10 of them are the decisions in §A, which are waiting for an answer.
 - [x] `docs/decisions/`: an ADR index plus 0001 (split and hosting), 0002 (tech stack), 0003 (auth and sessions) and 0004 (git workflow).
