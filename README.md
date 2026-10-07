@@ -12,13 +12,14 @@ It is a 10-working-day build. The problem statement is in [docs/brief.md](docs/b
 
 | You want… | Open |
 |---|---|
+| **The plan in 5 minutes, with pictures (start here)** | [docs/overview/](docs/overview/) |
 | Where the project is right now | [docs/PROGRESS.md](docs/PROGRESS.md) |
 | The plan (phases, scope, tests, cut order) | [docs/PHASES.md](docs/PHASES.md) |
 | What's missing, contradictory or undecided | [docs/GAPS.md](docs/GAPS.md) |
 | Daily updates (Done · Next · Stuck) | [Daily.md](Daily.md) |
 | Decisions, with options and reasons | [docs/decisions/](docs/decisions/) |
 | The product and technical spec | [docs/requirements.md](docs/requirements.md) |
-| The architecture drawing | [docs/architecture/](docs/architecture/) |
+| How the parts fit (simple drawing) | [docs/overview/ §8](docs/overview/README.md#8-how-the-parts-fit) |
 
 ## Shape of the system
 

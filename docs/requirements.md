@@ -1,4 +1,4 @@
-> Source: `Awards Platform — Product & Technical Specification.docx` (2 Oct 2026, Priyanshu Phulara), converted to Markdown so it lives in the repo. The docx is the original; if they disagree, raise it in docs/GAPS.md. Diagrams from the docx are not reproduced here — see docs/architecture/Awards_Platform_High_Level_Architecture.pdf.
+> Source: `Awards Platform — Product & Technical Specification.docx` (2 Oct 2026, Priyanshu Phulara), converted to Markdown so it lives in the repo. The docx is the original; if they disagree, raise it in docs/GAPS.md. Diagrams from the docx are not reproduced here. The plain-language diagrams are in docs/overview/ (the old architecture PDF was removed on 7 Oct 2026 as out of date; it is in git history at tag `phase-00-done`).
 
 ## Revision log
 
@@ -138,7 +138,7 @@ Rules that follow from the client's answers:
 
 An application follows one main path from draft to result, and every side exit keeps the record. Cycles, rounds and evaluations have their own simpler statuses, and applicants see a short, friendly version of all this.
 
-*[Diagram in the original docx: application lifecycle · 7 main states, 4 side exits. See the status tables below and page 6 of docs/architecture/Awards_Platform_High_Level_Architecture.pdf.]*
+*[Diagram in the original docx: application lifecycle · 7 main states, 4 side exits. See the status tables below, and the journey diagram in docs/overview/README.md §4.]*
 
 Disqualification can happen anywhere from locked to evaluated and is reversible. A department head's send back returns the round to correction, with scores unchanged until staff or jury edit them with a reason.
 
@@ -543,7 +543,7 @@ A senior expert who scores in short gaps between other work.
 
 The platform is a modular monolith: one Next.js app and one PostgreSQL database, with the code split into modules behind a single access layer. Award settings live in the database as versioned configuration, and every row is tied to its cycle, so all awards share tables without sharing data.
 
-*[Diagram in the original docx: high-level architecture · one app, one access layer, 12 modules, 3 stores. Superseded by page 3 of docs/architecture/Awards_Platform_High_Level_Architecture.pdf, and by ADR 0001 for the frontend/backend split.]*
+*[Diagram in the original docx: high-level architecture · one app, one access layer, 12 modules, 3 stores. Superseded by ADR 0001 for the frontend/backend split; a plain-language drawing is in docs/overview/README.md §8.]*
 
 The access layer is the one place where identity, scope, blind judging and conflicts are checked, so no screen or route can skip them.
 

@@ -13,7 +13,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 - `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 17 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data` and `onsite`.
 - `Front-End/`: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui, deployed to Vercel. It proxies `/api/*` to the backend.
-- `docs/`: brief, spec, plan, progress, gaps, ADRs, architecture PDF.
+- `docs/`: brief, spec, plan, progress, gaps, ADRs, and `overview/` (the plain-language plan with diagrams: README.md for GitHub, platform-flow.html for screen sharing). The old architecture PDF was removed on 7 Oct 2026 as out of date; it is still in git history (tag `phase-00-done`).
 - `Daily.md`: the daily log for the reviewer (Done · Next · Stuck · Plan changed).
 
 ## Workflow rules (the owner's)

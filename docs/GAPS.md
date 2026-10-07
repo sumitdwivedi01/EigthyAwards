@@ -75,7 +75,7 @@ The spec (§8, §9) and the architecture PDF describe **one Next.js app** using 
 
 ## C. Architecture gaps (from the architecture PDF, pages 10–11)
 
-The numbers match the PDF's cards. The spec does not answer any of them. The PDF proposed the defaults, and we are adopting them unless noted.
+The numbers match the PDF's cards (the PDF was removed on 7 Oct 2026 as out of date; it is still in git history at tag `phase-00-done`). The spec does not answer any of them. The PDF proposed the defaults, and we are adopting them unless noted.
 
 | ID | Gap | Default we build | Phase | Status |
 |---|---|---|---|---|
@@ -149,7 +149,7 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | G-F03 | Decisions: options, choice, why, what would change it | [decisions/](decisions/) | Ongoing | Ongoing |
 | G-F04 | Code, with a README a stranger can run from | README.md, Backend/, Front-End/ | 15 | Open |
 | G-F05 | One page: the journey of each user | docs/user-journeys.md (content drafted in spec §7) | 15 | Open |
-| G-F06 | A simple drawing of how the parts fit | The PDF exists but shows **one** Next.js app, with no PA role and no master-data module, so it needs a redraw | 15 | Open |
+| G-F06 | A simple drawing of how the parts fit | The old PDF showed **one** Next.js app with no PA role, so it was removed (7 Oct). A plain-language drawing is now in [overview/ §8](overview/README.md#8-how-the-parts-fit); a technical drawing for the split apps is still to come | 15 | Open (simple drawing done) |
 | G-F07 | What the tests check and what they don't | docs/testing.md (drafted in spec §15) | 15 | Open |
 | G-F08 | One place AI looked right but was wrong, and how it was caught | docs/ai-notes.md, recorded as soon as it happens | Ongoing | Open |
 | G-F09 | Three cycles that work differently (including on-site rounds), configured with no code change | Phases 5 and 13 | 13 | Open |
