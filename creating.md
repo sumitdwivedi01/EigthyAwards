@@ -134,6 +134,17 @@ Updated every working session. (The detailed versions live in `docs/`.)
 
 ---
 
+## UI overview and re-plan (8 Oct)
+
+- **Prototype before code** → the client sees every screen and journey first; changing a picture is cheap, changing code isn't.
+- **Clickable, but simple-looking** → people discuss the *flow*, not colours. The award sites use the FPO brand to connect with the branding story.
+- **Notes on every screen** → each screen says which rule or decision it shows, so the prototype also explains the design.
+- **Two options for my lead, not one** → A: a focused demo by 15 Oct (what the brief asks: two awards, no code per award, four rules). B: the real product, about 10–14 weeks.
+- **Why A isn't wasted** → it's built on the real architecture, so it's the first slice of B, not a throw-away demo.
+- **Nothing decided until the lead chooses** → the full phase list stays as the product breakdown.
+
+---
+
 ## Words you'll see
 
 - **Migration**: a saved SQL file that changes the database structure, run in order.
@@ -149,6 +160,8 @@ Updated every working session. (The detailed versions live in `docs/`.)
 - **Brand kit**: an organiser's logo, colours, fonts and social links, reused by all their award pages.
 - **Section (block)**: one ready-made part of a page (banner, gallery…) that staff fill in.
 - **Slug**: the short name in a web address, like `fpo` in `/awards/fpo`.
+- **Prototype**: a clickable model of the screens, with no real data, used to agree on the flow before building.
+- **Mermaid**: a way to write diagrams as text; GitHub draws them automatically.
 - **DPDP Act 2023**: India's personal-data law: ask consent, collect the minimum, delete when no longer needed.
 
 ---

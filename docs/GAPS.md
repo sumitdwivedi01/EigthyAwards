@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-07 (Day 5, Phase 0.4: owner's answers to section J). Update this file at the end of every phase.
+> Last updated: 2026-10-08 (Day 6, Phase 0.5: UI overview and re-plan options). Update this file at the end of every phase.
 
 ## Summary
 
@@ -22,10 +22,10 @@
 | F | Brief deliverables not yet in the repo | 9 | 6 |
 | G | Repository and process gaps | 7 | 4 |
 | H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
-| I | Gaps from on-site rounds (Day 4) | 13 | 10 |
-| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 20 | 7 |
+| I | Gaps from on-site rounds (Day 4) | 13 | 9 |
+| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 21 | 8 |
 
-\* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
+\* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
 ---
 
@@ -194,7 +194,7 @@ Raised by the answers of 6 October 2026 (ADR 0008; spec §5.12, §5.16).
 | G-I06 | Slot clashes: one juror on two panels at the same time, or two entries in one venue at once. | A confusing day on site. | Not blocked; a warning shows when a panel member's slots overlap. | 12 | Default adopted |
 | G-I07 | Moving a slot after scoring started. | Scores for a presentation that "moved". | A slot can move only until the entry has scores (spec A21). | 12 | Default adopted |
 | G-I08 | A document-only award ends at "Shortlisted / Rejected". Is "Shortlisted" the win for such awards? | Applicants might not understand their result. | Labels can be renamed per round (e.g. "Winner / Not selected") with no code change. **Confirm with the leader** what document-only awards should say. | 3, 11 | Open: ask the leader |
-| G-I09 | **Timeline.** On-site rounds add a backend phase (12) and more frontend work (13), with no extra days. | Late phases get squeezed. | Cut order extended (PHASES §5). Watch it daily from Phase 8 on. | Plan | Open |
+| G-I09 | **Timeline.** On-site rounds add a backend phase (12) and more frontend work (13), with no extra days. | Late phases get squeezed. | Cut order extended (PHASES §5). Watch it daily from Phase 8 on. | Plan | Superseded by G-J21 |
 | G-I10 | Internet at venues is assumed (client answer). | No scoring if the network fails. | Staff backup entry from paper sheets covers it (G-I04). No offline mode. | — | Accepted risk |
 | G-I11 | Team member names reveal who applied. | A leak in a blind document round. | The TEAM_MEMBERS answer is treated as identity: never sent to jury in blind document rounds. | 7, 9 | Default adopted |
 | G-I12 | A shortlisted entry doesn't come to present. | No scores, so the round can't close. | Staff disqualify it with the reason "did not present" (kept on record; shows Rejected). | 12 | Default adopted |
@@ -227,6 +227,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J18 | Aadhaar: storing full Aadhaar numbers is restricted. | Accept only masked Aadhaar (last four digits) as an identity document; other IDs preferred | 2, 7 | Default adopted |
 | G-J19 | Deleting proof documents after 12 months needs a scheduled job; the platform has none yet. | A daily clean-up run from a cron route (Render cron or an external scheduler) | 7 | Open |
 | G-J20 | The last place under the entry limit: two applicants submitting at the same moment could both get in. | Count and submit in one transaction that locks the cycle's row | 7 | Default adopted |
+| G-J21 | **Hard limit 15 October** (owner, 8 Oct). The full plan (15 build phases) can't fit. Option A (focused demo) or Option B (real product, 10–14 weeks)? | Option A by 15 Oct, with B as the roadmap ([proposals/0.5-replan-options.md](proposals/0.5-replan-options.md)) | Plan | Decision needed (lead, 9 Oct) |
 | G-J16 | Sub-domains and own domains need a domain we own and Vercel domain setup, which can't be tested in the 10 days. | Store a slug and an empty `customDomain` field now; build sub-domains and own domains later | 4, later | Open |
 
 ---
@@ -250,6 +251,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-08 | Hard limit of 15 Oct: G-J21 added (Option A vs B, for the lead); G-I09 superseded. |
 | 2026-10-07 | Owner's answers to section J: J01–J12 answered or decided; H01 decided (proof documents); 6 Oct decisions brought over from the parked branch; J17–J20 added; phase numbers remapped to the 7 Oct plan. |
 | 2026-10-07 | New issues: section J added (12 questions, 4 gaps) from the branding, organiser, verification, entry-limit and domain discussion. |
 | 2026-10-06 | Answers on shop-floor and open questions: A11–A14 decided or answered; E02, E07, E08, E14 and E15 answered; C15 removed; phase numbers after 11 shifted by one (new Phase 12, on-site rounds); new section I (13 gaps). |

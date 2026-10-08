@@ -6,13 +6,13 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-07 · Day 5 |
-| **Current phase** | Phase 0.4: New issues and the owner's answers (🧪 all answers recorded in the spec, plan, gaps and ADRs; waiting for review and merge) |
-| **Current branch** | `phase-0.4-issues` |
+| **Last updated** | 2026-10-08 · Day 6 |
+| **Current phase** | Phase 0.5: UI overview and re-plan options (🧪 delivered; waiting for review and merge) |
+| **Current branch** | `phase-0.5-ui` |
 | **What runs today** | Nothing on `main`. The backend foundation (Phase 1) is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`). |
-| **Next action** | 1) Review and merge Phase 0.4, tag `phase-0.4-done`. 2) Phase 0.5 (`phase-0.5-ui`): UI flow diagrams and wireframes for every role, for the **lead call on 9 Oct**. 3) On the call: show the UI flow and agree the extended plan (Days 7–21). 4) Resume Phase 1 as `phase-1-setup` with the new tables. |
-| **Blockers** | None. Open: A4 (email provider, Phase 14); ask the leader: G-I08 (document-only award's winner label), G-H07 (old data import). |
-| **Risk** | The plan now runs to about Day 21 instead of Day 10; the reviewer must agree on 9 Oct. |
+| **Next action** | 1) Review and merge Phase 0.5, tag `phase-0.5-done`. 2) **9 Oct lead call:** walk through the [UI prototype](ui/prototype.html) and the [branding presentation](ui/brand-value.html); the lead chooses [Option A or B](proposals/0.5-replan-options.md). 3) Re-plan PHASES.md from that decision, then resume Phase 1. |
+| **Blockers** | Building waits for the lead's choice between Option A (demo by 15 Oct) and Option B (real product). Open: A4 (email provider); ask the leader: G-I08, G-H07; branding questions B1–B6. |
+| **Risk** | **Hard limit 15 October** (owner, 8 Oct): about 5 working days after the call. Only Option A fits. |
 
 ## Phase status board
 
@@ -24,8 +24,8 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
 | 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | ✅ Merged | sumitdwivedi01/EigthyAwards#3 | 2026-10-06 · `phase-00.2-done` | n/a |
 | 0.3 | Plain-language overview | `phase/00.3-overview-page` | ✅ Merged | sumitdwivedi01/EigthyAwards#4 | 2026-10-07 · `phase-00.3-done` | n/a |
-| 0.4 | New issues and the owner's answers | `phase-0.4-issues` | 🧪 In review | — | — | n/a |
-| 0.5 | UI flow and wireframes | `phase-0.5-ui` | ⬜ | — | — | n/a |
+| 0.4 | New issues and the owner's answers | `phase-0.4-issues` | ✅ Merged (committed to `main` by mistake; accepted as is, see Daily 7 Oct) | — | 2026-10-07 · `phase-0.4-done` | n/a |
+| 0.5 | UI overview and re-plan options | `phase-0.5-ui` | 🧪 In review | — | — | n/a |
 | 1 | Backend foundation (+ new tables) | `phase/01-be-foundation` → `phase-1-setup` | ⏸ Parked: built, 62 tests passing, not merged | — | — | 62 passing |
 | 2 | People: logins, roles, PA, departments (incl. external organisers), master data, organisations | `phase-2-people` | ⬜ | — | — | — |
 | 3 | Award setup: rounds, forms, score sheets (R4), entry limit | `phase-3-awards` | ⬜ | — | — | — |
@@ -84,14 +84,26 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
 
-### Phase 0.4: New issues and the owner's answers · 🧪 · 2026-10-07 (Day 5)
+### Phase 0.5: UI overview and re-plan options · 🧪 · 2026-10-08 (Day 6)
+
+Goal: show the client how the platform looks and flows **before** building, and re-plan for the owner's hard limit of 15 October.
+
+- [x] Asked the owner four questions first (format, look, re-plan, branding deck); all answered with the recommended options.
+- [x] [docs/ui/prototype.html](ui/prototype.html): a clickable prototype of **31 screens across 6 roles** (visitor 3, applicant 7, staff 10, jury 3, department head 4, leader and PA 4), with notes tying each screen to the rules (R1–R4) and decisions. Tested in the browser: no errors, every link valid, every role walkable, no sideways scrolling at laptop, tablet and phone widths.
+- [x] [docs/ui/README.md](ui/README.md): the whole journey plus one Mermaid flow diagram per role, and the screen list with prototype links. GitHub shows it directly.
+- [x] [docs/ui/brand-value.html](ui/brand-value.html): the branding presentation (3 pages, live builder demo).
+- [x] [proposals/0.5-replan-options.md](proposals/0.5-replan-options.md): **Option A** (focused demo by 15 Oct, built on the real architecture) vs **Option B** (the real product, about 50–70 working days), with a recommendation. Not decided.
+- [x] PHASES (build plan on hold), PROGRESS, GAPS (J21), CLAUDE.md, README, creating.md, Daily.md updated.
+- [ ] Merged, tagged `phase-0.5-done`.
+
+### Phase 0.4: New issues and the owner's answers · ✅ · 2026-10-07 (Day 5)
 
 - [x] Studied the FPO Awards site and wrote [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md) with 12 questions.
 - [x] Owner's answers recorded (GAPS §J): plan extended, not cut; sites for all awards; staff-only award creation; several departments per head; no site approval; public entry count; proof documents with every application; staff control what shows where and can redesign after publishing; simple branch names; 6 Oct decisions brought over.
 - [x] Spec: new §5.19 and §5.20 plus all related sections. ADRs 0009 and 0010; 0004 and 0007 updated; 6 Oct changes to ADRs 0002, 0003, 0004 and 0008.
 - [x] PHASES.md rewritten in the new numbering (new Phase 4 for sites; old 8 and 9 merged), target days to Day 21.
 - [x] GAPS §J answered (J17–J20 added); the overview, CLAUDE.md, creating.md, Daily.md and README updated.
-- [ ] Merged, tagged `phase-0.4-done`.
+- [x] Tagged `phase-0.4-done` (its commits went to `main` directly by mistake; the owner chose to accept them as merged).
 ### Phase 0.2: On-site rounds and answers · 🚧 · 2026-10-06 (Day 4)
 
 Goal: record the answers to the 15 open questions and design on-site rounds before writing code.

@@ -8,7 +8,8 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 2. [docs/PHASES.md](docs/PHASES.md): the plan. Work **only** on the current phase.
 3. [docs/GAPS.md](docs/GAPS.md) §A: open decisions. The defaults apply until they're answered.
 4. [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): how the 7 Oct decisions were reached (branded award sites, organisers, proof documents, entry limit, domains). Decided; see the spec §5.19–§5.20.
-5. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
+5. [docs/ui/](docs/ui/README.md): the UI overview (clickable prototype, flows per role) and [docs/proposals/0.5-replan-options.md](docs/proposals/0.5-replan-options.md): Option A (demo by 15 Oct) vs Option B (real product). **The build plan is on hold until the lead chooses.**
+6. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
 
 ## Repo map
 

@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keeping the Organiser's Brand</title>
+<style>
+:root{
+  --bg:#F5F7FB; --surface:#FFFFFF; --ink:#141B2D; --muted:#5A6377; --line:#E1E6EF;
+  --brand:#2446A8; --brand-soft:#E8EEFB; --good:#18794E; --good-soft:#E3F4EB;
+  --bad:#B42318; --bad-soft:#FDECEA; --warn:#9A5B00; --warn-soft:#FFF4DE;
+  --shadow:0 1px 2px rgba(20,27,45,.06),0 8px 24px rgba(20,27,45,.07);
+  --radius:14px;
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:16px}
+button{font:inherit;cursor:pointer}
+a{color:var(--brand)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:rgba(245,247,251,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;min-height:64px;flex-wrap:wrap}
+.title{font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.title .dot{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2446A8,#18794E);display:grid;place-items:center;color:#fff;font-size:14px}
+.tabs{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.tab[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.tab .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);margin-right:6px;font-size:12px}
+.tab[aria-selected="false"] .n{background:var(--brand-soft);color:var(--brand)}
+
+section.page{display:none;padding:36px 0 64px}
+section.page.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h1{font-size:clamp(30px,4.2vw,48px);line-height:1.1;letter-spacing:-.02em;margin:0 0 12px}
+h2{font-size:clamp(22px,2.6vw,30px);letter-spacing:-.01em;margin:44px 0 8px}
+h3{margin:0 0 6px;font-size:18px}
+.lead{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:760px;margin:0}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);margin-bottom:10px}
+.sub{color:var(--muted);margin:0 0 18px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.blue{background:var(--brand-soft);color:var(--brand)}
+
+/* browser frame */
+.browser{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}
+.bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#EEF1F6;border-bottom:1px solid var(--line)}
+.bar i{width:10px;height:10px;border-radius:50%;background:#D5DAE3;display:inline-block}
+.addr{flex:1;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.addr b{color:var(--ink);font-weight:600}
+
+/* page 1 comparison */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:26px}
+@media (max-width:900px){.compare{grid-template-columns:1fr}}
+.listing{padding:16px;font-size:13px}
+.listing .lh{font-weight:700;color:#333;margin-bottom:8px;font-size:14px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px dashed #E3E3E3;color:#555}
+.row.hl{background:#FFFBEA;outline:2px solid #F2C94C;outline-offset:-2px;border-radius:4px}
+.row a{font-size:12px}
+.mini{font-size:13px}
+.mini .mh{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#145C35;color:#fff}
+.mini .mh nav{margin-left:auto;display:flex;gap:10px;font-size:11px;opacity:.9}
+.mini .hero{padding:22px 14px;color:#fff;background:linear-gradient(120deg,rgba(20,92,53,.92),rgba(20,92,53,.55)),repeating-linear-gradient(100deg,#2f8f55 0 14px,#3da563 14px 28px)}
+.mini .hero b{font-size:19px;display:block;font-family:Georgia,serif}
+.mini .hero .btn{display:inline-block;margin-top:10px;background:#F2B705;color:#1d1d1d;padding:6px 12px;border-radius:6px;font-weight:700;font-size:12px}
+.mini .meter{height:6px;background:rgba(255,255,255,.3);border-radius:99px;margin-top:8px;max-width:220px}
+.mini .meter span{display:block;height:100%;width:99.8%;background:#F2B705;border-radius:99px}
+.mini .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+.mini .cards div{background:#EEF7F1;border-radius:8px;padding:10px 8px;font-size:11px;color:#145C35;font-weight:600;text-align:center}
+.mini .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 12px 12px}
+.mini .gal span{aspect-ratio:1;border-radius:6px}
+.caption{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:14px;color:var(--muted)}
+
+.losses{margin-top:10px}
+.loss .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;margin-bottom:10px}
+.loss .feel{font-style:italic;color:var(--muted);margin:6px 0 12px}
+.loss .fix{border-top:1px solid var(--line);padding-top:10px;font-size:14px}
+.equation{margin-top:24px;padding:22px;border-radius:var(--radius);background:linear-gradient(120deg,#2446A8,#18794E);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:18px;font-weight:600}
+.equation .t{background:rgba(255,255,255,.16);padding:6px 12px;border-radius:10px}
+.next{margin-top:26px;display:flex;justify-content:flex-end}
+.btn-main{background:var(--brand);color:#fff;border:0;padding:12px 18px;border-radius:10px;font-weight:700}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:10px 14px;border-radius:10px;font-weight:600}
+
+/* page 2 layers */
+.layers{display:grid;grid-template-columns:340px 1fr;gap:22px;margin-top:22px;align-items:start}
+@media (max-width:900px){.layers{grid-template-columns:1fr}}
+.stack{display:flex;flex-direction:column;gap:8px}
+.layer{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;transition:.2s}
+.layer:hover{border-color:#B9C5E6}
+.layer .num{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff}
+.layer .lt{font-weight:700;font-size:15px}
+.layer .ls{font-size:12.5px;color:var(--muted)}
+.layer[aria-selected="true"]{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);transform:translateX(4px)}
+.detail{min-height:520px;min-width:0}
+.layers > *,.builder > *,.compare > *,.grid > *{min-width:0}
+.rung .addr{min-width:0}
+.detail h3{font-size:22px;margin-bottom:4px}
+.detail .why{color:var(--muted);margin:0 0 18px}
+.dpanel{display:none}.dpanel.on{display:block;animation:fade .3s ease}
+.bullets{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.bullets li{display:flex;gap:10px;font-size:15px}
+.bullets li::before{content:"✓";color:var(--good);font-weight:800}
+
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:84px}.sw span{display:block;height:56px;border-radius:10px;border:1px solid rgba(0,0,0,.06)}
+.sw small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.kitbox{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:700px){.kitbox{grid-template-columns:1fr}}
+.font-sample{font-family:Georgia,serif;font-size:26px;color:#145C35}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.fake-btn{padding:8px 14px;font-weight:700;font-size:13px;color:#1d1d1d;background:#F2B705}
+
+.front .fh{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#145C35;color:#fff}
+.front .fh nav{margin-left:auto;display:flex;gap:14px;font-size:13px}
+.front .fb{padding:28px 16px;background:#F3F8F5;color:#145C35;font-family:Georgia,serif;font-size:20px}
+.front .ff{padding:10px 16px;font-size:12px;color:#7C8597;border-top:1px solid var(--line);display:flex;justify-content:space-between}
+.tag-arrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+
+.lib{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.lib{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sec{border:1px solid var(--line);border-radius:10px;padding:8px;background:#FAFBFD;font-size:12px;font-weight:600;color:var(--muted)}
+.sec .wf{height:46px;border-radius:6px;margin-bottom:6px;background:#E9EDF5;position:relative;overflow:hidden}
+.wf.banner{background:linear-gradient(120deg,#9FB4E3,#C9D5F0)}
+.wf.cards{background:repeating-linear-gradient(90deg,#DDE4F2 0 30%,#fff 30% 35%)}
+.wf.gal{background:repeating-linear-gradient(90deg,#CFD9EE 0 22%,#fff 22% 26%)}
+.wf.win{background:repeating-linear-gradient(180deg,#DDE4F2 0 8px,#fff 8px 13px)}
+.wf.num{background:radial-gradient(circle at 20% 50%,#9FB4E3 0 10px,transparent 11px),radial-gradient(circle at 50% 50%,#9FB4E3 0 10px,transparent 11px),radial-gradient(circle at 80% 50%,#9FB4E3 0 10px,transparent 11px),#E9EDF5}
+.wf.faq{background:repeating-linear-gradient(180deg,#E9EDF5 0 12px,#fff 12px 15px)}
+.wf.vid{background:#2B3550}.wf.vid::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;color:#fff}
+.wf.time{background:linear-gradient(90deg,transparent 10%,#9FB4E3 10% 90%,transparent 90%) center/100% 3px no-repeat,#E9EDF5}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.chip{font-size:11px;padding:2px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted)}
+.tpl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.tpl div{border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700;text-align:center;background:#fff}
+.tpl div span{display:block;height:64px}
+
+.journey{display:flex;gap:10px;align-items:stretch;overflow-x:auto;padding-bottom:6px}
+.jstep{flex:1 0 150px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;font-size:12px}
+.jstep .jh{background:#145C35;color:#fff;padding:6px 8px;font-weight:700;display:flex;gap:6px;align-items:center}
+.jstep .jb{padding:10px 8px;color:#333;min-height:84px}
+.jstep .jl{padding:6px 8px;background:#F3F8F5;color:#145C35;font-weight:700;border-top:1px solid #DCEBE2}
+.arrow{align-self:center;color:#9AA4B8;font-size:20px;flex:none}
+.wa{background:#E7F7EE}.wa .jb{background:#DCF8C6}
+
+.truth{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.truth{grid-template-columns:1fr}}
+.big-meter{height:14px;background:#E9EDF5;border-radius:99px;overflow:hidden;margin:8px 0}
+.big-meter span{display:block;height:100%;background:linear-gradient(90deg,#18794E,#F2B705)}
+.winrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+.badge{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px}
+.gold{background:#FFF1C2;color:#7A5A00}.silver{background:#ECEFF3;color:#4A5568}.bronze{background:#F7E0CF;color:#7A3E12}.winner{background:#E3F4EB;color:#18794E}
+.stale{opacity:.9;border-style:dashed}
+
+.ladder{display:grid;gap:12px}
+.rung{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.rung .lv{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800}
+.rung .addr{max-width:none}
+
+.quality{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.quality{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.q{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;text-align:center}
+.q .qi{font-size:26px}
+.q b{display:block;margin:4px 0 2px}
+.q small{color:var(--muted)}
+
+table.map{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+table.map th,table.map td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.map th{background:#F0F3F9;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+table.map td:nth-child(2){color:var(--good);font-weight:600}
+/* page 3 builder demo */
+.builder{display:grid;grid-template-columns:330px 1fr;gap:18px;margin-top:18px;align-items:start}
+@media (max-width:980px){.builder{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel h4{margin:0;padding:12px 16px;font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:#F7F9FC;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.ctl{padding:12px 16px;border-bottom:1px solid var(--line)}
+.ctl:last-child{border-bottom:0}
+.ctl label.l{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.toggles label{display:flex;align-items:center;gap:6px;font-size:13px;padding:5px 6px;border-radius:6px;border:1px solid var(--line)}
+input[type=range]{width:100%}
+.counter-out{font-weight:700;font-size:14px}
+.pubbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.status{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.status.live{background:var(--good-soft);color:var(--good)}
+.status.dirty{background:var(--warn-soft);color:var(--warn)}
+.versions{margin-top:8px;display:grid;gap:4px;max-height:130px;overflow:auto}
+.ver{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:5px 8px;border-radius:6px;background:#F7F9FC}
+.ver button{font-size:11.5px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 8px}
+.domain-in{display:flex;gap:6px;margin-top:8px}
+.domain-in input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;font-size:13px}
+.dns{margin-top:8px;font-size:12px;background:#0F172A;color:#E2E8F0;border-radius:8px;padding:8px 10px;font-family:Consolas,monospace}
+.steps{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.steps span{font-size:11.5px;padding:3px 8px;border-radius:999px;background:#EEF1F6;color:var(--muted);font-weight:700}
+.steps span.done{background:var(--good-soft);color:var(--good)}
+.steps span.now{background:var(--warn-soft);color:var(--warn)}
+
+.stage{position:static}
+@media (min-width:981px){.stage{position:sticky;top:84px}}
+.devicebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.preview-shell{display:flex;justify-content:center;transition:.3s}
+.preview-shell .browser{width:100%;transition:width .35s ease}
+.preview-shell.phone .browser{width:375px;border-radius:26px;border:8px solid #1A2033}
+.preview-shell.phone .bar{border-radius:0}
+.pv{height:620px;overflow:auto;background:#fff;container-type:inline-size}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;background:#141B2D;color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;transition:.3s;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* the rendered award site (inside the preview) */
+.site{--p:#145C35;--a:#F2B705;--soft:#EEF7F1;--hf:Georgia,serif;--r:10px;font-size:14px;color:#1d2433}
+.site .s-head{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--p);color:#fff;position:sticky;top:0;z-index:2}
+.site .s-head .nm{font-weight:800;font-family:var(--hf);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.site .s-head nav{margin-left:auto;display:flex;gap:14px;font-size:12.5px;opacity:.95}
+.site .burger{margin-left:auto;font-size:20px;display:none}
+.site.phone .s-head nav{display:none}.site.phone .burger{display:block}
+@container (max-width:640px){.site .s-head nav{display:none}.site .burger{display:block}.site .cats,.site .gal-grid,.site .nums,.site .hero.split{grid-template-columns:1fr}}
+.site .hero{position:relative;color:#fff;padding:48px 22px;overflow:hidden}
+.site .hero h1{font-family:var(--hf);font-size:30px;margin:0 0 6px;line-height:1.15;letter-spacing:-.01em}
+.site .hero p{margin:0 0 14px;opacity:.95;max-width:520px}
+.site .hero.photo{background:linear-gradient(110deg,color-mix(in srgb,var(--p) 92%,transparent),color-mix(in srgb,var(--p) 45%,transparent)),var(--pat)}
+.site .hero.split{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:center;background:var(--p)}
+.site .hero.split .ph{height:170px;border-radius:var(--r);background:var(--pat)}
+.site.phone .hero.split{grid-template-columns:1fr}
+.site .hero.plain{background:var(--soft);color:var(--p)}
+.site .hero.video{background:#0B1220}
+.site .hero.video::before{content:"";position:absolute;inset:0;background:var(--pat);opacity:.35}
+.site .hero.video .play{position:absolute;right:20px;bottom:16px;font-size:12px;background:rgba(0,0,0,.45);padding:4px 10px;border-radius:999px}
+.site .hero > *{position:relative}
+.site .apply{display:inline-flex;align-items:center;gap:8px;background:var(--a);color:#1d1d1d;font-weight:800;padding:10px 16px;border-radius:var(--r);border:0}
+.site .apply[disabled]{background:#C9CED8;color:#555;cursor:not-allowed}
+.site .meter{margin-top:14px;max-width:330px}
+.site .meter .mb{height:8px;border-radius:99px;background:rgba(255,255,255,.3);overflow:hidden}
+.site .hero.plain .meter .mb{background:#D9E2DC}
+.site .meter .mb span{display:block;height:100%;background:var(--a)}
+.site .meter small{display:flex;justify-content:space-between;font-size:12px;margin-top:4px;opacity:.95}
+.site .deadline{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.18);margin-bottom:10px}
+.site .hero.plain .deadline{background:#fff}
+.site .blk{padding:26px 22px}
+.site .blk h2{font-family:var(--hf);color:var(--p);font-size:21px;margin:0 0 12px}
+.site .auto{font-size:10.5px;font-weight:800;color:var(--p);background:var(--soft);padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;font-family:"Segoe UI",sans-serif}
+.site .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;background:var(--soft)}
+.site .nums b{display:block;font-size:24px;color:var(--p);font-family:var(--hf)}
+.site .cats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.site .cat{border:1px solid #E5E9EF;border-radius:var(--r);padding:12px;display:flex;gap:10px;align-items:flex-start}
+.site .cat i{font-style:normal;width:34px;height:34px;border-radius:9px;background:var(--soft);display:grid;place-items:center;flex:none}
+.site .cat small{display:block;color:#6B7280}
+.site .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.site .gal-grid span,.site .gal-car span{aspect-ratio:4/3;border-radius:var(--r);display:block}
+.site .gal-mos{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:60px;gap:8px}
+.site .gal-mos span{border-radius:var(--r)}
+.site .gal-mos span:nth-child(1){grid-column:span 2;grid-row:span 2}
+.site .gal-mos span:nth-child(4){grid-column:span 2}
+.site .gal-car{display:flex;gap:8px;overflow:hidden;position:relative}
+.site .gal-car span{flex:0 0 46%}
+.site .gal-car::after{content:"‹  ›";position:absolute;right:8px;top:8px;background:rgba(0,0,0,.5);color:#fff;border-radius:999px;padding:2px 10px;font-weight:800}
+.site.phone .cats,.site.phone .gal-grid{grid-template-columns:1fr}
+.site.phone .nums{grid-template-columns:1fr}
+.site .wtab{width:100%;border-collapse:collapse;font-size:13px}
+.site .wtab td{padding:8px 4px;border-bottom:1px solid #EEF0F4}
+.site .faq details{border:1px solid #E5E9EF;border-radius:var(--r);padding:10px 12px;margin-bottom:8px}
+.site .faq summary{font-weight:700;cursor:pointer}
+.site .partners{display:flex;gap:10px;flex-wrap:wrap}
+.site .partners span{flex:1 0 90px;height:42px;border-radius:8px;background:#F1F3F7;display:grid;place-items:center;font-weight:800;color:#8A93A6;font-size:12px}
+.site .s-foot{padding:16px 22px;background:var(--p);color:#fff;font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.site .s-foot .pb{opacity:.75}
+/* templates */
+.site.t-bold .hero h1{font-size:36px;text-transform:uppercase;letter-spacing:.01em}
+.site.t-bold{--r:2px}
+.site.t-bold .blk h2{text-transform:uppercase;letter-spacing:.04em;font-size:18px}
+.site.t-minimal{--r:14px}
+.site.t-minimal .s-head{background:#fff;color:var(--p);border-bottom:1px solid #EEF0F4}
+.site.t-minimal .s-foot{background:#fff;color:#555;border-top:1px solid #EEF0F4}
+.site.t-minimal .blk{padding:34px 26px}
+.site.t-minimal .nums{background:#fff;border-top:1px solid #EEF0F4;border-bottom:1px solid #EEF0F4}
+
+.limits{margin-top:30px}
+.qtable{width:100%;border-collapse:collapse;font-size:14px}
+.qtable td,.qtable th{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.qtable th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+footer.foot{border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:13px}
+@media print{.top{position:static}section.page{display:block!important}.stage{position:static}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="title"><span class="dot">★</span>Keeping the organiser's brand</div>
+  <div class="tabs" role="tablist" aria-label="Presentation pages">
+    <button class="tab" role="tab" aria-selected="true" data-go="p1"><span class="n">1</span>Why it matters</button>
+    <button class="tab" role="tab" aria-selected="false" data-go="p2"><span class="n">2</span>The 7 layers</button>
+    <button class="tab" role="tab" aria-selected="false" data-go="p3"><span class="n">3</span>See it work</button>
+  </div>
+</div></header>
+
+<main>
+<!-- ═════════════ PAGE 1 ═════════════ -->
+<section class="page on" id="p1"><div class="wrap">
+  <div class="kicker">The client's worry</div>
+  <h1>"If our award becomes a simple page on someone else's platform, our brand loses value."</h1>
+  <p class="lead">Organisers like the FPO Awards team have built their name over years: their own website, look, photos and winners. A plain listing would make them look like everyone else. Our answer: <b>every award gets its own branded site</b>, built by staff, with no developer.</p>
+
+  <div class="compare">
+    <div>
+      <div class="browser">
+        <div class="bar"><i></i><i></i><i></i><div class="addr">platform.in/<b>awards</b></div></div>
+        <div class="listing">
+          <div class="lh">Awards 2026</div>
+          <div class="row"><span>Business Excellence Award</span><a>Details</a></div>
+          <div class="row"><span>National Energy Award</span><a>Details</a></div>
+          <div class="row hl"><span>FPO Excellence Awards</span><a>Details</a></div>
+          <div class="row"><span>Safety Excellence Award</span><a>Details</a></div>
+          <div class="row"><span>Design Excellence Award</span><a>Details</a></div>
+          <div class="row"><span>Kaizen Competition</span><a>Details</a></div>
+        </div>
+      </div>
+      <div class="caption"><span class="pill bad">✕ A simple listing</span><span>The award is one grey row among many. No logo, no colours, no story.</span></div>
+    </div>
+    <div>
+      <div class="browser">
+        <div class="bar"><i></i><i></i><i></i><div class="addr">🔒 <b>awards.face-cii.in</b></div></div>
+        <div class="mini">
+          <div class="mh"><span>🌾</span><b>FPO Excellence Awards</b><nav><span>Categories</span><span>Winners</span><span>Gallery</span></nav></div>
+          <div class="hero"><b>Celebrating farmer enterprises</b>Applications close 15 July · 4 categories
+            <div class="meter"><span></span></div><small style="font-size:11px;opacity:.9">499 / 500 places taken</small><br><span class="btn">Apply now</span></div>
+          <div class="cards"><div>Market linkages</div><div>Women entrepreneurship</div><div>Technology</div></div>
+          <div class="gal"><span style="background:#7CB98F"></span><span style="background:#A9D3B2"></span><span style="background:#5E9E74"></span><span style="background:#C7E3CE"></span></div>
+        </div>
+      </div>
+      <div class="caption"><span class="pill good">✓ Their own branded site</span><span>Their logo, colours, photos, pages and address. The platform stays in the background.</span></div>
+    </div>
+  </div>
+
+  <h2>A brand loses three things on a simple page</h2>
+  <p class="sub">So brand value is more than "a logo on the page". We protect all three.</p>
+  <div class="grid g3 losses">
+    <div class="card loss"><div class="ic" style="background:#FDECEA">🎨</div><h3>Identity</h3>
+      <p class="feel">"We look like everyone else."</p>
+      <div class="fix"><b>We give:</b> their logo, colours, fonts and photos on every page.</div></div>
+    <div class="card loss"><div class="ic" style="background:#FFF4DE">🏷️</div><h3>Ownership</h3>
+      <p class="feel">"It feels like the platform's award now, not ours."</p>
+      <div class="fix"><b>We give:</b> their name on top, the platform hidden in the background, and their own web address.</div></div>
+    <div class="card loss"><div class="ic" style="background:#E3F4EB">✨</div><h3>Richness</h3>
+      <p class="feel">"Our prestige isn't visible any more."</p>
+      <div class="fix"><b>We give:</b> many pages, galleries, past winners, jury, partners and numbers.</div></div>
+  </div>
+
+  <div class="equation">
+    <span>Brand value =</span><span class="t">Identity</span><span>+</span><span class="t">Ownership</span><span>+</span><span class="t">Richness</span><span>→ carried through the <u>whole</u> journey</span>
+  </div>
+  <div class="next"><button class="btn-main" data-go="p2">See the 7 layers →</button></div>
+</div></section>
+<!-- ═════════════ PAGE 2 ═════════════ -->
+<section class="page" id="p2"><div class="wrap">
+  <div class="kicker">How we protect it</div>
+  <h1>Seven layers, from the logo to the web address</h1>
+  <p class="lead">Each layer answers part of the worry. Click a layer to see how it works.</p>
+
+  <div class="layers">
+    <div class="stack" role="tablist" aria-label="Layers">
+      <button class="layer" role="tab" aria-selected="true" data-layer="L1"><span class="num" style="background:#2446A8">1</span><span><span class="lt">Brand kit</span><br><span class="ls">Their look, set once</span></span></button>
+      <button class="layer" role="tab" aria-selected="false" data-layer="L2"><span class="num" style="background:#3B5BC0">2</span><span><span class="lt">Organiser in front</span><br><span class="ls">The platform stays in the background</span></span></button>
+      <button class="layer" role="tab" aria-selected="false" data-layer="L3"><span class="num" style="background:#4A6FD0">3</span><span><span class="lt">Rich sections and templates</span><br><span class="ls">Many pages, many layouts</span></span></button>
+      <button class="layer" role="tab" aria-selected="false" data-layer="L4"><span class="num" style="background:#18794E">4</span><span><span class="lt">Brand across the journey</span><br><span class="ls">Form, emails, status, sharing</span></span></button>
+      <button class="layer" role="tab" aria-selected="false" data-layer="L5"><span class="num" style="background:#1F8A5A">5</span><span><span class="lt">Credibility that's always true</span><br><span class="ls">Live data, never stale</span></span></button>
+      <button class="layer" role="tab" aria-selected="false" data-layer="L6"><span class="num" style="background:#9A5B00">6</span><span><span class="lt">Their own web address</span><br><span class="ls">Up to their own domain</span></span></button>
+      <button class="layer" role="tab" aria-selected="false" data-layer="L7"><span class="num" style="background:#B45309">7</span><span><span class="lt">Quality that protects</span><br><span class="ls">Fast, phone-first, safe</span></span></button>
+    </div>
+
+    <div class="card detail">
+      <!-- L1 -->
+      <div class="dpanel on" id="L1">
+        <span class="pill blue">Layer 1 · Identity</span>
+        <h3>Brand kit: their look, set once, used everywhere</h3>
+        <p class="why">The organiser's lead sets it once for the department. Every award site, form and email uses it. One award can adjust its colours and banner.</p>
+        <div class="kitbox">
+          <div class="card"><b>Logo</b><div style="display:flex;gap:10px;margin-top:10px">
+            <div style="flex:1;height:70px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:#145C35">🌾 FPO Awards</div>
+            <div style="flex:1;height:70px;border-radius:10px;background:#145C35;display:grid;place-items:center;font-weight:800;color:#fff">🌾 FPO Awards</div></div>
+            <small style="color:var(--muted)">Light and dark versions, plus a small icon for the browser tab</small></div>
+          <div class="card"><b>Colours</b><div class="swatches" style="margin-top:10px">
+            <div class="sw"><span style="background:#145C35"></span><small>Primary</small></div>
+            <div class="sw"><span style="background:#F2B705"></span><small>Accent</small></div>
+            <div class="sw"><span style="background:#EEF7F1"></span><small>Soft</small></div></div>
+            <small style="color:var(--good);font-weight:700">✓ Readability checked automatically</small></div>
+          <div class="card"><b>Fonts</b><div class="font-sample" style="margin-top:8px">Celebrating farmers</div><div style="font-size:14px;color:var(--muted)">Body text in a clean sans-serif · chosen from a curated list</div></div>
+          <div class="card"><b>Shapes and voice</b><div class="btnrow" style="margin-top:10px"><span class="fake-btn" style="border-radius:999px">Rounded</span><span class="fake-btn" style="border-radius:8px">Soft</span><span class="fake-btn" style="border-radius:0">Square</span></div><div style="font-size:14px;color:var(--muted);margin-top:8px">Tagline, social links and footer text</div></div>
+        </div>
+      </div>
+      <!-- L2 -->
+      <div class="dpanel" id="L2">
+        <span class="pill blue">Layer 2 · Ownership</span>
+        <h3>The organiser in front, the platform in the background</h3>
+        <p class="why">Visitors should feel they're on the organiser's own site. Their header and menu sit on top; the platform is only a small line in the footer, or hidden.</p>
+        <div class="browser front">
+          <div class="bar"><i></i><i></i><i></i><div class="addr">🔒 <b>awards.face-cii.in</b></div></div>
+          <div class="fh"><span>🌾</span><b>FPO Excellence Awards</b><nav><span>About</span><span>Categories</span><span>Winners</span><span>Gallery</span><span>Contact</span></nav></div>
+          <div class="fb">Their name, their menu, their pages.</div>
+          <div class="ff"><span>© FPO Excellence Awards · Facebook · LinkedIn · X</span><span id="pbLine">Powered by Awards Platform</span></div>
+        </div>
+        <div class="tag-arrow"><span class="pill good">↑ The organiser's header on top</span><span class="pill blue">↓ A small "Powered by" line, or full white-label</span></div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px"><input type="checkbox" id="wl"> Try full white-label (hide "Powered by")</label>
+      </div>
+      <!-- L3 -->
+      <div class="dpanel" id="L3">
+        <span class="pill blue">Layer 3 · Richness</span>
+        <h3>Many pages, built from ready-made sections, each with several layouts</h3>
+        <p class="why">Staff choose sections, place them on any page, pick a layout for each and fill them in. Two awards using the same sections still look different.</p>
+        <div class="lib">
+          <div class="sec"><div class="wf banner"></div>Banner<div class="chips"><span class="chip">Photo</span><span class="chip">Video</span><span class="chip">Split</span></div></div>
+          <div class="sec"><div class="wf cards"></div>Categories / cards<div class="chips"><span class="chip">2–4 columns</span><span class="chip">Icons</span></div></div>
+          <div class="sec"><div class="wf gal"></div>Gallery<div class="chips"><span class="chip">Grid</span><span class="chip">Mosaic</span><span class="chip">Slider</span></div></div>
+          <div class="sec"><div class="wf win"></div>Past winners<div class="chips"><span class="chip">Cards</span><span class="chip">Filter table</span></div></div>
+          <div class="sec"><div class="wf num"></div>Numbers<div class="chips"><span class="chip">Counters</span></div></div>
+          <div class="sec"><div class="wf time"></div>Process / timeline<div class="chips"><span class="chip">Steps</span></div></div>
+          <div class="sec"><div class="wf vid"></div>Video<div class="chips"><span class="chip">YouTube</span></div></div>
+          <div class="sec"><div class="wf faq"></div>FAQ, jury, partners…<div class="chips"><span class="chip">+ more</span></div></div>
+        </div>
+        <b style="display:block;margin-top:16px">Start from a template, not a blank page</b>
+        <div class="tpl">
+          <div><span style="background:linear-gradient(#145C35 0 30%,#EEF7F1 30%)"></span>Classic</div>
+          <div><span style="background:linear-gradient(#0B1220 0 55%,#F2B705 55% 62%,#fff 62%)"></span>Bold</div>
+          <div><span style="background:linear-gradient(#fff 0 22%,#EEF0F4 22% 24%,#fff 24%)"></span>Minimal</div>
+        </div>
+      </div>
+      <!-- L4 -->
+      <div class="dpanel" id="L4">
+        <span class="pill good">Layer 4 · Our biggest advantage</span>
+        <h3>The brand runs through the whole journey, not just the home page</h3>
+        <p class="why">A normal website stops at "Apply" and sends people to a separate portal. Here every step stays in the organiser's brand.</p>
+        <div class="journey">
+          <div class="jstep"><div class="jh">🌾 Site</div><div class="jb">Branded pages explain the award</div><div class="jl">Apply now →</div></div>
+          <div class="arrow">→</div>
+          <div class="jstep"><div class="jh">🌾 Form</div><div class="jb">The application form in their colours, saved as you type</div><div class="jl">Submit</div></div>
+          <div class="arrow">→</div>
+          <div class="jstep"><div class="jh">✉️ Email</div><div class="jb"><b>From: FPO Awards</b><br>"We received your application"</div><div class="jl">Their logo, their name</div></div>
+          <div class="arrow">→</div>
+          <div class="jstep"><div class="jh">🌾 Status</div><div class="jb">Under review → Shortlisted</div><div class="jl">In their brand</div></div>
+          <div class="arrow">→</div>
+          <div class="jstep wa"><div class="jh" style="background:#128C7E">💬 Shared link</div><div class="jb"><b>FPO Excellence Awards 2026</b><br><small>Apply before 15 July</small></div><div class="jl">Their image and title</div></div>
+        </div>
+        <ul class="bullets"><li>Later: winner certificates and a "Winner 2026" badge in their brand. Free promotion for them.</li></ul>
+      </div>
+      <!-- L5 -->
+      <div class="dpanel" id="L5">
+        <span class="pill good">Layer 5 · Prestige you can trust</span>
+        <h3>Credibility that is always true</h3>
+        <p class="why">Prestige comes from proof: deadlines, places, winners. On a hand-made site these go stale. Our automatic sections read live data from the platform.</p>
+        <div class="truth">
+          <div class="card"><b>Places taken</b> <span class="pill blue">automatic</span>
+            <div class="big-meter"><span style="width:99.8%"></span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span><b>499 / 500</b> places taken</span><span style="color:var(--bad);font-weight:700">1 left</span></div>
+            <div style="margin-top:12px"><b>Deadline</b> <span class="pill blue">automatic</span><div style="font-size:22px;font-weight:800;margin-top:4px">8 days 14 h left</div></div></div>
+          <div class="card"><b>Past winners</b> <span class="pill blue">from published results</span>
+            <div class="winrow"><span>2025 · Women entrepreneurship · Sahyadri FPO</span><span class="badge gold">Gold</span></div>
+            <div class="winrow"><span>2025 · Technology · Kisan Mitra FPO</span><span class="badge silver">Silver</span></div>
+            <div class="winrow"><span>2024 · Market linkages · Green Valley FPO</span><span class="badge winner">Winner</span></div>
+            <small style="color:var(--muted)">Updates itself the moment staff publish results</small></div>
+        </div>
+        <div class="card stale" style="margin-top:14px;background:var(--bad-soft);border-color:#F3B7B1"><b style="color:var(--bad)">On a hand-made site:</b> "Apply by 30 June" is still showing in August, and last year's winners were never added.</div>
+      </div>
+      <!-- L6 -->
+      <div class="dpanel" id="L6">
+        <span class="pill warn">Layer 6 · Ownership of the address</span>
+        <h3>Their own web address, in three levels</h3>
+        <p class="why">Staff choose the address in the site settings. Level 3 is the strongest for the brand: the organiser's own name in the address bar.</p>
+        <div class="ladder">
+          <div class="rung"><span class="lv" style="background:#9AA4B8">1</span><div class="addr">ourplatform.in/awards/<b>fpo</b></div><span class="pill good">Works at once</span></div>
+          <div class="rung"><span class="lv" style="background:#C07A12">2</span><div class="addr"><b>fpo</b>.ourplatform.in</div><span class="pill good">Works at once</span></div>
+          <div class="rung"><span class="lv" style="background:#18794E">3</span><div class="addr">🔒 <b>awards.face-cii.in</b> or <b>fpoawards.in</b></div><span class="pill warn">One DNS record</span></div>
+        </div>
+        <ul class="bullets">
+          <li>Best for the brand: <b>awards.face-cii.in</b>. Their main website stays untouched; the award lives on their own domain.</li>
+          <li>Connecting takes one DNS record added by their IT person; HTTPS (the padlock) is created automatically. Try it on page 3.</li>
+          <li>Not possible: a path inside their existing site (face-cii.in/fpo-awards). That path belongs to their current server.</li>
+        </ul>
+      </div>
+      <!-- L7 -->
+      <div class="dpanel" id="L7">
+        <span class="pill warn">Layer 7 · Protecting the brand</span>
+        <h3>Quality that protects the brand</h3>
+        <p class="why">A beautiful site that breaks on a phone damages the brand. These come built in, so every one of the 80 sites stays professional.</p>
+        <div class="quality">
+          <div class="q"><div class="qi">📱</div><b>Phone first</b><small>Every section adapts; preview on phone before publishing</small></div>
+          <div class="q"><div class="qi">⚡</div><b>Fast</b><small>Images resized and compressed automatically</small></div>
+          <div class="q"><div class="qi">♿</div><b>Accessible</b><small>Readable colours, image descriptions required</small></div>
+          <div class="q"><div class="qi">🛡️</div><b>Safe</b><small>No custom code: nothing can break or be abused</small></div>
+        </div>
+        <ul class="bullets">
+          <li>Every publish is saved as a version, so a mistake can be undone in one click.</li>
+          <li>Staff can keep improving the site after it goes live.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Proof: today's FPO site, rebuilt with our sections</h2>
+  <p class="sub">Every part of the current FPO Awards site maps to a ready-made section, and ours adds a branded form, branded emails and winners that update themselves.</p>
+  <table class="map">
+    <thead><tr><th>FPO Awards site today</th><th>Our section</th><th>What we add</th></tr></thead>
+    <tbody>
+      <tr><td>Banner with deadline and Apply button</td><td>Banner</td><td>Deadline, "499 / 500" and Apply are filled automatically</td></tr>
+      <tr><td>Eligibility</td><td>Eligibility</td><td>—</td></tr>
+      <tr><td>About and objectives</td><td>Rich text, Cards</td><td>Several layouts</td></tr>
+      <tr><td>4 categories with icons</td><td>Categories</td><td>Names and fees come from the cycle</td></tr>
+      <tr><td>Process flowchart</td><td>Process / timeline</td><td>Key dates come from the cycle</td></tr>
+      <tr><td>20+ event photos</td><td>Gallery</td><td>Auto-resized, grid, mosaic or slider</td></tr>
+      <tr><td>Past winners, filterable</td><td>Past winners</td><td>Comes straight from published results</td></tr>
+      <tr><td>Contacts, footer and socials</td><td>Contacts, Brand kit</td><td>—</td></tr>
+      <tr><td><i>Applications on a separate portal</i></td><td>Built in</td><td>Branded form, emails and status, all in one place</td></tr>
+    </tbody>
+  </table>
+  <div class="next"><button class="btn-main" data-go="p3">Try the live demo →</button></div>
+</div></section>
+<!-- ═════════════ PAGE 3 ═════════════ -->
+<section class="page" id="p3"><div class="wrap">
+  <div class="kicker">Live demo</div>
+  <h1>What staff will do, with no developer</h1>
+  <p class="lead">This is a simplified model of the site builder. Change anything on the left; the award site on the right updates. Then publish, change it again, and restore an older version.</p>
+
+  <div class="builder">
+    <div class="panel" aria-label="Site builder controls">
+      <h4>🧰 Site builder</h4>
+      <div class="ctl"><label class="l">Organiser (brand kit)</label>
+        <div class="seg" data-key="brand"><button data-v="fpo" aria-pressed="true">🌾 FPO Awards</button><button data-v="safety" aria-pressed="false">🛡️ Safety</button><button data-v="kaizen" aria-pressed="false">⚙️ Kaizen</button></div></div>
+      <div class="ctl"><label class="l">Template</label>
+        <div class="seg" data-key="template"><button data-v="classic" aria-pressed="true">Classic</button><button data-v="bold" aria-pressed="false">Bold</button><button data-v="minimal" aria-pressed="false">Minimal</button></div></div>
+      <div class="ctl"><label class="l">Banner layout</label>
+        <div class="seg" data-key="banner"><button data-v="photo" aria-pressed="true">Photo</button><button data-v="video" aria-pressed="false">Video</button><button data-v="split" aria-pressed="false">Split</button><button data-v="plain" aria-pressed="false">Plain</button></div></div>
+      <div class="ctl"><label class="l">Sections on the Home page</label>
+        <div class="toggles">
+          <label><input type="checkbox" data-sec="numbers" checked> Numbers</label>
+          <label><input type="checkbox" data-sec="categories" checked> Categories</label>
+          <label><input type="checkbox" data-sec="gallery" checked> Gallery</label>
+          <label><input type="checkbox" data-sec="winners" checked> Past winners</label>
+          <label><input type="checkbox" data-sec="partners"> Partners</label>
+          <label><input type="checkbox" data-sec="faq" checked> FAQ</label>
+        </div></div>
+      <div class="ctl"><label class="l">Gallery layout</label>
+        <div class="seg" data-key="gallery"><button data-v="grid" aria-pressed="true">Grid</button><button data-v="mosaic" aria-pressed="false">Mosaic</button><button data-v="slider" aria-pressed="false">Slider</button></div></div>
+      <div class="ctl"><label class="l">Entries submitted (limit 500)</label>
+        <input type="range" id="subm" min="0" max="500" value="499" aria-label="Entries submitted">
+        <div class="counter-out" id="countOut">499 / 500 places taken</div></div>
+      <div class="ctl"><label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="wl2"> Full white-label (hide "Powered by")</label></div>
+      <div class="ctl"><label class="l">Web address</label>
+        <div class="seg" data-key="level"><button data-v="1" aria-pressed="true">Level 1</button><button data-v="2" aria-pressed="false">Level 2</button><button data-v="3" aria-pressed="false">Level 3: own domain</button></div>
+        <div id="ownDomain" hidden>
+          <div class="domain-in"><input id="dom" value="awards.face-cii.in" aria-label="Own domain"><button class="btn-ghost" id="connect">Connect</button></div>
+          <div id="dnsBox" hidden>
+            <div class="dns">Add this record where the domain was bought:<br>Type <b>CNAME</b> · Name <b id="dnsName">awards</b> · Value <b>cname.vercel-dns.com</b></div>
+            <div class="steps"><span id="st1">Waiting for DNS</span><span id="st2">Checking</span><span id="st3">Live 🔒</span></div>
+          </div>
+        </div></div>
+      <div class="ctl"><label class="l">Publish</label>
+        <div class="pubbar"><span class="status live" id="pubStatus">Live: version 1</span><button class="btn-main" id="publish" style="padding:8px 14px">Publish</button></div>
+        <div class="versions" id="versions"></div></div>
+    </div>
+
+    <div class="stage">
+      <div class="devicebar">
+        <div class="seg" data-key="device"><button data-v="desktop" aria-pressed="true">🖥️ Desktop</button><button data-v="phone" aria-pressed="false">📱 Phone</button></div>
+        <span class="pill blue">Preview of the published look</span>
+      </div>
+      <div class="preview-shell" id="shell">
+        <div class="browser">
+          <div class="bar"><i></i><i></i><i></i><div class="addr" id="addr"></div></div>
+          <div class="pv" id="pv"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="limits grid g2">
+    <div class="card"><h3>Honest limits</h3>
+      <ul class="bullets">
+        <li>A structured builder, not a free-design tool like Wix: no dragging anywhere, no custom code. That's what keeps 80 sites safe and good-looking.</li>
+        <li>Fonts come from a curated list (licensing and speed).</li>
+        <li>An organiser who wants a fully custom design can keep their own website and link its "Apply" button to our branded form.</li>
+        <li>Level 3 domains need the organiser to add one DNS record; we check our hosting plan's domain limit before promising many.</li>
+      </ul></div>
+    <div class="card"><h3>Questions to settle together</h3>
+      <table class="qtable"><tbody>
+        <tr><th>#</th><th>Question</th><th>Suggestion</th></tr>
+        <tr><td>B1</td><td>Show "Powered by", or full white-label?</td><td>Small footer line; hidden on request</td></tr>
+        <tr><td>B2</td><td>Emails sent in the organiser's name?</td><td>Yes, replies go to them</td></tr>
+        <tr><td>B3</td><td>How many templates at launch?</td><td>3: Classic, Bold, Minimal</td></tr>
+        <tr><td>B4</td><td>Own domains in the first release?</td><td>Level 1 now; Level 3 if a test domain is ready</td></tr>
+        <tr><td>B5</td><td>Branded winner certificates and badges?</td><td>After the first release</td></tr>
+        <tr><td>B6</td><td>Who buys the platform domain?</td><td>To decide</td></tr>
+      </tbody></table></div>
+  </div>
+</div></section>
+</main>
+
+<footer class="foot"><div class="wrap">Awards Platform · How we keep the organiser's brand · Discussion draft. The demo is a simplified model, not the real product.</div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  // ---------- page tabs ----------
+  function go(id){
+    document.querySelectorAll("section.page").forEach(function(s){ s.classList.toggle("on", s.id === id); });
+    document.querySelectorAll(".tab").forEach(function(t){ t.setAttribute("aria-selected", String(t.dataset.go === id)); });
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+  document.querySelectorAll("[data-go]").forEach(function(b){ b.addEventListener("click", function(){ go(b.dataset.go); }); });
+
+  // ---------- layer tabs ----------
+  document.querySelectorAll(".layer").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll(".layer").forEach(function(x){ x.setAttribute("aria-selected", String(x === b)); });
+      document.querySelectorAll(".dpanel").forEach(function(p){ p.classList.toggle("on", p.id === b.dataset.layer); });
+    });
+  });
+  var wl = document.getElementById("wl");
+  wl.addEventListener("change", function(){ document.getElementById("pbLine").style.visibility = wl.checked ? "hidden" : "visible"; });
+
+  // ---------- builder demo ----------
+  var BRANDS = {
+    fpo: { name:"FPO Excellence Awards", icon:"🌾", p:"#145C35", a:"#F2B705", soft:"#EEF7F1", hf:"Georgia,serif",
+      slug:"fpo", tagline:"Celebrating farmer producer organisations that change rural India",
+      pat:"repeating-linear-gradient(100deg,#2f8f55 0 16px,#3da563 16px 32px)",
+      cats:[["🛒","Market linkages"],["👩‍🌾","Women entrepreneurship"],["🏷️","Value addition and branding"],["📡","Technology deployment"]],
+      nums:[["1,200+","FPOs reached"],["18","States"],["5","Years"]],
+      wins:[["2025","Women entrepreneurship","Sahyadri FPO","Gold","gold"],["2025","Technology deployment","Kisan Mitra FPO","Silver","silver"],["2024","Market linkages","Green Valley FPO","Winner","winner"]],
+      gal:["#5E9E74","#7CB98F","#A9D3B2","#3E7D56","#C7E3CE","#8CC49E"], deadline:"Applications close 15 July" },
+    safety: { name:"National Safety Excellence Award", icon:"🛡️", p:"#13315C", a:"#E4572E", soft:"#EAF0F8", hf:"'Segoe UI',system-ui,sans-serif",
+      slug:"safety", tagline:"Recognising workplaces where everyone goes home safe",
+      pat:"repeating-linear-gradient(45deg,#1d4580 0 18px,#24518f 18px 36px)",
+      cats:[["🏭","Large manufacturing"],["🏗️","Construction"],["⚡","Power and utilities"],["🧪","Chemicals"]],
+      nums:[["340","Plants assessed"],["0.12","Avg. injury rate"],["12","Years"]],
+      wins:[["2025","Large manufacturing","Acme Steel, Pune plant","Gold","gold"],["2025","Construction","BuildRight Ltd","Bronze","bronze"],["2024","Power","GridCo","Winner","winner"]],
+      gal:["#24518f","#3A6AA8","#5B86BD","#1d4580","#8EA9CF","#4C77B0"], deadline:"Applications close 30 August" },
+    kaizen: { name:"Kaizen Shop-floor Challenge", icon:"⚙️", p:"#23262E", a:"#00A6A6", soft:"#E6F6F6", hf:"Consolas,'Courier New',monospace",
+      slug:"kaizen", tagline:"Small improvements, big results, presented on the shop floor",
+      pat:"repeating-linear-gradient(0deg,#2f333d 0 12px,#383d49 12px 24px)",
+      cats:[["🔧","Productivity"],["♻️","Waste reduction"],["🧹","5S"],["👷","Safety kaizen"]],
+      nums:[["900+","Teams"],["60","Companies"],["On site","Judging"]],
+      wins:[["2025","Waste reduction","Team Spark, Unit 2","Gold","gold"],["2025","5S","Team Shine","Silver","silver"],["2025","Productivity","Team Flow","Bronze","bronze"]],
+      gal:["#00A6A6","#2B2F38","#5CC9C9","#3B404C","#9ADFDF","#11898A"], deadline:"Registrations close 10 November" }
+  };
+  var S = { brand:"fpo", template:"classic", banner:"photo", gallery:"grid", device:"desktop",
+            sections:{numbers:true,categories:true,gallery:true,winners:true,partners:false,faq:true},
+            submitted:499, limit:500, whiteLabel:false, level:"1", domainStatus:"none", domain:"awards.face-cii.in" };
+  var DESIGN_KEYS = ["brand","template","banner","gallery","sections","whiteLabel"];
+  function snapshot(){ var o = {}; DESIGN_KEYS.forEach(function(k){ o[k] = JSON.parse(JSON.stringify(S[k])); }); return o; }
+  var versions = [{ v:1, label:"First publish", snap:snapshot() }];
+  var live = 1, dirty = false;
+
+  function esc(t){ var d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+  function renderSite(){
+    var b = BRANDS[S.brand], phone = S.device === "phone";
+    var full = S.submitted >= S.limit, pct = Math.min(100, S.submitted / S.limit * 100);
+    var left = S.limit - S.submitted;
+    var h = '<div class="site t-' + S.template + (phone ? " phone" : "") + '" style="--p:' + b.p + ';--a:' + b.a + ';--soft:' + b.soft + ';--hf:' + b.hf + ';--pat:' + b.pat + '">';
+    h += '<div class="s-head"><span>' + b.icon + '</span><span class="nm">' + esc(b.name) + '</span><nav><span>About</span><span>Categories</span><span>Winners</span><span>Gallery</span><span>Contact</span></nav><span class="burger">☰</span></div>';
+    var heroInner = '<span class="deadline">⏳ ' + b.deadline + '</span><h1>' + esc(b.name) + ' 2026</h1><p>' + esc(b.tagline) + '</p>' +
+      '<button class="apply"' + (full ? " disabled" : "") + '>' + (full ? "Entries closed: limit reached" : "Apply now →") + '</button>' +
+      '<div class="meter"><div class="mb"><span style="width:' + pct + '%"></span></div><small><span><b>' + S.submitted + ' / ' + S.limit + '</b> places taken</span><span>' + (full ? "Full" : left + " left") + '</span></small></div>';
+    if (S.banner === "split") h += '<div class="hero split"><div>' + heroInner + '</div><div class="ph"></div></div>';
+    else h += '<div class="hero ' + S.banner + '">' + heroInner + (S.banner === "video" ? '<span class="play">▶ Highlights video</span>' : "") + '</div>';
+    if (S.sections.numbers) {
+      h += '<div class="blk nums">' + b.nums.map(function(n){ return '<div><b>' + n[0] + '</b>' + n[1] + '</div>'; }).join("") + '</div>';
+    }
+    if (S.sections.categories) {
+      h += '<div class="blk"><h2>Award categories<span class="auto">from the cycle</span></h2><div class="cats">' +
+        b.cats.map(function(c){ return '<div class="cat"><i>' + c[0] + '</i><div><b>' + c[1] + '</b><small>Free entry · 1 entry per organisation</small></div></div>'; }).join("") + '</div></div>';
+    }
+    if (S.sections.gallery) {
+      var cls = S.gallery === "mosaic" ? "gal-mos" : S.gallery === "slider" ? "gal-car" : "gal-grid";
+      h += '<div class="blk"><h2>Gallery</h2><div class="' + cls + '">' + b.gal.map(function(c){ return '<span style="background:linear-gradient(135deg,' + c + ',#ffffff55)"></span>'; }).join("") + '</div></div>';
+    }
+    if (S.sections.winners) {
+      h += '<div class="blk"><h2>Past winners<span class="auto">from published results</span></h2><table class="wtab">' +
+        b.wins.map(function(w){ return '<tr><td>' + w[0] + '</td><td>' + w[1] + '</td><td><b>' + w[2] + '</b></td><td><span class="badge ' + w[4] + '">' + w[3] + '</span></td></tr>'; }).join("") + '</table></div>';
+    }
+    if (S.sections.partners) {
+      h += '<div class="blk"><h2>Partners</h2><div class="partners"><span>PARTNER</span><span>PARTNER</span><span>PARTNER</span><span>PARTNER</span></div></div>';
+    }
+    if (S.sections.faq) {
+      h += '<div class="blk faq"><h2>Frequently asked questions</h2><details open><summary>Who can apply?</summary>Any registered organisation; one entry per organisation.</details><details><summary>What do I need to submit?</summary>The form, your ID and a proof that you work for the organisation.</details></div>';
+    }
+    h += '<div class="s-foot"><span>© ' + esc(b.name) + ' · Facebook · LinkedIn · X</span>' + (S.whiteLabel ? "" : '<span class="pb">Powered by Awards Platform</span>') + '</div></div>';
+    document.getElementById("pv").innerHTML = h;
+  }
+
+  function renderAddress(){
+    var b = BRANDS[S.brand], a = document.getElementById("addr"), t;
+    if (S.level === "1") t = '🔒 ourplatform.in/awards/<b>' + b.slug + '</b>';
+    else if (S.level === "2") t = '🔒 <b>' + b.slug + '</b>.ourplatform.in';
+    else t = S.domainStatus === "live" ? '🔒 <b>' + esc(S.domain) + '</b>' : '⏳ ourplatform.in/awards/<b>' + b.slug + '</b> <span class="pill warn" style="margin-left:auto">domain not connected yet</span>';
+    a.innerHTML = t;
+  }
+
+  function renderPublish(){
+    var st = document.getElementById("pubStatus");
+    st.className = "status " + (dirty ? "dirty" : "live");
+    st.textContent = dirty ? "Unpublished changes (live: version " + live + ")" : "Live: version " + live;
+    document.getElementById("versions").innerHTML = versions.slice().reverse().map(function(v){
+      return '<div class="ver"><span><b>v' + v.v + '</b> · ' + esc(v.label) + (v.v === live ? ' <span class="pill good">live</span>' : "") + '</span>' +
+        (v.v === live ? "" : '<button data-restore="' + v.v + '">Restore</button>') + '</div>';
+    }).join("");
+    document.querySelectorAll("[data-restore]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var v = versions.filter(function(x){ return x.v === Number(btn.dataset.restore); })[0];
+        DESIGN_KEYS.forEach(function(k){ S[k] = JSON.parse(JSON.stringify(v.snap[k])); });
+        var nv = versions.length + 1;
+        versions.push({ v:nv, label:"Restored v" + v.v, snap:snapshot() });
+        live = nv; dirty = false; syncControls(); renderAll(); toast("Version " + v.v + " restored and live as v" + nv);
+      });
+    });
+  }
+
+  function renderCount(){
+    var full = S.submitted >= S.limit;
+    document.getElementById("countOut").textContent = S.submitted + " / " + S.limit + " places taken" + (full ? ": entries closed" : "");
+  }
+
+  function renderAll(){ renderSite(); renderAddress(); renderPublish(); renderCount();
+    document.getElementById("shell").classList.toggle("phone", S.device === "phone"); }
+
+  function syncControls(){
+    document.querySelectorAll(".seg[data-key]").forEach(function(seg){
+      var key = seg.dataset.key;
+      seg.querySelectorAll("button").forEach(function(btn){ btn.setAttribute("aria-pressed", String(String(S[key]) === btn.dataset.v)); });
+    });
+    document.querySelectorAll("[data-sec]").forEach(function(cb){ cb.checked = !!S.sections[cb.dataset.sec]; });
+    document.getElementById("wl2").checked = S.whiteLabel;
+    document.getElementById("ownDomain").hidden = S.level !== "3";
+  }
+
+  var timer = null;
+  function toast(msg){ var t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(timer); timer = setTimeout(function(){ t.classList.remove("on"); }, 2200); }
+
+  document.querySelectorAll(".seg[data-key]").forEach(function(seg){
+    seg.addEventListener("click", function(e){
+      var btn = e.target.closest("button"); if (!btn) return;
+      var key = seg.dataset.key; S[key] = btn.dataset.v;
+      if (DESIGN_KEYS.indexOf(key) >= 0) dirty = true;
+      if (key === "level" && S.level !== "3") { S.domainStatus = "none"; document.getElementById("dnsBox").hidden = true; }
+      syncControls(); renderAll();
+    });
+  });
+  document.querySelectorAll("[data-sec]").forEach(function(cb){
+    cb.addEventListener("change", function(){ S.sections[cb.dataset.sec] = cb.checked; dirty = true; renderAll(); });
+  });
+  document.getElementById("wl2").addEventListener("change", function(e){ S.whiteLabel = e.target.checked; dirty = true; renderAll(); });
+  document.getElementById("subm").addEventListener("input", function(e){ S.submitted = Number(e.target.value); renderAll(); });
+  document.getElementById("publish").addEventListener("click", function(){
+    if (!dirty) { toast("Nothing new to publish"); return; }
+    var nv = versions.length + 1;
+    versions.push({ v:nv, label:"Published changes", snap:snapshot() });
+    live = nv; dirty = false; renderAll(); toast("Version " + nv + " is live. The old one is kept.");
+  });
+  document.getElementById("connect").addEventListener("click", function(){
+    var d = document.getElementById("dom").value.trim().toLowerCase();
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(d)) { toast("Enter a domain like awards.example.in"); return; }
+    S.domain = d; S.domainStatus = "pending";
+    var parts = d.split("."); document.getElementById("dnsName").textContent = parts.length > 2 ? parts[0] : "@";
+    document.getElementById("dnsBox").hidden = false;
+    var s1 = document.getElementById("st1"), s2 = document.getElementById("st2"), s3 = document.getElementById("st3");
+    s1.className = "now"; s2.className = ""; s3.className = ""; renderAddress();
+    setTimeout(function(){ s1.className = "done"; s2.className = "now"; }, 1300);
+    setTimeout(function(){ s2.className = "done"; s3.className = "done"; S.domainStatus = "live"; renderAddress(); toast("Domain connected: HTTPS ready"); }, 2800);
+  });
+
+  syncControls(); renderAll();
+})();
+</script>
+</body>
+</html>
