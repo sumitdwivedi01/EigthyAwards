@@ -288,28 +288,32 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="applicant" data-id="a-apps" data-title="My applications" data-desc="Every application with a short, friendly status. The applicant never sees internal states.">
+<section class="screen" data-role="applicant" data-id="a-apps" data-title="My applications" data-desc="Every application of the organisation, with a short, friendly status. One a colleague started shows read-only, without their name.">
+  <div class="notes"><span class="note"><b>One per organisation:</b> a colleague's application shows here read-only (ADR 0011)</span><span class="note"><b>Status only:</b> it never shows who started it</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/applications</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>My organisation</span><b>My applications</b><span>Open awards</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
   <div class="ui-body full"><div class="ui-main">
     <div class="row sp"><div class="h">My applications</div><button class="btn p" data-goto="a-start">+ Start an application</button></div><div class="gap"></div>
     <table class="t"><tr><th>Award</th><th>Category</th><th>Status</th><th></th></tr>
       <tr><td>🌾 FPO Excellence Awards 2026</td><td>Women entrepreneurship</td><td><span class="chip">Draft · 60% done</span></td><td><button class="btn" data-goto="a-form">Continue</button></td></tr>
+      <tr><td>🛡️ Safety Excellence 2026</td><td>Large manufacturing</td><td><span class="chip">Draft</span> <span class="chip b">Started by a colleague</span></td><td><button class="btn">View (read-only)</button></td></tr>
       <tr><td>🛡️ Safety Excellence 2025</td><td>Large manufacturing</td><td><span class="chip gd">Shortlisted</span></td><td><button class="btn" data-goto="a-status">View</button></td></tr>
       <tr><td>⚙️ Kaizen Challenge 2025</td><td>Waste reduction</td><td><span class="chip gold">Gold</span></td><td><button class="btn">View</button></td></tr>
     </table>
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="applicant" data-id="a-start" data-title="Start an application and pay (if there's a fee)" data-desc="Pick the category. If the award charges a fee, a demo payment unlocks the form. Duplicate applications are allowed but flagged.">
-  <div class="notes"><span class="note"><b>Fee:</b> the category's fee, otherwise the cycle's</span><span class="note"><b>One real entry per organisation:</b> a second one is flagged for staff</span></div>
+<section class="screen" data-role="applicant" data-id="a-start" data-title="Start an application and pay (if there's a fee)" data-desc="Before anything is filled, the platform checks the organisation has no application for this award yet. Then pick the category; if the award charges a fee, a demo payment unlocks the form.">
+  <div class="notes"><span class="note"><b>Fee:</b> the category's fee, otherwise the cycle's</span><span class="note"><b>One application per organisation:</b> a second one can't even be started (ADR 0011)</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>awards/safety/apply</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="me"><i>AP</i>Asha Patil</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g2">
     <div class="box"><h3>1. Choose a category</h3>
       <div class="check"><i class="y">●</i><div><b>Large manufacturing</b> · ₹10,000</div></div>
       <div class="check"><i class="n">○</i><div>MSME · ₹5,000</div></div>
-      <div class="gap"></div><div class="warnline">⚠ Your organisation already has an application for this award. You can continue; staff will keep only one.</div></div>
+      <div class="gap"></div><div class="okline">✓ Your organisation has no application for this award yet, so you can start one.</div>
+      <div class="gap"></div><div class="small muted" style="margin-bottom:4px">If a colleague had already started one, you would see this instead, and nothing to fill:</div>
+      <div class="badline">✕ Your organisation already has an application for this award (Draft). You can follow it in My applications.</div></div>
     <div class="box"><h3>2. Pay the entry fee (demo)</h3><div style="font-size:28px;font-weight:800">₹10,000</div><p class="small muted">Demo payment for the prototype: no real money moves.</p>
       <button class="btn g" data-goto="a-form">Pay and open the form</button><div class="gap"></div><span class="small muted">Reference DEMO-7F3K2 is saved with the application</span></div>
   </div></div></div></div></div>
@@ -492,16 +496,17 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div>
 </section>
 
-<section class="screen" data-role="staff" data-id="s-apps" data-title="Applications" data-desc="Every application in the award, with filters. Duplicates and proof status stand out, so staff can act on them first.">
-  <div class="notes"><span class="note"><b>Duplicate flag:</b> staff keep one, mark the other "Rejected as duplicate" with a reason</span><span class="note"><b>Proof status</b> must be Verified before jury assignment</span></div>
+<section class="screen" data-role="staff" data-id="s-apps" data-title="Applications" data-desc="Every application in the award, with filters. Proof status stands out, and staff can release an application that is from the wrong person or abandoned.">
+  <div class="notes"><span class="note"><b>Release:</b> close a wrong, fake or abandoned application with a reason; the organisation can then start again</span><span class="note"><b>Proof status</b> must be Verified before jury assignment</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/applications</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Excellence 2026 · <b>Applications</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
   <div class="ui-body full"><div class="ui-main">
-    <div class="row"><div class="input sel">Status: Submitted</div><div class="input sel">Proof: All</div><div class="input sel">Category: All</div><span class="chip r">⚑ 2 possible duplicates</span></div><div class="gap"></div>
+    <div class="row"><div class="input sel">Status: Submitted</div><div class="input sel">Proof: All</div><div class="input sel">Category: All</div><span class="chip r">1 proof rejected</span></div><div class="gap"></div>
     <table class="t"><tr><th>Application</th><th>Organisation</th><th>Category</th><th>Proof</th><th>Masking</th><th></th></tr>
       <tr><td>A-0142</td><td>Sahyadri FPO</td><td>Women entrepreneurship</td><td><span class="chip w">Pending</span></td><td><span class="chip">Pending</span></td><td><button class="btn p" data-goto="s-proof">Check proof</button></td></tr>
-      <tr><td>A-0187 <span class="chip r">⚑ duplicate</span></td><td>Green Valley FPO</td><td>Market linkages</td><td><span class="chip gd">Verified</span></td><td><span class="chip gd">Done</span></td><td><button class="btn">Resolve duplicate</button></td></tr>
-      <tr><td>A-0190 <span class="chip r">⚑ duplicate</span></td><td>Green Valley FPO</td><td>Market linkages</td><td><span class="chip r">Rejected</span></td><td><span class="chip">—</span></td><td><button class="btn">Resolve duplicate</button></td></tr>
+      <tr><td>A-0187</td><td>Green Valley FPO</td><td>Market linkages</td><td><span class="chip gd">Verified</span></td><td><span class="chip gd">Done</span></td><td><button class="btn">Open</button></td></tr>
+      <tr><td>A-0190</td><td>Hill Harvest FPO</td><td>Market linkages</td><td><span class="chip r">Rejected</span></td><td><span class="chip">—</span></td><td><button class="btn d">Release…</button></td></tr>
+      <tr><td class="muted">A-0175</td><td class="muted">Riverbend FPO</td><td class="muted">Technology</td><td colspan="2"><span class="chip">Released: "applicant is not an employee"</span></td><td class="small muted">The organisation can start again</td></tr>
       <tr><td>A-0101</td><td>Kisan Mitra FPO</td><td>Technology</td><td><span class="chip gd">Verified</span></td><td><span class="chip gd">Done</span></td><td><button class="btn">Open</button></td></tr>
     </table>
   </div></div></div></div>

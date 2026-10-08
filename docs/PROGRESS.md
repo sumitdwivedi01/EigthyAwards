@@ -7,10 +7,10 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-08 · Day 6 |
-| **Current phase** | Phase 0.5: UI overview and re-plan options (🧪 delivered; waiting for review and merge) |
-| **Current branch** | `phase-0.5-ui` |
+| **Current phase** | Phase 0.6: One application per organisation, blocked at the start (🧪 docs and prototype updated; waiting for review and merge) |
+| **Current branch** | `phase-0.6-entry` |
 | **What runs today** | Nothing on `main`. The backend foundation (Phase 1) is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`). |
-| **Next action** | 1) Review and merge Phase 0.5, tag `phase-0.5-done`. 2) **9 Oct lead call:** walk through the [UI prototype](ui/prototype.html) and the [branding presentation](ui/brand-value.html); the lead chooses [Option A or B](proposals/0.5-replan-options.md). 3) Re-plan PHASES.md from that decision, then resume Phase 1. |
+| **Next action** | 1) Review and merge Phase 0.6, tag `phase-0.6-done`. 2) **9 Oct lead call:** walk through the [UI prototype](ui/prototype.html) and the [branding presentation](ui/brand-value.html); the lead chooses [Option A or B](proposals/0.5-replan-options.md). 3) Re-plan PHASES.md from that decision, then resume Phase 1. |
 | **Blockers** | Building waits for the lead's choice between Option A (demo by 15 Oct) and Option B (real product). Open: A4 (email provider); ask the leader: G-I08, G-H07; branding questions B1–B6. |
 | **Risk** | **Hard limit 15 October** (owner, 8 Oct): about 5 working days after the call. Only Option A fits. |
 
@@ -25,7 +25,8 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 0.2 | On-site rounds and answers | `phase/00.2-onsite-rounds-and-answers` | ✅ Merged | sumitdwivedi01/EigthyAwards#3 | 2026-10-06 · `phase-00.2-done` | n/a |
 | 0.3 | Plain-language overview | `phase/00.3-overview-page` | ✅ Merged | sumitdwivedi01/EigthyAwards#4 | 2026-10-07 · `phase-00.3-done` | n/a |
 | 0.4 | New issues and the owner's answers | `phase-0.4-issues` | ✅ Merged (committed to `main` by mistake; accepted as is, see Daily 7 Oct) | — | 2026-10-07 · `phase-0.4-done` | n/a |
-| 0.5 | UI overview and re-plan options | `phase-0.5-ui` | 🧪 In review | — | — | n/a |
+| 0.5 | UI overview and re-plan options | `phase-0.5-ui` | ✅ Merged | sumitdwivedi01/EigthyAwards#5 | 2026-10-08 · `phase-0.5-done` | n/a |
+| 0.6 | One application per organisation | `phase-0.6-entry` | 🧪 In review | — | — | n/a |
 | 1 | Backend foundation (+ new tables) | `phase/01-be-foundation` → `phase-1-setup` | ⏸ Parked: built, 62 tests passing, not merged | — | — | 62 passing |
 | 2 | People: logins, roles, PA, departments (incl. external organisers), master data, organisations | `phase-2-people` | ⬜ | — | — | — |
 | 3 | Award setup: rounds, forms, score sheets (R4), entry limit | `phase-3-awards` | ⬜ | — | — | — |
@@ -72,7 +73,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 | No signed authorisation letter | Removed from spec and plan (Phase 0.1) | ✅ docs |
 | Leader's PA role | Phases 1, 2, 5, 11, 13 | ⬜ |
 | Data consistency | Phases 1 (normalize, indexes), 2 (master data, organisations), 6 (identity snapshot) | ⬜ |
-| One real application per organisation per award | Phase 6 (duplicate flag and resolution) | ⬜ |
+| One application per organisation per award, **blocked at the start**; colleagues read-only; staff release | Phases 1 (index), 7 (start check, release), 8, 10 | ⬜ |
 | On-site rounds (shop-floor and live round 2): panels, averages, no approval | Phases 1 (schema), 3 (round types), 12, 13 | ⬜ |
 | Results: Shortlisted/Rejected, then Gold/Silver/Bronze | Phases 3 (labels), 11, 12, 13 | ⬜ |
 | GSTIN optional; fee per category | Phases 1, 2, 3, 6 | ⬜ |
@@ -84,7 +85,17 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
 
-### Phase 0.5: UI overview and re-plan options · 🧪 · 2026-10-08 (Day 6)
+### Phase 0.6: One application per organisation · 🧪 · 2026-10-08 (Day 6)
+
+The owner asked two questions about the prototype: can a colleague see an application someone else is filling, and can we stop a second one **before** it's filled, not after submission? Four details were agreed first (all recommended options, except "status only, no name").
+
+- [x] Spec §5.2 rewritten: blocked at the start; status-only message; colleagues read-only ("Started by a colleague"); withdrawn and released don't count; staff release with a reason; a partial unique index for simultaneous starts. Related sections updated (§3, §4, §5.15, §5.16, §5.20, §7, §10–§15, §18).
+- [x] ADR 0011; ADR 0007 note updated.
+- [x] GAPS: A14, D08, E08 updated; J22 (answered), J23 (fake starter blocks the real one: staff release), J24 (no hand-over yet).
+- [x] PHASES (Phase 0.6; Phases 1, 7, 10 and cut order), the prototype (start, My applications, staff list), the UI README, CLAUDE.md, Backend README, the overview, creating.md, Daily.md.
+- [ ] Merged, tagged `phase-0.6-done`.
+
+### Phase 0.5: UI overview and re-plan options · ✅ · 2026-10-08 (Day 6)
 
 Goal: show the client how the platform looks and flows **before** building, and re-plan for the owner's hard limit of 15 October.
 
@@ -94,7 +105,7 @@ Goal: show the client how the platform looks and flows **before** building, and 
 - [x] [docs/ui/brand-value.html](ui/brand-value.html): the branding presentation (3 pages, live builder demo).
 - [x] [proposals/0.5-replan-options.md](proposals/0.5-replan-options.md): **Option A** (focused demo by 15 Oct, built on the real architecture) vs **Option B** (the real product, about 50–70 working days), with a recommendation. Not decided.
 - [x] PHASES (build plan on hold), PROGRESS, GAPS (J21), CLAUDE.md, README, creating.md, Daily.md updated.
-- [ ] Merged, tagged `phase-0.5-done`.
+- [x] Merged through sumitdwivedi01/EigthyAwards#5 and tagged `phase-0.5-done`. Before merging, the Join tab on "My organisation" was made clickable at the owner's request.
 
 ### Phase 0.4: New issues and the owner's answers · ✅ · 2026-10-07 (Day 5)
 
@@ -109,7 +120,7 @@ Goal: show the client how the platform looks and flows **before** building, and 
 Goal: record the answers to the 15 open questions and design on-site rounds before writing code.
 
 What was decided:
-- Only one real application per organisation per award. Every application is accepted; extras are flagged and staff keep one.
+- Only one real application per organisation per award. Every application is accepted; extras are flagged and staff keep one. *(Changed on 8 Oct: a second one is blocked at the start, ADR 0011.)*
 - **Shop-floor competitions** register as usual (small or empty form) and are judged **on site**. The same round type serves the large award's live round 2.
 - On site: jury score on their own devices (internet assumed), with staff backup entry. A panel of 2–5 jury, each scoring separately; the average counts. **No approval**: staff close the round. The department head may sit on a panel.
 - Results: document rounds give Shortlisted / Rejected; on-site rounds give **Gold / Silver / Bronze** (others: Participated).

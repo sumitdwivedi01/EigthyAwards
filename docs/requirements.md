@@ -10,6 +10,7 @@
 | 2026-10-06 | **Answers on shop-floor and open questions.** **On-site rounds** are now built, not future: one round type serves both the live round 2 of large awards and shop-floor competitions (Kaizen, 5S) judged on site. A panel of 2–5 jury, each scoring separately; the final score is the average; no approval; staff close the round. Results: document rounds give Shortlisted / Rejected, on-site rounds give **Gold / Silver / Bronze** (others: Participated). The questionnaire may be empty for on-site-only cycles. Only one real application per organisation per award (extras accepted, flagged, resolved). GSTIN optional. Fees can differ per entry category. The department head's approval is final for document rounds. Sections changed: 1, 2, 3, 4, 5.2–5.6, 5.9, 5.11–5.13, 5.16, 6, 7, 8, 10–15, 18. | ADR 0008 |
 | 2026-10-06 | **Final decisions before building.** One set of medals per award cycle: Gold, Silver and Bronze for ranks 1 to 3 of the whole on-site round, not per category. Indicator scores are whole numbers 0 to 10. A submitted application is edited with an explicit Save changes that runs full checks. "Update requested" shows as Submitted. Sections changed: 4, 5.5, 5.6, 5.12, 5.16, 7, 10, 15, 18. | GAPS §A (A8, A9), G-D03, G-I05 |
 | 2026-10-07 | **New issues and the owner's answers.** **Branded award sites**: a brand kit per department and a site per award, built from ready-made sections that staff choose, arrange and re-design at any time, also after publishing; for **all** awards; no approval needed (new §5.19). A department can be an **external award organiser** that runs its awards on its own; one person may head several departments. **Proof of identity and employment** uploaded with every application (new §5.20). An optional **entry limit** per cycle, shown publicly as "499 / 500". Own domains designed for, not built. Only staff create awards. Sections changed: 1, 2, 3, 5.2, 5.3, 5.6, 5.14, 5.19, 5.20, 7, 8, 10–15, 18. | ADR 0009, 0010; GAPS §J |
+| 2026-10-08 | **One application per organisation, blocked at the start.** A second member can no longer start an application once a colleague has (no more "accept all, flag, staff keep one"). Colleagues see the organisation's application read-only, with the status only (no name). Staff can **release** a wrong, fake or abandoned application with a reason, so the organisation can start again. Sections changed: 3, 4, 5.2, 5.15, 5.16, 5.20, 7, 10, 11, 12, 14, 15, 18. | ADR 0011 |
 
 # Awards Platform — Product & Technical Specification
 
@@ -112,7 +113,7 @@ Six roles use the platform. The leader and the leader's PAs work across the whol
 | Select jury for a cycle's pool, record conflicts |   |   | ✓ own | ✓ own |   |   |
 | Register or join an organisation, apply (with proof documents), edit, withdraw |   |   |   |   |   | ✓ |
 | Edit their organisation's profile |   |   |   |   |   | ✓ own org |
-| Resolve duplicate applications |   |   |   | ✓ own |   |   |
+| Release an application (wrong person, fake or abandoned), with a reason |   |   |   | ✓ own |   |   |
 | Mask applications |   |   |   | ✓ own |   |   |
 | Assign applications to jury (document rounds) and choose on-site panels |   |   |   | ✓ own |   |   |
 | Schedule presentation slots for an on-site round |   |   |   | ✓ own |   |   |
@@ -211,7 +212,8 @@ Result labels appear only after staff publish a round's results; until then a ju
 | Shortlisted (published) or entered in an on-site round, slot set | Presentation scheduled | Your presentation is on <date> at <time>, <venue> |
 | Gold, Silver or Bronze (published) | Gold, Silver or Bronze | Congratulations! You have won <label> |
 | Participated (published) | Participated | Thank you for taking part |
-| Rejected, Rejected as duplicate, Disqualified (published) | Rejected | Better luck next time |
+| Rejected, Disqualified (published) | Rejected | Better luck next time |
+| Released by staff | Closed | The award team closed this application: <reason>. Your organisation can start a new one |
 
 A cycle can rename these labels for its rounds (§5.3); the table shows the defaults.
 | Withdrawn | Withdrawn | You withdrew this application |
@@ -231,7 +233,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - Every request loads the user's role assignments from the database; the UI never decides permissions on its own.
 - Accept when: a jury user opening any staff page gets "forbidden"; an applicant can never open another organisation's application; a deactivated user cannot log in; registering `Asha@Example.com` when `asha@example.com` exists is refused.
 
-### 5.2 Organisations and duplicate applications
+### 5.2 Organisations and one application per organisation
 
 - **The award goes to the organisation, the legal entity identified by PAN.** Its plants, units or branches never apply separately and never get their own record (client answer, 5 Oct 2026).
 - Organisation profile fields. Required: legal name, PAN, registered address (line, city, state, PIN code), official email, phone. Optional: GSTIN (small units, NGOs and government bodies may not have one; client answer, 6 Oct 2026), organisation type, CIN, website. More fields can be added later. State and organisation type are picked from controlled lists, never typed (§5.18).
@@ -239,11 +241,14 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - To join an organisation that already exists, a user must enter its PAN and its GSTIN, or, if it has no GSTIN, its PAN and its official email address.
 - **No signed authorisation letter** (client decision, 5 Oct 2026). Instead, with every application the applicant uploads a **photo identity document** and a **proof of employment** at this organisation, and gives their LinkedIn profile; staff check them (§5.20, decided 7 Oct 2026). Joining an organisation with PAN and GSTIN alone proves little (the PAN is part of the GSTIN, which is printed on every invoice), so these documents are what staff rely on.
 - The application belongs to the organisation, not to the person. All formal communication goes to the organisation's official email as well as the applicant user.
-- Duplicate rule: **only one real application per organisation per award cycle** (client answer, 6 Oct 2026). Every application is accepted, but a second one from the same organisation is most likely fake or a mistake, so it is flagged and staff keep exactly one. Withdrawn applications and applications rejected as duplicates do not count.
-- When a second user from the same organisation starts an application in the same cycle, they see: "Your organisation already has an application for this award." Assumption: they may still continue; both applications are then flagged "Possible duplicate".
-- Staff resolve flagged duplicates by contacting the organisation: they keep one and mark the other "Rejected as duplicate" with a reason. Nothing is deleted.
+- **One application per organisation per award cycle, blocked at the start** (client decision, 8 Oct 2026; ADR 0011). As soon as any member of the organisation **starts** an application for a cycle, no other member can start another one for that cycle.
+- A colleague who tries sees: *"Your organisation already has an application for this award (Draft)."* The message shows the **status only**, never who started it.
+- Colleagues see the organisation's application in their *My applications*, **read-only**, marked "Started by a colleague" (no name). Only the person who started it edits and submits.
+- Active (blocks a new start): Draft, Submitted, and every later state, including Not submitted. Not active: **Withdrawn**, and **Released** by staff.
+- **Staff can release** an application that turns out to be from the wrong person, fake, or abandoned. They must give a reason (audited, nothing deleted). Its starter sees it as Closed with the reason, and the organisation can then start a new one. The starter can also withdraw before the deadline, which frees the place too.
+- Two colleagues starting at the same moment can't both succeed: the database holds at most one active application per organisation and cycle (a partial unique index), as well as the check in the service.
 - Profile edits by the organisation's users, and corrections by the leader or a PA (which need a reason), are audited with before and after values. The PAN cannot be changed by the organisation's users; a wrong PAN is corrected by a PA with a reason.
-- Accept when: a second application from the same PAN in the same cycle is flagged; resolving keeps exactly one active application and records who decided and why; a profile edit appears in the organisation's history.
+- Accept when: a second start by the same organisation in the same cycle is refused, also when two colleagues try at the same moment; colleagues see the application read-only, without the starter's name; a staff release (with a reason, audited) lets the organisation start again; a withdrawal frees the place; a profile edit appears in the organisation's history.
 
 ### 5.3 Departments, awards and cycle setup
 
@@ -404,7 +409,7 @@ In development, emails are caught by a local mail catcher. Every email sent is a
 ### 5.15 Audit history
 
 - Append-only. Application code can add records but never edit or delete them.
-- Recorded events: score changes after a jury submission (old value, new value, who, when, reason); disqualify and reinstate; approval submissions and decisions with remarks; masking done and reopened; deadline changes; form versions published; assignment changes; conflicts recorded; duplicate resolutions; withdrawals; results published; departments and department heads; staff added to departments and assigned to or removed from awards; PAs created and removed; accounts deactivated and reactivated; master data changes; organisation profile edits and corrections.
+- Recorded events: score changes after a jury submission (old value, new value, who, when, reason); disqualify and reinstate; approval submissions and decisions with remarks; masking done and reopened; deadline changes; form versions published; assignment changes; conflicts recorded; application releases (with reasons); withdrawals; results published; departments and department heads; staff added to departments and assigned to or removed from awards; PAs created and removed; accounts deactivated and reactivated; master data changes; organisation profile edits and corrections.
 - Every event stores the actor **and the role they acted in**, so the leader can see exactly what each PA did.
 - A jury member's typing in a draft is not audited; their submission and every change after it are.
 - Staff, the department head, the leader and PAs see an application's history on its page.
@@ -413,7 +418,7 @@ In development, emails are caught by a local mail catcher. Every email sent is a
 
 One round type covers both the live round 2 of large awards and shop-floor competitions such as Kaizen and 5S, whose only round is on site. Nothing in the code names either; staff choose the cycle's rounds.
 
-- **Who takes part.** If the on-site round is the cycle's first round: every application submitted at the deadline that is not withdrawn, rejected as a duplicate or disqualified. Otherwise: the applications given a label that moves them on (by default "Shortlisted") in the previous round's published results.
+- **Who takes part.** If the on-site round is the cycle's first round: every application submitted at the deadline that is not withdrawn, released or disqualified. Otherwise: the applications given a label that moves them on (by default "Shortlisted") in the previous round's published results.
 - **Slots.** Staff give each entry a presentation slot (date, time, venue, optional note). The applicant user and the organisation's official email get an email, and the applicant sees "Presentation scheduled". A slot can be moved until the entry has scores; a move sends a new email.
 - **Panels.** For each entry, staff choose a panel of 2 to 5 jury members (the round's panel size) from the cycle's jury pool, and can apply one panel to many entries at once. Every member is checked for recorded conflicts (rule 2). The department head of the award's department may sit on a panel.
 - **Not blind.** The panel meets the team, so the on-site scoring screen shows the organisation's name, the team members and the slot. Blind judging applies to document review rounds only.
@@ -504,7 +509,7 @@ Award organisers (for example the team behind FPO Awards) have their own brand a
 
 **Entry limit** (decided 7 Oct 2026):
 
-- Staff may set a maximum number of **submitted** applications per cycle (drafts, withdrawn and rejected-as-duplicate applications don't count; an organisation's flagged duplicates count once).
+- Staff may set a maximum number of **submitted** applications per cycle (drafts, withdrawn and released applications don't count; an organisation can only ever have one).
 - The award site and the application page always show the count against the limit, for example **"499 / 500 entries submitted"**.
 - When the limit is reached, submitting is refused with "This award has reached its entry limit"; drafts stay saved. Staff can raise the limit. A withdrawal frees a place. Two applicants racing for the last place can't both get it (the check and the submit happen in one transaction that locks the cycle's count).
 - Accept when: the 501st submission is refused at a limit of 500; the counter shows 500 / 500; a withdrawal makes it 499 / 500 and a new submission succeeds.
@@ -574,7 +579,7 @@ Works in the system every day while a cycle runs.
 - Builds the award site: picks sections (banner, categories, gallery, past winners, FAQ…), places them on the Home page and extra pages, previews on phone and desktop.
 - Publishes the cycle and the site. The award appears on the Open awards page as a branded card. Keeps improving the site later and republishes; the previous version can be restored.
 - Checks each application's proof documents and marks them Verified or Rejected.
-- Watches applications arrive; resolves duplicate flags by contacting the organisation.
+- Watches applications arrive; releases an application that turns out to be from the wrong person or abandoned, giving a reason, so the organisation can start again.
 - Adds a question mid-cycle; the system emails applicants and marks the new question in their forms. Extends the deadline if needed.
 - After the deadline, masks applications one by one (blind awards only).
 - Assigns each masked application to exactly one jury member.
@@ -731,7 +736,7 @@ All awards share the same tables. Every award-related row carries its cycle (and
 | PresentationSlot | id, roundId, applicationId, startsAt, venue, note?, scheduledById | ON_SITE rounds only. Unique (roundId, applicationId); moves are audited |
 | RoundResult | id, roundId, applicationId, finalScore, rank, resultLabel, decidedById, publishedAt? | Unique (roundId, applicationId). finalScore is the one evaluation's score (document round) or the panel average (on-site). Snapshot taken when scores lock |
 | ScoringSheet | id, roundId, schema (JSONB), lockedAt | One per round; locked after the first saved score. In ON_SITE rounds criteria carry no questionKey |
-| Application | id, cycleId, organisationId, createdById, categoryId, formVersionId, status, maskingStatus, duplicateFlag, updateRequested, identitySnapshot (JSONB), submittedAt, lockedAt, withdrawnAt, withdrawReason | One active per organisation per cycle, checked in the service (flagged duplicates are allowed). identitySnapshot is taken at submit and frozen at the lock. Also: linkedinUrl, proofStatus (PENDING, VERIFIED, REJECTED), proofCheckedById?, proofCheckedAt?, proofNote? (§5.20) |
+| Application | id, cycleId, organisationId, createdById, categoryId, formVersionId, status (incl. RELEASED), maskingStatus, updateRequested, identitySnapshot (JSONB), submittedAt, lockedAt, withdrawnAt, withdrawReason | At most one active (not withdrawn, not released) per organisation per cycle: checked at start in the service and enforced by a partial unique index. Also releasedAt?, releasedById?, releaseReason?. identitySnapshot is taken at submit and frozen at the lock. Also: linkedinUrl, proofStatus (PENDING, VERIFIED, REJECTED), proofCheckedById?, proofCheckedAt?, proofNote? (§5.20) |
 | Answer | applicationId, questionKey, value (JSONB), updatedAt | Unique (applicationId, questionKey) |
 | MaskedAnswer | applicationId, questionKey, value (JSONB), maskedById, maskedAt | Unique (applicationId, questionKey) |
 | FileAsset | id, applicationId, questionKey?, kind (EVIDENCE, MASKED_EVIDENCE, IDENTITY_PROOF, EMPLOYMENT_PROOF), maskedFromId?, storageKey, fileName, mimeType, sizeBytes, uploadedById, purgedAt? | Jury may read only MASKED_EVIDENCE in blind awards, and **never** a proof document. Proof files are deleted after the retention period; the row stays with purgedAt |
@@ -856,7 +861,7 @@ Every read and write goes through a service function that receives the acting us
 - Permission helpers live in each module's access file, for example requireStaffOfCycle(actor, cycleId) and requireAssignedJury(actor, evaluationId).
 - View models are explicit: applicantView, juryView, staffView, leaderView (also used for PAs). Raw database objects never reach the browser. In a blind award, juryView is built only from masked answers and masked files.
 - Typed errors map to responses: ValidationError → 400, ForbiddenError → 403, NotFoundError → 404, StateError (wrong status, past deadline, approved round) → 409. A jury member asking for an application not assigned to them gets 404, so its existence is not revealed.
-- Transactions are required for: a score change plus its audit event; an approval decision plus the round status; masking done plus the application status; resolving a duplicate.
+- Transactions are required for: a score change plus its audit event; an approval decision plus the round status; masking done plus the application status; releasing an application plus its audit event.
 - File downloads go through one route that checks the actor may read that file and that file kind.
 - Time comes from one clock helper, so tests can move past a deadline.
 - No code branches on a specific award. Behaviour comes only from configuration such as cycle.blindJudging or cycle.feePaise. Code review checks this on every pull request.
@@ -878,7 +883,7 @@ Every read and write goes through a service function that receives the acting us
 | Awards | createCycle, updateCycleSettings, publishCycle, extendDeadline | Staff |
 | Forms | editDraftForm, publishFormVersion, getFormVersion, diffVersions | Staff (read: applicant, jury) |
 | Scoring | editScoringSheet, validateWeights, computeScore | Staff (read: jury) |
-| Applications | startApplication, payFee (demo), saveAnswers, uploadFile, uploadProof, submit, withdraw, resolveDuplicate | Applicant, staff |
+| Applications | startApplication, payFee (demo), saveAnswers, uploadFile, uploadProof, submit, withdraw, releaseApplication | Applicant, staff |
 | Applications | checkProof (Verified or Rejected with a reason), entryCount | Staff (entryCount: public) |
 | Sites | editBrandKit, createSite, editPageDraft, uploadImage, previewPage, publishPage, restoreVersion, unpublishSite | Department head and staff (brand kit: department head and department staff) |
 | Sites | getPublishedSite, getPublishedPage | Public |
@@ -912,7 +917,7 @@ The app has about 38 screens grouped by role. Each role sees only its own area a
 | Staff | My awards | Every award and cycle assigned to them, across departments |
 | Staff | Create award | Name, domain and description, in one of their departments |
 | Staff | Cycle setup | Tabs: basics and dates, entry categories, questionnaire builder, scoring sheet builder, settings (fee, blind, rounds), publish |
-| Staff | Applications | List with filters: status, category, duplicate flag, proof status, masking status |
+| Staff | Applications | List with filters: status, category, proof status, masking status; release an application with a reason |
 | Staff | Proof check | Each application's identity and employment documents and LinkedIn link; Verified or Rejected with a reason |
 | Staff | Site builder | Pages and sections: add, arrange, choose layouts, fill in; preview on phone and desktop; publish; version history and restore |
 | Department head | Brand kit | Logo, colours, font, social links, footer |
@@ -979,7 +984,7 @@ With about 40 working hours, the build covers the full cycle at its core and cut
 - Departments and department heads (leader or PA), staff assignment to many awards (department head, leader or PA), award and cycle setup (staff), all in the UI.
 - Questionnaire builder and immutable form versions (rule 4).
 - Scoring sheet builder with weight validation and the score formula.
-- Applicant flow: demo fee, dynamic form, autosave, submit, edit until deadline, withdraw.
+- Applicant flow: one application per organisation (blocked at start; colleagues read-only), demo fee, dynamic form, autosave, submit, edit until deadline, withdraw.
 - Deadline locking and the masking workspace (rule 1).
 - Jury pool, conflicts and assignment (rule 2).
 - Scoring, overall note, submit, staff edits with reason, audit history (rule 3).
@@ -990,7 +995,7 @@ With about 40 working hours, the build covers the full cycle at its core and cut
 
 ### Should have
 
-- Duplicate flagging and resolution.
+- Releasing an application with a reason (staff).
 - Disqualify and reinstate.
 - Emails for: questionnaire updated, jury assigned, results published (others if time allows).
 - Leader and PA dashboard with basic counts.
@@ -1045,7 +1050,7 @@ Tests for each rule are written on the day that rule is built, against a real Po
 - Rule 2: a recorded conflict blocks assignment through the service, not only the UI.
 - Rule 3: score changes after submission need a reason, write an audit event in the same transaction, and fail after approval.
 - Rule 4: published versions refuse edits; question removal refused inside a cycle; old applications open with their pinned version.
-- Duplicates flagged per organisation per cycle; withdrawn applications ignored.
+- A second application from the same organisation in the same cycle is refused at the start, also when two colleagues start at once; a withdrawn or released one frees the place; colleagues see it read-only, without the starter's name.
 - Writes refused after the deadline; deadline extension reopens editing.
 - Fee gating: the form stays locked until payment is recorded.
 - Approval (document rounds): allowed only when every evaluation is submitted; send back requires a remark; approval locks scores.
@@ -1167,6 +1172,14 @@ Each day: open the issues for that day's slice, merge through pull requests into
 
 Sixteen questions were asked. The leader call on 5 October 2026 answered question 1 and part of question 3; the answers on 6 October answered questions 2, 7, 8, 14 and 15 (see below). The rest stay open with their defaults. Questions 1 to 7 change the data model or the roles, so they matter most.
 
+### Answered on 8 Oct 2026
+
+| # | Answer |
+|---|---|
+| New | Block a second application from the same organisation **before** anyone fills it: once a colleague has started one, no one else can start. |
+| New | Colleagues see the organisation's application read-only, with the status only (no name). |
+| New | Staff can release a wrong, fake or abandoned application with a reason, so the organisation can start again. |
+
 ### Answered on 7 Oct 2026
 
 | # | Answer |
@@ -1183,7 +1196,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 |---|---|
 | 2 | The department head's approval is final for document review rounds. On-site rounds have no approval. |
 | 7 | Yes: an on-site panel of 2 to 5 jury, each scoring on their own; the final score is the average. Document review rounds keep one jury member per application. |
-| 8 | Only one real application per organisation per award. All are accepted; extras are flagged and staff keep one. |
+| 8 | Only one real application per organisation per award. All are accepted; extras are flagged and staff keep one. *(Changed on 8 Oct: a second one is blocked at the start, see §5.2.)* |
 | 14 | GSTIN is optional. Without one, joining needs the PAN and the official email. |
 | 15 | Shop-floor competitions register as usual, with a small (sometimes empty) form, and are judged on site by a panel using a score sheet. Modelled as an on-site round (§5.16). |
 | New | Scores are entered on devices at the venue, and internet is assumed. Staff can enter a juror's scores as a backup. |
@@ -1212,7 +1225,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | 5 | Can a department head edit scores, or only approve and send back? | Only approve and send back |
 | 6 | Is there exactly one leader, or can there be a backup leader account? | Exactly one |
 | 7 | In the future live round, can several judges score the same shortlisted application? In round 1 each application has one jury member. | **Answered:** yes, a panel of 2 to 5; the average counts |
-| 8 | On a duplicate: block the second application, or allow it and let staff choose? | **Answered:** allow, flag both, staff keep the one real application |
+| 8 | On a duplicate: block the second application, or allow it and let staff choose? | **Answered (changed 8 Oct):** block a second application at the start; staff can release a wrong one |
 | 9 | When a required question is added after submission, must the applicant resubmit? | No: stays submitted, flagged "Update requested", locked as it stands |
 | 10 | Weights: section and indicator-within-section, or indicator-within-question? | Section weights, then indicator weights inside each section |
 | 11 | Does anyone approve the shortlist? | No: staff shortlist after the department head approves |
@@ -1241,7 +1254,8 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | A13 | Transferring an application to another member of the organisation is later work | Build it now |
 | A14 | Every PA has the same powers (§5.17) | Add per-PA permission switches |
 | A15 | PAs can create awards in any department; configuring the cycles stays with staff | Only staff create awards |
-| A16 | Any member of an organisation may apply for it; only one application per organisation per cycle is real, so extras are flagged (confirmed 6 Oct) | Require proof of authority |
+| A16 | Any member of an organisation may start its application; only one per organisation per cycle, and a second start is refused (8 Oct) | Allow parallel drafts |
+| A26 | If the person who started the application leaves or is the wrong person, staff release it and a colleague starts again; handing a draft over to a colleague is later work (see A13) | Build the hand-over now |
 | A17 | A GSTIN whose state differs from the address state gives a warning, not a refusal | Refuse it |
 | A18 | The department head is never a juror in a document round of their own department (they approve it), but may sit on on-site panels | Allow it, with someone else approving |
 | A19 | An absent panel member is removed with a reason; the average uses the members who submitted (at least one) | Require the full panel |

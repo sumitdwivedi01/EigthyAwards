@@ -25,7 +25,7 @@ Backend/
 │     ├─ awards/            awards, cycles, categories, rounds, publish gate
 │     ├─ forms/             questionnaire drafts, immutable versions, diff (R4)
 │     ├─ scoring/           scoring sheets, weights, score formula
-│     ├─ applications/      fee, answers, files, submit, withdraw, duplicates, identity snapshot, deadline lock (R4)
+│     ├─ applications/      fee, answers, files, submit, withdraw, one per organisation (blocked at start), release, identity snapshot, deadline lock (R4)
 │     ├─ masking/           masked answers and files (R1)
 │     ├─ jury-pool/         pool per cycle, conflicts (R2)
 │     ├─ judging/           assignment, scores, corrections, disqualification (R1–R3)

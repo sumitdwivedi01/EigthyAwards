@@ -16,6 +16,7 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | [0008](0008-onsite-rounds.md) | On-site rounds as a round type (live presentations and shop-floor competitions): panels, averages, no approval, Gold/Silver/Bronze | Accepted | 2026-10-06 |
 | [0009](0009-branded-award-sites.md) | Branded award sites built from ready-made sections, for all awards; staff change them any time; no approval | Accepted | 2026-10-07 |
 | [0010](0010-proof-documents-and-entry-limit.md) | Proof of identity and employment with every application; an entry limit with a public counter | Accepted | 2026-10-07 |
+| [0011](0011-one-application-per-organisation.md) | One application per organisation, blocked at the start; colleagues read-only; staff can release | Accepted | 2026-10-08 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 
