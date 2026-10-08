@@ -55,7 +55,7 @@ flowchart LR
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
-| 1 | My organisation | PAN / GSTIN checks, values cleaned on save, state from a list | `#a-org` |
+| 1 | My organisation | **Create** it once (first person from the company; PAN / GSTIN checks, values cleaned on save) or **Join** it (PAN + GSTIN, or PAN + official email); a PAN that already exists sends you to Join | `#a-org` |
 | 2 | My applications | Friendly statuses only | `#a-apps` |
 | 3 | Start and pay | Category fee; duplicate warning; demo payment | `#a-start` |
 | 4 | Application form | Sections, progress, autosave, New / Updated markers (R4) | `#a-form` |

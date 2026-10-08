@@ -244,8 +244,10 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   <div class="notes"><span class="note"><b>One record per PAN</b>, reused by every award</span><span class="note"><b>Join</b> with PAN + GSTIN, or PAN + official email if there's no GSTIN</span><span class="note"><b>Lists, not free text:</b> state and organisation type</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/organisation</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>My organisation</b><span>My applications</span><span>Open awards</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
-  <div class="ui-body full"><div class="ui-main">
-    <div class="tabs"><button aria-selected="true">Create my organisation</button><button aria-selected="false">Join an existing one</button></div>
+  <div class="ui-body full"><div class="ui-main" data-tabs>
+    <div class="tabs" role="tablist"><button aria-selected="true" data-tab="org-create">Create my organisation</button><button aria-selected="false" data-tab="org-join">Join an existing one</button></div>
+    <div class="tabpane on" data-pane="org-create">
+    <p class="sub">The first person from a company creates its record, once. Everyone else from the company joins it.</p>
     <div class="g3">
       <div class="field"><label>Legal name *</label><div class="input">Sahyadri Farmers Producer Company Ltd</div></div>
       <div class="field"><label>PAN *</label><div class="input">ABCDE1234F</div><span class="hint">Typed "abcde 1234f", stored as ABCDE1234F</span></div>
@@ -259,7 +261,30 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
       <div class="field"><label>Organisation type</label><div class="input sel">Producer company</div></div>
     </div>
     <div class="okline">✓ GSTIN state (27, Maharashtra) matches the address state</div>
+    <div class="gap"></div><div class="warnline">If this PAN is already on the platform you'll see: "Sahyadri FPO is already registered. Join it instead." One record per company, never a second copy.</div>
     <div class="gap"></div><div class="row"><button class="btn p" data-goto="a-apps">Save organisation</button><span class="small muted">Edits are recorded in the organisation's history</span></div>
+    </div>
+    <div class="tabpane" data-pane="org-join">
+    <p class="sub">Is your company already on the platform? Join it, so everyone from the company shares one record and one history.</p>
+    <div class="g2">
+      <div class="box"><h3>Find your organisation</h3>
+        <div class="field"><label>PAN *</label><div class="input">ABCDE1234F</div></div>
+        <div class="field"><label>Does the organisation have a GSTIN?</label><div class="row"><span class="chip b">Yes</span><span class="chip">No</span></div></div>
+        <div class="field"><label>GSTIN *</label><div class="input">27ABCDE1234F1ZV</div><span class="hint">No GSTIN? Enter the organisation's official email instead (for example office@sahyadri-fpo.in)</span></div>
+        <button class="btn p">Find my organisation</button></div>
+      <div class="box"><h3>Result</h3>
+        <div class="okline">✓ Found: <b>Sahyadri Farmers Producer Company Ltd</b> · Nashik, Maharashtra</div>
+        <p class="small">After joining you can apply for this organisation and see its applications. Colleagues who joined earlier see yours too.</p>
+        <button class="btn g" data-goto="a-apps">Join Sahyadri FPO →</button>
+        <div class="gap"></div>
+        <div class="small muted" style="margin-bottom:4px">If the details don't match:</div>
+        <div class="badline">✕ The PAN and GSTIN don't match our record. Check both; the GSTIN on record is registered in Maharashtra (starts with 27).</div>
+        <div class="gap"></div>
+        <div class="small muted">Not found at all? The company isn't on the platform yet: use <b>Create my organisation</b>.</div></div>
+    </div>
+    <div class="gap"></div>
+    <div class="warnline">Joining links you to the company. It doesn't prove you work there: when you submit an application you still upload a photo ID and a proof of employment, which staff check.</div>
+    </div>
   </div></div></div></div>
 </section>
 
