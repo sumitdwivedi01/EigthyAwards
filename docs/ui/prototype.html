@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Awards Platform UI Prototype</title>
+<style>
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#141B2D; --muted:#5A6377; --faint:#8A93A6; --line:#E1E6EF;
+  --brand:#2446A8; --brand-soft:#E8EEFB; --good:#18794E; --good-soft:#E3F4EB; --bad:#B42318; --bad-soft:#FDECEA;
+  --warn:#9A5B00; --warn-soft:#FFF4DE; --note:#FFF8D6; --note-line:#E8D27A;
+  --fpo:#145C35; --fpo-a:#F2B705; --fpo-soft:#EEF7F1;
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+/* ---------- shell ---------- */
+.top{position:sticky;top:0;z-index:30;background:#141B2D;color:#fff}
+.top .in{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+.top .t{font-weight:700;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.top .t span{background:linear-gradient(135deg,#2446A8,#18794E);width:28px;height:28px;border-radius:8px;display:grid;place-items:center}
+.roles{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.roles button{border:1px solid rgba(255,255,255,.25);background:transparent;color:#DDE3F0;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.roles button[aria-pressed="true"]{background:#fff;color:#141B2D;border-color:#fff}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:calc(100vh - 52px)}
+@media (max-width:900px){.layout{grid-template-columns:1fr}}
+aside{background:var(--surface);border-right:1px solid var(--line);padding:16px 12px}
+aside h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 8px 10px}
+aside .who{margin:0 8px 14px;font-size:13px;color:var(--muted)}
+.steps-nav{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.steps-nav button{width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:14px}
+.steps-nav button:hover{background:#F3F5F9}
+.steps-nav button[aria-current="true"]{background:var(--brand-soft);color:var(--brand);font-weight:700}
+.steps-nav .n{flex:none;width:22px;height:22px;border-radius:50%;background:#EEF1F6;color:var(--muted);display:grid;place-items:center;font-size:12px;font-weight:700}
+.steps-nav button[aria-current="true"] .n{background:var(--brand);color:#fff}
+aside .links{margin:18px 8px 0;font-size:13px;display:grid;gap:6px}
+aside .links a{color:var(--brand)}
+main{padding:22px 26px 60px;min-width:0}
+@media (max-width:700px){main{padding:14px}}
+.meta{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.meta .k{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--brand)}
+.meta h1{margin:2px 0 4px;font-size:24px;letter-spacing:-.01em}
+.meta p{margin:0;color:var(--muted);max-width:760px}
+.nav-btns{display:flex;gap:8px}
+.nb{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;font-size:13px}
+.nb.p{background:var(--brand);border-color:var(--brand);color:#fff}
+.nb[disabled]{opacity:.45;cursor:default}
+.notes{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.note{background:var(--note);border:1px solid var(--note-line);border-radius:8px;padding:6px 10px;font-size:13px}
+.note b{color:#6B4E00}
+.rule{background:var(--bad-soft);border:1px solid #F3B7B1;color:var(--bad);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600}
+.screen{display:none}.screen.on{display:block;animation:f .25s ease}
+@keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+/* ---------- browser frame ---------- */
+.frame{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(20,27,45,.06),0 10px 30px rgba(20,27,45,.08)}
+.bar{display:flex;align-items:center;gap:7px;padding:8px 10px;background:#E9EDF3;border-bottom:1px solid var(--line)}
+.bar i{width:10px;height:10px;border-radius:50%;background:#CDD3DE;display:inline-block}
+.addr{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.addr b{color:var(--ink)}
+/* ---------- the platform app inside the frame ---------- */
+.ui{min-height:540px;display:flex;flex-direction:column}
+.ui-top{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);background:#fff}
+.ui-top .logo{font-weight:800;color:var(--brand);display:flex;gap:8px;align-items:center}
+.ui-top .logo span{width:22px;height:22px;border-radius:6px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:12px}
+.ui-top .menu{display:flex;gap:14px;font-size:13px;color:var(--muted)}
+.ui-top .menu b{color:var(--ink)}
+.ui-top .me{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.ui-top .me i{width:28px;height:28px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-style:normal;font-weight:700}
+.ui-body{display:grid;grid-template-columns:200px minmax(0,1fr);flex:1}
+.ui-body.full{grid-template-columns:1fr}
+@media (max-width:900px){.ui-body{grid-template-columns:1fr}.ui-side{display:none}}
+.ui-side{border-right:1px solid var(--line);padding:12px 8px;background:#FAFBFD;font-size:13px}
+.ui-side div{padding:7px 10px;border-radius:7px;color:var(--muted)}
+.ui-side div.on{background:var(--brand-soft);color:var(--brand);font-weight:700}
+.ui-main{padding:18px 20px;min-width:0}
+.h{font-size:19px;font-weight:700;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{justify-content:space-between}
+.gap{height:12px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff;min-width:0}
+.box h3{margin:0 0 8px;font-size:15px}
+.muted{color:var(--muted)}.small{font-size:12.5px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-weight:600;font-size:13px;color:var(--ink)}
+.btn.p{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.g{background:var(--good);border-color:var(--good);color:#fff}
+.btn.d{background:#fff;border-color:#F3B7B1;color:var(--bad)}
+.btn[disabled]{opacity:.5}
+.field{display:grid;gap:4px;margin-bottom:10px}
+.field label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.input{border:1px solid #D5DBE6;border-radius:8px;padding:8px 10px;background:#fff;font-size:14px;min-height:36px}
+.input.ph{color:var(--faint)}
+.input.area{min-height:72px}
+.input.sel::after{content:" ▾";float:right;color:var(--faint)}
+.hint{font-size:12px;color:var(--muted)}
+.warnline{font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-radius:6px;padding:6px 8px}
+.okline{font-size:12.5px;color:var(--good);background:var(--good-soft);border-radius:6px;padding:6px 8px}
+.badline{font-size:12.5px;color:var(--bad);background:var(--bad-soft);border-radius:6px;padding:6px 8px}
+.chip{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EEF1F6;color:var(--muted);white-space:nowrap}
+.chip.b{background:var(--brand-soft);color:var(--brand)}.chip.gd{background:var(--good-soft);color:var(--good)}
+.chip.w{background:var(--warn-soft);color:var(--warn)}.chip.r{background:var(--bad-soft);color:var(--bad)}
+.chip.gold{background:#FFF1C2;color:#7A5A00}.chip.silver{background:#ECEFF3;color:#4A5568}.chip.bronze{background:#F7E0CF;color:#7A3E12}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:8px;border-bottom:1px solid var(--line);background:#FAFBFD}
+table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:8px 12px;font-weight:600;font-size:13.5px;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+.tabpane{display:none}.tabpane.on{display:block}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+.kpi b{display:block;font-size:24px}
+.kpi span{font-size:12.5px;color:var(--muted)}
+.bar-m{height:8px;border-radius:99px;background:#E9EDF5;overflow:hidden}
+.bar-m span{display:block;height:100%;background:var(--brand)}
+.upload{border:2px dashed #CFD6E3;border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13px;background:#FAFBFD}
+.file{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin:6px 0}
+.check i{font-style:normal;flex:none;width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:12px;font-weight:800}
+.check i.y{background:var(--good);color:#fff}.check i.n{background:#E3E7EE;color:#fff}.check i.x{background:var(--bad);color:#fff}
+.timeline{display:grid;gap:0;margin:6px 0}
+.tl{display:grid;grid-template-columns:26px 1fr;gap:10px;padding-bottom:14px;position:relative}
+.tl::before{content:"";position:absolute;left:12px;top:24px;bottom:0;width:2px;background:var(--line)}
+.tl:last-child::before{display:none}
+.tl i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:#E3E7EE;color:#fff;z-index:1}
+.tl i.y{background:var(--good)}.tl i.c{background:var(--brand)}
+.tl b{display:block}
+.score{display:flex;gap:4px;flex-wrap:wrap}
+.score span{width:28px;height:28px;border-radius:7px;border:1px solid #D5DBE6;display:grid;place-items:center;font-size:12.5px;font-weight:700;color:var(--muted);background:#fff}
+.score span.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.yn{display:flex;gap:6px}.yn span{padding:4px 12px;border-radius:7px;border:1px solid #D5DBE6;font-size:12.5px;font-weight:700}
+.yn span.on{background:var(--good);color:#fff;border-color:var(--good)}
+.masked{background:#1F2937;color:#1F2937;border-radius:3px;padding:0 3px}
+.swatch{width:42px;height:42px;border-radius:9px;border:1px solid rgba(0,0,0,.08)}
+.dialog{border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(20,27,45,.18);padding:16px;background:#fff;max-width:420px}
+/* phone frame */
+.phone{width:340px;max-width:100%;margin:0 auto;border:10px solid #141B2D;border-radius:30px;overflow:hidden;background:#fff}
+.phone .pbar{height:22px;background:#141B2D}
+.phone .pin{padding:14px}
+/* award site (organiser brand) */
+.site{font-size:14px;color:#1d2433}
+.site .sh{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--fpo);color:#fff}
+.site .sh b{font-family:Georgia,serif;font-size:16px}
+.site .sh nav{margin-left:auto;display:flex;gap:14px;font-size:12.5px}
+.site .hero{padding:40px 22px;color:#fff;background:linear-gradient(110deg,rgba(20,92,53,.94),rgba(20,92,53,.55)),repeating-linear-gradient(100deg,#2f8f55 0 16px,#3da563 16px 32px)}
+.site .hero h1{font-family:Georgia,serif;font-size:30px;margin:0 0 6px}
+.site .apply{background:var(--fpo-a);color:#1d1d1d;border:0;border-radius:8px;padding:10px 16px;font-weight:800}
+.site .mtr{max-width:320px;margin-top:12px}
+.site .mtr .mb{height:8px;border-radius:99px;background:rgba(255,255,255,.3);overflow:hidden}
+.site .mtr .mb span{display:block;height:100%;width:99.8%;background:var(--fpo-a)}
+.site .blk{padding:22px}
+.site .blk h2{font-family:Georgia,serif;color:var(--fpo);margin:0 0 10px;font-size:20px}
+.site .cat{border:1px solid #E5E9EF;border-radius:10px;padding:12px}
+.site .sf{padding:14px 22px;background:var(--fpo);color:#fff;font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.auto{font-size:10.5px;font-weight:800;color:var(--fpo);background:var(--fpo-soft);padding:2px 8px;border-radius:999px;margin-left:6px;font-family:"Segoe UI",sans-serif;vertical-align:middle}
+.cardaward{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.cardaward .cv{height:96px;display:flex;align-items:flex-end;padding:10px;color:#fff;font-weight:800}
+.cardaward .cb{padding:12px}
+/* builder */
+.builder{display:grid;grid-template-columns:210px minmax(0,1fr) 230px;gap:0;border-top:1px solid var(--line);min-height:520px}
+@media (max-width:1100px){.builder{grid-template-columns:1fr}}
+.builder .col{padding:12px;min-width:0}
+.builder .col + .col{border-left:1px solid var(--line)}
+.secitem{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;background:#fff}
+.secitem.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.mini-prev{border:1px solid var(--line);border-radius:10px;overflow:hidden;transform-origin:top left}</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div class="t"><span>★</span>Awards Platform · UI prototype</div>
+  <div class="roles" role="group" aria-label="Choose a role">
+    <button data-role="visitor" aria-pressed="true">Visitor</button>
+    <button data-role="applicant" aria-pressed="false">Applicant</button>
+    <button data-role="staff" aria-pressed="false">Staff</button>
+    <button data-role="jury" aria-pressed="false">Jury</button>
+    <button data-role="head" aria-pressed="false">Department head</button>
+    <button data-role="leader" aria-pressed="false">Leader &amp; PA</button>
+  </div>
+</div></header>
+<div class="layout">
+<aside>
+  <h2 id="roleName">Visitor</h2>
+  <p class="who" id="roleWho"></p>
+  <ol class="steps-nav" id="stepsNav"></ol>
+  <div class="links">
+    <a href="README.md">Flow diagrams per role</a>
+    <a href="brand-value.html">How we keep the organiser's brand</a>
+    <span class="muted small">A prototype of the flow. Not the final design; nothing here is saved.</span>
+  </div>
+</aside>
+<main>
+  <div class="meta"><div><div class="k" id="mK"></div><h1 id="mTitle"></h1><p id="mDesc"></p></div>
+    <div class="nav-btns"><button class="nb" id="prev">← Back</button><button class="nb p" id="next">Next →</button></div></div>
+
+<!-- ═══════════════ VISITOR ═══════════════ -->
+<section class="screen" data-role="visitor" data-id="v-open" data-title="Open awards" data-desc="The public front door. Every open award shows as a card in its own brand, with the deadline and places left.">
+  <div class="notes"><span class="note"><b>Branding:</b> each card uses the organiser's brand kit (ADR 0009)</span><span class="note"><b>Live data:</b> deadline and places left come from the cycle</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>awards</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>Open awards</b><span>Past winners</span><span>About</span></div><div class="me"><button class="btn" data-goto="v-login">Sign in</button></div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="row sp"><div><div class="h">Open awards</div><p class="sub">Apply for an award that fits your organisation.</p></div><div class="row"><div class="input sel" style="min-width:150px">All domains</div><div class="input ph" style="min-width:200px">Search awards</div></div></div>
+    <div class="g3">
+      <div class="cardaward"><div class="cv" style="background:linear-gradient(110deg,#145C35,#3da563)">🌾 FPO Excellence Awards</div><div class="cb"><div class="small muted">Agriculture · Free entry</div><div class="row sp" style="margin-top:6px"><span class="chip w">Closes 15 July</span><span class="small"><b>499 / 500</b> places</span></div><div class="gap"></div><button class="btn p" data-goto="v-site">View award →</button></div></div>
+      <div class="cardaward"><div class="cv" style="background:linear-gradient(110deg,#13315C,#2f5f9e)">🛡️ National Safety Excellence Award</div><div class="cb"><div class="small muted">Safety · ₹10,000 entry</div><div class="row sp" style="margin-top:6px"><span class="chip b">Closes 30 Aug</span><span class="small">No limit</span></div><div class="gap"></div><button class="btn">View award →</button></div></div>
+      <div class="cardaward"><div class="cv" style="background:linear-gradient(110deg,#23262E,#00A6A6)">⚙️ Kaizen Shop-floor Challenge</div><div class="cb"><div class="small muted">Shop-floor · On-site judging</div><div class="row sp" style="margin-top:6px"><span class="chip b">Closes 10 Nov</span><span class="small"><b>112 / 300</b> places</span></div><div class="gap"></div><button class="btn">View award →</button></div></div>
+    </div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="visitor" data-id="v-site" data-title="An award's own branded site" data-desc="Built by the award's staff from ready-made sections, in the organiser's brand. The platform stays in the background.">
+  <div class="notes"><span class="note"><b>Built by staff</b> in the site builder, no developer (Staff → Site builder)</span><span class="note"><b>Automatic:</b> deadline, 499 / 500, categories, past winners</span><span class="note"><b>Address:</b> can later be their own domain</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">🔒 ourplatform.in/awards/<b>fpo</b> <span class="muted">· later: awards.face-cii.in</span></div></div>
+  <div class="site">
+    <div class="sh"><span>🌾</span><b>FPO Excellence Awards</b><nav><span>About</span><span>Categories</span><span>Winners</span><span>Gallery</span><span>FAQ</span></nav></div>
+    <div class="hero"><span class="chip" style="background:rgba(255,255,255,.18);color:#fff">⏳ Applications close 15 July</span><h1>FPO Excellence Awards 2026</h1><p style="margin:0 0 12px;max-width:520px">Celebrating farmer producer organisations that change rural India.</p><button class="apply" data-goto="v-login">Apply now →</button>
+      <div class="mtr"><div class="mb"><span></span></div><div class="row sp small" style="margin-top:4px"><span><b>499 / 500</b> places taken</span><span>1 left</span></div></div></div>
+    <div class="blk"><h2>Award categories <span class="auto">from the cycle</span></h2><div class="g4">
+      <div class="cat">🛒 <b>Market linkages</b><div class="small muted">Free · 1 entry per organisation</div></div><div class="cat">👩‍🌾 <b>Women entrepreneurship</b><div class="small muted">Free</div></div><div class="cat">🏷️ <b>Value addition</b><div class="small muted">Free</div></div><div class="cat">📡 <b>Technology</b><div class="small muted">Free</div></div></div></div>
+    <div class="blk" style="padding-top:0"><h2>Past winners <span class="auto">from published results</span></h2>
+      <table class="t"><tr><td>2025</td><td>Women entrepreneurship</td><td><b>Sahyadri FPO</b></td><td><span class="chip gold">Gold</span></td></tr><tr><td>2025</td><td>Technology</td><td><b>Kisan Mitra FPO</b></td><td><span class="chip silver">Silver</span></td></tr></table></div>
+    <div class="sf"><span>© FPO Excellence Awards · Facebook · LinkedIn · X</span><span style="opacity:.75">Powered by Awards Platform</span></div>
+  </div></div>
+</section>
+
+<section class="screen" data-role="visitor" data-id="v-login" data-title="Sign in or register" data-desc="One account per person (one email), used for every award and every role a person has.">
+  <div class="notes"><span class="note"><b>One account per email</b>, case doesn't matter (spec §5.18)</span><span class="note"><b>Invited roles</b> (staff, jury, heads) set their password from the invite email</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>sign-in</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div></div>
+  <div class="ui-body full"><div class="ui-main" style="display:grid;place-items:center">
+    <div class="box" style="width:380px;max-width:100%"><div class="tabs"><button aria-selected="true">Sign in</button><button aria-selected="false">Create account</button></div>
+      <div class="field"><label>Email</label><div class="input">asha.patil@sahyadri-fpo.in</div></div>
+      <div class="field"><label>Password</label><div class="input">••••••••••</div></div>
+      <div class="row sp"><span class="small"><a href="#">Forgot password?</a></span><button class="btn p" data-goto="a-org">Sign in</button></div>
+    </div>
+  </div></div></div></div>
+</section>
+
+<!-- ═══════════════ APPLICANT ═══════════════ -->
+<section class="screen" data-role="applicant" data-id="a-org" data-title="My organisation" data-desc="The applicant creates their organisation once (or joins it) and reuses it for every award. Values are cleaned as they're saved.">
+  <div class="notes"><span class="note"><b>One record per PAN</b>, reused by every award</span><span class="note"><b>Join</b> with PAN + GSTIN, or PAN + official email if there's no GSTIN</span><span class="note"><b>Lists, not free text:</b> state and organisation type</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/organisation</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>My organisation</b><span>My applications</span><span>Open awards</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
+  <div class="ui-body full"><div class="ui-main" data-tabs>
+    <div class="tabs" role="tablist"><button aria-selected="true" data-tab="org-create">Create my organisation</button><button aria-selected="false" data-tab="org-join">Join an existing one</button></div>
+    <div class="tabpane on" data-pane="org-create">
+    <p class="sub">The first person from a company creates its record, once. Everyone else from the company joins it.</p>
+    <div class="g3">
+      <div class="field"><label>Legal name *</label><div class="input">Sahyadri Farmers Producer Company Ltd</div></div>
+      <div class="field"><label>PAN *</label><div class="input">ABCDE1234F</div><span class="hint">Typed "abcde 1234f", stored as ABCDE1234F</span></div>
+      <div class="field"><label>GSTIN (optional)</label><div class="input">27ABCDE1234F1ZV</div><span class="hint">✓ Contains the PAN</span></div>
+      <div class="field"><label>Address *</label><div class="input">Plot 12, Dindori Road</div></div>
+      <div class="field"><label>City *</label><div class="input">Nashik</div></div>
+      <div class="field"><label>State *</label><div class="input sel">Maharashtra</div></div>
+      <div class="field"><label>PIN code *</label><div class="input">422001</div></div>
+      <div class="field"><label>Official email *</label><div class="input">office@sahyadri-fpo.in</div></div>
+      <div class="field"><label>Phone *</label><div class="input">+91 98765 43210</div></div>
+      <div class="field"><label>Organisation type</label><div class="input sel">Producer company</div></div>
+    </div>
+    <div class="okline">✓ GSTIN state (27, Maharashtra) matches the address state</div>
+    <div class="gap"></div><div class="warnline">If this PAN is already on the platform you'll see: "Sahyadri FPO is already registered. Join it instead." One record per company, never a second copy.</div>
+    <div class="gap"></div><div class="row"><button class="btn p" data-goto="a-apps">Save organisation</button><span class="small muted">Edits are recorded in the organisation's history</span></div>
+    </div>
+    <div class="tabpane" data-pane="org-join">
+    <p class="sub">Is your company already on the platform? Join it, so everyone from the company shares one record and one history.</p>
+    <div class="g2">
+      <div class="box"><h3>Find your organisation</h3>
+        <div class="field"><label>PAN *</label><div class="input">ABCDE1234F</div></div>
+        <div class="field"><label>Does the organisation have a GSTIN?</label><div class="row"><span class="chip b">Yes</span><span class="chip">No</span></div></div>
+        <div class="field"><label>GSTIN *</label><div class="input">27ABCDE1234F1ZV</div><span class="hint">No GSTIN? Enter the organisation's official email instead (for example office@sahyadri-fpo.in)</span></div>
+        <button class="btn p">Find my organisation</button></div>
+      <div class="box"><h3>Result</h3>
+        <div class="okline">✓ Found: <b>Sahyadri Farmers Producer Company Ltd</b> · Nashik, Maharashtra</div>
+        <p class="small">After joining you can apply for this organisation and see its applications. Colleagues who joined earlier see yours too.</p>
+        <button class="btn g" data-goto="a-apps">Join Sahyadri FPO →</button>
+        <div class="gap"></div>
+        <div class="small muted" style="margin-bottom:4px">If the details don't match:</div>
+        <div class="badline">✕ The PAN and GSTIN don't match our record. Check both; the GSTIN on record is registered in Maharashtra (starts with 27).</div>
+        <div class="gap"></div>
+        <div class="small muted">Not found at all? The company isn't on the platform yet: use <b>Create my organisation</b>.</div></div>
+    </div>
+    <div class="gap"></div>
+    <div class="warnline">Joining links you to the company. It doesn't prove you work there: when you submit an application you still upload a photo ID and a proof of employment, which staff check.</div>
+    </div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="applicant" data-id="a-apps" data-title="My applications" data-desc="Every application with a short, friendly status. The applicant never sees internal states.">
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/applications</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>My organisation</span><b>My applications</b><span>Open awards</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="row sp"><div class="h">My applications</div><button class="btn p" data-goto="a-start">+ Start an application</button></div><div class="gap"></div>
+    <table class="t"><tr><th>Award</th><th>Category</th><th>Status</th><th></th></tr>
+      <tr><td>🌾 FPO Excellence Awards 2026</td><td>Women entrepreneurship</td><td><span class="chip">Draft · 60% done</span></td><td><button class="btn" data-goto="a-form">Continue</button></td></tr>
+      <tr><td>🛡️ Safety Excellence 2025</td><td>Large manufacturing</td><td><span class="chip gd">Shortlisted</span></td><td><button class="btn" data-goto="a-status">View</button></td></tr>
+      <tr><td>⚙️ Kaizen Challenge 2025</td><td>Waste reduction</td><td><span class="chip gold">Gold</span></td><td><button class="btn">View</button></td></tr>
+    </table>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="applicant" data-id="a-start" data-title="Start an application and pay (if there's a fee)" data-desc="Pick the category. If the award charges a fee, a demo payment unlocks the form. Duplicate applications are allowed but flagged.">
+  <div class="notes"><span class="note"><b>Fee:</b> the category's fee, otherwise the cycle's</span><span class="note"><b>One real entry per organisation:</b> a second one is flagged for staff</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>awards/safety/apply</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="me"><i>AP</i>Asha Patil</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>1. Choose a category</h3>
+      <div class="check"><i class="y">●</i><div><b>Large manufacturing</b> · ₹10,000</div></div>
+      <div class="check"><i class="n">○</i><div>MSME · ₹5,000</div></div>
+      <div class="gap"></div><div class="warnline">⚠ Your organisation already has an application for this award. You can continue; staff will keep only one.</div></div>
+    <div class="box"><h3>2. Pay the entry fee (demo)</h3><div style="font-size:28px;font-weight:800">₹10,000</div><p class="small muted">Demo payment for the prototype: no real money moves.</p>
+      <button class="btn g" data-goto="a-form">Pay and open the form</button><div class="gap"></div><span class="small muted">Reference DEMO-7F3K2 is saved with the application</span></div>
+  </div></div></div></div></div>
+</section>
+<section class="screen" data-role="applicant" data-id="a-form" data-title="The application form" data-desc="Sections on the left with progress. Answers save automatically a few seconds after typing. Changed questions are marked New or Updated.">
+  <div class="notes"><span class="note"><b>Autosave</b> for drafts; a submitted application uses Save changes</span><span class="note"><b>New / Updated</b> markers when staff change a question (rule 4)</span><span class="rule">R4 · the application keeps its own form version</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>applications/A-2026-0142</b></div></div>
+  <div class="ui"><div class="ui-top" style="background:var(--fpo);color:#fff"><div class="logo" style="color:#fff"><span style="background:var(--fpo-a);color:#1d1d1d">🌾</span>FPO Excellence Awards · Application</div><div class="me" style="color:#E3EFE7">✓ Saved 2 seconds ago</div></div>
+  <div class="ui-body"><div class="ui-side">
+      <div>✓ Organisation details</div><div class="on">● About your work · 3/5</div><div>○ Impact and evidence</div><div>○ Team members</div><div>○ Proof documents</div><div>○ Review and submit</div>
+      <div style="margin-top:10px"><div class="bar-m"><span style="width:60%"></span></div><span class="small">60% complete</span></div></div>
+    <div class="ui-main">
+      <div class="h">About your work</div><p class="sub">Section 2 of 6 · Women entrepreneurship</p>
+      <div class="field"><label>Describe how women lead decisions in your organisation *</label><div class="input area">Over 60% of our board members are women farmers. Since 2023 our women-led collection centres...</div><span class="hint">Up to 500 words</span></div>
+      <div class="field"><label>Number of women members * <span class="chip b">Updated</span></label><div class="input">812</div><span class="hint">Staff changed this question on 2 July: it now counts active members only</span></div>
+      <div class="field"><label>Upload evidence (training records, photos) <span class="chip gd">New</span></label><div class="upload">Drop files or browse · PDF, JPG, PNG, DOCX, XLSX · up to 10 MB each</div><div class="file" style="margin-top:6px">📄 training-records-2025.pdf <span class="muted small">2.1 MB</span></div></div>
+      <div class="row sp"><button class="btn">← Previous section</button><button class="btn p" data-goto="a-proof">Next section →</button></div>
+    </div></div></div></div>
+</section>
+
+<section class="screen" data-role="applicant" data-id="a-proof" data-title="Proof documents" data-desc="Before submitting, the person applying proves who they are and that they work for the organisation. Submit is refused without these.">
+  <div class="notes"><span class="note"><b>Required to submit:</b> photo ID + proof of employment + LinkedIn link (ADR 0010)</span><span class="note"><b>Privacy:</b> never shown to jury; deleted 12 months after results</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>applications/A-2026-0142/proof</b></div></div>
+  <div class="ui"><div class="ui-top" style="background:var(--fpo);color:#fff"><div class="logo" style="color:#fff"><span style="background:var(--fpo-a);color:#1d1d1d">🌾</span>FPO Excellence Awards · Application</div><div class="me" style="color:#E3EFE7">✓ Saved</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g3">
+    <div class="box"><h3>1. Photo identity document</h3><p class="small muted">PAN card, passport, driving licence, voter ID, or <b>masked</b> Aadhaar (only the last 4 digits visible).</p><div class="file">🪪 pan-card-asha.jpg <span class="chip gd">Uploaded</span></div></div>
+    <div class="box"><h3>2. Proof of employment</h3><p class="small muted">Company ID card, a letter on letterhead, or an appointment letter or payslip with the salary hidden.</p><div class="upload">Upload proof of employment</div></div>
+    <div class="box"><h3>3. LinkedIn profile</h3><div class="input">linkedin.com/in/asha-patil-fpo</div><p class="small muted">Staff use it to confirm you work there.</p></div>
+  </div><div class="gap"></div>
+  <div class="check"><i class="y">✓</i><span>I agree that these documents are used only to check my application. They are seen by the award's staff and organisers, never by jury, and deleted 12 months after the results.</span></div>
+  <div class="badline">✕ Proof of employment is missing. You can't submit yet.</div><div class="gap"></div>
+  <button class="btn p" data-goto="a-submit">Continue to review →</button>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="applicant" data-id="a-submit" data-title="Review and submit" data-desc="Everything is checked before submitting. The entry limit is checked at the same moment, so the last place can't be taken twice.">
+  <div class="notes"><span class="note"><b>Entry limit:</b> 499 / 500 places; the 501st submission is refused</span><span class="note"><b>Confirmation email</b> goes to the applicant and the organisation's official email</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>applications/A-2026-0142/review</b></div></div>
+  <div class="ui"><div class="ui-top" style="background:var(--fpo);color:#fff"><div class="logo" style="color:#fff"><span style="background:var(--fpo-a);color:#1d1d1d">🌾</span>FPO Excellence Awards · Review</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Checklist</h3>
+      <div class="check"><i class="y">✓</i>Organisation details (snapshot taken at submit)</div>
+      <div class="check"><i class="y">✓</i>All required questions answered</div>
+      <div class="check"><i class="y">✓</i>Evidence files uploaded</div>
+      <div class="check"><i class="y">✓</i>Photo ID, proof of employment and LinkedIn link</div>
+      <div class="check"><i class="y">✓</i>Consent given</div></div>
+    <div class="box"><h3>Places left</h3><div class="bar-m" style="height:12px"><span style="width:99.8%;background:var(--fpo-a)"></span></div><p><b>499 / 500</b> places taken · <b style="color:var(--bad)">1 left</b></p>
+      <button class="btn g" data-goto="a-status">Submit application</button><p class="small muted">You can still edit until the deadline, using "Save changes".</p></div>
+  </div></div></div></div></div>
+</section>
+
+<section class="screen" data-role="applicant" data-id="a-status" data-title="Application status" data-desc="A simple timeline in friendly words: submitted, proof checked, under review, presentation slot, result.">
+  <div class="notes"><span class="note"><b>Results appear</b> only when staff publish them</span><span class="note"><b>On-site rounds:</b> the presentation slot shows here and arrives by email</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>applications/A-2026-0142</b></div></div>
+  <div class="ui"><div class="ui-top" style="background:var(--fpo);color:#fff"><div class="logo" style="color:#fff"><span style="background:var(--fpo-a);color:#1d1d1d">🌾</span>FPO Excellence Awards · My application</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Progress</h3><div class="timeline">
+      <div class="tl"><i class="y">✓</i><div><b>Submitted</b><span class="small muted">10 July, 4:12 pm · confirmation emailed</span></div></div>
+      <div class="tl"><i class="y">✓</i><div><b>Proof verified</b><span class="small muted">12 July</span></div></div>
+      <div class="tl"><i class="y">✓</i><div><b>Shortlisted</b><span class="small muted">Results of the written round, 20 Aug</span></div></div>
+      <div class="tl"><i class="c">●</i><div><b>Presentation scheduled</b><span class="small muted">5 Sept, 10:30 am · Pune convention hall</span></div></div>
+      <div class="tl"><i>○</i><div><b>Final result</b><span class="small muted">After the presentations</span></div></div></div></div>
+    <div class="box"><h3>Later: the final result</h3><div style="text-align:center;padding:20px 0"><div style="font-size:46px">🥇</div><div class="h">Gold</div><p class="muted">Congratulations! You have won Gold.</p></div></div>
+  </div></div></div></div>
+</section>
+
+<!-- ═══════════════ JURY ═══════════════ -->
+<section class="screen" data-role="jury" data-id="j-list" data-title="My assignments" data-desc="A jury member sees only the applications given to them, with clear progress. They score in short gaps, so everything saves as they go.">
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>jury</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>My assignments</b></div><div class="me"><i>RK</i>Dr R. Kulkarni · Jury</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="g3"><div class="kpi"><b>6</b><span>assigned to me</span></div><div class="kpi"><b>2</b><span>submitted</span></div><div class="kpi"><b>15 Aug</b><span>scoring due</span></div></div><div class="gap"></div>
+    <table class="t"><tr><th>Application</th><th>Award · round</th><th>Status</th><th></th></tr>
+      <tr><td>Application A-0142</td><td>FPO Excellence · written review (blind)</td><td><span class="chip w">In progress</span></td><td><button class="btn p" data-goto="j-score">Continue scoring</button></td></tr>
+      <tr><td>Application A-0187</td><td>FPO Excellence · written review (blind)</td><td><span class="chip">Not started</span></td><td><button class="btn">Open</button></td></tr>
+      <tr><td>Application A-0101</td><td>FPO Excellence · written review (blind)</td><td><span class="chip gd">Submitted</span></td><td><button class="btn">View</button></td></tr>
+    </table>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="jury" data-id="j-score" data-title="Scoring an application (written round, blind)" data-desc="The answers on the left, the score sheet on the right. In a blind award the jury sees a cleaned copy with no company name, and never the proof documents.">
+  <div class="notes"><span class="rule">R1 · blind: no identity, only the masked copy</span><span class="note"><b>Whole numbers 0–10</b> or Yes/No; the weights are shown</span><span class="note"><b>No total shown</b> to the jury</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>jury/evaluations/E-5521</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">Application A-0142 · <span class="chip b">Blind</span></div><div class="me">✓ Saved</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Answers (masked copy)</h3>
+      <p class="small muted">Organisation: <span class="masked">Sahyadri FPO</span> hidden · Proof documents: not available to jury</p>
+      <b class="small">Describe how women lead decisions</b><p style="margin:4px 0 12px">Over 60% of our board members are women farmers. Since 2023 our women-led collection centres in <span class="masked">Nashik</span> district...</p>
+      <b class="small">Evidence</b><div class="file">📄 training-records (masked copy).pdf</div></div>
+    <div class="box"><h3>Score sheet · Women leadership (40%)</h3>
+      <div class="small"><b>Share of women in decision roles</b> · weight 60%</div><div class="score"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span class="on">8</span><span>9</span><span>10</span></div><div class="gap"></div>
+      <div class="small"><b>Women-led enterprises started</b> · weight 30%</div><div class="score"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span class="on">6</span><span>7</span><span>8</span><span>9</span><span>10</span></div><div class="gap"></div>
+      <div class="small"><b>Training records provided</b> · weight 10%</div><div class="yn"><span class="on">Yes</span><span>No</span></div><div class="gap"></div>
+      <div class="field"><label>Overall note *</label><div class="input area">Strong, well-evidenced leadership; enterprise numbers are modest.</div></div>
+      <div class="row sp"><button class="btn d">Disqualify…</button><button class="btn g" data-goto="j-onsite">Submit scores</button></div></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="jury" data-id="j-onsite" data-title="On-site scoring on a phone" data-desc="For shop-floor competitions and live finals: the panel watches the presentation and scores on their own phone. Each member scores alone.">
+  <div class="notes"><span class="note"><b>Panel of 2–5</b>; the final score is the average</span><span class="note"><b>Not blind:</b> the panel meets the team</span><span class="note"><b>Members never see</b> each other's scores</span><span class="rule">R2 · conflicted jury can't be on the panel</span></div>
+  <div class="phone"><div class="pbar"></div><div class="pin">
+    <div class="small muted">Kaizen Challenge · On-site</div><div class="h" style="font-size:17px">Team Spark · Unit 2</div><div class="small">Acme Steel Ltd · 10:30 am · Shop-floor hall B</div><div class="gap"></div>
+    <div class="small"><b>Problem understanding</b> · 30%</div><div class="score"><span>5</span><span>6</span><span>7</span><span class="on">8</span><span>9</span><span>10</span></div><div class="gap"></div>
+    <div class="small"><b>Measured results</b> · 40%</div><div class="score"><span>5</span><span>6</span><span class="on">7</span><span>8</span><span>9</span><span>10</span></div><div class="gap"></div>
+    <div class="small"><b>Can it spread to other lines?</b> · 30%</div><div class="yn"><span class="on">Yes</span><span>No</span></div><div class="gap"></div>
+    <div class="field"><label>Overall note *</label><div class="input area">Clear before/after data, 18% scrap reduction.</div></div>
+    <button class="btn g" style="width:100%">Submit my scores</button><p class="small muted" style="text-align:center">Your scores are private to you and staff.</p>
+  </div></div>
+</section>
+<!-- ═══════════════ STAFF ═══════════════ -->
+<section class="screen" data-role="staff" data-id="s-awards" data-title="My awards" data-desc="Staff work here every day. One staff member can run several awards, even in different departments.">
+  <div class="notes"><span class="note"><b>Many awards per staff member</b> (leader call, 5 Oct)</span><span class="note"><b>Only staff create awards</b> (7 Oct)</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>My awards</b><span>Applications</span></div><div class="me"><i>NS</i>Neha Shah · Staff</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="row sp"><div class="h">My awards</div><button class="btn p" data-goto="s-setup">+ Create award</button></div><div class="gap"></div>
+    <table class="t"><tr><th>Award</th><th>Department</th><th>Cycle</th><th>Status</th><th>Applications</th><th></th></tr>
+      <tr><td>🌾 FPO Excellence Awards</td><td>FPO Awards team <span class="chip b">organiser</span></td><td>2026</td><td><span class="chip gd">Open · closes 15 July</span></td><td>499 / 500</td><td><button class="btn" data-goto="s-setup">Open</button></td></tr>
+      <tr><td>⚙️ Kaizen Shop-floor Challenge</td><td>Manufacturing</td><td>2026</td><td><span class="chip">Draft</span></td><td>—</td><td><button class="btn">Open</button></td></tr>
+      <tr><td>🛡️ Safety Excellence</td><td>Safety</td><td>2025</td><td><span class="chip b">Judging</span></td><td>186</td><td><button class="btn">Open</button></td></tr>
+    </table>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-setup" data-title="Award setup: everything is settings" data-desc="Dates, fee, entry limit, blind judging, rounds, questions and scoring are all chosen on screen. Publishing is blocked until everything is valid.">
+  <div class="notes"><span class="note"><b>No code per award:</b> this screen is the whole difference between awards</span><span class="rule">R4 · each published questionnaire is frozen as a version</span><span class="note"><b>Click the tabs</b></span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/cycles/2026</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Excellence Awards · <b>2026</b> <span class="chip">Draft</span></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main" data-tabs>
+    <div class="tabs" role="tablist"><button aria-selected="true" data-tab="t1">Basics</button><button aria-selected="false" data-tab="t2">Rounds and results</button><button aria-selected="false" data-tab="t3">Questionnaire</button><button aria-selected="false" data-tab="t4">Score sheet</button><button aria-selected="false" data-tab="t5">Publish</button></div>
+    <div class="tabpane on" data-pane="t1"><div class="g3">
+      <div class="field"><label>Opens (India time)</label><div class="input">1 June 2026, 10:00 am</div></div>
+      <div class="field"><label>Deadline (India time)</label><div class="input">15 July 2026, 11:59 pm</div></div>
+      <div class="field"><label>Entry fee</label><div class="input">₹0 (free)</div><span class="hint">A category can have its own fee</span></div>
+      <div class="field"><label>Entry limit</label><div class="input">500</div><span class="hint">Shown publicly as "499 / 500"</span></div>
+      <div class="field"><label>Blind judging</label><div class="input">On: jury see masked copies only</div></div>
+      <div class="field"><label>Entry categories</label><div class="input">4 categories · Market linkages, Women…</div></div></div></div>
+    <div class="tabpane" data-pane="t2"><div class="g2">
+      <div class="box"><h3>Round 1 · Written review</h3><p class="small">One jury member per application · blind · department head approves</p><p class="small">Results: <span class="chip gd">Shortlisted</span> moves on · <span class="chip r">Rejected</span></p></div>
+      <div class="box"><h3>Round 2 · On site</h3><p class="small">Panel of 2–5 · average score · no approval · staff close the round</p><p class="small">Results: <span class="chip gold">Gold</span> <span class="chip silver">Silver</span> <span class="chip bronze">Bronze</span> <span class="chip">Participated</span></p></div></div>
+      <p class="small muted">Other awards choose "written review only" or "on site only" (shop-floor). Labels can be renamed.</p></div>
+    <div class="tabpane" data-pane="t3">
+      <div class="row sp"><b>Section 2 · About your work</b><span class="chip b">Version 2 published 2 July</span></div><div class="gap"></div>
+      <table class="t"><tr><th>Question</th><th>Type</th><th>Required</th><th></th></tr>
+        <tr><td>Describe how women lead decisions</td><td>Long text</td><td>Yes</td><td><span class="chip">Unchanged</span></td></tr>
+        <tr><td>Number of women members</td><td>Number</td><td>Yes</td><td><span class="chip b">Updated</span></td></tr>
+        <tr><td>Upload evidence</td><td>File · 5 files · 10 MB</td><td>No</td><td><span class="chip gd">New</span></td></tr></table>
+      <div class="gap"></div><div class="row"><button class="btn">+ Add question</button><button class="btn">+ Add section</button><button class="btn p">Publish version 3…</button></div>
+      <p class="small muted">Inside a cycle you can add and edit, but never remove a question or change its type. Applicants are emailed about changes.</p></div>
+    <div class="tabpane" data-pane="t4">
+      <table class="t"><tr><th>Section</th><th>Weight</th><th>Indicators (weight inside the section)</th></tr>
+        <tr><td>Women leadership</td><td>40%</td><td>Share in decision roles 60% · Enterprises started 30% · Training records (Yes/No) 10% <span class="chip gd">100%</span></td></tr>
+        <tr><td>Market linkages</td><td>35%</td><td>Buyers reached 50% · Price gain 50% <span class="chip gd">100%</span></td></tr>
+        <tr><td>Sustainability</td><td>25%</td><td>Water saved 70% · Soil health 20% <span class="chip r">90%: add 10%</span></td></tr></table>
+      <div class="gap"></div><div class="badline">Section weights total 100% ✓ · "Sustainability" indicators total 90%: publishing is blocked until it's 100%</div></div>
+    <div class="tabpane" data-pane="t5">
+      <div class="check"><i class="y">✓</i>Dates valid (deadline after opening)</div><div class="check"><i class="y">✓</i>At least one category</div><div class="check"><i class="y">✓</i>Questionnaire has questions</div><div class="check"><i class="x">✕</i>Score sheet weights must total 100% in every section</div><div class="check"><i class="y">✓</i>Every round has result labels</div>
+      <div class="gap"></div><button class="btn p" disabled>Publish award</button> <button class="btn" data-goto="s-site">Build the award site →</button></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-site" data-title="The site builder" data-desc="Staff build the award's branded site from ready-made sections: pages on the left, a live preview in the middle, the chosen section's settings on the right.">
+  <div class="notes"><span class="note"><b>Staff decide what shows where</b>, and can change it after publishing</span><span class="note"><b>Each publish is a version</b>; restore in one click</span><span class="note"><b>No approval</b> needed (7 Oct)</span><span class="note">See <a href="brand-value.html">the branding presentation</a> for the full demo</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/site</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Site builder</div><div class="menu">FPO Excellence Awards · <span class="chip w">Unpublished changes</span> · live: v3</div><div class="me"><button class="btn">📱 Preview on phone</button><button class="btn g">Publish v4</button></div></div>
+  <div class="builder">
+    <div class="col"><b class="small">PAGES</b><div class="gap"></div>
+      <div class="secitem on">🏠 Home</div><div class="secitem">Categories</div><div class="secitem">Past winners</div><div class="secitem">Gallery</div><div class="secitem">FAQ</div><button class="btn" style="width:100%">+ Add page</button>
+      <div class="gap"></div><b class="small">SECTIONS ON HOME</b><div class="gap"></div>
+      <div class="secitem on">Banner <span>↑↓</span></div><div class="secitem">Numbers <span>↑↓</span></div><div class="secitem">Categories ⚡ <span>↑↓</span></div><div class="secitem">Gallery <span>↑↓</span></div><div class="secitem">Past winners ⚡ <span>↑↓</span></div><button class="btn" style="width:100%">+ Add section</button>
+      <p class="small muted">⚡ = filled automatically from the award's data</p></div>
+    <div class="col" style="background:#F4F6FA"><div class="mini-prev site"><div class="sh"><span>🌾</span><b>FPO Excellence Awards</b></div><div class="hero" style="padding:26px 18px"><h1 style="font-size:22px">FPO Excellence Awards 2026</h1><button class="apply">Apply now →</button><div class="mtr"><div class="mb"><span></span></div><div class="small" style="margin-top:4px">499 / 500 places taken</div></div></div>
+      <div class="blk"><h2 style="font-size:16px">1,200+ FPOs · 18 states · 5 years</h2></div></div></div>
+    <div class="col"><b class="small">BANNER SETTINGS</b><div class="gap"></div>
+      <div class="field"><label>Layout</label><div class="row"><span class="chip b">Photo</span><span class="chip">Video</span><span class="chip">Split</span><span class="chip">Plain</span></div></div>
+      <div class="field"><label>Title</label><div class="input">FPO Excellence Awards 2026</div></div>
+      <div class="field"><label>Image</label><div class="file">🖼️ fields-banner.jpg</div><span class="hint">Alt text required · resized for phones</span></div>
+      <div class="field"><label>Show places left</label><div class="input">Yes (automatic)</div></div>
+      <b class="small">VERSIONS</b><div class="file small" style="margin-top:6px">v3 · 2 July · live</div><div class="file small" style="margin-top:4px">v2 · 28 June <button class="btn" style="margin-left:auto;padding:2px 8px">Restore</button></div></div>
+  </div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-apps" data-title="Applications" data-desc="Every application in the award, with filters. Duplicates and proof status stand out, so staff can act on them first.">
+  <div class="notes"><span class="note"><b>Duplicate flag:</b> staff keep one, mark the other "Rejected as duplicate" with a reason</span><span class="note"><b>Proof status</b> must be Verified before jury assignment</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/applications</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Excellence 2026 · <b>Applications</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="row"><div class="input sel">Status: Submitted</div><div class="input sel">Proof: All</div><div class="input sel">Category: All</div><span class="chip r">⚑ 2 possible duplicates</span></div><div class="gap"></div>
+    <table class="t"><tr><th>Application</th><th>Organisation</th><th>Category</th><th>Proof</th><th>Masking</th><th></th></tr>
+      <tr><td>A-0142</td><td>Sahyadri FPO</td><td>Women entrepreneurship</td><td><span class="chip w">Pending</span></td><td><span class="chip">Pending</span></td><td><button class="btn p" data-goto="s-proof">Check proof</button></td></tr>
+      <tr><td>A-0187 <span class="chip r">⚑ duplicate</span></td><td>Green Valley FPO</td><td>Market linkages</td><td><span class="chip gd">Verified</span></td><td><span class="chip gd">Done</span></td><td><button class="btn">Resolve duplicate</button></td></tr>
+      <tr><td>A-0190 <span class="chip r">⚑ duplicate</span></td><td>Green Valley FPO</td><td>Market linkages</td><td><span class="chip r">Rejected</span></td><td><span class="chip">—</span></td><td><button class="btn">Resolve duplicate</button></td></tr>
+      <tr><td>A-0101</td><td>Kisan Mitra FPO</td><td>Technology</td><td><span class="chip gd">Verified</span></td><td><span class="chip gd">Done</span></td><td><button class="btn">Open</button></td></tr>
+    </table>
+  </div></div></div></div>
+</section>
+<section class="screen" data-role="staff" data-id="s-proof" data-title="Proof check" data-desc="Staff look at the ID, the proof of employment and the LinkedIn profile, then mark the application Verified, or Rejected with a reason.">
+  <div class="notes"><span class="note"><b>Rejected?</b> The applicant is emailed and can upload again until the deadline</span><span class="note"><b>Audited:</b> who checked, when, and why</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/applications/A-0142/proof</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">A-0142 · Sahyadri FPO · <b>Proof check</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g3">
+    <div class="box"><h3>Photo ID</h3><div style="height:120px;border-radius:8px;background:repeating-linear-gradient(45deg,#EEF1F6 0 10px,#F7F9FC 10px 20px);display:grid;place-items:center" class="muted small">pan-card-asha.jpg</div><p class="small">Name: <b>Asha Patil</b></p></div>
+    <div class="box"><h3>Proof of employment</h3><div style="height:120px;border-radius:8px;background:repeating-linear-gradient(45deg,#EEF1F6 0 10px,#F7F9FC 10px 20px);display:grid;place-items:center" class="muted small">employee-id-card.pdf</div><p class="small">Issued by: <b>Sahyadri Farmers Producer Co.</b></p></div>
+    <div class="box"><h3>LinkedIn</h3><div class="input">linkedin.com/in/asha-patil-fpo ↗</div><p class="small">Applied as: <b>Asha Patil</b>, member since 2021</p></div>
+  </div><div class="gap"></div>
+  <div class="row"><button class="btn g" data-goto="s-mask">✓ Verified</button><button class="btn d">✕ Reject…</button><span class="small muted">Rejecting needs a reason, e.g. "the ID name doesn't match the employee card"</span></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-mask" data-title="Masking (blind awards only)" data-desc="After the deadline, staff make a jury-safe copy: the original answer on the left, an editable masked copy on the right. Each file gets a masked copy or is marked safe.">
+  <div class="notes"><span class="rule">R1 · jury only ever see the masked copy</span><span class="note"><b>One application at a time:</b> judging can start while others are still being masked</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/applications/A-0142/masking</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">A-0142 · <b>Masking</b> <span class="chip w">Masking pending</span></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Original answer</h3><p>Over 60% of our board members are women farmers. Since 2023 our women-led collection centres in <b>Nashik</b> district, run by <b>Sahyadri FPO</b>...</p></div>
+    <div class="box" style="border-color:var(--brand)"><h3>Masked copy (editable)</h3><div class="input area">Over 60% of our board members are women farmers. Since 2023 our women-led collection centres in [district] district, run by [the organisation]...</div></div>
+  </div><div class="gap"></div>
+  <div class="box"><h3>Files</h3><div class="row sp"><div class="file">📄 training-records-2025.pdf</div><div class="row"><button class="btn">Upload masked copy</button><button class="btn">Mark safe as is</button></div></div></div><div class="gap"></div>
+  <button class="btn g" data-goto="s-assign">Masking done →</button>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-assign" data-title="Jury pool, conflicts and assignment" data-desc="Staff and the department head choose the jury pool and record known conflicts. Only staff assign applications; each written-round application gets exactly one jury member.">
+  <div class="notes"><span class="rule">R2 · a conflicted pair is refused by the server, even through the API</span><span class="note"><b>Unverified proof</b> = can't be assigned</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/assignment</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · Round 1 · <b>Assignment</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Jury pool</h3>
+      <div class="row sp small" style="padding:6px 0;border-bottom:1px solid var(--line)"><span><b>Dr R. Kulkarni</b> · 6 assigned</span><span class="chip gd">Available</span></div>
+      <div class="row sp small" style="padding:6px 0;border-bottom:1px solid var(--line)"><span><b>M. Iyer</b> · 4 assigned</span><span class="chip r">⚠ Conflict: Green Valley FPO</span></div>
+      <div class="row sp small" style="padding:6px 0"><span><b>S. Banerjee</b> · 5 assigned</span><span class="chip gd">Available</span></div>
+      <div class="gap"></div><button class="btn">+ Add jury member</button> <button class="btn">Record a conflict</button></div>
+    <div class="box"><h3>Assign 3 selected applications</h3><div class="field"><label>Jury member</label><div class="input sel">Dr R. Kulkarni</div><span class="hint">M. Iyer is hidden for A-0187 (recorded conflict)</span></div>
+      <div class="check"><i class="y">✓</i>A-0142 · proof verified · masked</div><div class="check"><i class="y">✓</i>A-0101 · proof verified · masked</div><div class="check"><i class="x">✕</i>A-0190 · proof rejected: can't be assigned</div>
+      <button class="btn p" data-goto="s-judging">Assign (2)</button></div>
+  </div></div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-judging" data-title="Judging progress and score corrections" data-desc="Staff follow progress and can correct a submitted score, but only with a reason. Every change is kept in the history.">
+  <div class="notes"><span class="rule">R3 · who, when, old value, new value and why</span><span class="note"><b>After approval</b> nobody can change a score</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/judging</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · Round 1 · <b>Judging</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="g3"><div class="kpi"><b>412 / 430</b><span>evaluations submitted</span></div><div class="kpi"><b>3</b><span>disqualified (with reasons)</span></div><div class="kpi"><b>18</b><span>still in progress</span></div></div><div class="gap"></div>
+    <div class="g2"><table class="t"><tr><th>Application</th><th>Jury</th><th>Score</th><th></th></tr>
+      <tr><td>A-0101</td><td>Dr R. Kulkarni</td><td>78.40</td><td><button class="btn">Edit score…</button></td></tr>
+      <tr><td>A-0142</td><td>Dr R. Kulkarni</td><td><span class="chip w">In progress</span></td><td></td></tr></table>
+    <div class="dialog"><b>Change a submitted score</b><p class="small muted">A-0101 · "Buyers reached"</p><div class="row"><div class="field"><label>Old</label><div class="input">6</div></div><div class="field"><label>New</label><div class="input">7</div></div></div>
+      <div class="field"><label>Reason * (saved in the history)</label><div class="input">Jury entered 6 by mistake; confirmed 7 by phone on 14 Aug</div></div><div class="row"><button class="btn p" data-goto="s-results">Save change</button><button class="btn">Cancel</button></div></div></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-results" data-title="Send for approval, then results" data-desc="When every application has a submitted evaluation, staff send the written round to the department head. After approval, staff choose who is shortlisted and publish.">
+  <div class="notes"><span class="note"><b>Written rounds only</b> need approval; on-site rounds are closed by staff</span><span class="note"><b>Labels:</b> Shortlisted moves on to the on-site round</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/results</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · Round 1 · <b>Results</b> <span class="chip gd">Approved by department head</span></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="row"><div class="input sel">Category: Women entrepreneurship</div><div class="input">Top N: 10</div><button class="btn">Apply</button></div><div class="gap"></div>
+    <table class="t"><tr><th>Rank</th><th>Organisation</th><th>Score</th><th>Result</th></tr>
+      <tr><td>1</td><td>Sahyadri FPO</td><td>86.20</td><td><span class="chip gd">Shortlisted</span></td></tr>
+      <tr><td>2</td><td>Kisan Mitra FPO</td><td>81.75</td><td><span class="chip gd">Shortlisted</span></td></tr>
+      <tr><td>11</td><td>Hill Harvest FPO</td><td>61.10</td><td><span class="chip r">Rejected</span></td></tr></table>
+    <div class="gap"></div><button class="btn g" data-goto="s-onsite">Publish round 1 results</button> <span class="small muted">Applicants are emailed; shortlisted entries move to round 2</span>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="staff" data-id="s-onsite" data-title="On-site round: slots, panels, closing, medals" data-desc="Staff give each entry a presentation slot and a panel. On the day they watch progress, can type a member's paper scores, then close the round and publish medals.">
+  <div class="notes"><span class="note"><b>Same screens</b> for shop-floor competitions and live finals (ADR 0008)</span><span class="note"><b>Medals:</b> ranks 1–3 of the whole round</span><span class="note"><b>Close</b> locks the scores; no approval</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/round-2</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · <b>Round 2 · On site</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <table class="t"><tr><th>Entry</th><th>Slot</th><th>Panel (3)</th><th>Scores in</th><th>Average</th><th>Suggested</th></tr>
+      <tr><td>Sahyadri FPO</td><td>5 Sept 10:30 · Hall A</td><td>Kulkarni, Banerjee, Rao</td><td>3 / 3 ✓</td><td><b>88.67</b></td><td><span class="chip gold">Gold</span></td></tr>
+      <tr><td>Kisan Mitra FPO</td><td>5 Sept 11:15 · Hall A</td><td>Kulkarni, Banerjee, Rao</td><td>3 / 3 ✓</td><td><b>84.10</b></td><td><span class="chip silver">Silver</span></td></tr>
+      <tr><td>Green Valley FPO</td><td>5 Sept 12:00 · Hall A</td><td>Kulkarni, Banerjee, <s>Iyer</s> Rao</td><td>2 / 3 <button class="btn" style="padding:2px 8px">Enter Rao's paper scores</button></td><td>—</td><td>—</td></tr></table>
+    <p class="small muted">Iyer was replaced because of a recorded conflict with Green Valley FPO. Scores typed by staff are marked "entered by staff".</p>
+    <div class="row"><button class="btn" disabled>Close round (1 score missing)</button><button class="btn g" disabled>Publish medals</button></div>
+  </div></div></div></div>
+</section>
+<!-- ═══════════════ DEPARTMENT HEAD ═══════════════ -->
+<section class="screen" data-role="head" data-id="h-dash" data-title="Department dashboard" data-desc="The head of a department, or of an external organiser such as the FPO Awards team, runs their awards here and sees only their own data.">
+  <div class="notes"><span class="note"><b>External organisers</b> run their awards alone (7 Oct)</span><span class="note"><b>One person</b> can head several departments</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>department/fpo-awards</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>FPO Awards team</b> <span class="chip b">external organiser</span></div><div class="me"><i>VD</i>V. Deshmukh · Department head</div></div>
+  <div class="ui-body"><div class="ui-side"><div class="on">Dashboard</div><div>Brand kit</div><div>Staff and awards</div><div>Jury pool</div><div>Approvals <span class="chip r">1</span></div></div>
+  <div class="ui-main">
+    <div class="g4"><div class="kpi"><b>2</b><span>awards</span></div><div class="kpi"><b>499</b><span>applications</span></div><div class="kpi"><b>96%</b><span>judging done</span></div><div class="kpi"><b style="color:var(--bad)">1</b><span>round waiting for you</span></div></div><div class="gap"></div>
+    <table class="t"><tr><th>Award</th><th>Stage</th><th>Progress</th><th></th></tr>
+      <tr><td>FPO Excellence Awards 2026</td><td>Round 1 · pending approval</td><td><div class="bar-m"><span style="width:100%"></span></div></td><td><button class="btn p" data-goto="h-review">Review round</button></td></tr>
+      <tr><td>FPO Startup Collaboration 2026</td><td>Open · closes 30 Sept</td><td><div class="bar-m"><span style="width:35%"></span></div></td><td><button class="btn">Open</button></td></tr></table>
+    <div class="gap"></div><div class="row"><button class="btn" data-goto="h-brand">Brand kit</button><button class="btn" data-goto="h-staff">Staff and awards</button></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="head" data-id="h-brand" data-title="Brand kit" data-desc="Set once for the department. Every award site, form and email uses it; one award can override its colours and banner.">
+  <div class="notes"><span class="note"><b>Readability is checked</b> automatically</span><span class="note"><b>Fonts</b> from a safe list</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>department/fpo-awards/brand</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Awards team · <b>Brand kit</b></div><div class="me"><i>VD</i>V. Deshmukh</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div>
+      <div class="field"><label>Logo (light and dark)</label><div class="row"><div class="file">🌾 fpo-logo.svg</div><div class="file" style="background:var(--fpo);color:#fff">🌾 fpo-logo-white.svg</div></div></div>
+      <div class="field"><label>Colours</label><div class="row"><div class="swatch" style="background:#145C35"></div><div class="swatch" style="background:#F2B705"></div><div class="swatch" style="background:#EEF7F1"></div></div><div class="okline">✓ White text on green is easy to read</div></div>
+      <div class="field"><label>Heading font</label><div class="input sel">Merriweather (serif)</div></div>
+      <div class="field"><label>Social links</label><div class="input">facebook.com/fpoawards · linkedin.com/company/fpo-awards</div></div>
+      <button class="btn p">Save brand kit</button></div>
+    <div class="box" style="padding:0;overflow:hidden"><div class="site"><div class="sh"><span>🌾</span><b>FPO Excellence Awards</b></div><div class="hero" style="padding:24px 18px"><h1 style="font-size:20px">Preview</h1><button class="apply">Apply now →</button></div><div class="sf"><span>© FPO Awards</span></div></div></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="head" data-id="h-staff" data-title="Staff and awards" data-desc="The department head adds their own staff and gives them awards. Staff then create and run the awards.">
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>department/fpo-awards/staff</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Awards team · <b>Staff</b></div><div class="me"><i>VD</i>V. Deshmukh</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="row sp"><div class="h">Staff</div><button class="btn p">+ Invite staff member</button></div><div class="gap"></div>
+    <table class="t"><tr><th>Name</th><th>Awards</th><th></th></tr>
+      <tr><td>Neha Shah</td><td><span class="chip b">FPO Excellence</span> <span class="chip b">FPO Startup Collaboration</span></td><td><button class="btn">Assign awards</button></td></tr>
+      <tr><td>Arjun Mehta</td><td><span class="chip b">FPO Excellence</span></td><td><button class="btn">Assign awards</button></td></tr></table>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="head" data-id="h-review" data-title="Approve a written round" data-desc="The head sees the ranked list per category, the jury notes, the indicator details and the disqualified list, then approves (locking every score) or sends it back with a remark.">
+  <div class="notes"><span class="rule">R3 · approval locks the scores forever</span><span class="note"><b>Send back</b> needs a remark; specific applications can get their own</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>department/approvals/R-2026-01</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Excellence 2026 · Round 1 · <b>Review</b></div><div class="me"><i>VD</i>V. Deshmukh</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <table class="t"><tr><th>Rank</th><th>Organisation</th><th>Score</th><th>Jury note</th></tr>
+      <tr><td>1</td><td>Sahyadri FPO</td><td>86.20</td><td class="small">Strong, well-evidenced leadership</td></tr>
+      <tr><td>2</td><td>Kisan Mitra FPO</td><td>81.75</td><td class="small">Good technology adoption</td></tr></table>
+    <p class="small muted">Disqualified: 3 (reasons shown) · Score changes after submission: 4 (each with a reason)</p>
+    <div class="row"><button class="btn g">Approve round</button><button class="btn d">Send back with a remark…</button></div>
+  </div></div></div></div>
+</section>
+
+<!-- ═══════════════ LEADER & PA ═══════════════ -->
+<section class="screen" data-role="leader" data-id="l-dash" data-title="Leader dashboard: one view of every award" data-desc="The leadership's single, trustworthy view across all awards and departments. Read-only for judging data.">
+  <div class="notes"><span class="note"><b>Leader and PAs</b> see everything; they never change judging data</span><span class="note"><b>Trustworthy</b> because the data is consistent (one record per company)</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>Dashboard</b><span>Departments</span><span>PA team</span><span>Master data</span></div><div class="me"><i>LD</i>Leader</div></div>
+  <div class="ui-body full"><div class="ui-main">
+    <div class="g4"><div class="kpi"><b>80</b><span>awards</span></div><div class="kpi"><b>31,420</b><span>applications this year</span></div><div class="kpi"><b>12</b><span>rounds pending approval</span></div><div class="kpi"><b>9</b><span>deadlines in the next 14 days</span></div></div><div class="gap"></div>
+    <table class="t"><tr><th>Department</th><th>Awards</th><th>Applications</th><th>Judging</th><th>Pending approvals</th></tr>
+      <tr><td>FPO Awards team <span class="chip b">organiser</span></td><td>2</td><td>499</td><td>96%</td><td>1</td></tr>
+      <tr><td>Energy</td><td>9</td><td>3,210</td><td>40%</td><td>2</td></tr>
+      <tr><td>Safety</td><td>7</td><td>2,140</td><td>100%</td><td>0</td></tr></table>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="leader" data-id="l-depts" data-title="Departments and organisers" data-desc="When an organisation brings its award to the platform, the leader or a PA creates a department for it and appoints its lead as department head.">
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/departments</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>Departments</b></div><div class="me"><i>PA</i>Priya · Leader's PA</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Create a department</h3><div class="field"><label>Name</label><div class="input">FPO Awards team</div></div><div class="field"><label>Kind</label><div class="input sel">External award organiser</div></div>
+      <div class="field"><label>Department head</label><div class="input">v.deshmukh@face-cii.in (invite)</div></div><button class="btn p">Create and send invite</button>
+      <p class="small muted">"energy " next to "Energy" is refused: names are unique regardless of case.</p></div>
+    <div class="box"><h3>Departments</h3><div class="small">Energy · Safety · Design · Innovation · FPO Awards team <span class="chip b">organiser</span></div></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="leader" data-id="l-pa" data-title="PA team and PA activity (leader only)" data-desc="The leader creates PAs, who do organisational work on the leader's behalf. Every PA action is recorded, so the leader can see who did what.">
+  <div class="notes"><span class="note"><b>Only the leader</b> creates or removes PAs</span><span class="note"><b>PAs never</b> score, approve, assign jury or publish results</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/pa-team</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>PA team</b></div><div class="me"><i>LD</i>Leader</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>PAs</h3><div class="row sp small"><span><b>Priya Nair</b></span><button class="btn d" style="padding:2px 8px">Remove</button></div><div class="gap"></div><button class="btn p">+ Invite a PA</button></div>
+    <div class="box"><h3>PA activity</h3>
+      <div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><b>Priya</b> created department "FPO Awards team" · 10:12</div>
+      <div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><b>Priya</b> appointed V. Deshmukh as head · 10:13</div>
+      <div class="small" style="padding:6px 0"><b>Priya</b> corrected Green Valley FPO's legal name · reason: "typo in registration" · 11:40</div></div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="leader" data-id="l-master" data-title="Master data and organisation records" data-desc="Shared lists replace free text, so data stays consistent across all 80 awards. Corrections to an organisation's record need a reason and are audited.">
+  <div class="notes"><span class="note"><b>Retire, never delete:</b> old records keep their value</span><span class="note"><b>Data consistency</b> was the client's biggest problem</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/master-data</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>Master data</b></div><div class="me"><i>PA</i>Priya · Leader's PA</div></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>Award domains</h3><table class="t"><tr><td>Business Excellence</td><td></td></tr><tr><td>Energy</td><td></td></tr><tr><td>Shop-floor Improvement</td><td></td></tr><tr><td class="muted">Enviroment <span class="chip">retired</span></td><td class="small muted">misspelt; old awards still show it</td></tr></table><button class="btn">+ Add domain</button></div>
+    <div class="box"><h3>Correct an organisation</h3><div class="field"><label>Organisation</label><div class="input">Green Valley FPO · PAN AABCG4321K</div></div><div class="field"><label>Legal name</label><div class="input">Green Valley Farmer Producer Company Ltd</div></div><div class="field"><label>Reason *</label><div class="input">Typo in registration, confirmed with their office</div></div><button class="btn p">Save correction</button></div>
+  </div></div></div></div>
+</section>
+
+</main>
+</div>
+<script>
+(function(){
+  var WHO = {
+    visitor:"Anyone on the internet: finds an award and its branded site.",
+    applicant:"A person applying for their organisation, once or twice a year.",
+    staff:"Runs awards every day: setup, site, checks, judging, results.",
+    jury:"A senior expert scoring in short gaps, on a laptop or on site on a phone.",
+    head:"Leads a department or an external organiser; approves written rounds.",
+    leader:"One view of everything; the PA team does organisational work."
+  };
+  var NAMES = {visitor:"Visitor",applicant:"Applicant",staff:"Staff",jury:"Jury",head:"Department head",leader:"Leader & PA"};
+  var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
+  var current = null;
+
+  function byRole(role){ return screens.filter(function(s){ return s.dataset.role === role; }); }
+
+  function show(id, push){
+    var s = screens.filter(function(x){ return x.dataset.id === id; })[0] || screens[0];
+    current = s;
+    screens.forEach(function(x){ x.classList.toggle("on", x === s); });
+    var role = s.dataset.role, list = byRole(role), i = list.indexOf(s);
+    document.querySelectorAll(".roles button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.role === role)); });
+    document.getElementById("roleName").textContent = NAMES[role];
+    document.getElementById("roleWho").textContent = WHO[role];
+    var nav = document.getElementById("stepsNav"); nav.innerHTML = "";
+    list.forEach(function(x, k){
+      var li = document.createElement("li"), b = document.createElement("button");
+      b.innerHTML = '<span class="n">' + (k + 1) + '</span><span>' + x.dataset.title + '</span>';
+      b.setAttribute("aria-current", String(x === s));
+      b.addEventListener("click", function(){ show(x.dataset.id, true); });
+      li.appendChild(b); nav.appendChild(li);
+    });
+    document.getElementById("mK").textContent = NAMES[role] + " · screen " + (i + 1) + " of " + list.length;
+    document.getElementById("mTitle").textContent = s.dataset.title;
+    document.getElementById("mDesc").textContent = s.dataset.desc;
+    var prev = document.getElementById("prev"), next = document.getElementById("next");
+    prev.disabled = i === 0; next.disabled = i === list.length - 1;
+    prev.onclick = function(){ if (i > 0) show(list[i - 1].dataset.id, true); };
+    next.onclick = function(){ if (i < list.length - 1) show(list[i + 1].dataset.id, true); };
+    if (push) { history.replaceState(null, "", "#" + s.dataset.id); window.scrollTo({top:0, behavior:"smooth"}); }
+  }
+
+  document.querySelectorAll(".roles button").forEach(function(b){
+    b.addEventListener("click", function(){ show(byRole(b.dataset.role)[0].dataset.id, true); });
+  });
+  document.addEventListener("click", function(e){
+    var g = e.target.closest("[data-goto]"); if (g) { e.preventDefault(); show(g.dataset.goto, true); return; }
+    var t = e.target.closest("[data-tab]");
+    if (t) {
+      var box = t.closest("[data-tabs]");
+      box.querySelectorAll("[data-tab]").forEach(function(x){ x.setAttribute("aria-selected", String(x === t)); });
+      box.querySelectorAll("[data-pane]").forEach(function(p){ p.classList.toggle("on", p.dataset.pane === t.dataset.tab); });
+    }
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.target.closest("input,textarea")) return;
+    if (e.key === "ArrowRight") document.getElementById("next").click();
+    if (e.key === "ArrowLeft") document.getElementById("prev").click();
+  });
+  show((location.hash || "").slice(1) || "v-open", false);
+})();
+</script>
+</body>
+</html>

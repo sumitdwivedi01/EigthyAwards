@@ -36,3 +36,9 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Plan changed:** Added Phases 0.4 and 0.5, a new build phase for award sites, and simpler branch names. Target days on hold until 9 Oct.
 - **Decided (Day 5, evening):** Answered all 12 questions. Every award gets a branded site that staff build and can change at any time; an outside organiser runs its award as its own department; each application carries an ID and a proof of employment; an entry limit shows publicly as "499 / 500". The deadline can move, so the plan is **extended, not cut**. Spec, plan, gaps and decision records (ADR 0009, 0010) updated.
 - **Plan changed:** A new Phase 4 (award sites); old Phases 8 and 9 merged; simple branch names; target days now run to Day 21, to agree with the reviewer on 9 Oct.
+
+# DAY 6 (8 Oct)
+- **Done:** Made the **UI overview** the client asked for before building: a clickable prototype of 31 screens for all 6 roles, a flow diagram per role on GitHub, and the branding presentation ([docs/ui/](docs/ui/README.md)). Wrote two re-plan options for my lead: **A** a focused demo by 15 Oct, **B** the real product (about 10–14 weeks) ([proposals/0.5-replan-options.md](docs/proposals/0.5-replan-options.md)).
+- **Next:** 9 Oct call with my lead: show the UI and choose A or B; then re-plan and restart building.
+- **Stuck:** Waiting for the lead's choice. The full plan can't fit by 15 Oct.
+- **Plan changed:** Hard limit 15 Oct. The build plan is on hold until the lead decides; the 15-phase list stays as the full-product breakdown.

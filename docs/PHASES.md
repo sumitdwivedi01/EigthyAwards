@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-08 (Day 6) | **Hard limit: 15 October.** The 15-phase plan (to Day 21) can't fit, so the build plan is **on hold** until the lead chooses between [Option A, a focused demo by 15 Oct, and Option B, the real product (10–14 weeks)](proposals/0.5-replan-options.md). Phase 0.5 delivered the UI overview (clickable prototype + flow diagrams) the client asked for before any building. The phase list below is kept as the full-product breakdown (Option B). | Owner: deadline no later than 15 Oct; a big demo isn't efficient |
 | 2026-10-07 (Day 5, later) | **Owner's answers (GAPS §J).** The deadline can move, so the plan is **extended, not cut**: one build phase per working day, Days 7 to 21, to be agreed with the reviewer on the 9 Oct call. Award sites for all awards (new Phase 4); proof documents and the entry limit in Phases 7 and 8; the skeleton deploy check moves to the end of Phase 5; the 6 Oct decisions brought over from the parked branch. Phase descriptions rewritten in the new numbering. | Owner's answers; ADR 0009, 0010 |
 | 2026-10-07 (Day 5) | **New issues: branded award sites, organisers running their own awards, membership verification, entry limits, own domains, and showing the UI before building.** Added Phase 0.4 (analysis) and Phase 0.5 (UI flow and wireframes, for the lead call on 9 Oct). Draft build list: a new **Phase 4 (award sites)**, old Phases 8 and 9 merged, the frontend phases shifted by one. **Simpler branch names** (number plus one word). Target days on hold until the 9 Oct call agrees a smaller first release. Phase 1 code stays parked (tag `parked/phase-01-be-foundation`). | [docs/proposals/0.4-new-issues.md](proposals/0.4-new-issues.md) |
 | 2026-10-06 (Day 4) | **Answers on shop-floor and open questions.** Added Phase 0.2 (docs only) and a new **Phase 12: on-site rounds (backend)**. The old Phases 12, 13 and 14 become 13, 14 and 15. Phases 1, 2, 3, 6, 8 and 11 updated (round types and result labels, an optional questionnaire, standalone on-site criteria, category fees, optional GSTIN, team members, three seeded cycles). Phase 13 gains the on-site screens. Days re-planned from Day 4, and the cut order extended. | Shop-floor competitions are judged on site by a panel; a live round with no approval; Gold/Silver/Bronze; one real application per organisation. ADR 0008. |
@@ -57,8 +58,10 @@ The brief gives 10 working days. Days 1–5 went on understanding, questions, de
 | 0.1 | Docs | Leader-call changes: PA role, data consistency, no letter | `phase/00.1-leader-call-changes` | Day 3 | ✅ Merged (`phase-00.1-done`) |
 | 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | ✅ Merged (`phase-00.2-done`) |
 | 0.3 | Docs | Plain-language overview with diagrams | `phase/00.3-overview-page` | Day 5 | ✅ Merged (`phase-00.3-done`) |
-| 0.4 | Docs | New issues: branding, organisers, verification, entry limits, domains | `phase-0.4-issues` | Day 5 | 🚧 In progress |
-| 0.5 | Docs | UI flow diagrams and wireframes for every role (for the 9 Oct lead call) | `phase-0.5-ui` | Day 6 | ⬜ |
+| 0.4 | Docs | New issues: branding, organisers, verification, entry limits, domains | `phase-0.4-issues` | Day 5 | ✅ Merged (`phase-0.4-done`) |
+| 0.5 | Docs | UI overview: clickable prototype, flows per role, re-plan options | `phase-0.5-ui` | Day 6 | 🧪 In review |
+
+> ⏸ **On hold (8 Oct).** The owner's hard limit is **15 October**. The lead chooses on the 9 Oct call between **Option A** (a focused demo by 15 Oct) and **Option B** (the real product, about 10–14 weeks), see [proposals/0.5-replan-options.md](proposals/0.5-replan-options.md). The table below is the **full-product breakdown** (Option B); its target days no longer apply and will be replaced after the decision.
 
 **Build phases** (simple branch names from 7 Oct; the "Was" column maps to the old numbering):
 
@@ -188,11 +191,13 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.5: UI flow and wireframes (Docs)
+### Phase 0.5: UI overview and re-plan options (Docs) 🧪
 
 **Goal.** Show how the platform looks and flows, **before building**, for the lead call on 9 Oct.
 
 **Builds.** In `docs/ui/`: one flow diagram per role (applicant, staff including the site builder, jury for document and on-site rounds, department head or external organiser, leader and PA); simple grey wireframes of the key screens (Open awards, an award site, the site builder, the application form with proof upload and entry counter, proof check, jury scoring on desktop and phone, the staff, department and leader dashboards); a screen-share page, like the 0.3 overview.
+
+**Delivered (8 Oct).** [docs/ui/prototype.html](ui/prototype.html) (31 clickable screens, 6 roles, with notes linking each screen to the rules and decisions), [docs/ui/README.md](ui/README.md) (a flow diagram per role and the screen list), [docs/ui/brand-value.html](ui/brand-value.html) (the branding presentation), and [proposals/0.5-replan-options.md](proposals/0.5-replan-options.md) (Option A vs Option B for the lead).
 
 **Done when.** Every role's journey can be walked through on screen without code; merged and tagged `phase-0.5-done`.
 

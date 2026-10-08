@@ -8,13 +8,15 @@ Awards are judged in rounds that staff configure: **document review** (jury scor
 
 It is a 10-working-day build. The problem statement is in [docs/brief.md](docs/brief.md).
 
-> **Status:** planning and client answers done (Phases 0–0.4). Next: UI flow and wireframes (Phase 0.5), then building. The backend foundation is built and tested but parked on its own branch. See [docs/PROGRESS.md](docs/PROGRESS.md) for the live state.
+> **Status:** planning, client answers and the UI overview done (Phases 0–0.5). Building waits for the lead's choice between a focused demo by 15 Oct and the full product. The backend foundation is built and tested but parked on its own branch.
 
 ## Where to look
 
 | You want… | Open |
 |---|---|
 | **The plan in 5 minutes, with pictures (start here)** | [docs/overview/](docs/overview/) |
+| **What the platform looks like: clickable prototype and flows per role** | [docs/ui/](docs/ui/README.md) |
+| Re-plan options for the 15 Oct limit | [docs/proposals/0.5-replan-options.md](docs/proposals/0.5-replan-options.md) |
 | Where the project is right now | [docs/PROGRESS.md](docs/PROGRESS.md) |
 | The plan (phases, scope, tests, cut order) | [docs/PHASES.md](docs/PHASES.md) |
 | What's missing, contradictory or undecided | [docs/GAPS.md](docs/GAPS.md) |
