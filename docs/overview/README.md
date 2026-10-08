@@ -272,7 +272,7 @@ The full journey runs from setup to results. To fit the time, we keep every step
 | Clean, consistent company data | Copy last year's setup in one click |
 | Three different awards running end to end | A live scoreboard on site |
 
-**Extras added beyond the brief:** data that cleans itself as it's saved (one spelling, one PAN), company details hidden from jury automatically, a snapshot of the company at the time it applied, "New / Updated" markers on changed questions, autosave everywhere, a flag for duplicate entries, weights that must add up to 100%, nothing ever deleted, staff backup for on-site scoring, renamable result names, and a view of what each PA did.
+**Extras added beyond the brief:** data that cleans itself as it's saved (one spelling, one PAN), company details hidden from jury automatically, a snapshot of the company at the time it applied, "New / Updated" markers on changed questions, autosave everywhere, one application per company (a second one can't even be started), weights that must add up to 100%, nothing ever deleted, staff backup for on-site scoring, renamable result names, and a view of what each PA did.
 
 ---
 

@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-08 (Day 6, Phase 0.5: UI overview and re-plan options). Update this file at the end of every phase.
+> Last updated: 2026-10-08 (Day 6, Phase 0.6: one application per organisation). Update this file at the end of every phase.
 
 ## Summary
 
@@ -23,7 +23,7 @@
 | G | Repository and process gaps | 7 | 4 |
 | H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 9 |
-| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 21 | 8 |
+| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 9 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -48,7 +48,7 @@ Until you answer, the **default** is what gets built. Each one points to the det
 | A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Decided (6 Oct): same powers |
 | A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Decided (6 Oct): as default |
 | A13 | What replaces the signed letter as proof that an applicant may act for the organisation? | Nothing for now (leader's decision). **Recommended:** a confirmation link sent to the organisation's official email (G-H01) | Phase 2 | Decided (6 Oct): nothing for now |
-| A14 | "Accept all the applications of the same organisation": does that mean one organisation may have **several active** applications in one cycle? | **Answered:** only one real application per organisation per award; all are accepted, extras are flagged, staff keep one | Phase 7 | Answered (6 Oct) |
+| A14 | "Accept all the applications of the same organisation": does that mean one organisation may have **several active** applications in one cycle? | **Answered:** one application per organisation per award; since 8 Oct a second one is **blocked at the start** (ADR 0011) | Phase 7 | Answered (6 Oct) |
 
 ---
 
@@ -111,7 +111,7 @@ The numbers match the PDF's cards (the PDF was removed on 7 Oct 2026 as out of d
 | G-D05 | §16 Git workflow | The spec uses a `develop` branch. We are using phase branches merged straight into `main` via PR. | ADR 0004. | 0 | Decided |
 | G-D06 | §11 Errors | Only 4 typed errors, with no "not logged in" case. | Add `UnauthenticatedError` → 401. | 1 | Default adopted |
 | G-D07 | §5.3 vs §5.5 | The publish gate checks weights only at publish, but the scoring sheet stays editable until the first score, and questions can be added mid-cycle. | Every scoring sheet save after publish must also pass weight and reference validation. Indicators for new questions can be added until the first score. | 3 | Default adopted |
-| G-D08 | §5.11 | "Every non-disqualified application has a submitted evaluation" doesn't define the set. What about Withdrawn, Not submitted, Rejected as duplicate, or unresolved duplicate flags? | Eligible = submitted at the lock, and not withdrawn, rejected as duplicate or disqualified. Send for approval is refused while duplicate flags are unresolved. | 11 | Default adopted |
+| G-D08 | §5.11 | "Every non-disqualified application has a submitted evaluation" doesn't define the set. What about Withdrawn, Not submitted or Released? | Eligible = submitted at the lock, and not withdrawn, released or disqualified. (Duplicates can no longer exist: a second application is blocked at the start, ADR 0011.) | 11 | Default adopted |
 | G-D09 | §5.5 | "Score 0 to 10": whole numbers or decimals? | Whole numbers (A9). | 3 | Decided (6 Oct): whole numbers |
 | G-D10 | §5.10 | "Reinstate returns it to the state it was in", even if the round has been approved since? | Reinstating is refused once the round is approved. | 9 | Default adopted |
 | G-D11 | §5.7 | Masking can be reopened while the jury holds draft scores. What does the jury see? | Reopening hides the application from the jury until masking is marked done again. Draft scores are kept. | 9 | Default adopted |
@@ -131,7 +131,7 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | G-E05 | Can a department head edit scores? | No; approve or send back only | Open |
 | G-E06 | Exactly one leader? | Yes | Open |
 | G-E07 | Several judges per application in the live round? | **Yes: a panel of 2 to 5, average counts; built now** | Answered (6 Oct) |
-| G-E08 | Duplicates: block, or allow and flag? | **Allow, flag, staff keep the one real application** | Answered (6 Oct) |
+| G-E08 | Duplicates: block, or allow and flag? | **Blocked at the start** (changed 8 Oct, ADR 0011); staff can release a wrong one | Answered (6 Oct) |
 | G-E09 | Must the applicant resubmit after questions are added? | No; flagged "Update requested" | Open |
 | G-E10 | How do weights work? | Section weight, then indicator weight within the section | Open |
 | G-E11 | Does anyone approve the shortlist? | No | Open |
@@ -165,7 +165,7 @@ Raised by the 5 October 2026 call (ADRs 0005, 0006, 0007; spec §5.17, §5.18).
 
 | ID | Gap | Impact | Default / proposed fix | Phase | Status |
 |---|---|---|---|---|---|
-| G-H01 | **Proof of authority is now weak.** With no letter, joining an organisation needs only its PAN and GSTIN, but the PAN is inside the GSTIN, and a GSTIN is printed on every invoice. | Anyone with an invoice could apply in a company's name. | For now: accepted (the leader's decision), and the duplicate flag shows staff a second application. **Recommended:** confirm joining with a link sent to the organisation's official email (A13). | 2 | Decided (7 Oct): proof documents with every application (ADR 0010) |
+| G-H01 | **Proof of authority is now weak.** With no letter, joining an organisation needs only its PAN and GSTIN, but the PAN is inside the GSTIN, and a GSTIN is printed on every invoice. | Anyone with an invoice could apply in a company's name. | For now: accepted (the leader's decision), and staff can release an application from the wrong person (ADR 0011). **Recommended:** confirm joining with a link sent to the organisation's official email (A13). | 2 | Decided (7 Oct): proof documents with every application (ADR 0010) |
 | G-H02 | PA powers are a fixed set; the leader can't tailor them per person. | A PA may get more power than the leader intends. | Same powers for all PAs, and every action audited with the role (A11). Per-PA switches are later work. | 2 | Decided (6 Oct: same powers) |
 | G-H03 | Can PAs create awards? The call mentioned "creating new award[s]". | Changes the permission matrix. | Yes, in any department; cycle configuration stays with staff (A12). | 3 | Decided (6 Oct: yes) |
 | G-H04 | Deactivating people who still own work: a staff member who is the only one on an award, a jury member with unsubmitted evaluations, a department head with a round waiting. | Work gets stuck with someone who can't log in. | Deactivation is allowed but first shows what they still own. Their awards and evaluations stay assigned until staff, the department head or a PA reassigns them. The dashboard flags "awards with no active staff". Approval always goes to the **current** head of the department. | 2, 11 | Default adopted |
@@ -228,6 +228,9 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J19 | Deleting proof documents after 12 months needs a scheduled job; the platform has none yet. | A daily clean-up run from a cron route (Render cron or an external scheduler) | 7 | Open |
 | G-J20 | The last place under the entry limit: two applicants submitting at the same moment could both get in. | Count and submit in one transaction that locks the cycle's row | 7 | Default adopted |
 | G-J21 | **Hard limit 15 October** (owner, 8 Oct). The full plan (15 build phases) can't fit. Option A (focused demo) or Option B (real product, 10–14 weeks)? | Option A by 15 Oct, with B as the roadmap ([proposals/0.5-replan-options.md](proposals/0.5-replan-options.md)) | Plan | Decision needed (lead, 9 Oct) |
+| G-J22 | One application per organisation: flag duplicates afterwards, or stop them before filling? | **Blocked at the start**; colleagues see it read-only with the status only; staff can release (ADR 0011) | 7, 8 | Answered (8 Oct) |
+| G-J23 | With first-come blocking, a wrong or fake member who starts first blocks the real applicant. | Proof documents show staff who the person is; staff release the application with a reason; the real applicant contacts the award team | 7, 9 | Default adopted |
+| G-J24 | If the person who started the application leaves the organisation, nobody else can continue it. | Staff release it and a colleague starts again; a draft hand-over is later work (spec A26) | 7 | Accepted risk |
 | G-J16 | Sub-domains and own domains need a domain we own and Vercel domain setup, which can't be tested in the 10 days. | Store a slug and an empty `customDomain` field now; build sub-domains and own domains later | 4, later | Open |
 
 ---
@@ -251,6 +254,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-08 | One application per organisation blocked at the start (owner): A14, D08 and E08 updated; G-J22–J24 added. |
 | 2026-10-08 | Hard limit of 15 Oct: G-J21 added (Option A vs B, for the lead); G-I09 superseded. |
 | 2026-10-07 | Owner's answers to section J: J01–J12 answered or decided; H01 decided (proof documents); 6 Oct decisions brought over from the parked branch; J17–J20 added; phase numbers remapped to the 7 Oct plan. |
 | 2026-10-07 | New issues: section J added (12 questions, 4 gaps) from the branding, organiser, verification, entry-limit and domain discussion. |

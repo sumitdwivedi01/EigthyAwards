@@ -42,3 +42,4 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** 9 Oct call with my lead: show the UI and choose A or B; then re-plan and restart building.
 - **Stuck:** Waiting for the lead's choice. The full plan can't fit by 15 Oct.
 - **Plan changed:** Hard limit 15 Oct. The build plan is on hold until the lead decides; the 15-phase list stays as the full-product breakdown.
+- **Changed (Day 6, later):** A second application from the same company is now **stopped before anyone fills it**: colleagues see the company's application read-only (status only), and staff can release a wrong one with a reason ([ADR 0011](docs/decisions/0011-one-application-per-organisation.md)). Spec, plan, gaps and prototype updated.

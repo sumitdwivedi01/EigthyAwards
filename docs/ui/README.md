@@ -50,14 +50,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A1["My organisation<br/>create once, or join"] --> A2["My applications"] --> A3["Start: pick category,<br/>pay fee if any"] --> A4["Form<br/>autosave, New / Updated"] --> A5["Proof documents<br/>ID, employment, LinkedIn"] --> A6["Review and submit<br/>entry limit checked"] --> A7["Status<br/>slot, result"]
+    A1["My organisation<br/>create once, or join"] --> A2["My applications"] --> A3["Start: blocked if the company<br/>already has one; pick category,<br/>pay fee if any"] --> A4["Form<br/>autosave, New / Updated"] --> A5["Proof documents<br/>ID, employment, LinkedIn"] --> A6["Review and submit<br/>entry limit checked"] --> A7["Status<br/>slot, result"]
 ```
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
 | 1 | My organisation | **Create** it once (first person from the company; PAN / GSTIN checks, values cleaned on save) or **Join** it (PAN + GSTIN, or PAN + official email); a PAN that already exists sends you to Join | `#a-org` |
-| 2 | My applications | Friendly statuses only | `#a-apps` |
-| 3 | Start and pay | Category fee; duplicate warning; demo payment | `#a-start` |
+| 2 | My applications | Friendly statuses; a colleague's application read-only, without their name | `#a-apps` |
+| 3 | Start and pay | Blocked if the organisation already has an application (status only); category fee; demo payment | `#a-start` |
 | 4 | Application form | Sections, progress, autosave, New / Updated markers (R4) | `#a-form` |
 | 5 | Proof documents | Photo ID (masked Aadhaar only), proof of employment, LinkedIn, consent | `#a-proof` |
 | 6 | Review and submit | Checklist; "499 / 500"; the 501st is refused | `#a-submit` |
@@ -69,7 +69,7 @@ flowchart LR
 flowchart TD
     S1["My awards<br/>many awards per person"] --> S2["Award setup<br/>dates, fee, limit, blind,<br/>rounds, questions, scoring"]
     S2 --> S3["Site builder<br/>pages, sections, publish, versions"]
-    S3 --> S4["Applications<br/>duplicates, proof status"]
+    S3 --> S4["Applications<br/>proof status, release"]
     S4 --> S5["Proof check"] --> S6["Masking<br/>blind awards only"] --> S7["Jury pool, conflicts,<br/>assignment"]
     S7 --> S8["Judging progress<br/>score change needs a reason"] --> S9["Send for approval,<br/>then results"]
     S9 -.->|award has an on-site round| S10["On site: slots, panels,<br/>close, medals"]
@@ -80,7 +80,7 @@ flowchart TD
 | 1 | My awards | Awards across departments | `#s-awards` |
 | 2 | Award setup | Every difference between awards, set on screen; publish blocked until valid (R4) | `#s-setup` |
 | 3 | Site builder | Pages, sections, layouts, preview, publish, restore | `#s-site` |
-| 4 | Applications | Filters; duplicate flags; proof and masking status | `#s-apps` |
+| 4 | Applications | Filters; proof and masking status; release a wrong application with a reason | `#s-apps` |
 | 5 | Proof check | Verified, or Rejected with a reason | `#s-proof` |
 | 6 | Masking | Original next to the masked copy; files masked or marked safe (R1) | `#s-mask` |
 | 7 | Jury and assignment | Pool, recorded conflicts, one jury per application (R2) | `#s-assign` |

@@ -116,7 +116,7 @@ Updated every working session. (The detailed versions live in `docs/`.)
 - **Why sections, not free design** → free HTML breaks layouts, can hide harmful scripts, and can't be checked. Website builders and award software all use sections.
 - **Automatic sections** → the deadline, categories and past winners come from our real data, so they're never out of date. That's data consistency again.
 - **Organiser = department** → the leader creates it and appoints the organiser's person as head; they run their award alone. Mostly already in our design.
-- **One entry per organisation, plus a limit** → staff can cap the number of entries; fake duplicates count only once.
+- **One entry per organisation, plus a limit** → staff can cap the number of entries. (Since 8 Oct a second entry from the same company can't even be started.)
 - **Verify the applicant** → LinkedIn link + proof of employment, checked once per person per organisation and reused for every award. It's personal data, so: consent, minimal documents, deleted after a while, never shown to jury.
 - **Own domain** → in steps: `platform/awards/fpo` now → `fpo.platform.in` later → `fpoawards.in` on request. The brand matters more than the address.
 - **Honest scope** → it can't all fit in 10 days. We chose to extend the plan (see below), not to cut.
@@ -142,6 +142,16 @@ Updated every working session. (The detailed versions live in `docs/`.)
 - **Two options for my lead, not one** → A: a focused demo by 15 Oct (what the brief asks: two awards, no code per award, four rules). B: the real product, about 10–14 weeks.
 - **Why A isn't wasted** → it's built on the real architecture, so it's the first slice of B, not a throw-away demo.
 - **Nothing decided until the lead chooses** → the full phase list stays as the product breakdown.
+
+---
+
+## One application per company (8 Oct)
+
+- **Stop it before, not after** → once a colleague starts the company's application, nobody else can start another. No wasted forms, no duplicates to clean up.
+- **Colleagues can look, not edit** → it shows in their "My applications", read-only. Only the starter submits, so it's clear who's responsible.
+- **Status only, no name** → "Your organisation already has an application (Draft)". My choice: more private.
+- **The risk** → a wrong or fake person who starts first blocks the real one. So staff can **release** it with a reason, and the company starts again.
+- **The database backs it up** → a unique rule allows only one active application per company and cycle, even if two people click at the same moment.
 
 ---
 

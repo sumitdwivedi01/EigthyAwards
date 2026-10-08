@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-08 (Day 6, later) | **One application per organisation, blocked at the start** (Phase 0.6, docs only): Phases 1, 7, 9/10 and the cut order updated. Build plan still on hold for the lead's choice. | Owner: stop a second application before anyone fills it; ADR 0011 |
 | 2026-10-08 (Day 6) | **Hard limit: 15 October.** The 15-phase plan (to Day 21) can't fit, so the build plan is **on hold** until the lead chooses between [Option A, a focused demo by 15 Oct, and Option B, the real product (10–14 weeks)](proposals/0.5-replan-options.md). Phase 0.5 delivered the UI overview (clickable prototype + flow diagrams) the client asked for before any building. The phase list below is kept as the full-product breakdown (Option B). | Owner: deadline no later than 15 Oct; a big demo isn't efficient |
 | 2026-10-07 (Day 5, later) | **Owner's answers (GAPS §J).** The deadline can move, so the plan is **extended, not cut**: one build phase per working day, Days 7 to 21, to be agreed with the reviewer on the 9 Oct call. Award sites for all awards (new Phase 4); proof documents and the entry limit in Phases 7 and 8; the skeleton deploy check moves to the end of Phase 5; the 6 Oct decisions brought over from the parked branch. Phase descriptions rewritten in the new numbering. | Owner's answers; ADR 0009, 0010 |
 | 2026-10-07 (Day 5) | **New issues: branded award sites, organisers running their own awards, membership verification, entry limits, own domains, and showing the UI before building.** Added Phase 0.4 (analysis) and Phase 0.5 (UI flow and wireframes, for the lead call on 9 Oct). Draft build list: a new **Phase 4 (award sites)**, old Phases 8 and 9 merged, the frontend phases shifted by one. **Simpler branch names** (number plus one word). Target days on hold until the 9 Oct call agrees a smaller first release. Phase 1 code stays parked (tag `parked/phase-01-be-foundation`). | [docs/proposals/0.4-new-issues.md](proposals/0.4-new-issues.md) |
@@ -59,7 +60,8 @@ The brief gives 10 working days. Days 1–5 went on understanding, questions, de
 | 0.2 | Docs | On-site rounds and answers to the open questions | `phase/00.2-onsite-rounds-and-answers` | Day 4 | ✅ Merged (`phase-00.2-done`) |
 | 0.3 | Docs | Plain-language overview with diagrams | `phase/00.3-overview-page` | Day 5 | ✅ Merged (`phase-00.3-done`) |
 | 0.4 | Docs | New issues: branding, organisers, verification, entry limits, domains | `phase-0.4-issues` | Day 5 | ✅ Merged (`phase-0.4-done`) |
-| 0.5 | Docs | UI overview: clickable prototype, flows per role, re-plan options | `phase-0.5-ui` | Day 6 | 🧪 In review |
+| 0.5 | Docs | UI overview: clickable prototype, flows per role, re-plan options | `phase-0.5-ui` | Day 6 | ✅ Merged (`phase-0.5-done`) |
+| 0.6 | Docs | One application per organisation, blocked at the start | `phase-0.6-entry` | Day 6 | 🧪 In review |
 
 > ⏸ **On hold (8 Oct).** The owner's hard limit is **15 October**. The lead chooses on the 9 Oct call between **Option A** (a focused demo by 15 Oct) and **Option B** (the real product, about 10–14 weeks), see [proposals/0.5-replan-options.md](proposals/0.5-replan-options.md). The table below is the **full-product breakdown** (Option B); its target days no longer apply and will be replaced after the decision.
 
@@ -191,7 +193,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.5: UI overview and re-plan options (Docs) 🧪
+### Phase 0.5: UI overview and re-plan options (Docs) ✅
 
 **Goal.** Show how the platform looks and flows, **before building**, for the lead call on 9 Oct.
 
@@ -203,11 +205,21 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
+### Phase 0.6: One application per organisation (Docs) 🧪
+
+**Goal.** Stop a second application from the same organisation **before** anyone fills it, instead of flagging duplicates after submission (owner, 8 Oct; ADR 0011).
+
+**Builds.** Spec §5.2 and related sections; ADR 0011; GAPS (A14, D08, E08, J22–J24); this plan; the prototype ("start" screen, "My applications" with a colleague's read-only application, the staff list with "Release"); PROGRESS, CLAUDE.md, the overview, creating.md and Daily.md.
+
+**Done when.** No document describes the old "accept all, flag, staff keep one" rule as current; merged and tagged `phase-0.6-done`.
+
+---
+
 ### Phase 1: Backend foundation (Backend)
 
 **Goal.** A running Express + TypeScript API with the complete database schema, shared libraries, a real-database test harness and CI. It has no business features yet.
 
-**Status.** Built and tested (62 tests) on `phase/01-be-foundation`, parked since 7 Oct. **To resume:** rebase it on `main` as `phase-1-setup`, then add the 7 Oct tables and fields in a new migration: `BrandKit`, `AwardSite`, `SitePage`, `SitePageVersion`, `MediaAsset`, `Cycle.maxEntries`, the application proof fields, and the `IDENTITY_PROOF` and `EMPLOYMENT_PROOF` file kinds with `purgedAt`.
+**Status.** Built and tested (62 tests) on `phase/01-be-foundation`, parked since 7 Oct. **To resume:** rebase it on `main` as `phase-1-setup`, then add the 7 Oct tables and fields in a new migration: `BrandKit`, `AwardSite`, `SitePage`, `SitePageVersion`, `MediaAsset`, `Cycle.maxEntries`, the application proof fields, and the `IDENTITY_PROOF` and `EMPLOYMENT_PROOF` file kinds with `purgedAt`. From 8 Oct (ADR 0011): replace `duplicateFlag` with a `RELEASED` status, release fields (`releasedAt`, `releasedById`, `releaseReason`) and a partial unique index allowing one active application per organisation and cycle.
 
 **Builds.**
 - `package.json` scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `test`, `db:migrate`, `db:seed`, `db:reset`. Node version pinned (`.nvmrc` and `engines`).
@@ -342,7 +354,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 **Goal.** The applicant's whole journey up to the deadline, and the lock that ends it.
 
 **Builds.**
-- Start an application (logged in, organisation member, category chosen, cycle open). Duplicate flag: a second active application from the same organisation in the same cycle flags both.
+- Start an application (logged in, organisation member, category chosen, cycle open). **One application per organisation per cycle** (ADR 0011): a second start is refused with a status-only message; colleagues get a read-only view without the starter's name; a partial unique index blocks two simultaneous starts.
 - Fee gate: `payFee` (demo) writes a Payment row with a fake reference. The amount is the category's fee if set, otherwise the cycle's.
 - An on-site-only cycle with an empty questionnaire can be submitted with just the identity snapshot, the category, the optional team members and the proof documents.
 - **Proof documents** (spec §5.20, ADR 0010): upload a photo identity document and a proof of employment (private storage, consent recorded) and a LinkedIn link; submit refused without them; `proofStatus` PENDING. A daily clean-up deletes proof files 12 months after the cycle's results (G-J19), keeping the check record.
@@ -350,7 +362,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 - `saveAnswers`: stored by question key, partial drafts allowed, values checked against the question types.
 - File flow through the storage interface: request an upload → upload → confirm. Type and size (10 MB) checks; the disk driver is used locally (G-B03).
 - Submit (all required answers and files; takes the identity snapshot). Edit after submit, with a full-validation save (G-D02). Withdraw (with a reason, before the deadline). Reapplying after a withdrawal pays the fee again.
-- Staff `resolveDuplicate` (in one transaction, with audit).
+- Staff `releaseApplication` with a reason (one transaction: status RELEASED + audit event); the organisation can then start again.
 - **Deadline lock:** every write compares `clock.now()` with the deadline. Drafts become "Not submitted". The form version is pinned at the lock. The identity snapshot is frozen (G-C07).
 - Publishing a new form version sets "Update requested" on submitted applications and sends the "questionnaire updated" email.
 - `extendDeadline` (staff; refused once masking has started; email; audit).
@@ -358,7 +370,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 - The applicant-facing status mapping (spec §4 table).
 - Emails: submitted, questionnaire updated, deadline extended.
 
-**Tests.** The form stays locked until the fee is paid. A partial draft saves. Submit is refused with a missing required answer. Any write after the deadline gives 409, and an extension reopens editing. Withdraw, then apply again, works. Duplicates are flagged on both applications; withdrawn ones don't count; resolving keeps exactly one and audits it. **R4:** a 2025 application opens with its 2025 version after 2026 dropped questions, and answers carry across versions within a cycle. An applicant gets 404 for another organisation's application. A wrong file type or size is refused. A table-driven test covers the applicant status mapping. After the organisation's name changes, a submitted application still shows the old name in its snapshot.
+**Tests.** The form stays locked until the fee is paid. A partial draft saves. Submit is refused with a missing required answer. Any write after the deadline gives 409, and an extension reopens editing. Withdraw, then apply again, works. A second start by the same organisation is refused, also when two colleagues start at the same moment; a colleague's view is read-only and hides the starter's name; a withdrawal or a staff release (reason required, audited) frees the place. **R4:** a 2025 application opens with its 2025 version after 2026 dropped questions, and answers carry across versions within a cycle. An applicant gets 404 for another organisation's application. A wrong file type or size is refused. A table-driven test covers the applicant status mapping. After the organisation's name changes, a submitted application still shows the old name in its snapshot.
 
 **Done when.** An applicant can submit end to end through the API to all three cycles (including the near-empty shop-floor form).
 
@@ -418,7 +430,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 **Goal.** The screens for Phase 9, including the staff proof-check screen.
 
 **Builds.**
-- Staff: applications list (filters: status, category, duplicate, proof status, masking), the **proof check** screen (documents, LinkedIn link, Verified or Rejected with a reason), application detail (original and masked copies, files, identity snapshot, duplicate resolution, history), masking workspace, jury pool and conflicts (also available to the department head), bulk assignment (conflicted jury hidden), judging progress (edit a score with a reason, reopen), disqualify and reinstate dialogs.
+- Staff: applications list (filters: status, category, proof status, masking; **release** with a reason), the **proof check** screen (documents, LinkedIn link, Verified or Rejected with a reason), application detail (original and masked copies, files, identity snapshot, history), masking workspace, jury pool and conflicts (also available to the department head), bulk assignment (conflicted jury hidden), judging progress (edit a score with a reason, reopen), disqualify and reinstate dialogs.
 - Jury: My assignments (with counts), and the **scoring screen**: answers and files, indicators with their weights, 0–10 or Yes/No inputs, comments per question, overall note, autosave, submit, disqualify.
 
 **Done when.** In the browser, a blind application is masked, assigned, scored and corrected with a reason.
@@ -511,7 +523,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 1. The remaining email templates (keep: invite, questionnaire updated, jury assigned, results published)
 2. The department head dashboard (keep the leader dashboard)
 3. Leader drill-down screens beyond the dashboard
-4. The duplicate resolution **screen** (keep the flag and the API)
+4. The release **screen** (keep the release in the API)
 5. Jury-side disqualification (keep staff-side)
 6. The Playwright journeys shrink to the single most important one (applicant → jury → approval)
 7. The organisation-correction and PA activity **screens** (keep the API and the audit records)

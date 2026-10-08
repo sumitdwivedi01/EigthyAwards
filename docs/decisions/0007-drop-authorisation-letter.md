@@ -17,11 +17,11 @@ The spec required each applicant to download a pre-filled authorisation letter, 
 
 ## Decision
 
-Option 2 for now. The letter template, upload, verification step and AUTH_LETTER file kind are removed from the spec and the plan. The duplicate rule (one active application per organisation per cycle, flagged for staff) stays, because consistent data was the leader's main concern.
+Option 2 for now. The letter template, upload, verification step and AUTH_LETTER file kind are removed from the spec and the plan. The rule of one active application per organisation per cycle stays, because consistent data was the leader's main concern (since 8 Oct, a second one is blocked at the start: ADR 0011).
 
 ## Known weakness (stated openly)
 
-The PAN is characters 3 to 12 of the GSTIN, and a GSTIN is printed on every invoice. So "knows the PAN and GSTIN" proves almost nothing: anyone holding an invoice could join an organisation and apply in its name. The duplicate flag limits the damage, because staff see two applications and contact the organisation through its official email.
+The PAN is characters 3 to 12 of the GSTIN, and a GSTIN is printed on every invoice. So "knows the PAN and GSTIN" proves almost nothing: anyone holding an invoice could join an organisation and apply in its name. Staff can release an application from the wrong person, and the proof documents added on 7 Oct (ADR 0010) make that check possible.
 
 ## What would change our mind
 
