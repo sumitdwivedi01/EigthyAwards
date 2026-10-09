@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-09 (Day 7, night) | **No PA role** (owner): the leader's team works from the leader's account (ADR 0014). Removed from the seed (1.1), the leader dashboard (1.4) and package 2.3 (no PA team or PA activity screens). | Simpler; fewer roles, flows and tests |
 | 2026-10-09 (Day 7, evening) | **Three-phase plan** (Phase 0.8). Phase 1 = the working platform judged by the lead: **build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough Thu 15**, in five steps (1.1 foundation and people, 1.2 award setup and branded pages, 1.3 applying and proof check, 1.4 judging and results, 1.5 online and polished). Two written-review awards. Phase 2 (~20 days: on-site rounds, full site builder, admin screens, emails, end-to-end tests) and Phase 3 (~15 days + client testing: security, privacy, load, payments, domains). The old 15-phase list is mapped in §7. The simple version is [PLAN.md](PLAN.md); the data model and architecture are in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md). | Lead, 9 Oct: three phases, Phase 1 a fully working demo, technical design before coding; owner: wrap up by 13 Oct including Sunday |
 | 2026-10-09 (Day 7) | **Lead call.** Points changed **inside the phase descriptions only** (Phase 0.7, docs only): the ID and LinkedIn once on the profile and a recent employment proof per application (Phases 1, 2, 7, 8, 9, 10); My profile with change password (Phases 2, 5); several jury per application in document rounds with the average (Phases 1, 3, 9, 10, 11, 13). The lead asked for a re-plan in **three phases** (Phase 1 a fully working demo) with the data model agreed before coding: that re-plan comes next, so the phase list and days are **not** changed yet. | Lead call, 9 Oct; ADR 0012, 0013 |
 | 2026-10-08 (Day 6, later) | **One application per organisation, blocked at the start** (Phase 0.6, docs only): Phases 1, 7, 9/10 and the cut order updated. Build plan still on hold for the lead's choice. | Owner: stop a second application before anyone fills it; ADR 0011 |
@@ -127,7 +128,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
    ├─ next.config.ts          rewrites /api/* to the backend (same-origin cookies)
    ├─ src/
    │  ├─ middleware.ts        coarse gate: logged in or not (never decides permissions)
-   │  ├─ app/                 (public) · applicant · staff · jury · dept · leader (leader and PAs) · auth pages
+   │  ├─ app/                 (public) · applicant · staff · jury · dept · leader · auth pages
    │  ├─ components/          ui/ (shadcn) · form-renderer/ · form-builder/ · scoring-sheet/ · layout/
    │  ├─ features/<area>/     API hooks and feature components per area
    │  └─ lib/                 api-client, auth (current user), format (₹ from paise, IST), query client
@@ -157,7 +158,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 - **identity:** register (applicants), login and logout (bcrypt; a signed session cookie, ADR 0003; a rate limit on login), `GET /me` with every scoped role, and the access helpers (`requireLeaderOrPA`, `requireDeptHead`, `requireStaffOfAward`, `requireJuryOfCycle`, `requireOrgMember`…).
 - **My profile:** edit name and phone; `changePassword` (needs the current one; raises `sessionVersion`; "password changed" email to the outbox; audited without the password); for applicants, the identity document (private storage, consent) and the LinkedIn link.
 - **organisations:** create (normalised; PAN and GSTIN checks; a warning when the GSTIN state differs), join (PAN + GSTIN, or PAN + official email), list mine, edit (audited).
-- **Seed:** the leader and 1 PA; 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury; the master lists; demo applicant accounts. Passwords come from the environment, never from the repo.
+- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury; the master lists; demo applicant accounts. Passwords come from the environment, never from the repo.
 
 **Frontend**
 - A Next.js app (App Router, strict TypeScript, Tailwind, shadcn/ui, TanStack Query, React Hook Form + Zod). `/api/*` is rewritten to the backend; an API client maps 400/401/403/404/409 to messages; ₹ and India-time formatters.
@@ -229,7 +230,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 - **judging:** the jury view (masked only in blind awards; never proof documents, a total or another jury member's scores); `saveScores`; `submitEvaluation` (every indicator plus the note; the first score locks the scoring sheet); `editScoreWithReason` (one transaction with the audit event; refused after approval); progress per application and per jury member; `GET /applications/:id/history`.
 - **approval:** `sendForApproval` (every eligible application has its minimum of submitted evaluations); `approve` (the round locks, and the averages and ranks are saved in `RoundResult`); `sendBack` with a remark, plus `reopenEvaluation`.
 - **results:** labels by top N or by hand, only after approval; `publishResults` (applicants see their label; emails to the outbox).
-- **reporting:** the leader dashboard (leader and PAs; counts per award and department).
+- **reporting:** the leader dashboard (counts per award and department).
 
 **Frontend:** staff **Masking**, **Jury pool and conflicts**, **Assignment** (minimum and maximum; "needs more jury"), **Judging progress** (each jury member's score, the average, edit with a reason), **Send for approval**, **Results** · jury **My assignments** and **Scoring** · the head's **approval queue** and **round review** · the **leader dashboard** · a history panel on the application page.
 
@@ -238,7 +239,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 - **R2:** a conflicted pair is refused even through the API · conflicted jury are left out of the list · a late conflict revokes.
 - **R3:** a change without a reason is refused · the audit row has old, new, who, when and why · a failed audit write rolls back the change (fault injected) · changes after approval are refused.
 - **Several jury:** going above the maximum is refused, also when two staff assign at once · a maximum above the pool is refused · sending is refused below the minimum · the average matches the hand calculation · a jury member can't see others' scores.
-- **Also:** the head can't be assigned in their own department's written round · the leader and PAs are refused on every judging write · approving locks the scores · sending back needs a remark · no label before approval.
+- **Also:** the head can't be assigned in their own department's written round · the leader is refused on every judging write · approving locks the scores · sending back needs a remark · no label before approval.
 
 **Done when:** both awards run from submitted to **published results** in the browser; all rule tests are green in CI.
 
@@ -268,7 +269,7 @@ Started after the Phase 1 review. Each package becomes one or more steps run by 
 |---|---|---|---|
 | 2.1 | On-site rounds | 4 | `onsite` module: entries of the round, slots (move until scored), panels of 2–5 with conflict checks, staff backup entry (`enteredById`), absent members, close the round, Gold/Silver/Bronze for ranks 1–3 of the round; a phone scoring screen; the shop-floor (on-site-only) award as a third type |
 | 2.2 | Full site builder | 4 | Pages and the 13 section types, layouts, a phone and desktop preview, `SitePageVersion` publish and restore, galleries, past winners and the jury section |
-| 2.3 | Leader and PA admin | 3 | Departments and external organisers, appointing heads, staff on awards, inviting and removing PAs, PA activity, master-data screens, company corrections with a reason, deactivating and reactivating accounts, invitations by email |
+| 2.3 | Leader's admin screens | 3 | Departments and external organisers, appointing heads, staff on awards, master-data screens, company corrections with a reason, deactivating and reactivating accounts, invitations by email |
 | 2.4 | Department dashboard | 1 | `departmentDashboard` and the head's screens for external organisers |
 | 2.5 | Judging extras | 2 | Disqualify and reinstate, the full send-back loop, deadline extension, "update requested" after question changes, a flag for a large spread between jury |
 | 2.6 | Emails | 1 | All 12 templates; an HTTP email provider (decision A4) for production |
@@ -299,7 +300,7 @@ The full-product breakdown written on 4–8 Oct maps onto the new plan like this
 | Old phase | Now |
 |---|---|
 | 1 Backend foundation | Step 1.1 |
-| 2 Logins, roles, PA, departments, master data, organisations | Step 1.1 (logins, roles, companies, profile; PA and departments seeded) + 2.3 (admin screens) |
+| 2 Logins, roles, PA, departments, master data, organisations | Step 1.1 (logins, roles, companies, profile; departments seeded; **PA role dropped**, ADR 0014) + 2.3 (admin screens) |
 | 3 Award setup (R4) | Step 1.2 |
 | 4 Award sites (backend) | Step 1.2 (one branded page) + 2.2 (builder) |
 | 5 Frontend foundation | Step 1.1 |
@@ -415,6 +416,6 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 **Goal.** Split the whole platform into three phases as the lead asked, with Phase 1 by date (10–15 Oct) and Phases 2–3 in days; agree the data model and architecture before coding.
 
-**Builds.** [PLAN.md](PLAN.md) (simple, for the lead), this file rewritten as the detailed steps, [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), and updates to PROGRESS, GAPS, the spec §14, CLAUDE.md, README, the overview, creating.md and Daily.
+**Builds.** [PLAN.md](PLAN.md) (simple, for the lead), this file rewritten as the detailed steps, [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), the PA role removed everywhere (ADR 0014), and updates to PROGRESS, GAPS, the spec §14, CLAUDE.md, README, the overview, creating.md and Daily.
 
 **Done when.** The owner has reviewed the plan; merged before Step 1.1 starts.

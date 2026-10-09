@@ -79,15 +79,14 @@ The awards also work very differently. The largest scores about **250 indicators
 
 ```mermaid
 flowchart TD
-    L["<b>Leader</b><br/>sees every award"] --> PA["<b>Leader's PA team</b><br/>does the leader's admin work"]
-    L --> DH["<b>Department head</b><br/>runs a department, or an outside<br/>organiser's awards; gives final approval"]
-    PA -.->|on the leader's behalf| DH
+    L["<b>Leader</b><br/>sees every award; sets up departments<br/>(the leader's team uses this account)"] --> DH
+    DH["<b>Department head</b><br/>runs a department, or an outside<br/>organiser's awards; gives final approval"]
     DH --> S["<b>Staff</b><br/>set up and run awards every day"]
     S --> J["<b>Jury</b><br/>score applications in short gaps"]
     S --> AP["<b>Applicants</b><br/>apply for their company"]
     classDef lead fill:#E6EDFA,stroke:#1F4FA8,color:#16213A
     classDef ext fill:#FBF1D9,stroke:#9A6E0C,color:#16213A
-    class L,PA,DH,S lead
+    class L,DH,S lead
     class J,AP ext
 ```
 
@@ -97,7 +96,7 @@ flowchart TD
 | **Jury member** | A senior person scoring between meetings | Stop anytime and continue later. On site, they score on their phone |
 | **Staff** | Works in the system every day while a cycle runs | Set up awards and build each award's branded site on screens, check applicants' proof, track progress, publish results |
 | **Department head** | Owns a group of awards, or leads an **outside organiser** (e.g. the FPO Awards team) that runs its awards here on its own | Sets the brand kit, adds staff and jury, reviews the ranked results, then approves or sends them back |
-| **Leader and PAs** | Wants one view of everything | One dashboard across all awards. The leader also sees what each PA did |
+| **Leader** (and the leader's team, on the same account) | Wants one view of everything | One dashboard across all awards; sets up departments and their heads |
 
 The award always goes to the **organisation** (identified by its PAN), never to one of its plants or units. One real entry per organisation per award.
 
@@ -113,7 +112,7 @@ Every award follows this path. **Dotted** steps only happen when the award's set
 flowchart TD
     subgraph S1["① SET UP · once per award, no developer"]
         direction LR
-        a1["Leader or PA<br/>creates a department"] --> a2["Department head<br/>assigns staff"] --> a3["Staff choose the settings<br/>questions · scoring · fee<br/>blind or not · rounds"] --> a4["Publish<br/>shows on Open awards"]
+        a1["Leader<br/>creates a department"] --> a2["Department head<br/>assigns staff"] --> a3["Staff choose the settings<br/>questions · scoring · fee<br/>blind or not · rounds"] --> a4["Publish<br/>shows on Open awards"]
     end
     subgraph S2["② APPLY · until the deadline"]
         direction LR
@@ -261,7 +260,7 @@ The platform is delivered in three phases ([the full plan](../PLAN.md)). **Phase
 |---|---|---|
 | Two different awards set up on screen, with no code | On-site rounds and Gold / Silver / Bronze | Security and privacy reviews |
 | Questions saved as frozen versions; scoring sheet with weights | The full site builder (sections, versions) | Load testing for deadline nights |
-| Apply, autosave, submit, withdraw; one application per company | Leader and PA admin screens | A real payment gateway |
+| Apply, autosave, submit, withdraw; one application per company | The leader's admin screens | A real payment gateway |
 | Photo ID and LinkedIn once on the profile; recent employment proof | External organisers' dashboard | Own web addresses (fpoawards.in) |
 | Entry limit with a public counter; a branded page per award | Every email, sent for real | Backups, monitoring, accessibility |
 | Blind copies, conflict checks, several jury and the average | Disqualify, reinstate, deadline extension | Client testing |
@@ -269,7 +268,7 @@ The platform is delivered in three phases ([the full plan](../PLAN.md)). **Phase
 
 **Not planned:** importing past years' data, finding names inside PDFs automatically, member-portal login, offline scoring, a mobile app, other languages.
 
-**Extras added beyond the brief:** data that cleans itself as it's saved (one spelling, one PAN), company details hidden from jury automatically, a snapshot of the company at the time it applied, "New / Updated" markers on changed questions, autosave everywhere, one application per company (a second one can't even be started), weights that must add up to 100%, nothing ever deleted, staff backup for on-site scoring, renamable result names, and a view of what each PA did.
+**Extras added beyond the brief:** data that cleans itself as it's saved (one spelling, one PAN), company details hidden from jury automatically, a snapshot of the company at the time it applied, "New / Updated" markers on changed questions, autosave everywhere, one application per company (a second one can't even be started), weights that must add up to 100%, nothing ever deleted, staff backup for on-site scoring, renamable result names.
 
 ---
 

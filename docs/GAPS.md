@@ -23,10 +23,10 @@
 | E | Client questions from spec §18 | 16 | 9 |
 | F | Brief deliverables not yet in the repo | 9 | 6 |
 | G | Repository and process gaps | 7 | 4 |
-| H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
+| H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 7 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 9 |
 | J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
-| K | Lead call (Day 7): proof once on the profile, My profile, several jury per application, re-plan | 15 | 8 |
+| K | Lead call (Day 7): proof once on the profile, My profile, several jury per application, re-plan | 16 | 8 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -48,8 +48,8 @@ Until you answer, the **default** is what gets built. Each one points to the det
 | A8 | Editing an already-submitted application: an explicit "Save changes" that runs full validation (no autosave)? | Yes (G-D02) | Phase 7 | Decided (6 Oct): yes |
 | A9 | Indicator scores: whole numbers 0–10, or decimals like 7.5? | Whole numbers (G-D09) | Phase 3 | Decided (6 Oct): whole numbers |
 | A10 | Module folders: 18 (adding `departments`, `jury-pool`, `master-data`, `onsite` and `sites`), or fold some together? | 18 folders (G-C01) | Phase 1 | Decided: 18 folders (adds `sites`, 7 Oct) |
-| A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Decided (6 Oct): same powers |
-| A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Decided (6 Oct): as default |
+| A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Removed (9 Oct: no PA role, ADR 0014) |
+| A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Removed (9 Oct: no PA role, ADR 0014) |
 | A13 | What replaces the signed letter as proof that an applicant may act for the organisation? | Nothing for now (leader's decision). **Recommended:** a confirmation link sent to the organisation's official email (G-H01) | Phase 2 | Decided (6 Oct): nothing for now |
 | A14 | "Accept all the applications of the same organisation": does that mean one organisation may have **several active** applications in one cycle? | **Answered:** one application per organisation per award; since 8 Oct a second one is **blocked at the start** (ADR 0011) | Phase 7 | Answered (6 Oct) |
 
@@ -94,7 +94,7 @@ The numbers match the PDF's cards (the PDF was removed on 7 Oct 2026 as out of d
 | G-C07 | The identity section reads the live organisation profile, so last year's application would show this year's name and address. | Copy identity onto the application at submit, refresh it until the deadline, freeze it at the lock. Part of data consistency (spec §5.18). | 1, 7 | Decided (ADR 0006) |
 | G-C08 | "Verify authorisation letters" has no operation or outcome. | No letter any more. | — | Removed (ADR 0007) |
 | G-C09 | The pre-filled letter template needs a generator. | No letter any more. | — | Removed (ADR 0007) |
-| G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes, PA actions (with the actor's role), master data changes and organisation edits. | 1 | Default adopted |
+| G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes, the leader's actions (with the actor's role), master data changes and organisation edits. | 1 | Default adopted |
 | G-C11 | Unique keys with NULL scope columns let duplicates in, and "exactly one leader" isn't enforced. | `NULLS NOT DISTINCT` (PostgreSQL 15+, which Supabase has) or partial unique indexes, plus a partial unique index on LEADER. | 1 | Default adopted |
 | G-C12 | No login throttling and no monitoring. | Rate limits per email and per IP on login and reset; structured pino logs; an error tracker is optional. | 2, 13 | Default adopted |
 | G-C13 | "Safe as is" files need a representation. | A MASKED_EVIDENCE row pointing at the same storage key, so the jury file check stays one rule. | 9 | Default adopted |
@@ -129,7 +129,7 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 |---|---|---|---|
 | G-E01 | The legal company applies, or each plant separately? | **The organisation (legal entity, by PAN).** Plants and units never apply separately | Answered (5 Oct) |
 | G-E02 | Is the department head's approval final? | **Yes, for document rounds; on-site rounds have no approval** | Answered (6 Oct) |
-| G-E03 | Who creates staff: the department head or the leader? | **The department head, or the leader's PAs** | Answered (5 Oct) |
+| G-E03 | Who creates staff: the department head or the leader? | **The department head, or the leader** (no PA role since 9 Oct) | Answered (5 Oct) |
 | G-E04 | Can a department head create awards? | No, only staff | Open |
 | G-E05 | Can a department head edit scores? | No; approve or send back only | Open |
 | G-E06 | Exactly one leader? | Yes | Open |
@@ -162,24 +162,24 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 
 ---
 
-## H. Gaps from the leader call: PA role and data consistency (Day 3)
+## H. Gaps from the leader call: PA role and data consistency (Day 3; PA role removed 9 Oct, ADR 0014)
 
 Raised by the 5 October 2026 call (ADRs 0005, 0006, 0007; spec §5.17, §5.18).
 
 | ID | Gap | Impact | Default / proposed fix | Phase | Status |
 |---|---|---|---|---|---|
 | G-H01 | **Proof of authority is now weak.** With no letter, joining an organisation needs only its PAN and GSTIN, but the PAN is inside the GSTIN, and a GSTIN is printed on every invoice. | Anyone with an invoice could apply in a company's name. | For now: accepted (the leader's decision), and staff can release an application from the wrong person (ADR 0011). **Recommended:** confirm joining with a link sent to the organisation's official email (A13). | 2 | Decided (7 Oct): proof documents with every application (ADR 0010) |
-| G-H02 | PA powers are a fixed set; the leader can't tailor them per person. | A PA may get more power than the leader intends. | Same powers for all PAs, and every action audited with the role (A11). Per-PA switches are later work. | 2 | Decided (6 Oct: same powers) |
-| G-H03 | Can PAs create awards? The call mentioned "creating new award[s]". | Changes the permission matrix. | Yes, in any department; cycle configuration stays with staff (A12). | 3 | Decided (6 Oct: yes) |
-| G-H04 | Deactivating people who still own work: a staff member who is the only one on an award, a jury member with unsubmitted evaluations, a department head with a round waiting. | Work gets stuck with someone who can't log in. | Deactivation is allowed but first shows what they still own. Their awards and evaluations stay assigned until staff, the department head or a PA reassigns them. The dashboard flags "awards with no active staff". Approval always goes to the **current** head of the department. | 2, 11 | Default adopted |
+| G-H02 | PA powers are a fixed set; the leader can't tailor them per person. | A PA may get more power than the leader intends. | Same powers for all PAs, and every action audited with the role (A11). Per-PA switches are later work. | 2 | Removed (9 Oct: no PA role, ADR 0014) |
+| G-H03 | Can PAs create awards? The call mentioned "creating new award[s]". | Changes the permission matrix. | Yes, in any department; cycle configuration stays with staff (A12). | 3 | Removed (9 Oct: no PA role, ADR 0014) |
+| G-H04 | Deactivating people who still own work: a staff member who is the only one on an award, a jury member with unsubmitted evaluations, a department head with a round waiting. | Work gets stuck with someone who can't log in. | Deactivation is allowed but first shows what they still own. Their awards and evaluations stay assigned until staff, the department head or the leader reassigns them. The dashboard flags "awards with no active staff". Approval always goes to the **current** head of the department. | 2, 11 | Default adopted |
 | G-H05 | One organisation can have **several GSTINs** (one per state), but the profile stores one. | A second user may know a different GSTIN and fail to join, then create a "new" organisation, which is refused because the PAN is unique. | One GSTIN on record (the one the organisation registers with). Joining needs that GSTIN; the error message says which state's GSTIN is on record. Several GSTINs is later work. | 2 | Default adopted |
 | G-H06 | The GSTIN state code can differ from the registered address state. | False refusals for genuine organisations. | A warning, not a refusal (spec assumption A17). | 2 | Default adopted |
 | G-H07 | **Old data** from the 80 old award systems is exactly what was inconsistent. Importing and cleaning it is out of scope (spec §14). | The leader may expect history to appear on day one. | Not imported. Consistency starts with the first cycle run here. Say so in the walkthrough, and ask the leader whether a one-time import and clean-up is wanted later. | 15 | Open: ask the leader |
 | G-H08 | Case-insensitive uniqueness needs expression or `citext` indexes, which Prisma doesn't declare natively. | Duplicates slip in if only the service checks. | Raw SQL migration with unique indexes on `lower(...)`, plus the service check for a friendly error. | 1 | Default adopted |
 | G-H09 | Normalisation must happen in **one** place, or the seed and any future import will bypass it. | Inconsistent data again. | A single `lib/normalize.ts` used by every service **and** the seed, with unit tests for each normaliser. | 1, 2 | Default adopted |
 | G-H10 | Renaming a master data value changes how every old record displays it. | History reads differently. | Renaming is for spelling fixes only. A change of meaning means retiring the old value and adding a new one. Renames are audited. | 2 | Default adopted |
-| G-H11 | The leader's dashboard needs a way to see what PAs did. | The leader can't check delegated work. | A "PA activity" view, built from audit events filtered by role = LEADER_PA. | 11, 13 | Default adopted |
-| G-H12 | With staff spread over many awards in several departments, a department head only sees their own department's awards. | A head can't see that a staff member is overloaded elsewhere. | Accept for now. The leader and PAs see everything; a per-staff workload view is later work. | — | Accepted risk |
+| G-H11 | The leader's dashboard needs a way to see what PAs did. | The leader can't check delegated work. | A "PA activity" view, built from audit events filtered by role = LEADER_PA. | 11, 13 | Removed (9 Oct: no PA role, ADR 0014) |
+| G-H12 | With staff spread over many awards in several departments, a department head only sees their own department's awards. | A head can't see that a staff member is overloaded elsewhere. | Accept for now. The leader sees everything; a per-staff workload view is later work. | — | Accepted risk |
 
 ---
 
@@ -215,7 +215,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J02 | Page builder for all awards, or only external organisers? | All awards | 4, 6 | Answered (7 Oct) |
 | G-J03 | Can a department head (the organiser's lead) create awards, or only staff? | Staff only | 3 | Answered (7 Oct) |
 | G-J04 | Can one person head more than one department? | Yes | 2 | Answered (7 Oct) |
-| G-J05 | Does an award site need the leader's or a PA's approval before going live? | No approval. The leader and PAs can view sites, not edit them | 4 | Answered (7 Oct) |
+| G-J05 | Does an award site need the leader's or a PA's approval before going live? | No approval. The leader can view sites, not edit them | 4 | Answered (7 Oct) |
 | G-J06 | Brand kit per department with per-award overrides, or per award only? | Per department, with per-award overrides (default kept) | 4 | Decided (7 Oct, default) |
 | G-J07 | Entry limit: count submitted applications only? Show "places left" publicly? | Submitted only; the count is **always shown** publicly, e.g. 499 / 500 | 3, 7 | Answered (7 Oct) |
 | G-J08 | Delete verification documents 12 months after results, keeping only the "verified" record? | Yes, 12 months after results (default kept). For an identity document kept on a profile: 12 months after the results of the last cycle that used it (9 Oct, G-K05) | 2 | Decided (7 Oct, default) |
@@ -223,7 +223,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J10 | Show past winners automatically on award sites? | Staff decide what to show and where, and can change the site design at any time, also after publishing | 4, 11 | Answered (7 Oct) |
 | G-J11 | Simpler branch names: number plus one word? | Yes | Plan | Answered (7 Oct) |
 | G-J12 | Bring the 6 Oct decisions (scores, medals, build order, skeleton deploy) from the parked branch onto `main`? | Yes: brought onto this branch | 0.4 | Answered (7 Oct) |
-| G-J13 | Personal documents (proof of employment) fall under India's DPDP Act 2023: consent, purpose, minimal data, retention. | Consent at upload; ID card or letter only, salary hidden; staff, department head, leader and PAs only, never jury; deletion per J08. From 9 Oct the identity document is stored once per person (less data), never shown to colleagues, and seen by staff only through an application they may see | 2 | Open |
+| G-J13 | Personal documents (proof of employment) fall under India's DPDP Act 2023: consent, purpose, minimal data, retention. | Consent at upload; ID card or letter only, salary hidden; staff, department head and leader only, never jury; deletion per J08. From 9 Oct the identity document is stored once per person (less data), never shown to colleagues, and seen by staff only through an application they may see | 2 | Open |
 | G-J14 | Page content must never become a security hole (scripts, phishing links, broken layouts). | Fixed section types; rich text limited to bold, italic, headings, lists and links; no HTML or scripts; images only, 5 MB, re-encoded | 4, 6 | Open |
 | G-J15 | Public images must never sit next to private applicant files. | A separate public storage bucket for site images | 4 | Open |
 | G-J17 | Nobody outside a department can take down a wrong or abusive award site (no leader approval or editing, J05). | Accept for now: the leader asks the department head. Revisit if it happens. | 4 | Accepted risk |
@@ -255,8 +255,9 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K11 | The parked Phase 1 code predates the 7–9 Oct decisions (sites, proof, release, profile proof, jury per application) | Every change listed in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md); made in Step 1.1 (Sat 10 Oct) | 1.1 | Open |
 | G-K12 | **Re-plan in three phases** (lead, 9 Oct): Phase 1 a fully working demo; what moves to Phases 2 and 3, with time limits; the data model and technical design agreed before coding | Done: [PLAN.md](PLAN.md). Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough Thu 15 (two written-review awards; a simple branded page); Phase 2 ~20 working days; Phase 3 ~15 + client testing. Design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) | Plan | Answered (9 Oct) |
 | G-K13 | Four build days for Phase 1 are tight | A clear finish line per day; the cut order and never-cut list (PHASES §8); Daily updates show any slip at once | 1.1–1.5 | Open |
-| G-K14 | Phase 1 seeds departments, heads, staff, jury and the PA team; their admin screens come in Phase 2 | Accepted for Phase 1: the brief tests award setup by staff, which is on screen. Admin screens in package 2.3 | 1.1 | Accepted risk |
+| G-K14 | Phase 1 seeds departments, heads, staff and jury; their admin screens come in Phase 2 | Accepted for Phase 1: the brief tests award setup by staff, which is on screen. Admin screens in package 2.3 | 1.1 | Accepted risk |
 | G-K15 | Render's free plan sleeps after ~15 minutes, so the first demo request is slow (G-B07) | Open the site a few minutes before the walkthrough; consider a small paid plan for demo week | 1.5 | Open |
+| G-K16 | No PA role: the leader's team shares the leader's account, so the history can't tell which person acted, and several people know one password | Accepted by the owner (ADR 0014). Change the password when a team member leaves (it signs out every device); named accounts if traceability is ever needed | 1.1 | Accepted risk |
 
 ---
 
@@ -279,6 +280,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-09 | No PA role (owner, ADR 0014): A11, A12, H02, H03 and H11 removed; E03, H04, H12, C10, J05, J13 and K14 updated; K16 added. |
 | 2026-10-09 | Three-phase plan (Phase 0.8): K12 answered; K13–K15 added; A2 superseded (deploy in Step 1.5); A4 default updated; note that phase numbers use the old list (PHASES §7). |
 | 2026-10-09 | Lead call (Phase 0.7): new section K (12 items); J08, J09, J13, J19, D11 and E07 updated; J21 answered (three phases; the re-plan is K12). |
 | 2026-10-08 | One application per organisation blocked at the start (owner): A14, D08 and E08 updated; G-J22–J24 added. |

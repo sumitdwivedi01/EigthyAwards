@@ -6,7 +6,7 @@
 
 ```mermaid
 flowchart LR
-    B["Browser<br/>(applicant, staff, jury,<br/>head, leader, PA)"] -->|HTTPS| FE["<b>Front-End</b><br/>Next.js on Vercel<br/>screens only, no rules"]
+    B["Browser<br/>(applicant, staff, jury,<br/>head, leader)"] -->|HTTPS| FE["<b>Front-End</b><br/>Next.js on Vercel<br/>screens only, no rules"]
     FE -->|"/api/* proxy<br/>(same-site cookie)"| API["<b>Backend API</b><br/>Express + TypeScript on Render<br/>every rule and permission"]
     API --> DB[("<b>PostgreSQL</b><br/>Supabase<br/>one database, all awards")]
     API --> ST[("<b>File storage</b><br/>Supabase Storage<br/>private: applicant files<br/>public: award-page images")]
@@ -34,7 +34,7 @@ flowchart LR
 | Module | Phase 1 | Phase 2 |
 |---|---|---|
 | identity (login, roles, My profile, password) | ✅ | invites from admin screens, deactivation |
-| organisations (create, join, normalise) | ✅ | corrections by the leader or a PA |
+| organisations (create, join, normalise) | ✅ | corrections by the leader |
 | master-data (award domains, organisation types) | read; lists seeded | admin screens |
 | departments (brand kit) | brand kit; departments seeded | create departments, appoint heads |
 | awards, forms (versions), scoring (weights, formula) | ✅ | copy last year's setup (Phase 3) |
@@ -42,7 +42,7 @@ flowchart LR
 | applications (start, fee, answers, files, proof, submit, release) | ✅ | deadline extension, "questions changed" alerts |
 | masking, jury-pool (conflicts), judging (several jury, scores, audit) | ✅ | disqualify and reinstate, reopen |
 | approval, results | ✅ | — |
-| reporting | leader dashboard | department dashboard, PA activity |
+| reporting | leader dashboard | department dashboard |
 | onsite | tables only | ✅ slots, panels, close, medals |
 | audit, notifications | ✅ (outbox, log) | real email provider |
 

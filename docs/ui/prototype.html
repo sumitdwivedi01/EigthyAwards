@@ -179,7 +179,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
     <button data-role="staff" aria-pressed="false">Staff</button>
     <button data-role="jury" aria-pressed="false">Jury</button>
     <button data-role="head" aria-pressed="false">Department head</button>
-    <button data-role="leader" aria-pressed="false">Leader &amp; PA</button>
+    <button data-role="leader" aria-pressed="false">Leader</button>
   </div>
 </div></header>
 <div class="layout">
@@ -322,7 +322,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
         <div class="okline">✓ Password changed. You stay signed in here; every other device is signed out, and we emailed you.</div>
         <div class="gap"></div><div class="badline">✕ The current password is wrong. Nothing was changed.</div></div>
     </div>
-    <p class="small muted">Staff, jury, department heads, the leader and PAs have the same "Account and password" page (without the proof tab).</p>
+    <p class="small muted">Staff, jury, department heads and the leader have the same "Account and password" page (without the proof tab).</p>
     </div>
   </div></div></div></div>
 </section>
@@ -701,11 +701,11 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div></div>
 </section>
 
-<!-- ═══════════════ LEADER & PA ═══════════════ -->
+<!-- ═══════════════ LEADER ═══════════════ -->
 <section class="screen" data-role="leader" data-id="l-dash" data-title="Leader dashboard: one view of every award" data-desc="The leadership's single, trustworthy view across all awards and departments. Read-only for judging data.">
-  <div class="notes"><span class="note"><b>Leader and PAs</b> see everything; they never change judging data</span><span class="note"><b>Trustworthy</b> because the data is consistent (one record per company)</span></div>
+  <div class="notes"><span class="note"><b>The leader</b> sees everything and never changes judging data</span><span class="note"><b>No PA role:</b> the leader's team works from this account (ADR 0014)</span><span class="note"><b>Trustworthy</b> because the data is consistent (one record per company)</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader</b></div></div>
-  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>Dashboard</b><span>Departments</span><span>PA team</span><span>Master data</span></div><div class="me"><i>LD</i>Leader</div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>Dashboard</b><span>Departments</span><span>People</span><span>Master data</span></div><div class="me"><i>LD</i>Leader</div></div>
   <div class="ui-body full"><div class="ui-main">
     <div class="g4"><div class="kpi"><b>80</b><span>awards</span></div><div class="kpi"><b>31,420</b><span>applications this year</span></div><div class="kpi"><b>12</b><span>rounds pending approval</span></div><div class="kpi"><b>9</b><span>deadlines in the next 14 days</span></div></div><div class="gap"></div>
     <table class="t"><tr><th>Department</th><th>Awards</th><th>Applications</th><th>Judging</th><th>Pending approvals</th></tr>
@@ -715,9 +715,9 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="leader" data-id="l-depts" data-title="Departments and organisers" data-desc="When an organisation brings its award to the platform, the leader or a PA creates a department for it and appoints its lead as department head.">
+<section class="screen" data-role="leader" data-id="l-depts" data-title="Departments and organisers" data-desc="When an organisation brings its award to the platform, the leader creates a department for it and appoints its lead as department head.">
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/departments</b></div></div>
-  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>Departments</b></div><div class="me"><i>PA</i>Priya · Leader's PA</div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>Departments</b></div><div class="me"><i>LD</i>Leader</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g2">
     <div class="box"><h3>Create a department</h3><div class="field"><label>Name</label><div class="input">FPO Awards team</div></div><div class="field"><label>Kind</label><div class="input sel">External award organiser</div></div>
       <div class="field"><label>Department head</label><div class="input">v.deshmukh@face-cii.in (invite)</div></div><button class="btn p">Create and send invite</button>
@@ -726,23 +726,26 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="leader" data-id="l-pa" data-title="PA team and PA activity (leader only)" data-desc="The leader creates PAs, who do organisational work on the leader's behalf. Every PA action is recorded, so the leader can see who did what.">
-  <div class="notes"><span class="note"><b>Only the leader</b> creates or removes PAs</span><span class="note"><b>PAs never</b> score, approve, assign jury or publish results</span></div>
-  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/pa-team</b></div></div>
-  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>PA team</b></div><div class="me"><i>LD</i>Leader</div></div>
+<section class="screen" data-role="leader" data-id="l-people" data-title="People and awards" data-desc="The leader (or the leader's team, on the same account) puts staff on awards, resends invites and deactivates the accounts of people who left. Every change is in the history.">
+  <div class="notes"><span class="note"><b>One staff member, many awards</b> (5 Oct)</span><span class="note"><b>Deactivate, never delete:</b> shows what the person still owns first</span><span class="note"><b>The leader never</b> scores, approves, assigns jury or publishes results</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/people</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><span>Departments</span><b>People</b></div><div class="me"><i>LD</i>Leader</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g2">
-    <div class="box"><h3>PAs</h3><div class="row sp small"><span><b>Priya Nair</b></span><button class="btn d" style="padding:2px 8px">Remove</button></div><div class="gap"></div><button class="btn p">+ Invite a PA</button></div>
-    <div class="box"><h3>PA activity</h3>
-      <div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><b>Priya</b> created department "FPO Awards team" · 10:12</div>
-      <div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><b>Priya</b> appointed V. Deshmukh as head · 10:13</div>
-      <div class="small" style="padding:6px 0"><b>Priya</b> corrected Green Valley FPO's legal name · reason: "typo in registration" · 11:40</div></div>
+    <div class="box"><h3>Neha Shah · Staff</h3><div class="small muted" style="margin-bottom:6px">neha.shah@face-cii.in · FPO Awards team, Energy</div>
+      <div class="row"><span class="chip b">FPO Excellence</span><span class="chip b">FPO Startup Collaboration</span><span class="chip b">Energy Conservation</span></div><div class="gap"></div>
+      <div class="row"><button class="btn p">+ Assign to an award</button><button class="btn">Resend invite</button><button class="btn d">Deactivate…</button></div>
+      <p class="small muted">Deactivating first lists what she still owns (awards, open work), so nothing gets stuck.</p></div>
+    <div class="box"><h3>Recent changes from this account</h3>
+      <div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)">Created department "FPO Awards team" · 10:12</div>
+      <div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)">Appointed V. Deshmukh as head · 10:13</div>
+      <div class="small" style="padding:6px 0">Corrected Green Valley FPO's legal name · reason: "typo in registration" · 11:40</div></div>
   </div></div></div></div>
 </section>
 
 <section class="screen" data-role="leader" data-id="l-master" data-title="Master data and organisation records" data-desc="Shared lists replace free text, so data stays consistent across all 80 awards. Corrections to an organisation's record need a reason and are audited.">
   <div class="notes"><span class="note"><b>Retire, never delete:</b> old records keep their value</span><span class="note"><b>Data consistency</b> was the client's biggest problem</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>leader/master-data</b></div></div>
-  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>Master data</b></div><div class="me"><i>PA</i>Priya · Leader's PA</div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>Dashboard</span><b>Master data</b></div><div class="me"><i>LD</i>Leader</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g2">
     <div class="box"><h3>Award domains</h3><table class="t"><tr><td>Business Excellence</td><td></td></tr><tr><td>Energy</td><td></td></tr><tr><td>Shop-floor Improvement</td><td></td></tr><tr><td class="muted">Enviroment <span class="chip">retired</span></td><td class="small muted">misspelt; old awards still show it</td></tr></table><button class="btn">+ Add domain</button></div>
     <div class="box"><h3>Correct an organisation</h3><div class="field"><label>Organisation</label><div class="input">Green Valley FPO · PAN AABCG4321K</div></div><div class="field"><label>Legal name</label><div class="input">Green Valley Farmer Producer Company Ltd</div></div><div class="field"><label>Reason *</label><div class="input">Typo in registration, confirmed with their office</div></div><button class="btn p">Save correction</button></div>
@@ -759,9 +762,9 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
     staff:"Runs awards every day: setup, site, checks, judging, results.",
     jury:"A senior expert scoring in short gaps, on a laptop or on site on a phone.",
     head:"Leads a department or an external organiser; approves written rounds.",
-    leader:"One view of everything; the PA team does organisational work."
+    leader:"One view of everything, and the organisational work. The leader's team uses this account."
   };
-  var NAMES = {visitor:"Visitor",applicant:"Applicant",staff:"Staff",jury:"Jury",head:"Department head",leader:"Leader & PA"};
+  var NAMES = {visitor:"Visitor",applicant:"Applicant",staff:"Staff",jury:"Jury",head:"Department head",leader:"Leader"};
   var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
   var current = null;
 

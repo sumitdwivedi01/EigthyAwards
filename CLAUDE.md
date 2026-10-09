@@ -43,10 +43,10 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - Rule tests (R1–R4) are written **from the rule's wording**, against a real PostgreSQL, **with** the feature, not after it.
 - The frontend holds no business rules. It shows what the API decides.
 
-## Roles and the leader-call rules (5 Oct 2026)
+## Roles and the leader-call rules (5 Oct 2026; PA role removed 9 Oct)
 
-- Six roles: Leader, **Leader's PA** (`LEADER_PA`), Department head, Staff, Jury, Applicant user. Matrix: spec §3.
-- The leader and PAs only do **organisational** writes (departments, heads, staff assignment, award creation, master data, organisation corrections, accounts). They never write judging data. Only the leader creates or removes PAs. Every audit event stores `actorRole`.
+- **Five roles:** Leader, Department head, Staff, Jury, Applicant user. Matrix: spec §3. **There is no PA role** (ADR 0014, supersedes 0005): the leader's team works from the leader's account. Don't reintroduce `LEADER_PA`.
+- The leader only does **organisational** writes (departments, heads, staff assignment, award creation, master data, organisation corrections, accounts) and never writes judging data. Every audit event stores `actorRole`.
 - One staff member can hold **many awards** (one AWARD_STAFF row per award).
 - The award goes to the **organisation** (one per PAN). Plants and units never apply.
 - **No authorisation letter** anywhere (ADR 0007). Don't reintroduce it.
@@ -63,7 +63,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 ## Award sites, organisers, proof and entry limit (decided 7 Oct 2026; ADR 0009, 0010; proof changed 9 Oct, ADR 0012)
 
-- **Every** award has a branded site: a brand kit per department (overrides per award), pages built from **ready-made section types** that staff choose, place and lay out. Staff can change content and design **any time, also after publishing**; each publish is an immutable version (restore possible). **No approval**; the leader and PAs can view sites, never edit them.
+- **Every** award has a branded site: a brand kit per department (overrides per award), pages built from **ready-made section types** that staff choose, place and lay out. Staff can change content and design **any time, also after publishing**; each publish is an immutable version (restore possible). **No approval**; the leader can view sites, never edit them.
 - **Never** allow custom HTML or scripts in sites. Rich text is a safe structure; links are http(s) only; images go to the **public** bucket, never next to private files.
 - Automatic sections (deadline, entry count, categories, dates, past winners, jury) read live data; never copy it into page content.
 - A department can be an **external award organiser** running its awards alone; one person may head several departments. Only staff create awards.

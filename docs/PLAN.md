@@ -49,7 +49,7 @@ Both are set up **on screen by staff**. In the walkthrough, staff also set up a 
 | **Staff** | Create an award and set it up: dates, fee, blind, categories, entry limit, jury per application, questions (with versions) and the scoring sheet (weights must total 100%). Fill in the award's branded page. Check proof, release a wrong application, hide names (blind awards), choose jury and record conflicts, assign several jury per application, follow progress, correct a score with a reason, send for approval, then shortlist and publish results |
 | **Jury** | See their applications, score them (whole numbers 0–10 or Yes/No) with an overall note, and submit. In a blind award they only see the masked copy |
 | **Department head** | Set the department's brand (logo, colours). Add jury to the pool. Approve the round, or send it back with a remark |
-| **Leader and PA** | One read-only dashboard across all awards |
+| **Leader** (and the leader's team, on the same account) | One read-only dashboard across all awards |
 
 ### How the four rules are proven
 
@@ -75,7 +75,7 @@ Every day ends with its work tested and merged, and a short update in [Daily.md]
 
 ### Kept simple in Phase 1, on purpose
 
-- **Departments, heads, staff and the PA team are created by the starter data.** Their admin screens come in Phase 2. Staff still create and set up awards on screen, which is what the brief tests.
+- **Departments, heads and staff are created by the starter data.** Their admin screens come in Phase 2. Staff still create and set up awards on screen, which is what the brief tests.
 - **A branded page per award, filled in on a form.** The full drag-and-arrange site builder comes in Phase 2.
 - **Emails** are written to an email log, and caught locally by a test mailbox. Real sending online needs an email provider, chosen in Phase 2.
 - **The payment is a demo**; there are no real payments until Phase 3.
@@ -110,7 +110,7 @@ We cut from the top, and never the core:
 |---|---|---|---|
 | 2.1 | **On-site rounds** | 4 | Shop-floor competitions (Kaizen, 5S) and live finals: time slots, panels of 2–5, scoring on a phone, average, close the round, Gold / Silver / Bronze. A third award type |
 | 2.2 | **Full site builder** | 4 | Pages made of ready-made sections (gallery, past winners, FAQ, partners…), layouts, a phone preview, saved versions and restore |
-| 2.3 | **Leader and PA admin** | 3 | Create departments and external organisers, appoint heads, assign staff to awards, the PA team and what each PA did, master lists, company corrections, deactivating accounts |
+| 2.3 | **Leader's admin screens** | 3 | Create departments and external organisers, appoint heads, assign staff to awards, master lists, company corrections, deactivating accounts |
 | 2.4 | **Department dashboard** | 1 | External organisers run their awards from their own dashboard |
 | 2.5 | **Judging extras** | 2 | Disqualify and reinstate, reopen a jury member's scores after a send-back, extend a deadline, "questions changed" alerts, a flag when jury disagree widely |
 | 2.6 | **Emails** | 1 | Every email template, sent for real through an email provider |

@@ -23,7 +23,7 @@ Option 4, for **all** awards:
 - **A site per award** with a Home page and extra pages. Staff decide **what to show and where**: the sections, their pages, their order and their layout options.
 - **Automatic sections** fill in from platform data: the deadline, the entry count against the limit, categories and fees, key dates, past winners, and jury (when staff choose to show them).
 - **Draft, preview, publish; change at any time**, including after publishing. Every publish is a new immutable version (like form versions), and an earlier version can be restored.
-- **No approval** by the leader or PAs. The leader and PAs can view sites but not edit them.
+- **No approval** by the leader. The leader can view sites but not edit them.
 - **Guardrails:** no HTML or scripts, limited rich text, brand colours with a contrast warning, images re-encoded with alt text required, and a public bucket kept apart from private files.
 - **Address:** `/awards/<slug>` now. Sub-domains and own domains are **designed for, not built**: a slug and an empty `customDomain` field are stored, so they're configuration later.
 

@@ -28,7 +28,7 @@ It is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)). **Phase 1, t
 
 ## Shape of the system
 
-- **`Front-End/`**: a Next.js app on **Vercel**. Screens for each role area: public, applicant, jury, staff, department head, and leader with their PAs (the leader's personal team). No business rules.
+- **`Front-End/`**: a Next.js app on **Vercel**. Screens for each role area: public, applicant, jury, staff, department head, and leader (the leader's team works from the leader's account). No business rules.
 - **`Backend/`**: an Express + TypeScript API on **Render**. A modular monolith of 18 modules; every check happens in a service that takes the acting user first.
 - **Database and files**: PostgreSQL and private file storage on **Supabase**.
 

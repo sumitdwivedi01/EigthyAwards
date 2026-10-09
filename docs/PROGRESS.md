@@ -70,7 +70,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 | Decision | Phase 1 | Later |
 |---|---|---|
 | Staff on many awards; award to the organisation; no authorisation letter | ✅ in 1.1–1.2 | — |
-| Leader's PA role | Seeded; sees the leader dashboard | Admin screens and PA activity (2.3) |
+| ~~Leader's PA role~~ **removed 9 Oct** (ADR 0014): the leader's team uses the leader's account | — | — |
 | Data consistency (normalise, case-insensitive unique, master lists, snapshots) | 1.1–1.3 | Master-data screens, corrections (2.3) |
 | One application per organisation, blocked at the start; staff release | 1.3 | — |
 | Proof: ID and LinkedIn once on the profile, recent employment proof, each award checks | 1.1, 1.3 | Automatic deletion after 12 months (2.7) |
@@ -95,6 +95,7 @@ The lead asked for the whole platform in **three phases**, Phase 1 a fully worki
 - [x] [PHASES.md](PHASES.md) rewritten as the detailed steps: the five Phase 1 steps (backend, frontend, tests, done when, manual check), the Phase 2 and 3 packages, the map from the old 15-phase list, the cut order.
 - [x] [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md): architecture, modules per phase, the data model (diagram and database guarantees), key flows, the Phase 1 API, scaling, security, environments, testing.
 - [x] PROGRESS rebuilt for the steps; GAPS (K12 answered, K13–K15 added, A2 and A4 updated); spec §1, §14, §15 and §17 notes; CLAUDE.md, README, the overview, the 0.5 and 0.7 proposals, the UI README, creating.md (rewritten short) and Daily.
+- [x] **The PA role removed** (owner, later on 9 Oct): the leader's team works from the leader's account. ADR 0014 (supersedes 0005); the spec (five roles, matrix, §5.17 now "the leader's team", journeys, operations, screens, data model, tests, A14 removed, A33 added); GAPS (A11, A12, H02, H03, H11 removed; K16 added); the prototype (the PA screen became "People and awards"; the role is now "Leader"); PLAN, PHASES, TECHNICAL-DESIGN, the overview, the READMEs, the PR template, the backend change list (B6), creating.md.
 - [ ] Owner review, push and merge.
 
 ### Phase 0.7: Lead call: proof once, My profile, several jury · 🧪 · 2026-10-09 (Day 7)
@@ -230,7 +231,7 @@ Added in Step 1.1. Passwords live only in `Backend/.env` and `.env.example` plac
 | Our own auth in the API instead of Auth.js | Auth.js doesn't fit a separate API | ADR 0003 |
 | Phase branches → `main` instead of `develop` | The owner's workflow; one builder | ADR 0004 |
 | EmailLog used as an outbox instead of sending during the request | Bulk emails and rollbacks | GAPS G-C03 |
-| New role: Leader's PA | Leader call, 5 Oct | ADR 0005, spec §5.17 |
+| ~~New role: Leader's PA~~ removed 9 Oct; the team uses the leader's account | Leader call, 5 Oct; owner, 9 Oct | ADR 0005, superseded by ADR 0014 |
 | Data consistency rules and master data | Leader call, 5 Oct | ADR 0006, spec §5.18 |
 | No authorisation letter | Leader call, 5 Oct | ADR 0007 |
 | On-site rounds built now (were "future"); no approval for them; medals | Answers, 6 Oct | ADR 0008, spec §5.16 |

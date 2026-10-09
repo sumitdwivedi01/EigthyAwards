@@ -12,6 +12,7 @@
 | 2026-10-07 | **New issues and the owner's answers.** **Branded award sites**: a brand kit per department and a site per award, built from ready-made sections that staff choose, arrange and re-design at any time, also after publishing; for **all** awards; no approval needed (new §5.19). A department can be an **external award organiser** that runs its awards on its own; one person may head several departments. **Proof of identity and employment** uploaded with every application (new §5.20). An optional **entry limit** per cycle, shown publicly as "499 / 500". Own domains designed for, not built. Only staff create awards. Sections changed: 1, 2, 3, 5.2, 5.3, 5.6, 5.14, 5.19, 5.20, 7, 8, 10–15, 18. | ADR 0009, 0010; GAPS §J |
 | 2026-10-08 | **One application per organisation, blocked at the start.** A second member can no longer start an application once a colleague has (no more "accept all, flag, staff keep one"). Colleagues see the organisation's application read-only, with the status only (no name). Staff can **release** a wrong, fake or abandoned application with a reason, so the organisation can start again. Sections changed: 3, 4, 5.2, 5.15, 5.16, 5.20, 7, 10, 11, 12, 14, 15, 18. | ADR 0011 |
 | 2026-10-09 | **Lead call: proof once, account settings, several jury.** (1) The photo identity document and the LinkedIn link are given **once, on the applicant's profile**, and reused for every application; each application only needs a **recent proof of employment** (dated within the last 3 months). Staff of each award still check the proof for their application. (2) Every user has **My profile**: name, phone and **change password**. (3) In a **document review round**, staff set the **jury per application** (a minimum and a maximum, 1 or more, up to the jury in the pool); every application must get that many, and its final score is the **average** of their scores. On-site panels are unchanged. Sections changed: 2, 3, 4, 5.1, 5.2, 5.3, 5.5–5.13, 5.15, 5.16, 5.20, new 5.21, 6, 7, 8, 10–15, 18. | ADR 0012, 0013 |
+| 2026-10-09 | **No separate PA role** (owner, 9 Oct). The leader's team works from the leader's account, so the platform has **five roles**: leader, department head, staff, jury, applicant user. Everything the PA could do is done by the leader. §5.17 now describes the leader's team. Sections changed: 1–3, 5.1–5.3, 5.13–5.20, 7, 8, 10–15, 18. | ADR 0014 (supersedes 0005) |
 | 2026-10-09 | **Delivered in three phases** (lead call). Phase 1 (10–15 Oct) builds a working subset of §14: two written-review awards, online. On-site rounds, the full site builder and the admin screens move to Phase 2; launch work to Phase 3. Sections changed: 1, 14, 15, 17 (notes only; behaviour unchanged). | docs/PLAN.md, docs/PHASES.md |
 
 # Awards Platform — Product & Technical Specification
@@ -28,7 +29,7 @@ The core idea. An award is data, not code. The code knows the parts every award 
 
 Success criteria for the 10-day build (since 9 Oct 2026 delivered in three phases, [PLAN.md](PLAN.md): Phase 1 proves the first two cycles below, written review only; the on-site cycles follow in Phase 2):
 
-- The leader (or one of the leader's PAs) creates a department and appoints its head, the department head adds staff and assigns them to one or more awards, and staff create and configure the full award in the UI: questionnaire, scoring sheet with weights, deadline, fee and blind judging.
+- The leader creates a department and appoints its head, the department head adds staff and assigns them to one or more awards, and staff create and configure the full award in the UI: questionnaire, scoring sheet with weights, deadline, fee and blind judging.
 - At least three differently configured cycles run end to end with no code change: a blind document-review award with a fee (apply, lock, mask, assign, score, approve, shortlist, publish); a free award whose shortlisted entries then present on site to a panel and win Gold, Silver or Bronze; and a shop-floor competition judged only on site.
 - The four rules of the brief (blind judging, conflict of interest, score audit, question versioning) are enforced on the server and covered by automated tests.
 - Every award has its own **branded award site** that its staff build and change without a developer (§5.19).
@@ -43,7 +44,7 @@ Every word below means exactly one thing in code, UI and docs. Two different thi
 
 | Term | Meaning | Example |
 |---|---|---|
-| Department | A unit that owns and runs awards; created by the leader or a PA and run by a department head. It can be part of the industry body, or an **external award organiser** that runs its awards on the platform on its own | Energy department; the FPO Awards team |
+| Department | A unit that owns and runs awards; created by the leader and run by a department head. It can be part of the industry body, or an **external award organiser** that runs its awards on the platform on its own | Energy department; the FPO Awards team |
 | Award domain | The subject area picked when creating an award, from a controlled list (master data) | Energy, Safety, Innovation |
 | Award | A permanent award programme | National Energy Excellence Award |
 | Cycle | One edition of an award, with its own dates, questionnaire and scoring sheet | 2026 edition |
@@ -74,7 +75,7 @@ Every word below means exactly one thing in code, UI and docs. Two different thi
 | Send back (redo) | The department head returns results with a remark so staff and jury can correct them |   |
 | Shortlist | Applications given the "Shortlisted" label after a document review round; they move on to the next round, if there is one | Top 10 per category |
 | Results publication | Staff making final statuses visible to applicants |   |
-| Leader's PA | A member of the leader's personal team, created by the leader, who does the leader's organisational work on their behalf | The leader's executive assistant |
+| Leader's team | People who help the leader (for example an executive assistant). They work from the leader's account; there is no separate role (decided 9 Oct 2026) | The leader's assistant creating a department |
 | Master data | Shared lists every award uses, managed in one place instead of typed as free text | Award domains, organisation types, Indian states |
 | Deactivated account | A user who can no longer log in; everything they did stays on record | A staff member who left |
 | Brand kit | A department's logo, colours, font and social links, used by all its award sites | FPO green, FPO logo |
@@ -86,12 +87,11 @@ Every word below means exactly one thing in code, UI and docs. Two different thi
 
 ## 3. Users, roles and permissions
 
-Six roles use the platform. The leader and the leader's PAs work across the whole platform; every other role is held inside a scope. One person can hold different roles in different scopes, for example jury in one cycle and applicant user for an organisation in another.
+Five roles use the platform. The leader works across the whole platform (the leader's team uses the leader's account); every other role is held inside a scope. One person can hold different roles in different scopes, for example jury in one cycle and applicant user for an organisation in another.
 
 | Role | Scope | Who they are |
 |---|---|---|
-| Leader | Whole platform | The single top authority. Creates departments and appoints their heads, and creates the PAs who do this work on their behalf. Sees everything in every award, read-only: never changes judging data (cycle setup, applications, scores, decisions) |
-| Leader's PA | Whole platform | The leader's personal team, created only by the leader. Does the leader's organisational work on their behalf: departments, department heads, staff, award creation, master data, organisation record fixes, accounts. Sees what the leader sees. Cannot create other PAs or touch judging data |
+| Leader | Whole platform | The single top authority. Creates departments and appoints their heads, creates awards in any department, assigns staff, and keeps master data, organisation records and accounts in order. The leader's team works from this account. Sees everything in every award, read-only: never changes judging data (cycle setup, applications, scores, decisions) |
 | Department head | One or more departments | The second-level leader, or the lead of an external award organiser. Adds staff to the department and assigns them to awards, selects jury together with staff, and reviews and approves the department's judgements |
 | Staff | One or more awards (can span departments) | Does the general work: creates and runs awards, selects jury together with the department head, and is the only role that assigns applications to jury. **One staff member can be assigned many awards at once** |
 | Jury | One cycle | Senior expert who scores the applications assigned to them; in a document review round one application can be scored by several jury members, each on their own |
@@ -101,52 +101,49 @@ Six roles use the platform. The leader and the leader's PAs work across the whol
 
 ✓ = allowed. Blank = not allowed. "Own" = only inside the role's scope. "Any" = in every department.
 
-| Action | Leader | Leader's PA | Dept head | Staff | Jury | Applicant |
-|---|---|---|---|---|---|---|
-| Create departments; appoint or replace department heads | ✓ | ✓ |   |   |   |   |
-| Create, or remove, the leader's PAs | ✓ |   |   |   |   |   |
-| Add staff to a department and assign staff to awards (one staff member, many awards) | ✓ any | ✓ any | ✓ own |   |   |   |
-| Create an award (name, domain, description) | ✓ any | ✓ any |   | ✓ own dept |   |   |
-| Manage master data (award domains, organisation types) | ✓ | ✓ |   |   |   |   |
-| Correct an organisation's record, with a reason | ✓ | ✓ |   |   |   |   |
-| Resend invites; deactivate or reactivate accounts | ✓ | ✓ |   |   |   |   |
-| Configure a cycle: questionnaire, scoring sheet, dates, fee, blind, categories, entry limit |   |   |   | ✓ own |   |   |
-| Edit the department's brand kit |   |   | ✓ own | ✓ own dept |   |   |
-| Build, change and publish an award site, at any time (also after publishing) |   |   | ✓ own | ✓ own |   |   |
-| Check applicants' proof documents (Verified or Rejected, with a reason) |   |   |   | ✓ own |   |   |
-| Publish a cycle, edit questions before deadline, extend deadline |   |   |   | ✓ own |   |   |
-| Select jury for a cycle's pool, record conflicts |   |   | ✓ own | ✓ own |   |   |
-| Register or join an organisation, apply (with a recent proof of employment), edit, withdraw |   |   |   |   |   | ✓ |
-| Keep a photo identity document and LinkedIn link on their own profile (once, for every application) |   |   |   |   |   | ✓ own |
-| Edit their own profile (name, phone) and change their password | ✓ own | ✓ own | ✓ own | ✓ own | ✓ own | ✓ own |
-| Edit their organisation's profile |   |   |   |   |   | ✓ own org |
-| Release an application (wrong person, fake or abandoned), with a reason |   |   |   | ✓ own |   |   |
-| Mask applications |   |   |   | ✓ own |   |   |
-| Set the jury per application of a document round (minimum and maximum) |   |   |   | ✓ own |   |   |
-| Assign applications to jury (document rounds: the round's minimum to maximum each) and choose on-site panels |   |   |   | ✓ own |   |   |
-| Schedule presentation slots for an on-site round |   |   |   | ✓ own |   |   |
-| Score, comment, write overall note (document round, or as an on-site panel member) |   |   | ✓ when on a panel |   | ✓ assigned |   |
-| Enter a panel member's on-site scores on their behalf (backup) |   |   |   | ✓ own |   |   |
-| Close an on-site round (locks its scores) |   |   |   | ✓ own |   |   |
-| Disqualify with a reason |   |   |   | ✓ own | ✓ assigned |   |
-| Reinstate a disqualified application |   |   |   | ✓ own |   |   |
-| Edit scores after jury submission, with a reason, before approval |   |   |   | ✓ own | ✓ only in redo |   |
-| Send a round for approval |   |   |   | ✓ own |   |   |
-| Approve, or send back with a remark (document rounds only) |   |   | ✓ own |   |   |   |
-| Give result labels (Shortlisted, Rejected; Gold, Silver, Bronze, Participated) and publish results |   |   |   | ✓ own |   |   |
-| See every award, application, score and decision (read-only) | ✓ | ✓ | ✓ own | ✓ own |   |   |
-| See applicant identity in a blind award | ✓ | ✓ | ✓ own | ✓ own |   | ✓ own org |
-| Dashboard | ✓ all awards | ✓ all awards | ✓ own |   |   |   |
-| View audit history | ✓ | ✓ | ✓ own | ✓ own |   |   |
-| See what each PA did (PA activity) | ✓ |   |   |   |   |   |
+| Action | Leader | Dept head | Staff | Jury | Applicant |
+|---|---|---|---|---|---|
+| Create departments; appoint or replace department heads | ✓ |   |   |   |   |
+| Add staff to a department and assign staff to awards (one staff member, many awards) | ✓ any | ✓ own |   |   |   |
+| Create an award (name, domain, description) | ✓ any |   | ✓ own dept |   |   |
+| Manage master data (award domains, organisation types) | ✓ |   |   |   |   |
+| Correct an organisation's record, with a reason | ✓ |   |   |   |   |
+| Resend invites; deactivate or reactivate accounts | ✓ |   |   |   |   |
+| Configure a cycle: questionnaire, scoring sheet, dates, fee, blind, categories, entry limit |   |   | ✓ own |   |   |
+| Edit the department's brand kit |   | ✓ own | ✓ own dept |   |   |
+| Build, change and publish an award site, at any time (also after publishing) |   | ✓ own | ✓ own |   |   |
+| Check applicants' proof documents (Verified or Rejected, with a reason) |   |   | ✓ own |   |   |
+| Publish a cycle, edit questions before deadline, extend deadline |   |   | ✓ own |   |   |
+| Select jury for a cycle's pool, record conflicts |   | ✓ own | ✓ own |   |   |
+| Register or join an organisation, apply (with a recent proof of employment), edit, withdraw |   |   |   |   | ✓ |
+| Keep a photo identity document and LinkedIn link on their own profile (once, for every application) |   |   |   |   | ✓ own |
+| Edit their own profile (name, phone) and change their password | ✓ own | ✓ own | ✓ own | ✓ own | ✓ own |
+| Edit their organisation's profile |   |   |   |   | ✓ own org |
+| Release an application (wrong person, fake or abandoned), with a reason |   |   | ✓ own |   |   |
+| Mask applications |   |   | ✓ own |   |   |
+| Set the jury per application of a document round (minimum and maximum) |   |   | ✓ own |   |   |
+| Assign applications to jury (document rounds: the round's minimum to maximum each) and choose on-site panels |   |   | ✓ own |   |   |
+| Schedule presentation slots for an on-site round |   |   | ✓ own |   |   |
+| Score, comment, write overall note (document round, or as an on-site panel member) |   | ✓ when on a panel |   | ✓ assigned |   |
+| Enter a panel member's on-site scores on their behalf (backup) |   |   | ✓ own |   |   |
+| Close an on-site round (locks its scores) |   |   | ✓ own |   |   |
+| Disqualify with a reason |   |   | ✓ own | ✓ assigned |   |
+| Reinstate a disqualified application |   |   | ✓ own |   |   |
+| Edit scores after jury submission, with a reason, before approval |   |   | ✓ own | ✓ only in redo |   |
+| Send a round for approval |   |   | ✓ own |   |   |
+| Approve, or send back with a remark (document rounds only) |   | ✓ own |   |   |   |
+| Give result labels (Shortlisted, Rejected; Gold, Silver, Bronze, Participated) and publish results |   |   | ✓ own |   |   |
+| See every award, application, score and decision (read-only) | ✓ | ✓ own | ✓ own |   |   |
+| See applicant identity in a blind award | ✓ | ✓ own | ✓ own |   | ✓ own org |
+| Dashboard | ✓ all awards | ✓ own |   |   |   |
+| View audit history | ✓ | ✓ own | ✓ own |   |   |
 
 Rules that follow from the client's answers:
 
-- The leader and the PAs never change judging data. Their writes are organisational only: departments, people and their roles, award creation, master data, organisation record fixes and accounts. Cycle setup, applications, masking, scores, approvals and results belong to staff, jury and department heads.
-- Only the leader creates or removes PAs. A PA cannot give anyone, including themselves, the PA or leader role.
-- Every PA action is recorded with the PA as the actor and "Leader's PA" as the role, so the leader can always see who did what.
-- An external award organiser is set up as a department: the leader or a PA creates it and appoints the organiser's lead as department head. From then on the organiser runs its awards alone (staff, jury, award sites, approvals), and sees only its own department. One person may head several departments.
-- Award sites go live without the leader's or a PA's approval; the leader and PAs can see them but not edit them.
+- The leader never changes judging data. The leader's writes are organisational only: departments, people and their roles, award creation, master data, organisation record fixes and accounts. Cycle setup, applications, masking, scores, approvals and results belong to staff, jury and department heads.
+- There is **no separate role for the leader's team** (decided 9 Oct 2026; ADR 0014). They work from the leader's account, so the audit history shows the leader as the actor for their actions.
+- An external award organiser is set up as a department: the leader creates it and appoints the organiser's lead as department head. From then on the organiser runs its awards alone (staff, jury, award sites, approvals), and sees only its own department. One person may head several departments.
+- Award sites go live without the leader's approval; the leader can see them but not edit them.
 - Only staff create awards; department heads add staff and assign them.
 - The department head approves **document review** rounds: staff send the round's results to them, and they approve or send back with a remark. They do not edit scores. Their approval is final; the leader does not sign off after it.
 - **On-site rounds have no approval** (client answer, 6 Oct 2026). When every panel member has submitted, staff close the round, and its scores lock just as an approved round's do.
@@ -229,14 +226,14 @@ A cycle can rename these labels for its rounds (§5.3); the table shows the defa
 
 ## 5. Functional requirements
 
-Each module below lists its rules and the acceptance checks that tell us it is done. "Assumption" marks a default we chose where the client has not answered; each one is repeated in section 18. Sections 5.17 (Leader's PA team) and 5.18 (Data consistency) were added after the leader call on 5 October 2026; 5.19 (Branded award sites) and 5.20 (Proof documents and entry limit) on 7 October 2026; 5.21 (My profile and account) on 9 October 2026.
+Each module below lists its rules and the acceptance checks that tell us it is done. "Assumption" marks a default we chose where the client has not answered; each one is repeated in section 18. Sections 5.17 (the leader's team; changed 9 Oct 2026) and 5.18 (Data consistency) were added after the leader call on 5 October 2026; 5.19 (Branded award sites) and 5.20 (Proof documents and entry limit) on 7 October 2026; 5.21 (My profile and account) on 9 October 2026.
 
 ### 5.1 Accounts and login
 
 - Everyone logs in with email and password. Passwords are hashed, never stored plain.
-- Applicant users register themselves. The leader's account is created at setup. The leader invites PAs; the leader or a PA invites department heads; department heads, the leader or a PA invite staff; staff or department heads invite jury. Each invitee sets their own password from the invite link.
+- Applicant users register themselves. The leader's account is created at setup. The leader invites department heads; department heads or the leader invite staff; staff or department heads invite jury. Each invitee sets their own password from the invite link.
 - One account per person: an email address can belong to only one user, compared without regard to case. A person who is both a juror and an applicant uses the same account with two roles.
-- A deactivated account cannot log in, and its sessions end at once. Nothing it did is removed. Only the leader or a PA can deactivate or reactivate an account, and nobody can deactivate the leader.
+- A deactivated account cannot log in, and its sessions end at once. Nothing it did is removed. Only the leader can deactivate or reactivate an account, and nobody can deactivate the leader.
 - Password reset works through an emailed link that expires.
 - Every user can change their own password and edit their name and phone on **My profile** (§5.21, added 9 Oct 2026).
 - Every request loads the user's role assignments from the database; the UI never decides permissions on its own.
@@ -256,14 +253,14 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - Active (blocks a new start): Draft, Submitted, and every later state, including Not submitted. Not active: **Withdrawn**, and **Released** by staff.
 - **Staff can release** an application that turns out to be from the wrong person, fake, or abandoned. They must give a reason (audited, nothing deleted). Its starter sees it as Closed with the reason, and the organisation can then start a new one. The starter can also withdraw before the deadline, which frees the place too.
 - Two colleagues starting at the same moment can't both succeed: the database holds at most one active application per organisation and cycle (a partial unique index), as well as the check in the service.
-- Profile edits by the organisation's users, and corrections by the leader or a PA (which need a reason), are audited with before and after values. The PAN cannot be changed by the organisation's users; a wrong PAN is corrected by a PA with a reason.
+- Profile edits by the organisation's users, and corrections by the leader (which need a reason), are audited with before and after values. The PAN cannot be changed by the organisation's users; a wrong PAN is corrected by the leader with a reason.
 - Accept when: a second start by the same organisation in the same cycle is refused, also when two colleagues try at the same moment; colleagues see the application read-only, without the starter's name; a staff release (with a reason, audited) lets the organisation start again; a withdrawal frees the place; a profile edit appears in the organisation's history.
 
 ### 5.3 Departments, awards and cycle setup
 
-- The leader or a PA creates departments and appoints one department head for each. Department names are unique, compared without regard to case.
-- The department head adds staff to the department and assigns staff to awards. The leader or a PA can do the same in any department. **A staff member can be assigned to many awards at once**, and can belong to several departments.
-- Staff create an award in their department: name, domain (from the award domain list), short description. The creator is assigned to it automatically, and the department head can add or remove staff on any award in the department. The leader or a PA can also create an award in any department and assign its staff; configuring its cycles is then the staff's work. Award names are unique inside a department, compared without regard to case.
+- The leader creates departments and appoints one department head for each. Department names are unique, compared without regard to case.
+- The department head adds staff to the department and assigns staff to awards. The leader can do the same in any department. **A staff member can be assigned to many awards at once**, and can belong to several departments.
+- Staff create an award in their department: name, domain (from the award domain list), short description. The creator is assigned to it automatically, and the department head can add or remove staff on any award in the department. The leader can also create an award in any department and assign its staff; configuring its cycles is then the staff's work. Award names are unique inside a department, compared without regard to case.
 - Staff create a cycle (for example "2026") and configure:
   - dates: opening date and deadline (date and time, India time);
   - entry categories: at least one;
@@ -403,7 +400,7 @@ In development, emails are caught by a local mail catcher. Every email sent is a
 
 | Event | Recipient | Content |
 |---|---|---|
-| Account invite | New PA, department head, staff or jury member | Link to set a password |
+| Account invite | New department head, staff or jury member | Link to set a password |
 | Password reset | The user | Reset link |
 | Password changed | The user | Their password was changed, and what to do if it wasn't them |
 | Proof rejected | The applicant user | Which document was rejected and why; it can be fixed until the deadline |
@@ -418,17 +415,17 @@ In development, emails are caught by a local mail catcher. Every email sent is a
 
 ### 5.14 Leadership dashboard
 
-- The leader and the PAs see every award and cycle: status, applications by status, masking progress, judging progress, pending approvals and upcoming deadlines.
+- The leader sees every award and cycle: status, applications by status, masking progress, judging progress, pending approvals and upcoming deadlines.
 - A department head sees the same view for their department only. This is a **must have**: external organisers run their awards from it.
 - It is read-only, with a drill-down to each cycle's summary.
 
 ### 5.15 Audit history
 
 - Append-only. Application code can add records but never edit or delete them.
-- Recorded events: score changes after a jury submission (old value, new value, who, when, reason); disqualify and reinstate; approval submissions and decisions with remarks; masking done and reopened; deadline changes; form versions published; assignment changes; conflicts recorded; application releases (with reasons); withdrawals; results published; departments and department heads; staff added to departments and assigned to or removed from awards; PAs created and removed; accounts deactivated and reactivated; master data changes; organisation profile edits and corrections; proof checks (Verified or Rejected); identity documents replaced on a profile; jury per application changed; password changes (the event only, never the password).
-- Every event stores the actor **and the role they acted in**, so the leader can see exactly what each PA did.
+- Recorded events: score changes after a jury submission (old value, new value, who, when, reason); disqualify and reinstate; approval submissions and decisions with remarks; masking done and reopened; deadline changes; form versions published; assignment changes; conflicts recorded; application releases (with reasons); withdrawals; results published; departments and department heads; staff added to departments and assigned to or removed from awards; accounts deactivated and reactivated; master data changes; organisation profile edits and corrections; proof checks (Verified or Rejected); identity documents replaced on a profile; jury per application changed; password changes (the event only, never the password).
+- Every event stores the actor **and the role they acted in**, for example staff, department head or leader.
 - A jury member's typing in a draft is not audited; their submission and every change after it are.
-- Staff, the department head, the leader and PAs see an application's history on its page.
+- Staff, the department head and the leader see an application's history on its page.
 
 ### 5.16 On-site rounds: live presentations and shop-floor competitions (built; updated 6 Oct 2026)
 
@@ -441,23 +438,20 @@ One round type covers both the live round 2 of large awards and shop-floor compe
 - **Scoring.** Each panel member scores on their own device (phone, tablet or laptop) against the round's score sheet: criteria with weights, 0 to 10 or Yes/No, an optional comment per criterion and a required overall note. Scores save as a draft; submitting needs every criterion and the note. A panel member never sees another member's scores.
 - **Backup entry.** If a panel member can't use a device, staff can enter that member's scores from the paper sheet. The evaluation records that staff entered it on the member's behalf, and the entry is audited. After submission, every change needs a reason (rule 3).
 - **Absent panel member.** Staff take them off the entry's panel with a reason. Their evaluation becomes Revoked and their draft scores are kept. An entry needs at least one submitted evaluation.
-- **Final score.** The average of the submitted panel members' scores (each from the score formula, §5.5), rounded to 2 decimals at the end; the same rule as a document review round with several jury. Staff, the department head, the leader and PAs see each member's score and the average; jury see only their own.
+- **Final score.** The average of the submitted panel members' scores (each from the score formula, §5.5), rounded to 2 decimals at the end; the same rule as a document review round with several jury. Staff, the department head and the leader see each member's score and the average; jury see only their own.
 - **No approval** (client answer, 6 Oct 2026). When every active panel evaluation is submitted, staff close the round. Its scores then lock forever.
 - **Results.** After closing, see §5.12: Gold, Silver and Bronze for the top three of the round, then publish.
 - Assumptions: there is internet at the venue (client answer), so there is no offline mode; there is no live scoreboard, and staff watch a progress page.
 - Accept when: an on-site-only cycle with no questions publishes; adding a conflicted panel member is refused; a panel member cannot read another member's scores; the final score equals the average; staff-entered scores are marked and audited; any change after closing is refused; published medals show to the applicant.
 
-### 5.17 Leader's PA team (added 5 Oct 2026)
+### 5.17 The leader's team (added 5 Oct 2026; changed 9 Oct 2026)
 
-The leader has a personal team who take tasks from the leader, often by phone, and carry them out in the platform. The leader gives each of them access by making them a PA.
+The leader has a personal team who take tasks from the leader, often by phone, and carry them out in the platform.
 
-- Only the leader creates a PA (by invite) or removes one. Removing a PA ends their access at their next request, because roles are loaded on every request. Their past actions stay on record.
-- A PA can do every organisational task the leader can: create departments and appoint or replace their heads; add staff to any department and assign staff to awards; create awards in any department; manage master data (§5.18); correct an organisation's record with a reason; resend invites; deactivate or reactivate accounts (never the leader's or another PA's).
-- A PA sees what the leader sees: the dashboard, every award read-only, and audit history.
-- A PA cannot: create or remove PAs, change their own roles, configure or publish cycles, mask, assign applications to jury, score, approve or send back rounds, or publish results. These stay with staff, jury and department heads, so the four rules keep the same owners.
-- Every PA action is audited with the PA as actor and "Leader's PA" as role. The leader has a **PA activity** view: what each PA did, and when.
-- Assumption: every PA has the same set of powers. Per-PA permission switches are later work.
-- Accept when: a PA creates a department and appoints its head, and the audit shows the PA; a PA trying to create a PA, approve a round, edit a score or assign an application gets "forbidden"; a removed PA is refused on their next request.
+- **No separate role** (owner, 9 Oct 2026; ADR 0014). The team works from the **leader's account**, so they can do everything the leader can: create departments and appoint or replace their heads; add staff to any department and assign staff to awards; create awards in any department; manage master data (§5.18); correct an organisation's record with a reason; resend invites; deactivate or reactivate accounts.
+- Like the leader, they never touch judging data (cycle setup, masking, assignment, scores, approvals, results), so the four rules keep the same owners.
+- The audit history records the leader's account as the actor; it can't tell which team member acted. If that matters later, each member can get a named account (ADR 0014, "what would change our mind").
+- Accept when: the leader's account creates a department and appoints its head, and the audit shows it; the leader's account trying to approve a round, edit a score or assign an application gets "forbidden".
 
 ### 5.18 Data consistency (added 5 Oct 2026)
 
@@ -472,7 +466,7 @@ Before this platform, each award kept its own records, so the same organisation,
   - PIN code: exactly 6 digits.
 - **Unique without regard to case**: user email; department name; award name inside a department; cycle label inside an award; entry category name inside a cycle; master data names.
 - **Cross-field checks**: characters 3 to 12 of the GSTIN must equal the PAN (refused if not). The first two digits of the GSTIN are a GST state code; if it differs from the address state, the user sees a warning but may continue, because a GSTIN can belong to a branch in another state.
-- **Controlled lists instead of free text (master data).** Award domains and organisation types are lists the leader and PAs manage. Indian states and union territories are a fixed list with their GST state codes. A list value is never deleted, only retired: retired values stay readable on old records but can't be picked for new ones.
+- **Controlled lists instead of free text (master data).** Award domains and organisation types are lists the leader manages. Indian states and union territories are a fixed list with their GST state codes. A list value is never deleted, only retired: retired values stay readable on old records but can't be picked for new ones.
 - **History stays true.** At submit, the application takes a snapshot of the organisation's identity fields (name, PAN, GSTIN, address, official email, phone). The snapshot follows profile edits until the deadline and is frozen at the lock. An old application always shows the organisation as it was.
 - **Statuses only change through the platform's own actions**, never by hand. Time-based statuses are worked out from the clock.
 - **One active application per organisation per cycle** (§5.2), and nothing is ever hard-deleted. Corrections are new, audited records with a reason.
@@ -503,7 +497,7 @@ Award organisers (for example the team behind FPO Awards) have their own brand a
   | Video | A YouTube or Vimeo link | — |
 
 - **Publish, and change any time.** Staff edit a draft, preview it on desktop and phone, and publish. They can keep changing content and design **after publishing**; each publish creates a new immutable version (like form versions), so the live site never shows half-edited work, and an earlier version can be restored. Every publish is audited.
-- **No approval** from the leader or a PA (decided 7 Oct 2026). The department is responsible for its sites. The leader and PAs can view them, not edit them.
+- **No approval** from the leader (decided 7 Oct 2026). The department is responsible for its sites. The leader can view them, not edit them.
 - **Guardrails.** No custom HTML or scripts; rich text allows bold, italic, headings, lists and links only. Colours come from the brand kit, with a warning when text would be hard to read. Images are JPG, PNG or WebP up to 5 MB, re-encoded and resized for phones, and need alt text. Site images live in a **public** storage bucket, never next to applicants' private files.
 - **Sharing.** Each page has a title, description and share image for search engines and social media previews.
 - **The Open awards page** shows each award as a branded card (logo, banner, colours) that links to its site.
@@ -522,7 +516,7 @@ Award organisers (for example the team behind FPO Awards) have their own brand a
 - **Submit is refused** unless the profile has an identity document and a LinkedIn link, and the application has a recent proof of employment. The application then shows **Proof: pending**.
 - **What the application uses.** At submit, the application records which identity document and LinkedIn link it used. Until staff verify the proof (or the deadline locks the application), these follow the profile, so an applicant whose identity document was rejected fixes it once, on the profile. Once verified, the application keeps exactly what staff checked, even if the profile changes later.
 - **Staff of each award check** it for their own application: the identity document and LinkedIn link from the profile, next to this application's employment proof and its date. They mark **Verified**, or **Rejected** with a reason that names the document (audited). Another award's verification isn't reused, because the employment proof is new each time. If rejected before the deadline, the applicant is emailed and can fix it (on the profile or on the application) until the deadline; the proof is then pending again. An application whose proof isn't verified **can't be assigned to jury**; staff may disqualify it with a reason.
-- **Privacy (India's DPDP Act 2023).** Consent is asked at every upload, with the purpose stated. A profile's identity document is seen by its owner; staff, the department head, the leader and PAs see it only through an application they may see; **never jury** and never the applicant's colleagues. An employment proof is deleted **12 months after its cycle's results are published**. An identity document is deleted 12 months after the results of the last cycle whose application used it; one that was replaced or removed before any application used it is deleted at once. Only "Verified / Rejected on <date> by <staff>" is kept. This is a written exception to "nothing is ever hard-deleted".
+- **Privacy (India's DPDP Act 2023).** Consent is asked at every upload, with the purpose stated. A profile's identity document is seen by its owner; staff, the department head and the leader see it only through an application they may see; **never jury** and never the applicant's colleagues. An employment proof is deleted **12 months after its cycle's results are published**. An identity document is deleted 12 months after the results of the last cycle whose application used it; one that was replaced or removed before any application used it is deleted at once. Only "Verified / Rejected on <date> by <staff>" is kept. This is a written exception to "nothing is ever hard-deleted".
 - Accept when: submit is refused without an identity document and LinkedIn link on the profile, or without an employment proof on the application; an employment proof dated more than 3 months before its upload is refused; a second application, in another award, is submitted without uploading the identity document again; a verified application keeps the identity document staff checked after the profile's document is replaced; a jury response never contains a proof document; an unverified application can't be assigned; the documents are gone after the retention period while the check record stays.
 
 **Entry limit** (decided 7 Oct 2026):
@@ -560,32 +554,20 @@ Each journey starts from the person's real day, then lists what they do in the s
 
 ### Leader
 
-The single top authority, who sets up the structure, delegates the day-to-day organisational work to a personal team, and watches everything without changing judging data.
+The single top authority, who sets up the structure, and watches everything without changing judging data. The leader's team (for example an assistant) does the same work from the leader's account.
 
-- Creates PA accounts for the personal team; from now on gives them tasks, often over a call.
-- Creates a department and appoints its department head (or asks a PA to).
+- After a call: creates the new "Water Conservation" department and appoints its head.
+- Adds a staff member to two departments and assigns them three awards; creates a new award for a department's staff to configure.
+- Adds a new award domain to the master list, and retires a misspelt one; fixes an organisation's wrongly entered name, giving a reason.
+- Deactivates the account of a staff member who left, after moving their awards to someone else.
 - Opens the dashboard: every award and cycle, applications by status, masking and judging progress, rounds waiting for approval, deadlines.
 - Opens any award to read its applications, scores, notes and decisions; nothing can be edited.
-- Checks the PA activity view to see what each PA did.
-
-### Leader's PA
-
-A member of the leader's personal team. Gets tasks from the leader during the day and carries them out.
-
-- Accepts the invite and sets a password.
-- After a call with the leader: creates the new "Water Conservation" department and appoints its head.
-- Adds a staff member to two departments and assigns them three awards.
-- Creates a new award in a department for its staff to configure.
-- Adds a new award domain to the master data list, and retires a misspelt one.
-- Fixes an organisation's legal name that was entered wrongly, giving a reason.
-- Deactivates the account of a staff member who left, after moving their awards to someone else.
-- Follows the dashboard and reports back to the leader.
 
 ### Department head
 
 The second-level leader: decides who runs the department's awards and has the final say on their judgements.
 
-- (External organiser) Is appointed department head of the organiser's department by the leader or a PA, then runs everything alone.
+- (External organiser) Is appointed department head of the organiser's department by the leader, then runs everything alone.
 - Sets the department's brand kit: logo, colours, font, social links.
 - Adds staff to the department and assigns them to awards.
 - Selects jury for each cycle's pool together with staff.
@@ -600,7 +582,7 @@ The second-level leader: decides who runs the department's awards and has the fi
 Works in the system every day while a cycle runs.
 
 - Sees all the awards assigned to them, possibly in several departments, on "My awards".
-- Creates the award in their department (or picks up one a PA created), then its 2026 cycle.
+- Creates the award in their department (or picks up one the leader created), then its 2026 cycle.
 - Sets dates, entry categories, fee and blind judging.
 - Builds the questionnaire section by section.
 - Builds the scoring sheet: indicators on questions, weights per section and indicator, until every total is 100%.
@@ -678,7 +660,7 @@ The access layer is the one place where identity, scope, blind judging and confl
 | Entry limit | Cycle row (maxEntries) | Any time; never below the current count |
 | Brand (logo, colours, font, links) | BrandKit row per department | Any time |
 | Award site pages and sections | AwardSite, SitePage (draft) and SitePageVersion rows (published, immutable) | Any time, by republishing |
-| Award domains, organisation types (shared by all awards) | AwardDomain and OrganisationType rows (master data) | By the leader or a PA; retired, never deleted |
+| Award domains, organisation types (shared by all awards) | AwardDomain and OrganisationType rows (master data) | By the leader; retired, never deleted |
 
 Every configuration is checked by a Zod schema before saving, and publishing is refused if anything is invalid. Code reads behaviour from these settings, for example cycle.blindJudging, and never names an award.
 
@@ -758,7 +740,7 @@ All awards share the same tables. Every award-related row carries its cycle (and
 |---|---|---|
 | User | id, email, name, phone?, passwordHash, sessionVersion, passwordChangedAt?, deactivatedAt?, linkedinUrl?, identityFileId? | email stored lower case and unique. Deactivated users cannot log in. linkedinUrl and identityFileId (an IDENTITY_PROOF FileAsset owned by the user) are the applicant's profile proof (§5.20, §5.21) |
 | Department | id, name | name unique without regard to case |
-| RoleAssignment | userId, role (LEADER, LEADER_PA, DEPT_HEAD, DEPT_STAFF, AWARD_STAFF, JURY), departmentId?, awardId?, cycleId?, grantedById, revokedAt? | Leader and LEADER_PA have no scope; dept head → department; dept staff → department (may create awards there); award staff → award (a user may hold many); jury → cycle. Unique per user, role and scope among active rows. LEADER_PA rows are granted only by the leader. Removing a role sets revokedAt; rows are kept |
+| RoleAssignment | userId, role (LEADER, DEPT_HEAD, DEPT_STAFF, AWARD_STAFF, JURY), departmentId?, awardId?, cycleId?, grantedById, revokedAt? | Leader has no scope; dept head → department; dept staff → department (may create awards there); award staff → award (a user may hold many); jury → cycle. Unique per user, role and scope among active rows. Removing a role sets revokedAt; rows are kept |
 | Organisation | id, legalName, pan, gstin?, addressLine, city, stateCode, pincode, officialEmail, phone, orgTypeId?, cin?, website? | pan unique (stored upper case); GSTIN optional, and when present its characters 3 to 12 equal PAN; stateCode from the fixed list of states; values normalised on save (§5.18) |
 | OrganisationMember | organisationId, userId | Unique pair |
 | Award | id, name, domainId, departmentId, description, createdById | Unique (departmentId, name) without regard to case; domainId → AwardDomain |
@@ -892,7 +874,7 @@ Every read and write goes through a service function that receives the acting us
 
 - The actor object holds the user id and all role assignments. Every service function takes it as its first argument, for example scoreIndicator(actor, evaluationId, indicatorKey, value, reason?).
 - Permission helpers live in each module's access file, for example requireStaffOfCycle(actor, cycleId) and requireAssignedJury(actor, evaluationId).
-- View models are explicit: applicantView, juryView, staffView, leaderView (also used for PAs). Raw database objects never reach the browser. In a blind award, juryView is built only from masked answers and masked files.
+- View models are explicit: applicantView, juryView, staffView, leaderView. Raw database objects never reach the browser. In a blind award, juryView is built only from masked answers and masked files.
 - Typed errors map to responses: ValidationError → 400, ForbiddenError → 403, NotFoundError → 404, StateError (wrong status, past deadline, approved round) → 409. A jury member asking for an application not assigned to them gets 404, so its existence is not revealed.
 - Transactions are required for: a score change plus its audit event; an approval decision plus the round status; masking done plus the application status; releasing an application plus its audit event; an assignment plus the count of the application's jury (with a lock on the application); a password change plus the session version.
 - File downloads go through one route that checks the actor may read that file and that file kind.
@@ -903,18 +885,17 @@ Every read and write goes through a service function that receives the acting us
 
 | Module | Operations | Who |
 |---|---|---|
-| Identity | register, login, inviteUser, resetPassword, assignRole | Public, leader, PA, dept head, staff |
-| Identity | invitePA, removePA | Leader only |
-| Identity | resendInvite, deactivateUser, reactivateUser | Leader, PA |
+| Identity | register, login, inviteUser, resetPassword, assignRole | Public, leader, dept head, staff |
+| Identity | resendInvite, deactivateUser, reactivateUser | Leader |
 | Identity | getMyProfile, updateMyProfile, changePassword | Every user (own account) |
 | Identity | setIdentityDocument, removeIdentityDocument, setLinkedinUrl | Applicant (own profile) |
-| Departments | createDepartment, appointDepartmentHead | Leader, PA |
-| Departments | addStaffToDepartment, assignStaffToAward, removeStaffFromAward | Dept head (own), leader, PA (any) |
+| Departments | createDepartment, appointDepartmentHead | Leader |
+| Departments | addStaffToDepartment, assignStaffToAward, removeStaffFromAward | Dept head (own), leader (any) |
 | Master data | listAwardDomains, listOrganisationTypes | Everyone |
-| Master data | createValue, renameValue, retireValue | Leader, PA |
+| Master data | createValue, renameValue, retireValue | Leader |
 | Organisations | createOrganisation, joinOrganisation, getOrganisation, updateOrganisation | Applicant (member) |
-| Organisations | correctOrganisation (with a reason) | Leader, PA |
-| Awards | createAward | Staff (own dept), leader, PA (any dept) |
+| Organisations | correctOrganisation (with a reason) | Leader |
+| Awards | createAward | Staff (own dept), leader (any dept) |
 | Awards | createCycle, updateCycleSettings, publishCycle, extendDeadline | Staff |
 | Forms | editDraftForm, publishFormVersion, getFormVersion, diffVersions | Staff (read: applicant, jury) |
 | Scoring | editScoringSheet, validateWeights, computeScore | Staff (read: jury) |
@@ -931,9 +912,8 @@ Every read and write goes through a service function that receives the acting us
 | Approval | sendForApproval (document rounds) | Staff |
 | Approval | approve, sendBack | Dept head |
 | Results | rankRound, suggestLabels, setResultLabels, publishResults | Staff |
-| Reporting | leaderDashboard, departmentDashboard, cycleSummary, awardReadOnlyView | Leader, PA, dept head |
-| Reporting | paActivity | Leader |
-| Audit | listHistory | Leader, PA, dept head, staff |
+| Reporting | leaderDashboard, departmentDashboard, cycleSummary, awardReadOnlyView | Leader, dept head |
+| Audit | listHistory | Leader, dept head, staff |
 
 ## 12. Screens
 
@@ -974,14 +954,12 @@ The app has about 39 screens grouped by role. Each role sees only its own area a
 | Department head | Jury pool | Select jury for a cycle together with staff |
 | Department head | Approval queue | Rounds waiting for a decision |
 | Department head | Round review | Ranked list by average score, each jury member's score and note, disqualified list; approve or send back with remarks |
-| Leader and PA | Dashboard | Every award and cycle with progress, approvals and deadlines |
-| Leader and PA | Departments | Create departments; appoint or replace department heads |
-| Leader and PA | People | Find any user; add staff to departments; assign staff to awards; resend invites; deactivate or reactivate |
-| Leader and PA | Awards | Create an award in any department; award view (read-only) with its applications, scores, notes and decisions |
-| Leader and PA | Master data | Award domains and organisation types: add, rename, retire |
-| Leader and PA | Organisations | Find an organisation; correct its record with a reason; see its history |
-| Leader only | PA team | Invite or remove PAs |
-| Leader only | PA activity | What each PA did, newest first |
+| Leader | Dashboard | Every award and cycle with progress, approvals and deadlines |
+| Leader | Departments | Create departments; appoint or replace department heads |
+| Leader | People | Find any user; add staff to departments; assign staff to awards; resend invites; deactivate or reactivate |
+| Leader | Awards | Create an award in any department; award view (read-only) with its applications, scores, notes and decisions |
+| Leader | Master data | Award domains and organisation types: add, rename, retire |
+| Leader | Organisations | Find an organisation; correct its record with a reason; see its history |
 
 ## 13. Non-functional requirements
 
@@ -994,7 +972,7 @@ The load is small for a single PostgreSQL database, so the design favours correc
 | Speed | Typical pages load in under 2 seconds; autosave never blocks typing |
 | Files | PDF, JPG, PNG, DOCX, XLSX; 10 MB per file; stored outside the web root; served only through the checked download route |
 | Security | Hashed passwords; every permission checked on the server; all input validated with Zod; secrets only in environment variables, with a committed .env.example |
-| Privacy | PAN, GSTIN, address and contact details visible only to the organisation's own users, to staff and the department head of that award, and to the leader and PAs. Proof documents: the same people (a profile's identity document only through an application they may see), never jury, never the applicant's colleagues; deleted 12 months after results (§5.20, India's DPDP Act 2023) |
+| Privacy | PAN, GSTIN, address and contact details visible only to the organisation's own users, to staff and the department head of that award, and to the leader. Proof documents: the same people (a profile's identity document only through an application they may see), never jury, never the applicant's colleagues; deleted 12 months after results (§5.20, India's DPDP Act 2023) |
 | Public sites | Award sites load fast on phones (cached, images resized) and have share previews for search and social media |
 | Data consistency | One record per organisation, user and department; values normalised on save; controlled lists; case-insensitive uniqueness; identity snapshots on applications (§5.18) |
 | Time | Stored in UTC, shown in India time (Asia/Kolkata); a deadline closes at its exact configured time |
@@ -1006,7 +984,7 @@ The load is small for a single PostgreSQL database, so the design favours correc
 
 ## 14. Scope for the 10-day build
 
-> **Changed 9 Oct 2026:** the build is delivered in three phases. **Phase 1 (10–15 Oct)** builds the part listed in [PLAN.md](PLAN.md#what-works-in-phase-1); on-site rounds, the full site builder, the leader and PA admin screens and all emails move to **Phase 2**; security, privacy, load, payments and domains to **Phase 3**. The lists below stay as the full product scope.
+> **Changed 9 Oct 2026:** the build is delivered in three phases. **Phase 1 (10–15 Oct)** builds the part listed in [PLAN.md](PLAN.md#what-works-in-phase-1); on-site rounds, the full site builder, the leader's admin screens and all emails move to **Phase 2**; security, privacy, load, payments and domains to **Phase 3**. The lists below stay as the full product scope.
 
 With about 40 working hours, the build covers the full cycle at its core and cuts depth, not steps. The priorities below decide what drops first if time runs short.
 
@@ -1016,11 +994,10 @@ With about 40 working hours, the build covers the full cycle at its core and cut
 - Proof: the identity document and LinkedIn link once on the profile, a recent proof of employment with every application, and the staff check; the entry limit with its public counter (§5.20).
 - My profile for every user: name, phone, change password (§5.21).
 - The department head's dashboard (external organisers run their awards from it).
-- Login and roles with scopes; a seeded leader, with PAs, departments, department heads, staff and jury created through the hierarchy.
-- The leader's PA role with its permissions and the PA activity view (§5.17).
+- Login and roles with scopes; a seeded leader, with departments, department heads, staff and jury created through the hierarchy.
 - Data consistency rules: normalisation, case-insensitive uniqueness, controlled lists for award domains, organisation types and states, identity snapshots (§5.18).
 - Organisation profile with PAN and GSTIN checks.
-- Departments and department heads (leader or PA), staff assignment to many awards (department head, leader or PA), award and cycle setup (staff), all in the UI.
+- Departments and department heads (leader), staff assignment to many awards (department head or leader), award and cycle setup (staff), all in the UI.
 - Questionnaire builder and immutable form versions (rule 4).
 - Scoring sheet builder with weight validation and the score formula.
 - Applicant flow: one application per organisation (blocked at start; colleagues read-only), demo fee, dynamic form, autosave, submit, edit until deadline, withdraw.
@@ -1037,7 +1014,7 @@ With about 40 working hours, the build covers the full cycle at its core and cut
 - Releasing an application with a reason (staff).
 - Disqualify and reinstate.
 - Emails for: questionnaire updated, jury assigned, results published (others if time allows).
-- Leader and PA dashboard with basic counts.
+- Leader dashboard with basic counts.
 - Master data screens (until built, the lists come from the seed).
 - Organisation record correction and account deactivation screens.
 
@@ -1046,9 +1023,9 @@ With about 40 working hours, the build covers the full cycle at its core and cut
 - Leader drill-down screens beyond the dashboard.
 - A flag when the jury of one application disagree widely (for example more than 20 points between the highest and lowest score).
 - Remaining email templates.
-- Reminders the PAs can send: to department heads with rounds waiting for approval, and to jury with unfinished evaluations.
+- Reminders the leader can send: to department heads with rounds waiting for approval, and to jury with unfinished evaluations.
 - Export of cross-award reports as CSV for the leader.
-- A "possible duplicate organisations" list for PAs (same name, different PAN) to clean up.
+- A "possible duplicate organisations" list for the leader (same name, different PAN) to clean up.
 
 ### Designed for, not built (room kept)
 
@@ -1059,7 +1036,7 @@ With about 40 working hours, the build covers the full cycle at its core and cut
 - More organisation fields.
 - Own domains for award sites: a sub-domain first, then the organiser's own domain (slug and customDomain field already stored).
 - Drag-and-drop free layout, uploaded custom fonts, and page-visit analytics for award sites.
-- Per-PA permission switches.
+- Named accounts for each member of the leader's team (ADR 0014).
 
 ### Out of scope
 
@@ -1102,7 +1079,7 @@ Tests for each rule are written on the day that rule is built, against a real Po
 - Entry limit: refused past the limit; counter correct; a withdrawal frees a place; no overfill when two submit at once.
 - Results: no label before scores lock; suggested medals go to ranks 1 to 3 of the whole round; published labels show correctly to applicants.
 - Disqualify and reinstate require reasons and restore the previous state.
-- Permissions: each role refused outside its scope; the leader and PAs refused on every judging write (cycle setup, masking, assignment, scores, approval, results); only the leader creates or removes PAs; a removed PA is refused; only staff can assign applications to jury.
+- Permissions: each role refused outside its scope; the leader refused on every judging write (cycle setup, masking, assignment, scores, approval, results); only staff can assign applications to jury.
 - Data consistency: values are normalised on save; case-insensitive duplicates are refused; a GSTIN without the PAN is refused; retired list values stay readable but can't be picked; an application keeps its identity snapshot after the profile changes.
 
 ### What the tests do not check
@@ -1116,7 +1093,7 @@ Tests for each rule are written on the day that rule is built, against a real Po
 
 ### Test data
 
-Phase 1's seed has the same people and the two written-review cycles; the shop-floor cycle arrives with Phase 2. A seed script creates: two departments; one leader, one PA, one department head per department, two staff (one of them on awards in both departments), four jury members; the master data lists; three cycles with different settings (one blind document review with a fee, 3 sections and 2 to 3 jury per application; one non-blind and free with entry categories, a document round then an on-site round; one shop-floor competition, on-site only, with a near-empty form); about 20 organisations and applications in mixed states; one recorded conflict.
+Phase 1's seed has the same people and the two written-review cycles; the shop-floor cycle arrives with Phase 2. A seed script creates: two departments; one leader, one department head per department, two staff (one of them on awards in both departments), four jury members; the master data lists; three cycles with different settings (one blind document review with a fee, 3 sections and 2 to 3 jury per application; one non-blind and free with entry categories, a document round then an on-site round; one shop-floor competition, on-site only, with a near-empty form); about 20 organisations and applications in mixed states; one recorded conflict.
 
 ## 16. Repository, workflow and conventions
 
@@ -1223,6 +1200,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | New | Staff of **each award** still check the proof for their own application. |
 | New | Every user can change their password and edit their details on My profile. |
 | New | In a document review round, **several jury can score one application**. Staff set a minimum and a maximum per round (1 or more, up to the jury in the pool); every application must get that many; the final score is the **average**. On-site panels stay 2 to 5. |
+| New | No separate PA role: the leader's team works from the leader's account. |
 | New | Build in three phases: Phase 1 is a fully working demo; the plan and the data model are agreed before coding (re-plan to follow). |
 
 ### Answered on 8 Oct 2026
@@ -1261,10 +1239,10 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | # | Answer |
 |---|---|
 | 1 | The award goes to the organisation (legal entity, by PAN). Plants and units never apply separately. |
-| 3 | Staff accounts are created by the department head, or by the leader's PAs on the leader's behalf. |
+| 3 | Staff accounts are created by the department head, or by the leader's PAs on the leader's behalf. *(9 Oct: no PA role; the team uses the leader's account.)* |
 | New | A staff member can be assigned to many awards. |
 | New | No signed authorisation letter. For now every application from a member of the organisation is accepted; proof of authority is to be decided. |
-| New | The leader has a personal team (PAs), created by the leader, who carry out the leader's organisational tasks. |
+| New | The leader has a personal team (PAs), created by the leader, who carry out the leader's organisational tasks. *(Changed 9 Oct: no separate role; they use the leader's account, ADR 0014.)* |
 | New | Data inconsistency across the old award systems was the main problem; the platform must keep shared data consistent. |
 
 ### Questions for you
@@ -1273,7 +1251,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 |---|---|---|
 | 1 | Does the award go to the legal company, or can each plant or unit apply separately? | **Answered:** the legal company (organisation, by PAN); one application per organisation per cycle |
 | 2 | Is the department head's approval final, or does the leader also sign off after it? | **Answered:** final, for document rounds; on-site rounds have no approval |
-| 3 | Who creates staff accounts: the department head or the leader? | **Answered:** the department head, or the leader's PAs |
+| 3 | Who creates staff accounts: the department head or the leader? | **Answered:** the department head, or the leader (whose team uses the leader's account, 9 Oct) |
 | 4 | Can a department head also create awards, or only staff? | Only staff |
 | 5 | Can a department head edit scores, or only approve and send back? | Only approve and send back |
 | 6 | Is there exactly one leader, or can there be a backup leader account? | Exactly one |
@@ -1292,7 +1270,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 
 | # | Assumption we build on | If it is wrong |
 |---|---|---|
-| A1 | The leader's account is created once at setup; the leader and their PAs do the platform's admin work | Add a separate admin role |
+| A1 | The leader's account is created once at setup; the leader (and the leader's team, through that account) does the platform's admin work | Add a separate admin role |
 | A2 | Staff pick the award domain when creating an award; entry categories are separate and set per cycle | Merge the two fields |
 | A3 | A staff member can belong to several departments; each department head adds them to their own department | Limit staff to one department |
 | A4 | The staff member who creates an award is assigned to it automatically | The department head assigns every award's staff |
@@ -1305,8 +1283,8 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | A11 | Jury do not see the computed total, nor another jury member's scores or notes on the same application | Show them after submitting |
 | A12 | Non-blind awards skip masking | Add optional masking |
 | A13 | Transferring an application to another member of the organisation is later work | Build it now |
-| A14 | Every PA has the same powers (§5.17) | Add per-PA permission switches |
-| A15 | PAs can create awards in any department; configuring the cycles stays with staff | Only staff create awards |
+| A14 | *Removed 9 Oct 2026: there is no PA role (ADR 0014)* | — |
+| A15 | The leader can create awards in any department; configuring the cycles stays with staff | Only staff create awards |
 | A16 | Any member of an organisation may start its application; only one per organisation per cycle, and a second start is refused (8 Oct) | Allow parallel drafts |
 | A26 | If the person who started the application leaves or is the wrong person, staff release it and a colleague starts again; handing a draft over to a colleague is later work (see A13) | Build the hand-over now |
 | A17 | A GSTIN whose state differs from the address state gives a warning, not a refusal | Refuse it |
@@ -1324,6 +1302,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | A30 | An application's identity document and LinkedIn link follow the profile until staff verify them or the deadline locks it; then they are fixed | Fix them at submit |
 | A31 | The jury per application can change until the round is first sent for approval; the maximum never goes below an application's current jury | Fix it at the first assignment |
 | A32 | Any one of an application's jury can disqualify it (with a reason); staff can reinstate | Need staff to confirm a jury disqualification |
+| A33 | The leader's team shares the leader's account; the audit history can't tell which member acted (9 Oct) | Give each member a named account with the leader's powers |
 
 Improvement ideas already offered to the client: a fixed identity section that hides itself from jury, masking only after the deadline, one organisation profile reused across awards, highlighting changed questions, flagging large disagreements in a future multi-judge setup, copying last year's setup, and feedback reports for applicants.
 
