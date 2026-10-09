@@ -17,7 +17,7 @@ The client's answers:
 ## Options
 
 1. **A separate "shop-floor competition" type with its own flow.** Quick to picture, but it puts an award-type branch in the code, the thing the brief says staff must never need a developer for. It also wouldn't cover the large award's round 2. Turned down.
-2. **Keep shop-floor out of the model.** It's honest, but it leaves out a real class of the client's awards when the client has now told us how they work. Turned down.
+2. **Keep shop-floor out of the model.** It's simpler, but it leaves out a real class of the client's awards when the client has now told us how they work. Turned down.
 3. **One generic round type, ON_SITE, next to DOCUMENT_REVIEW.** ← chosen. Staff pick a cycle's rounds in order: document review only; document review then on-site; or on-site only.
 
 ## Decision

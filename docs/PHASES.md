@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-09 (Day 7, late) | **Docs refined** (Phase 0.9): the Backend and Front-End READMEs rewritten for the three-phase plan (status, what each step builds, how to run); wording tightened across the lead-facing docs. No change to scope or dates. | Owner: keep the docs clear and current |
 | 2026-10-09 (Day 7, night) | **No PA role** (owner): the leader's team works from the leader's account (ADR 0014). Removed from the seed (1.1), the leader dashboard (1.4) and package 2.3 (no PA team or PA activity screens). | Simpler; fewer roles, flows and tests |
 | 2026-10-09 (Day 7, evening) | **Three-phase plan** (Phase 0.8). Phase 1 = the working platform judged by the lead: **build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough Thu 15**, in five steps (1.1 foundation and people, 1.2 award setup and branded pages, 1.3 applying and proof check, 1.4 judging and results, 1.5 online and polished). Two written-review awards. Phase 2 (~20 days: on-site rounds, full site builder, admin screens, emails, end-to-end tests) and Phase 3 (~15 days + client testing: security, privacy, load, payments, domains). The old 15-phase list is mapped in §7. The simple version is [PLAN.md](PLAN.md); the data model and architecture are in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md). | Lead, 9 Oct: three phases, Phase 1 a fully working demo, technical design before coding; owner: wrap up by 13 Oct including Sunday |
 | 2026-10-09 (Day 7) | **Lead call.** Points changed **inside the phase descriptions only** (Phase 0.7, docs only): the ID and LinkedIn once on the profile and a recent employment proof per application (Phases 1, 2, 7, 8, 9, 10); My profile with change password (Phases 2, 5); several jury per application in document rounds with the average (Phases 1, 3, 9, 10, 11, 13). The lead asked for a re-plan in **three phases** (Phase 1 a fully working demo) with the data model agreed before coding: that re-plan comes next, so the phase list and days are **not** changed yet. | Lead call, 9 Oct; ADR 0012, 0013 |
@@ -63,8 +64,9 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.4 | New issues: branding, organisers, verification, entry limits, domains | `phase-0.4-issues` | 5 | ✅ Merged (`phase-0.4-done`) |
 | 0.5 | UI overview: clickable prototype, flows per role, re-plan options | `phase-0.5-ui` | 6 | ✅ Merged (`phase-0.5-done`) |
 | 0.6 | One application per organisation, blocked at the start | `phase-0.6-entry` | 6 | ✅ Merged (`phase-0.6-done`) |
-| 0.7 | Lead call: proof once on the profile, My profile, several jury per application | `phase-0.7-lead` | 7 | 🧪 In review (contained in 0.8) |
-| 0.8 | Three-phase plan and technical design | `phase-0.8-plan` | 7 | 🧪 In review |
+| 0.7 | Lead call: proof once on the profile, My profile, several jury per application | `phase-0.7-lead` | 7 | ✅ Merged (`phase-0.7-done`) |
+| 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | 7 | ✅ Merged (`phase-0.8-done`) |
+| 0.9 | Docs refined: app READMEs, wording, status | `phase-0.9-docs` | 7 | 🧪 In review |
 
 **Phase 1: working platform** (the dates are fixed; the build is 10–13 Oct, deployment 14 Oct, demo 15 Oct)
 
@@ -401,7 +403,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.7: Lead call: proof once, My profile, several jury (Docs) 🧪
+### Phase 0.7: Lead call: proof once, My profile, several jury (Docs) ✅
 
 **Goal.** Record the 9 Oct lead call before re-planning: the identity document and LinkedIn link once on the profile with a recent employment proof per application; My profile with change password for every role; several jury per application in document review rounds, averaged (ADR 0012, 0013). List what the parked backend must change.
 
@@ -412,10 +414,20 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.8: Three-phase plan and technical design (Docs) 🧪
+### Phase 0.8: Three-phase plan and technical design (Docs) ✅
 
 **Goal.** Split the whole platform into three phases as the lead asked, with Phase 1 by date (10–15 Oct) and Phases 2–3 in days; agree the data model and architecture before coding.
 
 **Builds.** [PLAN.md](PLAN.md) (simple, for the lead), this file rewritten as the detailed steps, [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), the PA role removed everywhere (ADR 0014), and updates to PROGRESS, GAPS, the spec §14, CLAUDE.md, README, the overview, creating.md and Daily.
 
 **Done when.** The owner has reviewed the plan; merged before Step 1.1 starts.
+
+---
+
+### Phase 0.9: Docs refined (Docs) 🧪
+
+**Goal.** Bring every document in line with the three-phase plan before Step 1.1, and tighten the wording.
+
+**Builds.** `Backend/README.md` and `Front-End/README.md` rewritten (status, what each step builds, structure, how to run, environment, deployment); wording fixes in PLAN, the overview, the UI README, creating.md and three ADRs; PROGRESS and PHASES status for 0.7 and 0.8.
+
+**Done when.** The owner has reviewed it; merged before Step 1.1 starts.

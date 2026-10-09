@@ -48,7 +48,7 @@ flowchart LR
 
 ## 2. Data model
 
-**One set of tables for all awards.** Every award-related row is tied to its **cycle** (one edition of an award), and foreign keys include the cycle, so rows from two awards can never mix. A new award is just new rows, never a new table. The whole model, including the Phase 2 tables, is created in Phase 1, so later phases add features without reshaping the data.
+**One set of tables for all awards.** Every award-related row is tied to its **cycle** (one edition of an award), and foreign keys include the cycle, so rows from two awards can never mix. A new award adds rows, never a new table. The whole model, including the Phase 2 tables, is created in Phase 1, so later phases add features without reshaping the data.
 
 ```mermaid
 erDiagram

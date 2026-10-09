@@ -61,4 +61,5 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
   - **Phase 3** (~15 days + client testing): launch work.
   - The technical design is in [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
 - **Changed (night):** No more PA role. The leader's team simply works from the leader's account, so there are five roles ([ADR 0014](docs/decisions/0014-no-pa-role.md)). Removed from the spec, plan, prototype and gaps.
+- **Done (late):** Rewrote the Backend and Front-End READMEs for the new plan (what's built, what each step adds, how to run) and tightened the wording across the docs.
 - **Next:** Sat 10 Oct, Step 1.1: foundation and people.

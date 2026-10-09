@@ -48,7 +48,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 
 **People and data**
 - **5 roles** → leader, department head, staff, jury, applicant. The leader never touches judging.
-- **No PA role** (9 Oct) → the leader's team just uses the leader's account. Simpler: one role, flows and screens less. Cost: the history can't tell which team member acted.
+- **No PA role** (9 Oct) → the leader's team uses the leader's account. One role, two flows and two screens fewer. Cost: the history can't tell which team member acted.
 - **Award goes to the company** (one per PAN) → never to plants or units.
 - **Data consistency** → one record per company, person, department; cleaned on save; lists instead of free text. It was the client's biggest problem.
 - **No signed letter** → too manual. Instead: proof documents.
@@ -85,7 +85,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 - **Database as a second guard** → case-insensitive names, CHECKs, history that can't be edited, foreign keys that keep awards apart.
 - **One clock (`clock.now()`)** → tests can jump past a deadline.
 - **Audit in the same transaction** → a change and its history entry succeed or fail together.
-- **Email outbox** → emails are sent only after the change really happened.
+- **Email outbox** → emails are sent only after the change has been saved.
 
 **AI mistakes we caught** (the brief asks for one)
 - Prisma's docs named a setting that doesn't exist → check the installed types.

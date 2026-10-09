@@ -144,14 +144,14 @@ We cut from the top, and never the core:
 - **What's rare or big comes later**: on-site days happen once or twice a year, and the full site builder is a large feature on its own.
 - **Launch work comes last**, when the features have stopped moving.
 
-## How Phase 1 stands out
+## What the walkthrough will show
 
-- **A live third award** set up in the walkthrough, in a few minutes, with no code.
-- **The rules are proven, not claimed.** Each rule has named tests that run on every change, listed in `docs/testing.md`.
-- **Data the leader can trust.** Company details are cleaned as they're typed (one PAN, one spelling), so the dashboard adds up.
-- **Fair judging.** Several jury per application, averaged; jury never see each other's marks; every change carries a reason.
-- **Built to grow.** One database for all awards, with every row tied to its award. About 40,000 applications a year fits comfortably, and Phases 2 and 3 add features without rebuilding.
-- **Online, with demo logins for every role**, so the lead can try it alone.
+- **A third award set up live**, in a few minutes, with no code.
+- **Tests for each rule.** Each of the four rules has named tests that run on every change; `docs/testing.md` lists them.
+- **Clean company data.** Company details are cleaned when saved (one PAN, one spelling), so the leader's dashboard counts each company once.
+- **Fair judging.** Several jury per application, averaged; jury never see each other's marks; every score change has a reason.
+- **Room to grow.** One database for all awards, with every row tied to its award. About 40,000 applications a year fits, and Phases 2 and 3 add features without rebuilding.
+- **Online, with a demo login for every role**, so the lead can try it alone.
 
 ## Risks we are watching
 

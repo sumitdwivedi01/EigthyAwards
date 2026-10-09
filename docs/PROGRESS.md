@@ -6,12 +6,12 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-09 · Day 7 (evening) |
-| **Current phase** | Phase 0.8: three-phase plan and technical design (🧪 committed locally, not pushed; contains Phase 0.7) |
-| **Current branch** | `phase-0.8-plan` |
+| **Last updated** | 2026-10-09 · Day 7 (late) |
+| **Current phase** | Phase 0.9: docs refined (🧪 committed locally, not pushed) |
+| **Current branch** | `phase-0.9-docs` |
 | **What runs today** | Nothing on `main`. The backend foundation is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`); Step 1.1 brings it in |
 | **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15**; then Phase 2 (~20 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner reviews, pushes and merges `phase-0.8-plan` (it contains 0.7), tag `phase-0.8-done`. 2) **Sat 10 Oct: Step 1.1** Foundation and people, on `phase-1.1-foundation` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
+| **Next action** | 1) The owner reviews, pushes and merges `phase-0.9-docs`, tag `phase-0.9-done`. 2) **Sat 10 Oct: Step 1.1** Foundation and people, on `phase-1.1-foundation` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
 | **Risk** | Four build days are tight (G-K13): daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order) |
 
@@ -28,8 +28,9 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.4 | New issues and the owner's answers | `phase-0.4-issues` | ✅ Merged (committed to `main` by mistake; accepted as is, see Daily 7 Oct) | — | 2026-10-07 · `phase-0.4-done` | n/a |
 | 0.5 | UI overview and re-plan options | `phase-0.5-ui` | ✅ Merged | sumitdwivedi01/EigthyAwards#5 | 2026-10-08 · `phase-0.5-done` | n/a |
 | 0.6 | One application per organisation | `phase-0.6-entry` | ✅ Merged | sumitdwivedi01/EigthyAwards#6 | 2026-10-08 · `phase-0.6-done` | n/a |
-| 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | 🧪 In review (local commit; contained in 0.8) | — | — | n/a |
-| 0.8 | Three-phase plan and technical design | `phase-0.8-plan` | 🧪 In review (local commit) | — | — | n/a |
+| 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | ✅ Merged | sumitdwivedi01/EigthyAwards#7 | 2026-10-09 · `phase-0.7-done` | n/a |
+| 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
+| 0.9 | Docs refined | `phase-0.9-docs` | 🧪 In review (local commit) | — | — | n/a |
 | **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | ⬜ (starts from the parked code: tag `parked/phase-01-be-foundation`, 62 tests) | — | — | — |
 | **1.2** | Award setup and branded pages · **Sun 11 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
 | **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
@@ -87,7 +88,17 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
 
-### Phase 0.8: Three-phase plan and technical design · 🧪 · 2026-10-09 (Day 7, evening)
+### Phase 0.9: Docs refined · 🧪 · 2026-10-09 (Day 7, late)
+
+The owner asked for the Backend README to match the new plan, and for every document to be clear, current and free of filler words.
+
+- [x] `Backend/README.md` rewritten: status (what's built, where, what Step 1.1 brings), which module is built in which step, structure, the file contract of each module, how to run, scripts, environment variables, tests, deployment.
+- [x] `Front-End/README.md` rewritten the same way: status, which screens come in which step, structure, how to run, deployment.
+- [x] Wording: decorative emojis and marketing phrases removed from the overview; "How Phase 1 stands out" became "What the walkthrough will show" in PLAN; filler words removed from creating.md, the UI README and ADRs 0001, 0003 and 0008. The overview now points to PLAN.md and TECHNICAL-DESIGN.md and says which awards Phase 1 shows.
+- [x] Status of 0.7 and 0.8 set to merged in PROGRESS and PHASES.
+- [ ] Owner review, push and merge.
+
+### Phase 0.8: Three-phase plan and technical design · ✅ · 2026-10-09 (Day 7, evening)
 
 The lead asked for the whole platform in **three phases**, Phase 1 a fully working platform (what we are judged on), and the technical design agreed before coding. The owner set Phase 1 to start on 10 Oct and wrap up by 13 Oct, including Sunday. Four choices were agreed first (all recommended): build 10–13, deploy 14, demo 15; two written-review awards; a simple branded page in Phase 1; a new simple PLAN.md.
 
@@ -96,9 +107,9 @@ The lead asked for the whole platform in **three phases**, Phase 1 a fully worki
 - [x] [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md): architecture, modules per phase, the data model (diagram and database guarantees), key flows, the Phase 1 API, scaling, security, environments, testing.
 - [x] PROGRESS rebuilt for the steps; GAPS (K12 answered, K13–K15 added, A2 and A4 updated); spec §1, §14, §15 and §17 notes; CLAUDE.md, README, the overview, the 0.5 and 0.7 proposals, the UI README, creating.md (rewritten short) and Daily.
 - [x] **The PA role removed** (owner, later on 9 Oct): the leader's team works from the leader's account. ADR 0014 (supersedes 0005); the spec (five roles, matrix, §5.17 now "the leader's team", journeys, operations, screens, data model, tests, A14 removed, A33 added); GAPS (A11, A12, H02, H03, H11 removed; K16 added); the prototype (the PA screen became "People and awards"; the role is now "Leader"); PLAN, PHASES, TECHNICAL-DESIGN, the overview, the READMEs, the PR template, the backend change list (B6), creating.md.
-- [ ] Owner review, push and merge.
+- [x] Merged through sumitdwivedi01/EigthyAwards#8 and tagged `phase-0.8-done`.
 
-### Phase 0.7: Lead call: proof once, My profile, several jury · 🧪 · 2026-10-09 (Day 7)
+### Phase 0.7: Lead call: proof once, My profile, several jury · ✅ · 2026-10-09 (Day 7)
 
 The owner met the lead. The lead agreed with most of the plan and asked for: the identity document and LinkedIn link given **once**, not with every application; only a **recent** proof of employment per application; a way for users to **change their password**; and **several jury per application** in round 1, with the average as the final score so no single person's bias decides. Four details were agreed first (all recommended options): each award checks its own application; the proof is dated within 3 months; one min–max per round; commit locally only.
 
@@ -110,7 +121,7 @@ The owner met the lead. The lead agreed with most of the plan and asked for: the
 - [x] Prototype: a new **My profile** screen (proof once, change password); the proof step now asks only for the dated employment proof; proof check, assignment (min–max, several jury), judging progress, results and the head's review show each jury member's score and the average. 32 screens. Tested at phone, tablet and laptop widths: no errors, every link valid, nothing cut off (also fixed older screens whose tables were clipped on phones).
 - [x] Also fixed: the overview still said "two entries from one company are flagged" (missed in 0.6).
 - [x] UI README, overview, README, CLAUDE.md, creating.md, Daily.md.
-- [ ] Owner review; then the three-phase re-plan (G-K12).
+- [x] Merged through sumitdwivedi01/EigthyAwards#7 and tagged `phase-0.7-done`; the three-phase re-plan followed in 0.8.
 
 ### Phase 0.6: One application per organisation · ✅ · 2026-10-08 (Day 6)
 
