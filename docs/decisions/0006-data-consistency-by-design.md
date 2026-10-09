@@ -11,7 +11,7 @@ The leader said data inconsistency was the biggest problem before this platform.
 ## Options
 
 1. **Rely on the UI** (dropdowns and form checks). It's cheap, but anything that bypasses the UI (the API, seed data, a future import) brings the inconsistency back. Turned down as the only guard.
-2. **Clean up later** with reports and manual merges. That treats the symptom; the problem would keep coming back. Kept only as a "could have" (a possible-duplicates list for PAs).
+2. **Clean up later** with reports and manual merges. That treats the symptom; the problem would keep coming back. Kept only as a "could have" (a possible-duplicates list for the leader).
 3. **Enforce consistency on the server and in the database, at write time.** ← chosen
 
 ## Decision
@@ -26,7 +26,7 @@ Option 3, in five layers:
    - phone: `+91` and 10 digits
    - PIN code: 6 digits
 3. **Database constraints** as the second guard: case-insensitive unique indexes on emails, department names, award names per department, cycle labels per award, category names per cycle, and master data names.
-4. **Controlled lists** (master data) instead of free text for award domains and organisation types, managed by the leader and PAs. States and union territories come from a fixed list with GST state codes. List values are retired, never deleted.
+4. **Controlled lists** (master data) instead of free text for award domains and organisation types, managed by the leader. States and union territories come from a fixed list with GST state codes. List values are retired, never deleted.
 5. **History stays true**: the application snapshots the organisation's identity at submit and freezes it at the deadline. Corrections are new, audited records with a reason.
 
 ## Why

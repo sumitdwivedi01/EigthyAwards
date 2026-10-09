@@ -18,7 +18,7 @@ Backend/
 │  ├─ lib/                  db, clock, errors, logger, ids, normalize, states, storage/, mailer/, auth/
 │  ├─ middleware/           actor, error-handler, validate, rate-limit
 │  └─ modules/
-│     ├─ identity/          login, invites, resets, scoped roles, Leader's PAs, deactivation
+│     ├─ identity/          login, invites, resets, scoped roles, My profile, deactivation
 │     ├─ departments/       departments, heads, staff (one staff member, many awards)
 │     ├─ master-data/       award domains, organisation types (retire, never delete)
 │     ├─ organisations/     PAN/GSTIN, create/join, normalised profile, audited corrections
@@ -32,7 +32,7 @@ Backend/
 │     ├─ onsite/            on-site rounds: slots, panels, backup entry, close, averages
 │     ├─ approval/          send for approval, approve, send back (document rounds only)
 │     ├─ results/           ranks, result labels (Shortlisted/Rejected, Gold/Silver/Bronze), publish
-│     ├─ reporting/         leader, PA and department dashboards; PA activity
+│     ├─ reporting/         leader and department dashboards
 │     ├─ audit/             append-only history (R3)
 │     └─ notifications/     email templates, EmailLog outbox
 └─ tests/                   test DB helpers, factories, integration suites

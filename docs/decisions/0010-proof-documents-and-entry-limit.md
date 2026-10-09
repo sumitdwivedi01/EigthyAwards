@@ -21,7 +21,7 @@ Only one real application per organisation is allowed per award, but anyone who 
 
 - With **every application**, before submitting: a photo identity document (PAN card, passport, driving licence, voter ID, or **masked** Aadhaar only), a proof of employment (company ID card, letter on letterhead, or appointment letter or payslip with the salary hidden), and a LinkedIn profile link. Submit is refused without them.
 - **Staff check them:** Verified, or Rejected with a reason (audited). A rejected applicant can upload new documents until the deadline. An unverified application can't be assigned to jury.
-- **Privacy (DPDP Act 2023):** consent at upload; seen only by the award's staff, its department head, the leader and PAs, **never jury**; deleted 12 months after the cycle's results are published, keeping the check record. This is a written exception to "nothing is ever hard-deleted".
+- **Privacy (DPDP Act 2023):** consent at upload; seen only by the award's staff, its department head and the leader, **never jury**; deleted 12 months after the cycle's results are published, keeping the check record. This is a written exception to "nothing is ever hard-deleted".
 - **Entry limit:** an optional maximum of submitted applications per cycle; the public count (e.g. "499 / 500") is always shown when a limit is set; submissions past the limit are refused; one transaction with a lock prevents overfilling.
 
 ## Why

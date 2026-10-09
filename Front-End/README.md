@@ -19,8 +19,8 @@ Front-End/
 │  │  │                     judging, approval, on-site schedule and panels, on-site progress, results
 │  │  ├─ jury/              assignments, scoring, on-site scoring (phone-friendly)
 │  │  ├─ dept/              staff, jury pool, approval queue, round review, dashboard
-│  │  └─ leader/            leader and PAs: dashboard, departments, people, awards, master data,
-│  │                        organisations, read-only award view; PA team and PA activity (leader only)
+│  │  └─ leader/            leader: dashboard, departments, people, awards, master data,
+│  │                        organisations, read-only award view
 │  ├─ components/
 │  │  ├─ ui/                shadcn/ui
 │  │  ├─ form-builder/      questionnaire builder (staff)

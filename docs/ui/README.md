@@ -2,7 +2,7 @@
 
 > **What this is.** The client asked to see the platform before anything is built. This folder shows every user's journey **screen by screen**. It's a prototype of the flow: no real data, nothing is saved, and the final visual design will differ.
 >
-> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PHASES.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
+> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PLAN.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
 
 ## How to open it
 
@@ -20,7 +20,7 @@ Each prototype screen has yellow notes (which decision it shows) and red notes (
 
 ```mermaid
 flowchart LR
-    A["Leader or PA<br/>creates a department<br/>for the organiser"] --> B["Department head<br/>sets the brand kit,<br/>adds staff"]
+    A["Leader<br/>creates a department<br/>for the organiser"] --> B["Department head<br/>sets the brand kit,<br/>adds staff"]
     B --> C["Staff<br/>set up the award<br/>and build its site"]
     C --> D["Applicants<br/>find the site, apply,<br/>upload proof"]
     D --> E["Staff<br/>check proof, mask,<br/>assign 1 or more jury each"]
@@ -119,12 +119,12 @@ flowchart LR
 | 3 | Staff and awards | Invite staff, give them awards | `#h-staff` |
 | 4 | Approve a round | Ranked list by average, each jury member's score and note, disqualified list; approve locks scores (R3) | `#h-review` |
 
-## 6. Leader and PA
+## 6. Leader (the leader's team uses the same account)
 
 ```mermaid
 flowchart LR
     L1["Leader dashboard<br/>all 80 awards"] --> L2["Departments and organisers"]
-    L1 --> L3["PA team and PA activity<br/>leader only"]
+    L1 --> L3["People and awards<br/>staff on awards, accounts"]
     L1 --> L4["Master data and<br/>organisation corrections"]
 ```
 
@@ -132,7 +132,7 @@ flowchart LR
 |---|---|---|---|
 | 1 | Leader dashboard | One trustworthy view across every award and department | `#l-dash` |
 | 2 | Departments | Create a department for an external organiser and appoint its head | `#l-depts` |
-| 3 | PA team | Invite or remove PAs; every PA action listed | `#l-pa` |
+| 3 | People and awards | Find a person; assign staff to awards; resend invites; deactivate accounts; the leader's recent changes | `#l-people` |
 | 4 | Master data | Shared lists (retire, never delete); organisation corrections with a reason | `#l-master` |
 
 ---

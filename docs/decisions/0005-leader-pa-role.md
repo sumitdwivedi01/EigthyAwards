@@ -1,5 +1,7 @@
 # 0005. A "Leader's PA" role for the leader's personal team
 
+> **Superseded on 9 Oct 2026 by [ADR 0014](0014-no-pa-role.md):** there is no PA role; the leader's team works from the leader's account. Kept for history.
+
 - Status: **Accepted** (leader call, 2026-10-05). The exact list of PA powers is **Proposed**: see GAPS A11 and A12.
 - Date: 2026-10-05
 - Related: spec §3, §5.17; GAPS G-H02 to G-H04

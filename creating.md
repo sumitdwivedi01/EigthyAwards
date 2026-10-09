@@ -1,206 +1,139 @@
 # creating.md: what we chose, and why
 
-My own learning notes. Short and simple. One line per choice: **what** we picked, then **why**.
-Updated every working session. (The detailed versions live in `docs/`.)
+My own notes. One line per choice: **what** → **why**. The details live in `docs/`.
 
 ---
 
-## The big picture
+## The plan (from 9 Oct)
 
-- **One platform for ~80 awards.** An award is *data* (settings), not *code*. Staff create new awards themselves.
-- **Two apps.** The frontend (screens) runs on Vercel. The backend (rules + database) runs on Render. The database is on Supabase.
-- **The backend decides everything.** The frontend only shows what the backend says. So nobody can cheat by editing the page.
-- **The four rules** (blind judging, conflicts, score audit, question versions) are enforced in the backend *and* the database.
+| Phase | What | When |
+|---|---|---|
+| **1. Working platform** (we're judged on this) | 2 different awards, set up on screen, run end to end online; the 4 rules tested | **Sat 10 – Thu 15 Oct** |
+| **2. Complete product** | On-site rounds, site builder, admin screens, emails, robot tests | ~20 working days |
+| **3. Launch-ready** | Security, privacy, load, payments, domains, client testing | ~15 days + testing |
+
+**Phase 1, day by day**
+- **Sat 10:** foundation + people (logins, roles, My profile, companies)
+- **Sun 11:** award setup (settings, questions, scoring sheet, branded page)
+- **Mon 12:** applying (form, proof, submit, entry limit) + proof check
+- **Tue 13:** judging (masking, conflicts, several jury, scores, approval, results)
+- **Wed 14:** online (Supabase + Render + Vercel), demo data, docs
+- **Thu 15:** walkthrough with the lead
+
+- **Why 3 phases** → the lead wants one solid, working thing first, then the rest in order.
+- **Why only written rounds in Phase 1** → on-site rounds are a big feature used once or twice a year; Phase 2.
+- **Why a simple branded page, not the builder** → shows the brand idea in a day; the builder takes four.
+- **Why deploy on its own day** → things that work on a laptop can break online (cookies, database, files).
+- **If late** → cut send-back, then file masking, then the dashboard. **Never** cut the 4 rules.
+- Files: `docs/PLAN.md` (simple, for the lead), `docs/PHASES.md` (detailed steps), `docs/TECHNICAL-DESIGN.md` (data model, API).
+
+---
+
+## Big picture
+
+- **One platform, ~80 awards** → an award is *settings*, not code. Staff create awards themselves.
+- **Two apps** → screens on Vercel, backend on Render, database and files on Supabase.
+- **The backend decides everything** → the screens only show what it says, so nobody can cheat by editing the page.
+- **The 4 rules** → blind judging, conflicts, score history, frozen question versions. Enforced in the backend *and* the database.
 
 ## How we work
 
-- **One branch per phase** → test → pull request → merge into `main` → tag it. Why: `main` always works, and each phase is easy to review.
-- **Tests come with the code, not after.** Why: the reviewer reads the tests to trust the rules.
-- **Every decision is written down** (`docs/decisions/`). Why: the brief asks for options, the choice, why, and what would change our mind.
+- **One branch per step** (`phase-1.2-setup`) → test → pull request → merge → tag. `main` always works.
+- **Tests come with the code** → the reviewer trusts the tests, not my word.
+- **Every decision is written down** (`docs/decisions/`) → options, choice, why, what would change it.
 
 ---
 
-## Phase 0 decisions (planning)
+## Decisions (short)
 
-- **Separate frontend and backend** → because of the hosting (Vercel + Render). The backend is the only door to the data.
-- **Our own login, cookie through the frontend** → browsers like Safari block cookies across two different sites.
-- **Leader's PA role** → the leader's team does organisational work, never judging. Every PA action is logged.
-- **Data consistency** → one record per organisation, person and department, cleaned on save, with lists instead of free text.
-- **No signed authorisation letter** → the leader wants it automated. Known weakness: PAN + GSTIN isn't secret.
-- **On-site rounds** → shop-floor competitions and live round 2 are the same thing: a panel scores a live presentation.
-- **Medals** → one Gold/Silver/Bronze per award (ranks 1–3 overall).
-- **Scores** → whole numbers 0–10. Simple to type on a phone.
+**People and data**
+- **5 roles** → leader, department head, staff, jury, applicant. The leader never touches judging.
+- **No PA role** (9 Oct) → the leader's team just uses the leader's account. Simpler: one role, flows and screens less. Cost: the history can't tell which team member acted.
+- **Award goes to the company** (one per PAN) → never to plants or units.
+- **Data consistency** → one record per company, person, department; cleaned on save; lists instead of free text. It was the client's biggest problem.
+- **No signed letter** → too manual. Instead: proof documents.
 
----
+**Applying**
+- **One application per company, blocked at the start** → no wasted forms; colleagues see it read-only (status only, no name); staff can release a wrong one.
+- **ID + LinkedIn once, on My profile** → identity doesn't change between awards; fewer copies of a sensitive file.
+- **Proof of employment per application, dated within 3 months** → the real question is "do they work there *now*?".
+- **Each award checks its own proof** → each department stays responsible.
+- **Entry limit "499 / 500"** → the count and the submit happen in one locked step, so the last place can't go twice.
+- **Change password on My profile** → needs the old one; other devices get signed out; an email is sent.
 
-## Phase 1 decisions (backend foundation): 6 Oct
+**Judging**
+- **Several jury per application** (staff set min–max) → averaging removes one person's bias.
+- **Jury never see each other's marks** → independent judgement.
+- **Average, rounded once at the end** → rounding doesn't tilt the result.
+- **Scores 0–10, whole numbers** → simple, also on a phone.
+- **Head approves written rounds**; on-site rounds (Phase 2) have no approval → staff close them.
+- **Medals** (Phase 2) → one Gold / Silver / Bronze per award, ranks 1–3 overall.
 
-**Tools**
-- **Express 5 + TypeScript (strict)** → familiar, simple, and strict types catch mistakes before running.
-- **Prisma 7.10.0 (pinned), not "latest"** → "latest" on npm is an unreleased 8.0 test version. Never install untested software.
-- **TypeScript 6.0.3, not 7** → our linter (`typescript-eslint`) doesn't support TS 7 yet.
-- **Exact versions everywhere** → my laptop, CI and Render all install exactly the same thing.
-- **Vitest + a real PostgreSQL in tests** → the rules depend on real database behaviour, so no fake database.
-
-**Local setup**
-- **Docker runs PostgreSQL + Mailpit** → one command starts everything. Mailpit catches all emails locally.
-- **PostgreSQL on port 5433, not 5432** → so it never clashes with another PostgreSQL on the laptop.
-- **A separate `awards_test` database** → tests wipe their data; my development data stays safe.
-
-**Database safety (the "second line of defence")**
-- **Case-insensitive names (`citext`)** → "Energy" and "energy" can't both exist. That's data consistency.
-- **Foreign keys that include the cycle** → an application can't point at another award's category. Awards can't mix.
-- **Partial unique indexes** → exactly one active leader; no duplicate role for the same person and scope.
-- **CHECK constraints** → bad PAN/GSTIN formats, scores above 10, and files over 10 MB are refused by the database itself.
-- **Append-only triggers** → audit history, form versions and disqualification history can never be edited or deleted.
-- **One-jury trigger** → in a document round, only one active jury member per application.
-
-**Code design**
-- **One clock (`clock.now()`)** → tests can "jump" past a deadline without waiting.
-- **Typed errors (400/401/403/404/409)** → services say *what* went wrong; one place turns that into HTTP.
-- **Audit inside the same transaction** → if the change fails, the log entry disappears too, and the other way round.
-- **Email outbox** → emails are saved first, and sent only after the change succeeds. No emails for undone changes.
-- **Normalisers in one file** → PAN, GSTIN, email, phone and PIN are always cleaned the same way.
-- **Storage and mailer behind interfaces** → local disk/Mailpit now, Supabase Storage/email API later, with no module changes.
-
-**Things that surprised us (lessons)**
-- Prisma's own AI docs mentioned a setting (`directUrl`) that doesn't exist. **Check the installed types, not the docs.**
-- AI-remembered GSTIN numbers didn't agree with the checksum. **Don't build hard rules on remembered data.**
-- An ESM example would compile but crash at runtime. **Think about how Node actually runs the code.**
+**Branding**
+- **Every award gets a branded page** → organisers keep their brand (like FPO Awards).
+- **Ready-made sections, never free HTML** → free HTML breaks layouts and can hide harmful scripts.
+- **Automatic parts** (deadline, counter, categories) → read live data, so never out of date.
 
 ---
 
-**Bugs the tests caught on day one (6 Oct)**
-- **A rule that let bad data in.** "Panel size must be ≥ 1" passed when the panel size was *empty*, because in SQL "empty ≥ 1" is "unknown", and unknown counts as a pass. Fixed by saying "must not be empty" explicitly.
-- **Errors that lost their message.** The database refused the bad writes correctly, but Prisma relabelled the error and dropped our explanation. Fixed by using an error code Prisma passes through.
-- **How we fixed them:** a *new* migration, never editing the old one. Old migrations may already exist on other databases.
-- **Lesson:** these were AI-written code that looked right. Tests on a **real** database caught both. A fake database wouldn't have.
+## Tech choices (backend foundation, built 6 Oct)
 
-**Drift check**
-- A third local database, `awards_shadow`, is scratch space. Prisma replays the migrations there and compares them with the schema.
-- The result was "No difference detected": no future migration will try to undo our hand-written rules. CI checks this on every pull request.
+- **Express 5 + TypeScript strict** → familiar; strict types catch mistakes early.
+- **Exact versions** (Prisma 7.10.0, TS 6.0.3) → "latest" was an unreleased test version.
+- **Real PostgreSQL in tests** → the rules depend on real database behaviour.
+- **Docker for PostgreSQL + Mailpit** → one command; Mailpit catches emails locally.
+- **Database as a second guard** → case-insensitive names, CHECKs, history that can't be edited, foreign keys that keep awards apart.
+- **One clock (`clock.now()`)** → tests can jump past a deadline.
+- **Audit in the same transaction** → a change and its history entry succeed or fail together.
+- **Email outbox** → emails are sent only after the change really happened.
+
+**AI mistakes we caught** (the brief asks for one)
+- Prisma's docs named a setting that doesn't exist → check the installed types.
+- A database rule passed with an *empty* value (SQL "unknown" counts as pass) → caught by real-database tests.
+- Error messages disappeared through Prisma → fixed with a new migration, never by editing an old one.
 
 ---
 
-## Where the code runs (4 places, 4 separate databases)
+## Where the code runs
 
-| Where | Database | Server |
+| Where | Database | For |
 |---|---|---|
-| My laptop: development | `awards` (Docker) | `npm run dev` → localhost:4000 |
-| My laptop: tests | `awards_test` (Docker) | none; tests call the code directly |
-| GitHub CI | a fresh PostgreSQL per run, thrown away | none |
-| Production (online) | **Supabase** | **Render** (API) + **Vercel** (screens) |
+| My laptop | `awards` in Docker (port 5433) | Development |
+| My laptop + GitHub CI | `awards_test`, or a fresh one in CI | Tests |
+| Online (from 14 Oct) | Supabase | The demo: API on Render, screens on Vercel |
 
-- Each place has its **own settings**: `.env` on my laptop, the workflow file on GitHub, the Render dashboard online. Secrets never go into Git.
-- Tests **refuse to run** unless the database name contains "test". They empty their tables, so this protects my data.
-
-**Why Docker?**
-- One command starts exactly PostgreSQL 16 + Mailpit, the same for everyone (and for the reviewer).
-- Nothing gets installed on Windows itself; it's isolated and can be thrown away.
-- It's only for laptops. Production uses Supabase and Render, not our Docker.
-
-**Supabase: how and when**
-- It's cloud PostgreSQL plus file storage (for uploaded documents, from Phase 6).
-- Tables get there through the **migration files**, run by Render on deploy. My laptop data is never copied.
-- Only starter lists and the leader account are seeded. Everything else comes from real users.
-- First used at the **end of Phase 5** (test deploy), then for real in **Phase 14**.
-- Two addresses: `DIRECT_URL` for migrations, `DATABASE_URL` (pooled) for the running app.
-- Plan: two Supabase projects, *staging* (tests) and *prod* (real), so experiments can't hurt real data.
+- Secrets only in `.env`, the Render or Vercel dashboards, never in Git.
+- Tests refuse to run on a database without "test" in its name.
 
 ---
 
-## New issues (7 Oct): what we're proposing, and why
+## Words
 
-- **Show the UI before building** → simple grey wireframes per role (Phase 0.5). People react to screens, not to tables of rules.
-- **Branded award sites** → each award gets its own site: brand kit (logo, colours) + pages made of **ready-made sections** (banner, categories, gallery, past winners, FAQ…). Staff fill them in, with no developer.
-- **Why sections, not free design** → free HTML breaks layouts, can hide harmful scripts, and can't be checked. Website builders and award software all use sections.
-- **Automatic sections** → the deadline, categories and past winners come from our real data, so they're never out of date. That's data consistency again.
-- **Organiser = department** → the leader creates it and appoints the organiser's person as head; they run their award alone. Mostly already in our design.
-- **One entry per organisation, plus a limit** → staff can cap the number of entries. (Since 8 Oct a second entry from the same company can't even be started.)
-- **Verify the applicant** → LinkedIn link + proof of employment, checked once per person per organisation and reused for every award. It's personal data, so: consent, minimal documents, deleted after a while, never shown to jury.
-- **Own domain** → in steps: `platform/awards/fpo` now → `fpo.platform.in` later → `fpoawards.in` on request. The brand matters more than the address.
-- **Honest scope** → it can't all fit in 10 days. We chose to extend the plan (see below), not to cut.
-- **Simple branch names** → `phase-2-people` instead of `phase/02-be-identity-orgs`.
-
-**What we decided (7 Oct, my answers)**
-- **Plan extended, nothing cut** → about one phase per day, to Day 21. The reviewer must agree on 9 Oct.
-- **Award sites for every award** → the same engine for all, so CII's own awards look good too.
-- **Staff decide what shows where, and can redesign after publishing** → each publish is a saved version, so mistakes can be undone.
-- **No approval to go live** → organisers are independent. The leader can look, not edit.
-- **Proof with every application** → an ID (masked Aadhaar only) + proof of employment + LinkedIn link. No proof, no submit; never shown to jury.
-- **Entry limit shown to everyone** → "499 / 500", so applicants know how many places are left.
-- **Only staff create awards**, and one person can head several departments.
-- **Old decisions brought over** (whole-number scores, one medal set per award, build order) → they were stuck on the parked branch.
+- **Migration**: a saved SQL change to the database structure, run in order.
+- **Seed**: starter data (lists, demo users).
+- **Transaction**: several writes that succeed or fail together.
+- **Trigger / CHECK**: database rules that run by themselves.
+- **Partial unique index**: "unique, but only among matching rows" (e.g. one *active* application per company).
+- **Session version**: a number per user; raising it signs out every device.
+- **Outbox**: a table of emails to send, written with the change.
+- **Slug**: the short name in an address, like `fpo` in `/awards/fpo`.
+- **Prototype**: clickable screens with no real data, to agree on the flow first.
+- **DPDP Act 2023**: India's personal-data law: consent, minimum data, delete when done.
 
 ---
 
-## UI overview and re-plan (8 Oct)
+## What I do by hand
 
-- **Prototype before code** → the client sees every screen and journey first; changing a picture is cheap, changing code isn't.
-- **Clickable, but simple-looking** → people discuss the *flow*, not colours. The award sites use the FPO brand to connect with the branding story.
-- **Notes on every screen** → each screen says which rule or decision it shows, so the prototype also explains the design.
-- **Two options for my lead, not one** → A: a focused demo by 15 Oct (what the brief asks: two awards, no code per award, four rules). B: the real product, about 10–14 weeks.
-- **Why A isn't wasted** → it's built on the real architecture, so it's the first slice of B, not a throw-away demo.
-- **Nothing decided until the lead chooses** → the full phase list stays as the product breakdown.
+**Tonight (9 Oct)**
+1. Read `docs/PLAN.md`.
+2. Push and open a PR for `phase-0.8-plan` (it contains 0.7), merge it with a merge commit, and tag `phase-0.8-done`.
 
----
+**Each day of Phase 1**
+1. Start Docker Desktop.
+2. In `Backend/`: `docker compose up -d`, then `npm test`, then `npm run dev` (API on http://localhost:4000).
+3. In `Front-End/` (from Step 1.1): `npm run dev` (screens on http://localhost:3000).
+4. Emails: http://localhost:8025 (Mailpit).
+5. At the end of the day: review the PR, merge it, and tag `phase-1.<n>-done`.
 
-## One application per company (8 Oct)
-
-- **Stop it before, not after** → once a colleague starts the company's application, nobody else can start another. No wasted forms, no duplicates to clean up.
-- **Colleagues can look, not edit** → it shows in their "My applications", read-only. Only the starter submits, so it's clear who's responsible.
-- **Status only, no name** → "Your organisation already has an application (Draft)". My choice: more private.
-- **The risk** → a wrong or fake person who starts first blocks the real one. So staff can **release** it with a reason, and the company starts again.
-- **The database backs it up** → a unique rule allows only one active application per company and cycle, even if two people click at the same moment.
-
----
-
-## Lead call (9 Oct): proof once, passwords, several jury
-
-- **ID and LinkedIn once, on the profile** → a person's identity doesn't change between awards, so they upload it once and every application reuses it. Fewer copies of a sensitive document, too.
-- **Only a recent proof of employment per application** → the real question is "does this person work there *now*?", so it must be dated within the last 3 months.
-- **Each award still checks** → the employment proof is new each time, and each department stays responsible for its own applications.
-- **Verified means frozen** → once staff verify, the application keeps exactly what they checked, even if the profile changes later.
-- **My profile for everyone** → change password (needs the old one; other devices get signed out; an email is sent), name and phone.
-- **Several jury per application** → staff set a minimum and maximum per round (e.g. 2 to 3). Averaging several people removes one person's bias.
-- **Rules that keep it honest** → never above the maximum (the database counts under a lock); no approval until every application has its minimum; jury never see each other's marks.
-- **Round once, at the end** → average the exact scores, then round to 2 decimals, so rounding doesn't tilt the result.
-- **Backend list** → what the parked Phase 1 code must change is written down in [docs/proposals/0.7-backend-changes.md](docs/proposals/0.7-backend-changes.md), not fixed yet.
-
----
-
-## Words you'll see
-
-- **Migration**: a saved SQL file that changes the database structure, run in order.
-- **Seed**: starter data (like the list of award domains) put into an empty database.
-- **Transaction**: several database writes that succeed or fail *together*.
-- **Trigger**: a small database rule that runs automatically on insert/update/delete.
-- **CHECK constraint**: a database rule a row must obey (e.g. score between 0 and 10).
-- **CI**: GitHub runs lint + type check + tests on every pull request, automatically.
-- **Outbox**: a table of "emails to send", written in the same transaction as the change.
-- **Shadow database**: a scratch database Prisma uses to compare migrations with the schema.
-- **Drift**: when the database and the schema disagree. The drift check catches it.
-- **NULL**: an empty value. In SQL, comparing with NULL gives "unknown", not true or false.
-- **Brand kit**: an organiser's logo, colours, fonts and social links, reused by all their award pages.
-- **Section (block)**: one ready-made part of a page (banner, gallery…) that staff fill in.
-- **Slug**: the short name in a web address, like `fpo` in `/awards/fpo`.
-- **Prototype**: a clickable model of the screens, with no real data, used to agree on the flow before building.
-- **Mermaid**: a way to write diagrams as text; GitHub draws them automatically.
-- **DPDP Act 2023**: India's personal-data law: ask consent, collect the minimum, delete when no longer needed.
-- **Session version**: a number on each user; raising it signs out every device at once (used for password change and deactivation).
-- **Partial unique index**: "unique, but only among rows that match a condition", e.g. one *active* evaluation per jury member and application.
-
----
-
-## What I do by hand (current)
-
-1. **Start Docker Desktop** and wait until it says "running".
-2. In a terminal, from the `Backend` folder:
-   - `docker compose up -d` → starts PostgreSQL + Mailpit
-   - `npm run db:deploy` → creates the tables
-   - `npm run db:seed` → adds the starter lists
-   - `npm test` → runs every test
-   - `npm run dev` → starts the API on http://localhost:4000
-3. Open http://localhost:4000/api/health → should show `{"status":"ok","db":"up"}`.
-4. Open http://localhost:8025 → the Mailpit inbox (empty for now).
-5. Review the pull request on GitHub, then merge it (merge commit) and tag `phase-01-done`.
+**Wed 14 Oct (deployment): my accounts, my clicks**
+- Supabase, Render and Vercel accounts are mine. Claude never creates accounts or types passwords. I paste the keys into their dashboards.
