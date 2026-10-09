@@ -14,7 +14,7 @@
 | **6** | [The four rules](#6-the-four-rules) |
 | **7** | [How we chose to build it](#7-how-we-chose-to-build-it) |
 | **8** | [How the parts fit](#8-how-the-parts-fit) |
-| **9** | [What the first version includes](#9-what-the-first-version-includes) |
+| **9** | [What each phase includes](#9-what-each-phase-includes) |
 | **10** | [What it brings the organisation](#10-what-it-brings-the-organisation) |
 | **11** | [Questions still open](#11-questions-still-open) |
 
@@ -253,24 +253,21 @@ flowchart LR
 
 ---
 
-## 9. What the first version includes
+## 9. What each phase includes
 
-The full journey runs from setup to results. To fit the time, we keep every step and make some of them simpler.
+The platform is delivered in three phases ([the full plan](../PLAN.md)). **Phase 1 (10–15 Oct)** is the working platform; the rest builds on it.
 
-| ✅ Included | ⏭️ Later, on purpose |
-|---|---|
-| All six roles with the right permissions | Real payment gateway (a demo payment for now) |
-| Award setup on screens, with no code | Importing past years' data |
-| Questions saved as frozen versions | Automatically finding names inside PDFs |
-| Scoring sheet with weights | Login through the member portal |
-| Apply, autosave, submit, withdraw | Offline scoring at venues |
-| Blind copies, conflict checks, scoring | Mobile app, other languages |
-| Approval, shortlist, on-site rounds, medals | Feedback reports for applicants |
-| **Branded award sites** built by staff from ready-made sections | Award sites on their own domain (e.g. fpoawards.in) |
-| Proof of identity and employment, checked by staff | Drag-and-drop free page layout |
-| An entry limit with a public counter | Page-visit analytics |
-| Clean, consistent company data | Copy last year's setup in one click |
-| Three different awards running end to end | A live scoreboard on site |
+| Phase 1 · working platform, online | Phase 2 · complete product (~20 days) | Phase 3 · launch-ready (~15 days) |
+|---|---|---|
+| Two different awards set up on screen, with no code | On-site rounds and Gold / Silver / Bronze | Security and privacy reviews |
+| Questions saved as frozen versions; scoring sheet with weights | The full site builder (sections, versions) | Load testing for deadline nights |
+| Apply, autosave, submit, withdraw; one application per company | Leader and PA admin screens | A real payment gateway |
+| Photo ID and LinkedIn once on the profile; recent employment proof | External organisers' dashboard | Own web addresses (fpoawards.in) |
+| Entry limit with a public counter; a branded page per award | Every email, sent for real | Backups, monitoring, accessibility |
+| Blind copies, conflict checks, several jury and the average | Disqualify, reinstate, deadline extension | Client testing |
+| Approval, results, the leader's dashboard | Robot tests of every journey | |
+
+**Not planned:** importing past years' data, finding names inside PDFs automatically, member-portal login, offline scoring, a mobile app, other languages.
 
 **Extras added beyond the brief:** data that cleans itself as it's saved (one spelling, one PAN), company details hidden from jury automatically, a snapshot of the company at the time it applied, "New / Updated" markers on changed questions, autosave everywhere, one application per company (a second one can't even be started), weights that must add up to 100%, nothing ever deleted, staff backup for on-site scoring, renamable result names, and a view of what each PA did.
 

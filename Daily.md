@@ -55,3 +55,9 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** Re-plan in **three phases**, as the lead asked: Phase 1 a fully working demo, with time limits for Phases 2 and 3. Agree the data model before any code.
 - **Stuck:** Nothing. Waiting for the re-plan before building.
 - **Plan changed:** The lead chose three phases instead of Option A or B. Only the points inside the phase descriptions changed today; the phase list itself is redone next.
+- **Plan changed (evening):** The new plan is in [docs/PLAN.md](docs/PLAN.md).
+  - **Phase 1**, the working platform: build Sat 10 – Tue 13 Oct (Sunday included), go online Wed 14, walkthrough Thu 15. It covers two written-review awards set up on screen, the four rules tested, several jury, proof, entry limit, branded pages.
+  - **Phase 2** (~20 working days): on-site rounds, the site builder, admin screens, emails.
+  - **Phase 3** (~15 days + client testing): launch work.
+  - The technical design is in [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
+- **Next:** Sat 10 Oct, Step 1.1: foundation and people.

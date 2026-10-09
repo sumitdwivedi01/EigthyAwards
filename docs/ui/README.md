@@ -2,7 +2,7 @@
 
 > **What this is.** The client asked to see the platform before anything is built. This folder shows every user's journey **screen by screen**. It's a prototype of the flow: no real data, nothing is saved, and the final visual design will differ.
 >
-> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PHASES.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
+> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PLAN.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
 
 ## How to open it
 

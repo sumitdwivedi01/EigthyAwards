@@ -1,15 +1,16 @@
 # CLAUDE.md: Awards Platform (EightyAwards)
 
-One configurable platform that runs about 80 award programmes for an Indian industry body. Differences between awards are **configuration, not code**, and shared data (organisations, people, departments, lists) is kept **consistent**: that was the client's biggest problem before. This is a 10-working-day build, read daily by a reviewer ([docs/brief.md](docs/brief.md)).
+One configurable platform that runs about 80 award programmes for an Indian industry body. Differences between awards are **configuration, not code**, and shared data (organisations, people, departments, lists) is kept **consistent**: that was the client's biggest problem before. It is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)); **Phase 1, the working platform the lead judges, runs 10–15 Oct 2026** (build 10–13, deploy 14, walkthrough 15). A reviewer reads it daily ([docs/brief.md](docs/brief.md)).
 
 ## Read these first, every session
 
-1. [docs/PROGRESS.md](docs/PROGRESS.md): where we are, the current phase and branch, the next action.
-2. [docs/PHASES.md](docs/PHASES.md): the plan. Work **only** on the current phase.
-3. [docs/GAPS.md](docs/GAPS.md) §A: open decisions. The defaults apply until they're answered.
-4. [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): how the 7 Oct decisions were reached (branded award sites, organisers, proof documents, entry limit, domains). Decided; see the spec §5.19–§5.20.
-5. [docs/ui/](docs/ui/README.md): the UI overview (clickable prototype, flows per role) and [docs/proposals/0.5-replan-options.md](docs/proposals/0.5-replan-options.md): Option A (demo by 15 Oct) vs Option B (real product). **The build plan is on hold until the lead chooses.**
-6. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
+1. [docs/PROGRESS.md](docs/PROGRESS.md): where we are, the current step and branch, the next action.
+2. [docs/PLAN.md](docs/PLAN.md) (the three phases, simple) and [docs/PHASES.md](docs/PHASES.md) (the detailed steps). Work **only** on the current step.
+3. [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md): architecture, data model, flows, Phase 1 API.
+4. [docs/GAPS.md](docs/GAPS.md) §A: open decisions. The defaults apply until they're answered.
+5. [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): how the 7 Oct decisions were reached (branded award sites, organisers, proof documents, entry limit, domains). Decided; see the spec §5.19–§5.20.
+6. [docs/ui/](docs/ui/README.md): the UI overview (clickable prototype, flows per role).
+7. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
 
 ## Repo map
 
@@ -20,10 +21,10 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 ## Workflow rules (the owner's)
 
-- **One branch per phase:** `phase-<number>-<word>` (e.g. `phase-2-people`; simple names from 7 Oct), cut from an up-to-date `main`. Never commit straight to `main`.
-- A backend phase is merged before the frontend phase that uses it.
-- A phase merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-NN-done`.
-- **No deployment before Phase 14**, except the throw-away skeleton check at the end of Phase 5 (GAPS A2).
+- **One branch per step:** `phase-1.<n>-<word>` (e.g. `phase-1.2-setup`), cut from an up-to-date `main`. Never commit straight to `main`.
+- Within a step, the backend service and its tests come before the screen that uses it.
+- A step merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-1.<n>-done` (and `phase-1-done` after the walkthrough).
+- **Deploy only in Step 1.5 (14 Oct)**: Supabase, Render, Vercel.
 - Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - Ask before committing, pushing or opening a PR, unless the owner already asked for it this session.
 - **End of every session:** update PROGRESS.md, GAPS.md and Daily.md (see the routine at the bottom of PROGRESS.md).
@@ -84,4 +85,4 @@ The brief asks for one example of AI output that looked right but was wrong. Rec
 
 ## Commands
 
-Filled in as phases land (Phase 1: backend; Phase 4: frontend).
+Filled in as steps land (Step 1.1: backend and frontend).

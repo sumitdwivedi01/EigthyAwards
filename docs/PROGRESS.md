@@ -6,19 +6,20 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-09 · Day 7 |
-| **Current phase** | Phase 0.7: Lead call: proof once on the profile, My profile, several jury per application (🧪 docs and prototype updated; committed locally, **not pushed, not merged**, waiting for the owner's review) |
-| **Current branch** | `phase-0.7-lead` |
-| **What runs today** | Nothing on `main`. The backend foundation (Phase 1) is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`). |
-| **Next action** | 1) The owner reviews Phase 0.7. 2) **Re-plan in three phases** with the owner (the lead's request, G-K12): what Phase 1 (a fully working demo) holds, what moves to Phases 2 and 3, with time limits. 3) The **technical design before coding**: the data model and the plan agreed first. 4) Then make the backend changes in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md) and resume Phase 1. |
-| **Blockers** | Building waits for the three-phase re-plan (G-K12). Open: A4 (email provider); ask the leader: G-I08, G-H07; branding questions B1–B6. |
-| **Risk** | **Hard limit 15 October** (owner, 8 Oct): about 5 working days after the call. Only Option A fits. |
+| **Last updated** | 2026-10-09 · Day 7 (evening) |
+| **Current phase** | Phase 0.8: three-phase plan and technical design (🧪 committed locally, not pushed; contains Phase 0.7) |
+| **Current branch** | `phase-0.8-plan` |
+| **What runs today** | Nothing on `main`. The backend foundation is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`); Step 1.1 brings it in |
+| **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15**; then Phase 2 (~20 working days) and Phase 3 (~15 + client testing) |
+| **Next action** | 1) The owner reviews, pushes and merges `phase-0.8-plan` (it contains 0.7), tag `phase-0.8-done`. 2) **Sat 10 Oct: Step 1.1** Foundation and people, on `phase-1.1-foundation` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
+| **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
+| **Risk** | Four build days are tight (G-K13): daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order) |
 
 ## Phase status board
 
-The live version of the table in [PHASES.md §2](PHASES.md). Update the row whenever a phase changes state.
+The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glance). Update the row whenever a step changes state.
 
-| # | Phase | Branch | Status | PR | Merged | Tests |
+| # | Phase or step | Branch | Status | PR | Merged | Tests |
 |---|---|---|---|---|---|---|
 | 0 | Planning and tracking setup | `phase/00-planning-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#1 | 2026-10-04 · `phase-00-done` | n/a |
 | 0.1 | Leader-call changes | `phase/00.1-leader-call-changes` | ✅ Merged | sumitdwivedi01/EigthyAwards#2 | 2026-10-05 · `phase-00.1-done` | n/a |
@@ -27,66 +28,57 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 0.4 | New issues and the owner's answers | `phase-0.4-issues` | ✅ Merged (committed to `main` by mistake; accepted as is, see Daily 7 Oct) | — | 2026-10-07 · `phase-0.4-done` | n/a |
 | 0.5 | UI overview and re-plan options | `phase-0.5-ui` | ✅ Merged | sumitdwivedi01/EigthyAwards#5 | 2026-10-08 · `phase-0.5-done` | n/a |
 | 0.6 | One application per organisation | `phase-0.6-entry` | ✅ Merged | sumitdwivedi01/EigthyAwards#6 | 2026-10-08 · `phase-0.6-done` | n/a |
-| 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | 🧪 In review (local commit only) | — | — | n/a |
-| 1 | Backend foundation (+ new tables; changes listed in [0.7-backend-changes](proposals/0.7-backend-changes.md)) | `phase/01-be-foundation` → `phase-1-setup` | ⏸ Parked: built, 62 tests passing, not merged | — | — | 62 passing |
-| 2 | People: logins, roles, PA, departments (incl. external organisers), master data, organisations | `phase-2-people` | ⬜ | — | — | — |
-| 3 | Award setup: rounds, forms, score sheets (R4), entry limit | `phase-3-awards` | ⬜ | — | — | — |
-| 4 | Award sites (backend) | `phase-4-sites` | ⬜ | — | — | — |
-| 5 | Frontend foundation, public award sites, skeleton deploy check | `phase-5-web` | ⬜ | — | — | — |
-| 6 | Setup screens, brand kit, site builder | `phase-6-builder` | ⬜ | — | — | — |
-| 7 | Applications, proof documents, entry limit, deadline lock (R4) | `phase-7-apply` | ⬜ | — | — | — |
-| 8 | Applicant screens | `phase-8-applicant` | ⬜ | — | — | — |
-| 9 | Proof check, masking, jury pool, conflicts, assignment, judging, audit (R1–R3) | `phase-9-judging` | ⬜ | — | — | — |
-| 10 | Staff operations and jury screens | `phase-10-jury` | ⬜ | — | — | — |
-| 11 | Approval, results, emails, dashboards, seed | `phase-11-results` | ⬜ | — | — | — |
-| 12 | On-site rounds (backend) | `phase-12-onsite` | ⬜ | — | — | — |
-| 13 | Results, on-site and dashboard screens | `phase-13-results-ui` | ⬜ | — | — | — |
-| 14 | E2E tests and deployment | `phase-14-deploy` | ⬜ | — | — | — |
-| 15 | Final deliverables and walkthrough | `phase-15-final` | ⬜ | — | — | — |
+| 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | 🧪 In review (local commit; contained in 0.8) | — | — | n/a |
+| 0.8 | Three-phase plan and technical design | `phase-0.8-plan` | 🧪 In review (local commit) | — | — | n/a |
+| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | ⬜ (starts from the parked code: tag `parked/phase-01-be-foundation`, 62 tests) | — | — | — |
+| **1.2** | Award setup and branded pages · **Sun 11 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
+| **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
+| **1.4** | Judging, approval and results · **Tue 13 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
+| **1.5** | Online and polished · **Wed 14 Oct** | `phase-1.5-deploy` | ⬜ | — | — | — |
+| — | Walkthrough with the lead · **Thu 15 Oct** | — | ⬜ | — | `phase-1-done` | — |
+| 2 | Complete product (~20 working days) | per package | ⬜ | — | — | — |
+| 3 | Launch-ready (~15 working days + client testing) | per package | ⬜ | — | — | — |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · ✅ merged · ⛔ blocked
 
-## Decisions of 7 Oct: where they stand
+## Phase 1 goals: where they stand
 
-| Goal | Built in | Status |
+| Goal | Step | Status |
 |---|---|---|
-| Branded award sites for all awards (brand kit, pages, sections, versions, no approval) | Phases 1 (tables), 4, 5, 6 | ⬜ |
-| External organisers as departments; one head for several departments | Phases 2, 11 (department dashboard), 13 | ⬜ |
-| Proof documents, staff check, never to jury (changed 9 Oct: ID and LinkedIn once on the profile, recent employment proof per application) | Phases 1, 2, 7, 8, 9, 10 | ⬜ |
-| Entry limit with public "499 / 500" counter | Phases 3, 7, 8, 5 (site counter) | ⬜ |
-| Own domains | Designed for (slug, `customDomain`), built later | ⬜ |
-
-## Lead call of 9 Oct: where it stands
-
-| Goal | Built in | Status |
-|---|---|---|
-| ID and LinkedIn once on the profile; employment proof dated within 3 months per application; each award checks its own | Phases 1 (fields), 2 (profile), 7, 8, 9, 10 | ⬜ (docs ✅) |
-| My profile for every role: name, phone, change password | Phases 2, 5 | ⬜ (docs ✅) |
-| Several jury per application in document rounds (min–max per round); final score = average | Phases 1 (fields, index), 3, 9, 10, 11, 13 | ⬜ (docs ✅) |
-| Re-plan in three phases; data model agreed before coding | Next session (G-K12) | ⬜ |
+| Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | ⬜ |
+| Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | ⬜ |
+| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet, jury per application | 1.2 | ⬜ |
+| Branded award page and Open awards, with the live "499 / 500" counter | 1.2 | ⬜ |
+| Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ⬜ |
+| Staff: proof check, release | 1.3 | ⬜ |
+| Masking (R1), conflicts (R2), several jury with the average, score changes with reasons (R3) | 1.4 | ⬜ |
+| Approval by the head, results published, leader dashboard | 1.4 | ⬜ |
+| Online on Supabase, Render and Vercel, with demo data and logins | 1.5 | ⬜ |
+| The brief's documents: README, user journeys, architecture, testing, AI notes, decisions | 1.5 | ⬜ |
 
 ## The four rules: where they stand
 
 | Rule | Enforced in | Tests | Status |
 |---|---|---|---|
-| R1 Blind judging hides who applied (document rounds) | Phase 9 | — | ⬜ |
-| R2 No assignment with a recorded conflict | Phases 9 (document rounds), 12 (on-site panels) | — | ⬜ |
-| R3 Who changed a score, and why | Phases 1 (audit trigger), 9, 12 (closed rounds, staff backup entry) | — | ⬜ |
-| R4 Last year's applications still read correctly | Phases 1 (FormVersion trigger), 3, 7 | — | ⬜ |
+| R1 Blind judging hides who applied | Step 1.4 | — | ⬜ |
+| R2 No assignment with a recorded conflict | Step 1.4 (on-site panels: Phase 2) | — | ⬜ |
+| R3 Who changed a score, and why | Step 1.1 (audit trigger, built), 1.4 | — | ⬜ |
+| R4 Last year's applications still read correctly | Step 1.1 (FormVersion trigger, built), 1.2, 1.3 | — | ⬜ |
 
-## Leader-call goals: where they stand
+## Decisions: where they land
 
-| Goal | Built in | Status |
+| Decision | Phase 1 | Later |
 |---|---|---|
-| Staff assigned to many awards | Phases 1 (schema), 3, 5 | ⬜ |
-| Award goes to the organisation, never to plants | Phase 1 (schema; one organisation per PAN) | ⬜ |
-| No signed authorisation letter | Removed from spec and plan (Phase 0.1) | ✅ docs |
-| Leader's PA role | Phases 1, 2, 5, 11, 13 | ⬜ |
-| Data consistency | Phases 1 (normalize, indexes), 2 (master data, organisations), 6 (identity snapshot) | ⬜ |
-| One application per organisation per award, **blocked at the start**; colleagues read-only; staff release | Phases 1 (index), 7 (start check, release), 8, 10 | ⬜ |
-| On-site rounds (shop-floor and live round 2): panels, averages, no approval | Phases 1 (schema), 3 (round types), 12, 13 | ⬜ |
-| Results: Shortlisted/Rejected, then Gold/Silver/Bronze | Phases 3 (labels), 11, 12, 13 | ⬜ |
-| GSTIN optional; fee per category | Phases 1, 2, 3, 6 | ⬜ |
+| Staff on many awards; award to the organisation; no authorisation letter | ✅ in 1.1–1.2 | — |
+| Leader's PA role | Seeded; sees the leader dashboard | Admin screens and PA activity (2.3) |
+| Data consistency (normalise, case-insensitive unique, master lists, snapshots) | 1.1–1.3 | Master-data screens, corrections (2.3) |
+| One application per organisation, blocked at the start; staff release | 1.3 | — |
+| Proof: ID and LinkedIn once on the profile, recent employment proof, each award checks | 1.1, 1.3 | Automatic deletion after 12 months (2.7) |
+| Entry limit with the public counter | 1.2, 1.3 | — |
+| Several jury per application, average | 1.2, 1.4 | Spread flag (2.5) |
+| Branded award sites | One branded page per award (1.2) | Full section builder, versions (2.2); own domains (3.6) |
+| External organisers as departments | Seeded ("FPO Awards team") | Admin screens (2.3), department dashboard (2.4) |
+| On-site rounds and medals | Tables only | 2.1 |
 
 ---
 
@@ -94,6 +86,16 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
+
+### Phase 0.8: Three-phase plan and technical design · 🧪 · 2026-10-09 (Day 7, evening)
+
+The lead asked for the whole platform in **three phases**, Phase 1 a fully working platform (what we are judged on), and the technical design agreed before coding. The owner set Phase 1 to start on 10 Oct and wrap up by 13 Oct, including Sunday. Four choices were agreed first (all recommended): build 10–13, deploy 14, demo 15; two written-review awards; a simple branded page in Phase 1; a new simple PLAN.md.
+
+- [x] [PLAN.md](PLAN.md): the three phases in plain words for the lead: Phase 1 by date with the two demo awards, what works for each user, how the rules are proven, day by day, kept simple on purpose, cut order, done-when; Phase 2 and Phase 3 in days; why this order; how Phase 1 stands out; risks.
+- [x] [PHASES.md](PHASES.md) rewritten as the detailed steps: the five Phase 1 steps (backend, frontend, tests, done when, manual check), the Phase 2 and 3 packages, the map from the old 15-phase list, the cut order.
+- [x] [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md): architecture, modules per phase, the data model (diagram and database guarantees), key flows, the Phase 1 API, scaling, security, environments, testing.
+- [x] PROGRESS rebuilt for the steps; GAPS (K12 answered, K13–K15 added, A2 and A4 updated); spec §1, §14, §15 and §17 notes; CLAUDE.md, README, the overview, the 0.5 and 0.7 proposals, the UI README, creating.md (rewritten short) and Daily.
+- [ ] Owner review, push and merge.
 
 ### Phase 0.7: Lead call: proof once, My profile, several jury · 🧪 · 2026-10-09 (Day 7)
 
@@ -211,14 +213,14 @@ Filled in as things get built. Never put secrets here; only names and where they
 | GitHub repo | `https://github.com/sumitdwivedi01/EigthyAwards` (note the typo in the repo name, G-G05) |
 | Backend local URL | `http://localhost:4000` (planned) |
 | Frontend local URL | `http://localhost:3000` (planned) |
-| PostgreSQL (Docker) | `localhost:5432`, databases `awards` and `awards_test` (planned) |
+| PostgreSQL (Docker) | `localhost:5433`, databases `awards`, `awards_test` and `awards_shadow` (built on the parked branch) |
 | Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` (planned) |
-| Production | Frontend → Vercel · API → Render · DB and files → Supabase. Not created yet (Phase 14) |
-| Pinned versions | Recorded here in Phases 1 and 4 |
+| Production | Frontend → Vercel · API → Render · DB and files → Supabase. Not created yet (Step 1.5, 14 Oct) |
+| Pinned versions | Express 5.2.1, TypeScript 6.0.3, Prisma 7.10.0, Zod 4, Vitest 5 (backend); the frontend's recorded in Step 1.1 |
 
 ## Seeded test accounts
 
-Added in Phase 2. Passwords live only in `Backend/.env` and `.env.example` placeholders, never in this file.
+Added in Step 1.1. Passwords live only in `Backend/.env` and `.env.example` placeholders, never in this file.
 
 ## Deviations from the spec
 
@@ -240,7 +242,7 @@ Added in Phase 2. Passwords live only in `Backend/.env` and `.env.example` place
 
 Paste this to an AI assistant (Claude Code loads `CLAUDE.md` automatically, but this works anywhere):
 
-> We are building the Awards Platform in this repo. Read `CLAUDE.md`, then `docs/PROGRESS.md` (where we are), `docs/PHASES.md` (the plan, especially the current phase), and `docs/GAPS.md` §A (open decisions). The spec is in `docs/requirements.md`. Continue the current phase on its branch. Don't start a new phase until the current one meets its exit checklist. At the end, update PROGRESS.md, GAPS.md and Daily.md.
+> We are building the Awards Platform in this repo. Read `CLAUDE.md`, then `docs/PROGRESS.md` (where we are), `docs/PLAN.md` (the three phases), `docs/PHASES.md` (the detailed steps, especially the current one), `docs/TECHNICAL-DESIGN.md`, and `docs/GAPS.md` §A (open decisions). The spec is in `docs/requirements.md`. Continue the current phase on its branch. Don't start a new phase until the current one meets its exit checklist. At the end, update PROGRESS.md, GAPS.md and Daily.md.
 
 ## End-of-session routine (every time)
 

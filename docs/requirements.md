@@ -12,6 +12,7 @@
 | 2026-10-07 | **New issues and the owner's answers.** **Branded award sites**: a brand kit per department and a site per award, built from ready-made sections that staff choose, arrange and re-design at any time, also after publishing; for **all** awards; no approval needed (new §5.19). A department can be an **external award organiser** that runs its awards on its own; one person may head several departments. **Proof of identity and employment** uploaded with every application (new §5.20). An optional **entry limit** per cycle, shown publicly as "499 / 500". Own domains designed for, not built. Only staff create awards. Sections changed: 1, 2, 3, 5.2, 5.3, 5.6, 5.14, 5.19, 5.20, 7, 8, 10–15, 18. | ADR 0009, 0010; GAPS §J |
 | 2026-10-08 | **One application per organisation, blocked at the start.** A second member can no longer start an application once a colleague has (no more "accept all, flag, staff keep one"). Colleagues see the organisation's application read-only, with the status only (no name). Staff can **release** a wrong, fake or abandoned application with a reason, so the organisation can start again. Sections changed: 3, 4, 5.2, 5.15, 5.16, 5.20, 7, 10, 11, 12, 14, 15, 18. | ADR 0011 |
 | 2026-10-09 | **Lead call: proof once, account settings, several jury.** (1) The photo identity document and the LinkedIn link are given **once, on the applicant's profile**, and reused for every application; each application only needs a **recent proof of employment** (dated within the last 3 months). Staff of each award still check the proof for their application. (2) Every user has **My profile**: name, phone and **change password**. (3) In a **document review round**, staff set the **jury per application** (a minimum and a maximum, 1 or more, up to the jury in the pool); every application must get that many, and its final score is the **average** of their scores. On-site panels are unchanged. Sections changed: 2, 3, 4, 5.1, 5.2, 5.3, 5.5–5.13, 5.15, 5.16, 5.20, new 5.21, 6, 7, 8, 10–15, 18. | ADR 0012, 0013 |
+| 2026-10-09 | **Delivered in three phases** (lead call). Phase 1 (10–15 Oct) builds a working subset of §14: two written-review awards, online. On-site rounds, the full site builder and the admin screens move to Phase 2; launch work to Phase 3. Sections changed: 1, 14, 15, 17 (notes only; behaviour unchanged). | docs/PLAN.md, docs/PHASES.md |
 
 # Awards Platform — Product & Technical Specification
 
@@ -25,7 +26,7 @@ Background. The body runs about 80 awards: business excellence, energy, safety, 
 
 The core idea. An award is data, not code. The code knows the parts every award shares (cycles, applications, masking, jury, scoring, approval, results, audit). Each award's configuration fills in what differs (questions, indicators, weights, dates, fee, blind judging, categories). No line of code ever names a specific award.
 
-Success criteria for the 10-day build:
+Success criteria for the 10-day build (since 9 Oct 2026 delivered in three phases, [PLAN.md](PLAN.md): Phase 1 proves the first two cycles below, written review only; the on-site cycles follow in Phase 2):
 
 - The leader (or one of the leader's PAs) creates a department and appoints its head, the department head adds staff and assigns them to one or more awards, and staff create and configure the full award in the UI: questionnaire, scoring sheet with weights, deadline, fee and blind judging.
 - At least three differently configured cycles run end to end with no code change: a blind document-review award with a fee (apply, lock, mask, assign, score, approve, shortlist, publish); a free award whose shortlisted entries then present on site to a panel and win Gold, Silver or Bronze; and a shop-floor competition judged only on site.
@@ -1005,6 +1006,8 @@ The load is small for a single PostgreSQL database, so the design favours correc
 
 ## 14. Scope for the 10-day build
 
+> **Changed 9 Oct 2026:** the build is delivered in three phases. **Phase 1 (10–15 Oct)** builds the part listed in [PLAN.md](PLAN.md#what-works-in-phase-1); on-site rounds, the full site builder, the leader and PA admin screens and all emails move to **Phase 2**; security, privacy, load, payments and domains to **Phase 3**. The lists below stay as the full product scope.
+
 With about 40 working hours, the build covers the full cycle at its core and cuts depth, not steps. The priorities below decide what drops first if time runs short.
 
 ### Must have
@@ -1113,7 +1116,7 @@ Tests for each rule are written on the day that rule is built, against a real Po
 
 ### Test data
 
-A seed script creates: two departments; one leader, one PA, one department head per department, two staff (one of them on awards in both departments), four jury members; the master data lists; three cycles with different settings (one blind document review with a fee, 3 sections and 2 to 3 jury per application; one non-blind and free with entry categories, a document round then an on-site round; one shop-floor competition, on-site only, with a near-empty form); about 20 organisations and applications in mixed states; one recorded conflict.
+Phase 1's seed has the same people and the two written-review cycles; the shop-floor cycle arrives with Phase 2. A seed script creates: two departments; one leader, one PA, one department head per department, two staff (one of them on awards in both departments), four jury members; the master data lists; three cycles with different settings (one blind document review with a fee, 3 sections and 2 to 3 jury per application; one non-blind and free with entry categories, a document round then an on-site round; one shop-floor competition, on-site only, with a near-empty form); about 20 organisations and applications in mixed states; one recorded conflict.
 
 ## 16. Repository, workflow and conventions
 
@@ -1188,7 +1191,7 @@ Three lines: Done · Next · Stuck. Add Plan changed when the plan was updated, 
 
 ## 17. Build plan
 
-> Superseded by [PHASES.md](PHASES.md), which is the live plan. Kept for history.
+> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). Kept for history.
 
 Days 1 and 2 went to understanding, questions and design. Days 3 to 8 build one vertical slice per day, each ending with its rule tests green; days 9 and 10 finish. If the actual day count differs, shift the rows and note the change in plan.md.
 
