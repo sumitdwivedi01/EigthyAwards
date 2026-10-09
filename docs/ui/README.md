@@ -2,13 +2,13 @@
 
 > **What this is.** The client asked to see the platform before anything is built. This folder shows every user's journey **screen by screen**. It's a prototype of the flow: no real data, nothing is saved, and the final visual design will differ.
 >
-> **Phase 0.5** · 8 Oct 2026 · Related: [the plan](../PHASES.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
+> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PHASES.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
 
 ## How to open it
 
 | File | What it is | How to open |
 |---|---|---|
-| [prototype.html](prototype.html) | **Clickable prototype**: 31 screens across 6 roles | Download the file (GitHub's "Download raw file" button) and open it in Chrome or Edge. Pick a role at the top, then use **Next →** or the arrow keys |
+| [prototype.html](prototype.html) | **Clickable prototype**: 32 screens across 6 roles | Download the file (GitHub's "Download raw file" button) and open it in Chrome or Edge. Pick a role at the top, then use **Next →** or the arrow keys |
 | [brand-value.html](brand-value.html) | **How we keep the organiser's brand**: 3 pages and a live site-builder demo | The same way |
 | This page | The flows as diagrams, readable right here on GitHub | Scroll down |
 
@@ -23,8 +23,8 @@ flowchart LR
     A["Leader or PA<br/>creates a department<br/>for the organiser"] --> B["Department head<br/>sets the brand kit,<br/>adds staff"]
     B --> C["Staff<br/>set up the award<br/>and build its site"]
     C --> D["Applicants<br/>find the site, apply,<br/>upload proof"]
-    D --> E["Staff<br/>check proof, mask,<br/>assign jury"]
-    E --> F["Jury<br/>score"]
+    D --> E["Staff<br/>check proof, mask,<br/>assign 1 or more jury each"]
+    E --> F["Jury<br/>score alone;<br/>the average counts"]
     F --> G["Department head<br/>approves<br/>(written rounds)"]
     G --> H["Staff<br/>publish results"]
     H -.->|if the award has an on-site round| I["Panel scores<br/>on site"]
@@ -50,18 +50,19 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A1["My organisation<br/>create once, or join"] --> A2["My applications"] --> A3["Start: blocked if the company<br/>already has one; pick category,<br/>pay fee if any"] --> A4["Form<br/>autosave, New / Updated"] --> A5["Proof documents<br/>ID, employment, LinkedIn"] --> A6["Review and submit<br/>entry limit checked"] --> A7["Status<br/>slot, result"]
+    A1["My organisation<br/>create once, or join"] --> A1b["My profile<br/>photo ID + LinkedIn once;<br/>change password"] --> A2["My applications"] --> A3["Start: blocked if the company<br/>already has one; pick category,<br/>pay fee if any"] --> A4["Form<br/>autosave, New / Updated"] --> A5["Proof of employment<br/>dated within 3 months"] --> A6["Review and submit<br/>entry limit checked"] --> A7["Status<br/>slot, result"]
 ```
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
 | 1 | My organisation | **Create** it once (first person from the company; PAN / GSTIN checks, values cleaned on save) or **Join** it (PAN + GSTIN, or PAN + official email); a PAN that already exists sends you to Join | `#a-org` |
-| 2 | My applications | Friendly statuses; a colleague's application read-only, without their name | `#a-apps` |
-| 3 | Start and pay | Blocked if the organisation already has an application (status only); category fee; demo payment | `#a-start` |
-| 4 | Application form | Sections, progress, autosave, New / Updated markers (R4) | `#a-form` |
-| 5 | Proof documents | Photo ID (masked Aadhaar only), proof of employment, LinkedIn, consent | `#a-proof` |
-| 6 | Review and submit | Checklist; "499 / 500"; the 501st is refused | `#a-submit` |
-| 7 | Status | Submitted → proof verified → shortlisted → presentation slot → medal | `#a-status` |
+| 2 | My profile | Photo ID (masked Aadhaar only) and LinkedIn link **once**, reused for every award; name, phone and **change password** (every role has this page) | `#a-profile` |
+| 3 | My applications | Friendly statuses; a colleague's application read-only, without their name | `#a-apps` |
+| 4 | Start and pay | Blocked if the organisation already has an application (status only); category fee; demo payment | `#a-start` |
+| 5 | Application form | Sections, progress, autosave, New / Updated markers (R4) | `#a-form` |
+| 6 | Proof of employment | The ID and LinkedIn come from the profile; only a proof of employment dated within 3 months is uploaded; consent | `#a-proof` |
+| 7 | Review and submit | Checklist; "499 / 500"; the 501st is refused | `#a-submit` |
+| 8 | Status | Submitted → proof verified → shortlisted → presentation slot → medal | `#a-status` |
 
 ## 3. Staff
 
@@ -81,10 +82,10 @@ flowchart TD
 | 2 | Award setup | Every difference between awards, set on screen; publish blocked until valid (R4) | `#s-setup` |
 | 3 | Site builder | Pages, sections, layouts, preview, publish, restore | `#s-site` |
 | 4 | Applications | Filters; proof and masking status; release a wrong application with a reason | `#s-apps` |
-| 5 | Proof check | Verified, or Rejected with a reason | `#s-proof` |
+| 5 | Proof check | The profile's ID and LinkedIn next to this application's dated employment proof; Verified, or Rejected with a reason (each award checks its own) | `#s-proof` |
 | 6 | Masking | Original next to the masked copy; files masked or marked safe (R1) | `#s-mask` |
-| 7 | Jury and assignment | Pool, recorded conflicts, one jury per application (R2) | `#s-assign` |
-| 8 | Judging progress | Score correction with a reason, kept in history (R3) | `#s-judging` |
+| 7 | Jury and assignment | Pool, recorded conflicts (R2); **jury per application** (minimum and maximum); assign several jury at once; "needs more jury" | `#s-assign` |
+| 8 | Judging progress | Each jury member's score and the average; score correction with a reason, kept in history (R3) | `#s-judging` |
 | 9 | Results | After approval: ranked list, Shortlisted / Rejected, publish | `#s-results` |
 | 10 | On-site round | Slots, panels, staff backup entry, close, suggested medals | `#s-onsite` |
 
@@ -99,7 +100,7 @@ flowchart LR
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
 | 1 | My assignments | Only their own applications and progress | `#j-list` |
-| 2 | Scoring (written, blind) | Masked answers, no identity, no proof documents, no total (R1) | `#j-score` |
+| 2 | Scoring (written, blind) | Masked answers, no identity, no proof documents, no total, never another jury member's marks (R1) | `#j-score` |
 | 3 | On-site scoring | Phone screen; panel member scores alone | `#j-onsite` |
 
 ## 5. Department head (or an external organiser's lead)
@@ -116,7 +117,7 @@ flowchart LR
 | 1 | Department dashboard | An organiser running its awards on its own | `#h-dash` |
 | 2 | Brand kit | Logo, colours (readability checked), font, links, live preview | `#h-brand` |
 | 3 | Staff and awards | Invite staff, give them awards | `#h-staff` |
-| 4 | Approve a round | Ranked list, notes, disqualified list; approve locks scores (R3) | `#h-review` |
+| 4 | Approve a round | Ranked list by average, each jury member's score and note, disqualified list; approve locks scores (R3) | `#h-review` |
 
 ## 6. Leader and PA
 
