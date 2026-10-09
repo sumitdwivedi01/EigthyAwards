@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-08 (Day 6, Phase 0.6: one application per organisation). Update this file at the end of every phase.
+> Last updated: 2026-10-09 (Day 7, Phase 0.7: lead call: proof once on the profile, My profile, several jury per application). Update this file at the end of every phase.
 
 ## Summary
 
@@ -23,7 +23,8 @@
 | G | Repository and process gaps | 7 | 4 |
 | H | Gaps from the leader call: PA role and data consistency (Day 3) | 12 | 8 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 9 |
-| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 9 |
+| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
+| K | Lead call (Day 7): proof once on the profile, My profile, several jury per application, re-plan | 12 | 7 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -114,7 +115,7 @@ The numbers match the PDF's cards (the PDF was removed on 7 Oct 2026 as out of d
 | G-D08 | §5.11 | "Every non-disqualified application has a submitted evaluation" doesn't define the set. What about Withdrawn, Not submitted or Released? | Eligible = submitted at the lock, and not withdrawn, released or disqualified. (Duplicates can no longer exist: a second application is blocked at the start, ADR 0011.) | 11 | Default adopted |
 | G-D09 | §5.5 | "Score 0 to 10": whole numbers or decimals? | Whole numbers (A9). | 3 | Decided (6 Oct): whole numbers |
 | G-D10 | §5.10 | "Reinstate returns it to the state it was in", even if the round has been approved since? | Reinstating is refused once the round is approved. | 9 | Default adopted |
-| G-D11 | §5.7 | Masking can be reopened while the jury holds draft scores. What does the jury see? | Reopening hides the application from the jury until masking is marked done again. Draft scores are kept. | 9 | Default adopted |
+| G-D11 | §5.7 | Masking can be reopened while the jury holds draft scores. What does the jury see? | Reopening hides the application from the jury until masking is marked done again. Draft scores are kept. | 9 | Default adopted (9 Oct: with several jury, masking reopens only while none of the application's evaluations is submitted) |
 
 ---
 
@@ -130,7 +131,7 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | G-E04 | Can a department head create awards? | No, only staff | Open |
 | G-E05 | Can a department head edit scores? | No; approve or send back only | Open |
 | G-E06 | Exactly one leader? | Yes | Open |
-| G-E07 | Several judges per application in the live round? | **Yes: a panel of 2 to 5, average counts; built now** | Answered (6 Oct) |
+| G-E07 | Several judges per application in the live round? | **Yes: a panel of 2 to 5, average counts; built now** | Answered (6 Oct). **9 Oct:** document review rounds can also have several jury (a minimum and maximum per round, average), ADR 0013 |
 | G-E08 | Duplicates: block, or allow and flag? | **Blocked at the start** (changed 8 Oct, ADR 0011); staff can release a wrong one | Answered (6 Oct) |
 | G-E09 | Must the applicant resubmit after questions are added? | No; flagged "Update requested" | Open |
 | G-E10 | How do weights work? | Section weight, then indicator weight within the section | Open |
@@ -215,23 +216,42 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J05 | Does an award site need the leader's or a PA's approval before going live? | No approval. The leader and PAs can view sites, not edit them | 4 | Answered (7 Oct) |
 | G-J06 | Brand kit per department with per-award overrides, or per award only? | Per department, with per-award overrides (default kept) | 4 | Decided (7 Oct, default) |
 | G-J07 | Entry limit: count submitted applications only? Show "places left" publicly? | Submitted only; the count is **always shown** publicly, e.g. 499 / 500 | 3, 7 | Answered (7 Oct) |
-| G-J08 | Delete verification documents 12 months after results, keeping only the "verified" record? | Yes, 12 months after results (default kept) | 2 | Decided (7 Oct, default) |
-| G-J09 | Verify membership before submission, or after submission but before judging? | At submission: photo identity document + proof of employment + LinkedIn link are required to submit; staff check them before judging | 2, 7, 9 | Answered (7 Oct) |
+| G-J08 | Delete verification documents 12 months after results, keeping only the "verified" record? | Yes, 12 months after results (default kept). For an identity document kept on a profile: 12 months after the results of the last cycle that used it (9 Oct, G-K05) | 2 | Decided (7 Oct, default) |
+| G-J09 | Verify membership before submission, or after submission but before judging? | At submission: photo identity document + proof of employment + LinkedIn link are required to submit; staff check them before judging. **Changed 9 Oct:** the identity document and LinkedIn link are given once on the profile; each application needs a proof of employment dated within 3 months (G-K01, ADR 0012) | 2, 7, 9 | Answered (7 Oct; changed 9 Oct) |
 | G-J10 | Show past winners automatically on award sites? | Staff decide what to show and where, and can change the site design at any time, also after publishing | 4, 11 | Answered (7 Oct) |
 | G-J11 | Simpler branch names: number plus one word? | Yes | Plan | Answered (7 Oct) |
 | G-J12 | Bring the 6 Oct decisions (scores, medals, build order, skeleton deploy) from the parked branch onto `main`? | Yes: brought onto this branch | 0.4 | Answered (7 Oct) |
-| G-J13 | Personal documents (proof of employment) fall under India's DPDP Act 2023: consent, purpose, minimal data, retention. | Consent at upload; ID card or letter only, salary hidden; staff, department head, leader and PAs only, never jury; deletion per J08 | 2 | Open |
+| G-J13 | Personal documents (proof of employment) fall under India's DPDP Act 2023: consent, purpose, minimal data, retention. | Consent at upload; ID card or letter only, salary hidden; staff, department head, leader and PAs only, never jury; deletion per J08. From 9 Oct the identity document is stored once per person (less data), never shown to colleagues, and seen by staff only through an application they may see | 2 | Open |
 | G-J14 | Page content must never become a security hole (scripts, phishing links, broken layouts). | Fixed section types; rich text limited to bold, italic, headings, lists and links; no HTML or scripts; images only, 5 MB, re-encoded | 4, 6 | Open |
 | G-J15 | Public images must never sit next to private applicant files. | A separate public storage bucket for site images | 4 | Open |
 | G-J17 | Nobody outside a department can take down a wrong or abusive award site (no leader approval or editing, J05). | Accept for now: the leader asks the department head. Revisit if it happens. | 4 | Accepted risk |
 | G-J18 | Aadhaar: storing full Aadhaar numbers is restricted. | Accept only masked Aadhaar (last four digits) as an identity document; other IDs preferred | 2, 7 | Default adopted |
-| G-J19 | Deleting proof documents after 12 months needs a scheduled job; the platform has none yet. | A daily clean-up run from a cron route (Render cron or an external scheduler) | 7 | Open |
+| G-J19 | Deleting proof documents after 12 months needs a scheduled job; the platform has none yet. | A daily clean-up run from a cron route (Render cron or an external scheduler). From 9 Oct it must also count the applications using a profile's identity document before deleting it (G-K05) | 7 | Open |
 | G-J20 | The last place under the entry limit: two applicants submitting at the same moment could both get in. | Count and submit in one transaction that locks the cycle's row | 7 | Default adopted |
-| G-J21 | **Hard limit 15 October** (owner, 8 Oct). The full plan (15 build phases) can't fit. Option A (focused demo) or Option B (real product, 10–14 weeks)? | Option A by 15 Oct, with B as the roadmap ([proposals/0.5-replan-options.md](proposals/0.5-replan-options.md)) | Plan | Decision needed (lead, 9 Oct) |
+| G-J21 | **Hard limit 15 October** (owner, 8 Oct). The full plan (15 build phases) can't fit. Option A (focused demo) or Option B (real product, 10–14 weeks)? | Option A by 15 Oct, with B as the roadmap ([proposals/0.5-replan-options.md](proposals/0.5-replan-options.md)). **Lead, 9 Oct:** build in **three phases**; Phase 1 is a fully working demo; agree the plan and the data model before coding. The re-plan itself is G-K12 | Plan | Answered (9 Oct) |
 | G-J22 | One application per organisation: flag duplicates afterwards, or stop them before filling? | **Blocked at the start**; colleagues see it read-only with the status only; staff can release (ADR 0011) | 7, 8 | Answered (8 Oct) |
 | G-J23 | With first-come blocking, a wrong or fake member who starts first blocks the real applicant. | Proof documents show staff who the person is; staff release the application with a reason; the real applicant contacts the award team | 7, 9 | Default adopted |
 | G-J24 | If the person who started the application leaves the organisation, nobody else can continue it. | Staff release it and a colleague starts again; a draft hand-over is later work (spec A26) | 7 | Accepted risk |
 | G-J16 | Sub-domains and own domains need a domain we own and Vercel domain setup, which can't be tested in the 10 days. | Store a slug and an empty `customDomain` field now; build sub-domains and own domains later | 4, later | Open |
+
+## K. Lead call (Day 7, 9 Oct): proof once, My profile, several jury
+
+From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/0012-proof-once-on-profile-and-account-settings.md) and [0013](decisions/0013-several-jury-per-application.md); what the built backend must change: [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md).
+
+| ID | Gap or question | Default / answer | Phase | Status |
+|---|---|---|---|---|
+| G-K01 | Uploading the ID, the LinkedIn link and the employment proof with **every** application repeats work and stores many copies of an ID | The ID and LinkedIn once, on the profile; a proof of employment **dated within 3 months** with each application; the staff of **each award** check their own application | 2, 7, 9 | Answered (9 Oct) |
+| G-K02 | Users can't change their password or their details | **My profile** for every role: name, phone, change password (needs the current one; ends other sessions; email; audited without the password) | 2, 5 | Answered (9 Oct) |
+| G-K03 | One jury member per application lets one person's bias decide the result | Staff set the **jury per application** (minimum and maximum, at least 1, at most the pool) for each document round; every application needs the minimum; the final score is the **average** | 3, 9, 11 | Answered (9 Oct) |
+| G-K04 | If an applicant replaces their profile ID after staff verified it, what did staff check? | The application records the ID and LinkedIn it used; they follow the profile until verified or locked, then stay fixed (spec A30) | 7, 9 | Default adopted |
+| G-K05 | A profile's ID belongs to no cycle, so "12 months after results" is unclear | 12 months after the results of the last cycle that used it; one replaced before any use is deleted at once | 7 | Default adopted |
+| G-K06 | Two staff assigning at the same moment could go above the maximum | Count and assign under a lock on the application; a partial unique index stops the same jury member twice | 9 | Default adopted |
+| G-K07 | A high minimum multiplies jury work; a small pool may not cover it | The maximum is capped by the pool; staff see "needs more jury"; the round can't be sent for approval until every application has its minimum | 9, 10 | Default adopted |
+| G-K08 | An average hides a wide disagreement between jury members | Staff and the department head see every score next to the average; a "large spread" flag is Could have | 10, 13 | Open |
+| G-K09 | A user can't change their login email | Not built; designed for (spec A27) | Later | Accepted risk |
+| G-K10 | The "within 3 months" check uses the date the applicant types | Staff confirm the date on the document when they check the proof | 9 | Accepted risk |
+| G-K11 | The parked Phase 1 code predates the 7–9 Oct decisions (sites, proof, release, profile proof, jury per application) | Every change listed in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md); made when Phase 1 resumes | 1 | Open |
+| G-K12 | **Re-plan in three phases** (lead, 9 Oct): Phase 1 a fully working demo; what moves to Phases 2 and 3, with time limits; the data model and technical design agreed before coding | To be done with the owner in the next session | Plan | Decision needed |
 
 ---
 
@@ -254,6 +274,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-09 | Lead call (Phase 0.7): new section K (12 items); J08, J09, J13, J19, D11 and E07 updated; J21 answered (three phases; the re-plan is K12). |
 | 2026-10-08 | One application per organisation blocked at the start (owner): A14, D08 and E08 updated; G-J22–J24 added. |
 | 2026-10-08 | Hard limit of 15 Oct: G-J21 added (Option A vs B, for the lead); G-I09 superseded. |
 | 2026-10-07 | Owner's answers to section J: J01–J12 answered or decided; H01 decided (proof documents); 6 Oct decisions brought over from the parked branch; J17–J20 added; phase numbers remapped to the 7 Oct plan. |

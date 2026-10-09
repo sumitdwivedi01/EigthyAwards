@@ -2,7 +2,7 @@
 
 - Status: **Accepted** (answers of 2026-10-06)
 - Date: 2026-10-06
-- Related: spec §5.16, §5.12; GAPS section I; supersedes the "live rounds: future" parts of the spec
+- Related: spec §5.16, §5.12; GAPS section I; supersedes the "live rounds: future" parts of the spec. Extended by [ADR 0013](0013-several-jury-per-application.md) (9 Oct 2026): document review rounds can now also have several jury per application, averaged the same way; the panel size fields are renamed `juryMin` and `juryMax` and serve both round types.
 
 ## Context
 

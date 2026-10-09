@@ -54,21 +54,22 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 ## Rounds and results (answers of 6 Oct 2026, ADR 0008)
 
 - A cycle's rounds are configuration: `DOCUMENT_REVIEW`, `ON_SITE`, or document review then on-site. Shop-floor competitions are on-site-only cycles; never branch on "shop-floor" or an award name.
-- **Document review:** one jury member per application; blind if the cycle says so; the department head approves (they are never a juror in their own department's document rounds). Labels: Shortlisted / Rejected.
+- **Document review:** staff set the **jury per application** (`juryMin`–`juryMax`, at least 1, never above the jury in the pool; ADR 0013); every application needs at least the minimum submitted before approval; jury never see each other's scores; the final score is the **average** (rounded once, at the end); blind if the cycle says so; the department head approves (they are never a juror in their own department's document rounds). Labels: Shortlisted / Rejected.
 - **On-site:** never blind; a panel of 2–5 per entry, each scoring separately on any device; the final score is the average; staff can enter a member's scores (record `enteredById`); **no approval**; staff close the round, which locks the scores. Labels: Gold / Silver / Bronze / Participated. Medals go to ranks 1–3 of the **whole round** (one set per award, not per category). Panel members never see each other's scores.
 - Result labels live on the round (`resultLabels`), renamable per cycle. Results are stored in `RoundResult`, not on the application.
 - Indicator scores are **whole numbers 0–10** (or Yes/No). A submitted application is edited through an explicit Save changes with full checks, never autosaved.
 - **One application per organisation per cycle, blocked at the start** (ADR 0011): once a member starts one, colleagues can't start another; they see it read-only, status only (no name); staff can release a wrong one with a reason; a partial unique index enforces it. GSTIN is optional. A category's fee overrides the cycle's fee. The questionnaire may be empty for on-site-first cycles.
 
-## Award sites, organisers, proof and entry limit (decided 7 Oct 2026; ADR 0009, 0010)
+## Award sites, organisers, proof and entry limit (decided 7 Oct 2026; ADR 0009, 0010; proof changed 9 Oct, ADR 0012)
 
 - **Every** award has a branded site: a brand kit per department (overrides per award), pages built from **ready-made section types** that staff choose, place and lay out. Staff can change content and design **any time, also after publishing**; each publish is an immutable version (restore possible). **No approval**; the leader and PAs can view sites, never edit them.
 - **Never** allow custom HTML or scripts in sites. Rich text is a safe structure; links are http(s) only; images go to the **public** bucket, never next to private files.
 - Automatic sections (deadline, entry count, categories, dates, past winners, jury) read live data; never copy it into page content.
 - A department can be an **external award organiser** running its awards alone; one person may head several departments. Only staff create awards.
-- With **every application**: a photo identity document (masked Aadhaar only), a proof of employment and a LinkedIn link; submit is refused without them. Staff mark Verified or Rejected; unverified applications can't be assigned to jury. Proof documents are **never** shown to jury; they're deleted 12 months after results (the check record stays).
+- **Once, on the applicant's profile:** a photo identity document (masked Aadhaar only) and a LinkedIn link, reused for every application. **With every application:** a proof of employment dated within the last **3 months** (ADR 0012). Submit is refused without all three. The application records the ID and LinkedIn it used; they follow the profile until staff verify them or the deadline, then stay fixed. Each award's staff check their own application. Staff mark Verified or Rejected; unverified applications can't be assigned to jury. Proof documents are **never** shown to jury; they're deleted 12 months after results (the check record stays).
 - Optional **entry limit** per cycle: counts submitted applications; the public sees "499 / 500"; check and submit in one locking transaction.
 - Own domains: designed for (slug and `customDomain` stored), not built.
+- **My profile** for every user: name, phone, **change password** (needs the current one; ends other sessions through `sessionVersion`; "password changed" email; audited without the password). The email can't be changed yet.
 
 ## The four rules (the brief's)
 

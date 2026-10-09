@@ -43,3 +43,15 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Stuck:** Waiting for the lead's choice. The full plan can't fit by 15 Oct.
 - **Plan changed:** Hard limit 15 Oct. The build plan is on hold until the lead decides; the 15-phase list stays as the full-product breakdown.
 - **Changed (Day 6, later):** A second application from the same company is now **stopped before anyone fills it**: colleagues see the company's application read-only (status only), and staff can release a wrong one with a reason ([ADR 0011](docs/decisions/0011-one-application-per-organisation.md)). Spec, plan, gaps and prototype updated.
+
+# DAY 7 (9 Oct)
+- **Done:** Call with my lead, who agreed with most of the plan and asked for four changes, now in every document and the prototype:
+  - the photo ID and LinkedIn link are given **once, on the profile**;
+  - each application only needs a **proof of employment from the last 3 months**;
+  - every user can **change their password** on My profile;
+  - in round 1, **several jury can score one application** (staff set a minimum and a maximum), and the **average** decides.
+
+  Decision records: [ADR 0012](docs/decisions/0012-proof-once-on-profile-and-account-settings.md) and [ADR 0013](docs/decisions/0013-several-jury-per-application.md). What the already-built backend must change is listed in [proposals/0.7-backend-changes.md](docs/proposals/0.7-backend-changes.md).
+- **Next:** Re-plan in **three phases**, as the lead asked: Phase 1 a fully working demo, with time limits for Phases 2 and 3. Agree the data model before any code.
+- **Stuck:** Nothing. Waiting for the re-plan before building.
+- **Plan changed:** The lead chose three phases instead of Option A or B. Only the points inside the phase descriptions changed today; the phase list itself is redone next.

@@ -6,12 +6,12 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-08 · Day 6 |
-| **Current phase** | Phase 0.6: One application per organisation, blocked at the start (🧪 docs and prototype updated; waiting for review and merge) |
-| **Current branch** | `phase-0.6-entry` |
+| **Last updated** | 2026-10-09 · Day 7 |
+| **Current phase** | Phase 0.7: Lead call: proof once on the profile, My profile, several jury per application (🧪 docs and prototype updated; committed locally, **not pushed, not merged**, waiting for the owner's review) |
+| **Current branch** | `phase-0.7-lead` |
 | **What runs today** | Nothing on `main`. The backend foundation (Phase 1) is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`). |
-| **Next action** | 1) Review and merge Phase 0.6, tag `phase-0.6-done`. 2) **9 Oct lead call:** walk through the [UI prototype](ui/prototype.html) and the [branding presentation](ui/brand-value.html); the lead chooses [Option A or B](proposals/0.5-replan-options.md). 3) Re-plan PHASES.md from that decision, then resume Phase 1. |
-| **Blockers** | Building waits for the lead's choice between Option A (demo by 15 Oct) and Option B (real product). Open: A4 (email provider); ask the leader: G-I08, G-H07; branding questions B1–B6. |
+| **Next action** | 1) The owner reviews Phase 0.7. 2) **Re-plan in three phases** with the owner (the lead's request, G-K12): what Phase 1 (a fully working demo) holds, what moves to Phases 2 and 3, with time limits. 3) The **technical design before coding**: the data model and the plan agreed first. 4) Then make the backend changes in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md) and resume Phase 1. |
+| **Blockers** | Building waits for the three-phase re-plan (G-K12). Open: A4 (email provider); ask the leader: G-I08, G-H07; branding questions B1–B6. |
 | **Risk** | **Hard limit 15 October** (owner, 8 Oct): about 5 working days after the call. Only Option A fits. |
 
 ## Phase status board
@@ -26,8 +26,9 @@ The live version of the table in [PHASES.md §2](PHASES.md). Update the row when
 | 0.3 | Plain-language overview | `phase/00.3-overview-page` | ✅ Merged | sumitdwivedi01/EigthyAwards#4 | 2026-10-07 · `phase-00.3-done` | n/a |
 | 0.4 | New issues and the owner's answers | `phase-0.4-issues` | ✅ Merged (committed to `main` by mistake; accepted as is, see Daily 7 Oct) | — | 2026-10-07 · `phase-0.4-done` | n/a |
 | 0.5 | UI overview and re-plan options | `phase-0.5-ui` | ✅ Merged | sumitdwivedi01/EigthyAwards#5 | 2026-10-08 · `phase-0.5-done` | n/a |
-| 0.6 | One application per organisation | `phase-0.6-entry` | 🧪 In review | — | — | n/a |
-| 1 | Backend foundation (+ new tables) | `phase/01-be-foundation` → `phase-1-setup` | ⏸ Parked: built, 62 tests passing, not merged | — | — | 62 passing |
+| 0.6 | One application per organisation | `phase-0.6-entry` | ✅ Merged | sumitdwivedi01/EigthyAwards#6 | 2026-10-08 · `phase-0.6-done` | n/a |
+| 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | 🧪 In review (local commit only) | — | — | n/a |
+| 1 | Backend foundation (+ new tables; changes listed in [0.7-backend-changes](proposals/0.7-backend-changes.md)) | `phase/01-be-foundation` → `phase-1-setup` | ⏸ Parked: built, 62 tests passing, not merged | — | — | 62 passing |
 | 2 | People: logins, roles, PA, departments (incl. external organisers), master data, organisations | `phase-2-people` | ⬜ | — | — | — |
 | 3 | Award setup: rounds, forms, score sheets (R4), entry limit | `phase-3-awards` | ⬜ | — | — | — |
 | 4 | Award sites (backend) | `phase-4-sites` | ⬜ | — | — | — |
@@ -51,9 +52,18 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 |---|---|---|
 | Branded award sites for all awards (brand kit, pages, sections, versions, no approval) | Phases 1 (tables), 4, 5, 6 | ⬜ |
 | External organisers as departments; one head for several departments | Phases 2, 11 (department dashboard), 13 | ⬜ |
-| Proof documents with every application, staff check, never to jury | Phases 1, 7, 8, 9, 10 | ⬜ |
+| Proof documents, staff check, never to jury (changed 9 Oct: ID and LinkedIn once on the profile, recent employment proof per application) | Phases 1, 2, 7, 8, 9, 10 | ⬜ |
 | Entry limit with public "499 / 500" counter | Phases 3, 7, 8, 5 (site counter) | ⬜ |
 | Own domains | Designed for (slug, `customDomain`), built later | ⬜ |
+
+## Lead call of 9 Oct: where it stands
+
+| Goal | Built in | Status |
+|---|---|---|
+| ID and LinkedIn once on the profile; employment proof dated within 3 months per application; each award checks its own | Phases 1 (fields), 2 (profile), 7, 8, 9, 10 | ⬜ (docs ✅) |
+| My profile for every role: name, phone, change password | Phases 2, 5 | ⬜ (docs ✅) |
+| Several jury per application in document rounds (min–max per round); final score = average | Phases 1 (fields, index), 3, 9, 10, 11, 13 | ⬜ (docs ✅) |
+| Re-plan in three phases; data model agreed before coding | Next session (G-K12) | ⬜ |
 
 ## The four rules: where they stand
 
@@ -85,7 +95,21 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
 
-### Phase 0.6: One application per organisation · 🧪 · 2026-10-08 (Day 6)
+### Phase 0.7: Lead call: proof once, My profile, several jury · 🧪 · 2026-10-09 (Day 7)
+
+The owner met the lead. The lead agreed with most of the plan and asked for: the identity document and LinkedIn link given **once**, not with every application; only a **recent** proof of employment per application; a way for users to **change their password**; and **several jury per application** in round 1, with the average as the final score so no single person's bias decides. Four details were agreed first (all recommended options): each award checks its own application; the proof is dated within 3 months; one min–max per round; commit locally only.
+
+- [x] Spec: new §5.21 (My profile and account); §5.20 rewritten (proof once on the profile, recent employment proof); §5.8 (jury per application), §5.5 (final score = average, rounded once); and every related section (§2, §3, §4, §5.1–5.3, §5.6–5.13, §5.15, §5.16, §6–8, §10–15, §18 with A27–A32).
+- [x] ADR 0012 (proof once, My profile) and ADR 0013 (several jury per application); 0008 and 0010 marked as changed.
+- [x] [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md): what the parked backend has, what's planned, and every change it needs (B0–B5). Not done in code, as asked.
+- [x] GAPS: new section K (12 items); J08, J09, J13, J19, D11 and E07 updated; J21 answered (three phases).
+- [x] PHASES: the points changed inside Phases 1, 2, 3, 5, 7, 8, 9, 10, 11 and 13 only; the phase list and days are **not** re-planned yet (owner's instruction).
+- [x] Prototype: a new **My profile** screen (proof once, change password); the proof step now asks only for the dated employment proof; proof check, assignment (min–max, several jury), judging progress, results and the head's review show each jury member's score and the average. 32 screens. Tested at phone, tablet and laptop widths: no errors, every link valid, nothing cut off (also fixed older screens whose tables were clipped on phones).
+- [x] Also fixed: the overview still said "two entries from one company are flagged" (missed in 0.6).
+- [x] UI README, overview, README, CLAUDE.md, creating.md, Daily.md.
+- [ ] Owner review; then the three-phase re-plan (G-K12).
+
+### Phase 0.6: One application per organisation · ✅ · 2026-10-08 (Day 6)
 
 The owner asked two questions about the prototype: can a colleague see an application someone else is filling, and can we stop a second one **before** it's filled, not after submission? Four details were agreed first (all recommended options, except "status only, no name").
 
@@ -93,7 +117,7 @@ The owner asked two questions about the prototype: can a colleague see an applic
 - [x] ADR 0011; ADR 0007 note updated.
 - [x] GAPS: A14, D08, E08 updated; J22 (answered), J23 (fake starter blocks the real one: staff release), J24 (no hand-over yet).
 - [x] PHASES (Phase 0.6; Phases 1, 7, 10 and cut order), the prototype (start, My applications, staff list), the UI README, CLAUDE.md, Backend README, the overview, creating.md, Daily.md.
-- [ ] Merged, tagged `phase-0.6-done`.
+- [x] Merged through sumitdwivedi01/EigthyAwards#6 and tagged `phase-0.6-done`.
 
 ### Phase 0.5: UI overview and re-plan options · ✅ · 2026-10-08 (Day 6)
 

@@ -67,10 +67,10 @@ The awards also work very differently. The largest scores about **250 indicators
 | One record per company, person and department | Scoring sheet and weights |
 | Applying, deadlines, locking | Opening date and deadline |
 | Hiding names for blind judging | Entry fee (or free), and a fee per category |
-| Giving applications to jury, conflict checks | Blind judging on or off |
+| Giving applications to jury, conflict checks | Blind judging on or off, and how many jury score each application |
 | Scoring maths, approval, results, emails | Entry categories (1 or 38) |
 | A history of every important change | Rounds: written review, on-site, or both |
-| Checking each applicant's identity and employment proof | An entry limit (e.g. 500), shown as "499 / 500" |
+| Checking each applicant's identity (given once, on their profile) and recent employment proof | An entry limit (e.g. 500), shown as "499 / 500" |
 | The site builder: ready-made page sections | The award's own **branded site**: logo, colours, pages, photos |
 
 ---
@@ -93,7 +93,7 @@ flowchart TD
 
 | Person | Their day | What the platform gives them |
 |---|---|---|
-| **Applicant** | Comes once or twice a year, close to the deadline, with a long form | A branded award site that explains everything, with the places left. One company profile reused for every award. The form saves as they type. Uploads an ID and a proof of working there |
+| **Applicant** | Comes once or twice a year, close to the deadline, with a long form | A branded award site that explains everything, with the places left. One company profile reused for every award. The form saves as they type. Gives a photo ID and LinkedIn link once, on their profile; uploads a recent proof of working there with each application. Can change their password |
 | **Jury member** | A senior person scoring between meetings | Stop anytime and continue later. On site, they score on their phone |
 | **Staff** | Works in the system every day while a cycle runs | Set up awards and build each award's branded site on screens, check applicants' proof, track progress, publish results |
 | **Department head** | Owns a group of awards, or leads an **outside organiser** (e.g. the FPO Awards team) that runs its awards here on its own | Sets the brand kit, adds staff and jury, reviews the ranked results, then approves or sends them back |
@@ -121,11 +121,11 @@ flowchart TD
     end
     subgraph S3["③ DEADLINE"]
         direction LR
-        c1["Everything locks<br/>automatically"] --> c2["Two entries from one<br/>company are flagged"]
+        c1["Everything locks<br/>automatically"] --> c2["Unfinished drafts become<br/>Not submitted"]
     end
     subgraph S4["④ ROUND 1 · written review"]
         direction LR
-        d1["Hide the company name<br/>blind awards only"] --> d2["Give each application<br/>to one juror"] --> d3["Juror scores 0 to 10<br/>and writes a note"] --> d4{"Department<br/>head"}
+        d1["Hide the company name<br/>blind awards only"] --> d2["Give each application<br/>to 1 or more jurors<br/>(staff set how many)"] --> d3["Each juror scores 0 to 10<br/>alone; the average counts"] --> d4{"Department<br/>head"}
         d4 -->|send back| d3
         d4 -->|approve| d5["Shortlisted<br/>or Rejected"]
     end

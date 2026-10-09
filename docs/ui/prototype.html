@@ -73,7 +73,8 @@ main{padding:22px 26px 60px;min-width:0}
 .ui-side{border-right:1px solid var(--line);padding:12px 8px;background:#FAFBFD;font-size:13px}
 .ui-side div{padding:7px 10px;border-radius:7px;color:var(--muted)}
 .ui-side div.on{background:var(--brand-soft);color:var(--brand);font-weight:700}
-.ui-main{padding:18px 20px;min-width:0}
+.ui-main{padding:18px 20px;min-width:0;overflow-x:auto}
+@media (max-width:700px){.ui-top{flex-wrap:wrap}.ui-top .menu{flex-wrap:wrap}.site .sh{flex-wrap:wrap}.site .sh nav{margin-left:0;flex-wrap:wrap}}
 .h{font-size:19px;font-weight:700;margin:0 0 4px}
 .sub{color:var(--muted);margin:0 0 14px;font-size:14px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -243,7 +244,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
 <section class="screen" data-role="applicant" data-id="a-org" data-title="My organisation" data-desc="The applicant creates their organisation once (or joins it) and reuses it for every award. Values are cleaned as they're saved.">
   <div class="notes"><span class="note"><b>One record per PAN</b>, reused by every award</span><span class="note"><b>Join</b> with PAN + GSTIN, or PAN + official email if there's no GSTIN</span><span class="note"><b>Lists, not free text:</b> state and organisation type</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/organisation</b></div></div>
-  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>My organisation</b><span>My applications</span><span>Open awards</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><b>My organisation</b><span>My applications</span><span>Open awards</span><span>My profile</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
   <div class="ui-body full"><div class="ui-main" data-tabs>
     <div class="tabs" role="tablist"><button aria-selected="true" data-tab="org-create">Create my organisation</button><button aria-selected="false" data-tab="org-join">Join an existing one</button></div>
     <div class="tabpane on" data-pane="org-create">
@@ -262,7 +263,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
     </div>
     <div class="okline">✓ GSTIN state (27, Maharashtra) matches the address state</div>
     <div class="gap"></div><div class="warnline">If this PAN is already on the platform you'll see: "Sahyadri FPO is already registered. Join it instead." One record per company, never a second copy.</div>
-    <div class="gap"></div><div class="row"><button class="btn p" data-goto="a-apps">Save organisation</button><span class="small muted">Edits are recorded in the organisation's history</span></div>
+    <div class="gap"></div><div class="row"><button class="btn p" data-goto="a-profile">Save organisation</button><span class="small muted">Edits are recorded in the organisation's history</span></div>
     </div>
     <div class="tabpane" data-pane="org-join">
     <p class="sub">Is your company already on the platform? Join it, so everyone from the company shares one record and one history.</p>
@@ -275,7 +276,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
       <div class="box"><h3>Result</h3>
         <div class="okline">✓ Found: <b>Sahyadri Farmers Producer Company Ltd</b> · Nashik, Maharashtra</div>
         <p class="small">After joining you can apply for this organisation and see its applications. Colleagues who joined earlier see yours too.</p>
-        <button class="btn g" data-goto="a-apps">Join Sahyadri FPO →</button>
+        <button class="btn g" data-goto="a-profile">Join Sahyadri FPO →</button>
         <div class="gap"></div>
         <div class="small muted" style="margin-bottom:4px">If the details don't match:</div>
         <div class="badline">✕ The PAN and GSTIN don't match our record. Check both; the GSTIN on record is registered in Maharashtra (starts with 27).</div>
@@ -283,7 +284,45 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
         <div class="small muted">Not found at all? The company isn't on the platform yet: use <b>Create my organisation</b>.</div></div>
     </div>
     <div class="gap"></div>
-    <div class="warnline">Joining links you to the company. It doesn't prove you work there: when you submit an application you still upload a photo ID and a proof of employment, which staff check.</div>
+    <div class="warnline">Joining links you to the company. It doesn't prove you work there: you add a photo ID and your LinkedIn link to <b>My profile</b> once, and upload a recent proof of employment with each application. Staff check them.</div>
+    </div>
+  </div></div></div></div>
+</section>
+
+<section class="screen" data-role="applicant" data-id="a-profile" data-title="My profile: account and proof (once)" data-desc="Every user has this page to edit their details and change their password. Applicants also keep their photo ID and LinkedIn link here, once, for every application in every award.">
+  <div class="notes"><span class="note"><b>Every role</b> has My profile: name, phone, change password (ADR 0012)</span><span class="note"><b>Applicants:</b> photo ID and LinkedIn given once, reused for every award</span><span class="note"><b>Privacy:</b> never shown to jury or colleagues</span></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/profile</b></div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>My organisation</span><span>My applications</span><span>Open awards</span><b>My profile</b></div><div class="me"><i>AP</i>Asha Patil</div></div>
+  <div class="ui-body full"><div class="ui-main" data-tabs>
+    <div class="tabs" role="tablist"><button aria-selected="true" data-tab="pr-proof">Proof for applications</button><button aria-selected="false" data-tab="pr-account">Account and password</button></div>
+    <div class="tabpane on" data-pane="pr-proof">
+    <p class="sub">Give these once. Every application you make, in any award, uses them; you never upload them again.</p>
+    <div class="g2">
+      <div class="box"><h3>1. Photo identity document</h3><p class="small muted">PAN card, passport, driving licence, voter ID, or <b>masked</b> Aadhaar (only the last 4 digits visible).</p>
+        <div class="file">🪪 pan-card-asha.jpg <span class="chip gd">On file</span> <button class="btn" style="margin-left:auto;padding:2px 8px">Replace…</button></div>
+        <div class="gap"></div><div class="small muted">Used by: FPO Excellence 2026 <span class="chip w">Proof pending</span> · Kaizen Challenge 2025 <span class="chip gd">Verified</span></div></div>
+      <div class="box"><h3>2. LinkedIn profile</h3><div class="input">linkedin.com/in/asha-patil-fpo</div><p class="small muted">Staff use it to confirm where you work.</p><button class="btn">Save link</button></div>
+    </div><div class="gap"></div>
+    <div class="check"><i class="y">✓</i><span>I agree that my ID is used only to check my applications. It is seen by the staff and organisers of the awards I apply to, never by jury or my colleagues, and deleted 12 months after the results of the last award that used it.</span></div>
+    <div class="warnline">Replacing your ID? An application whose proof staff already verified keeps the one they checked. Applications still pending use the new one.</div>
+    <div class="gap"></div><button class="btn p" data-goto="a-apps">Done → My applications</button>
+    </div>
+    <div class="tabpane" data-pane="pr-account">
+    <div class="g2">
+      <div class="box"><h3>My details</h3>
+        <div class="field"><label>Name</label><div class="input">Asha Patil</div></div>
+        <div class="field"><label>Phone (optional)</label><div class="input">+91 98765 43210</div></div>
+        <div class="field"><label>Email (your login)</label><div class="input ph">asha.patil@sahyadri-fpo.in</div><span class="hint">Can't be changed here for now</span></div>
+        <button class="btn p">Save details</button></div>
+      <div class="box"><h3>Change password</h3>
+        <div class="field"><label>Current password *</label><div class="input">••••••••••</div></div>
+        <div class="field"><label>New password *</label><div class="input">••••••••••••</div></div>
+        <div class="field"><label>Repeat new password *</label><div class="input">••••••••••••</div></div>
+        <button class="btn p">Change password</button><div class="gap"></div>
+        <div class="okline">✓ Password changed. You stay signed in here; every other device is signed out, and we emailed you.</div>
+        <div class="gap"></div><div class="badline">✕ The current password is wrong. Nothing was changed.</div></div>
+    </div>
+    <p class="small muted">Staff, jury, department heads, the leader and PAs have the same "Account and password" page (without the proof tab).</p>
     </div>
   </div></div></div></div>
 </section>
@@ -291,7 +330,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
 <section class="screen" data-role="applicant" data-id="a-apps" data-title="My applications" data-desc="Every application of the organisation, with a short, friendly status. One a colleague started shows read-only, without their name.">
   <div class="notes"><span class="note"><b>One per organisation:</b> a colleague's application shows here read-only (ADR 0011)</span><span class="note"><b>Status only:</b> it never shows who started it</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>my/applications</b></div></div>
-  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>My organisation</span><b>My applications</b><span>Open awards</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
+  <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu"><span>My organisation</span><b>My applications</b><span>Open awards</span><span>My profile</span></div><div class="me"><i>AP</i>Asha Patil</div></div>
   <div class="ui-body full"><div class="ui-main">
     <div class="row sp"><div class="h">My applications</div><button class="btn p" data-goto="a-start">+ Start an application</button></div><div class="gap"></div>
     <table class="t"><tr><th>Award</th><th>Category</th><th>Status</th><th></th></tr>
@@ -323,7 +362,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>applications/A-2026-0142</b></div></div>
   <div class="ui"><div class="ui-top" style="background:var(--fpo);color:#fff"><div class="logo" style="color:#fff"><span style="background:var(--fpo-a);color:#1d1d1d">🌾</span>FPO Excellence Awards · Application</div><div class="me" style="color:#E3EFE7">✓ Saved 2 seconds ago</div></div>
   <div class="ui-body"><div class="ui-side">
-      <div>✓ Organisation details</div><div class="on">● About your work · 3/5</div><div>○ Impact and evidence</div><div>○ Team members</div><div>○ Proof documents</div><div>○ Review and submit</div>
+      <div>✓ Organisation details</div><div class="on">● About your work · 3/5</div><div>○ Impact and evidence</div><div>○ Team members</div><div>○ Proof of employment</div><div>○ Review and submit</div>
       <div style="margin-top:10px"><div class="bar-m"><span style="width:60%"></span></div><span class="small">60% complete</span></div></div>
     <div class="ui-main">
       <div class="h">About your work</div><p class="sub">Section 2 of 6 · Women entrepreneurship</p>
@@ -334,17 +373,22 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
     </div></div></div></div>
 </section>
 
-<section class="screen" data-role="applicant" data-id="a-proof" data-title="Proof documents" data-desc="Before submitting, the person applying proves who they are and that they work for the organisation. Submit is refused without these.">
-  <div class="notes"><span class="note"><b>Required to submit:</b> photo ID + proof of employment + LinkedIn link (ADR 0010)</span><span class="note"><b>Privacy:</b> never shown to jury; deleted 12 months after results</span></div>
+<section class="screen" data-role="applicant" data-id="a-proof" data-title="Proof of employment (each application)" data-desc="The photo ID and LinkedIn link come from My profile. Each application only needs a recent proof that the person works for this organisation, dated within the last 3 months.">
+  <div class="notes"><span class="note"><b>From your profile:</b> photo ID + LinkedIn, given once (ADR 0012)</span><span class="note"><b>Per application:</b> proof of employment dated within 3 months</span><span class="note"><b>Privacy:</b> never shown to jury; deleted 12 months after results</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>applications/A-2026-0142/proof</b></div></div>
   <div class="ui"><div class="ui-top" style="background:var(--fpo);color:#fff"><div class="logo" style="color:#fff"><span style="background:var(--fpo-a);color:#1d1d1d">🌾</span>FPO Excellence Awards · Application</div><div class="me" style="color:#E3EFE7">✓ Saved</div></div>
-  <div class="ui-body full"><div class="ui-main"><div class="g3">
-    <div class="box"><h3>1. Photo identity document</h3><p class="small muted">PAN card, passport, driving licence, voter ID, or <b>masked</b> Aadhaar (only the last 4 digits visible).</p><div class="file">🪪 pan-card-asha.jpg <span class="chip gd">Uploaded</span></div></div>
-    <div class="box"><h3>2. Proof of employment</h3><p class="small muted">Company ID card, a letter on letterhead, or an appointment letter or payslip with the salary hidden.</p><div class="upload">Upload proof of employment</div></div>
-    <div class="box"><h3>3. LinkedIn profile</h3><div class="input">linkedin.com/in/asha-patil-fpo</div><p class="small muted">Staff use it to confirm you work there.</p></div>
+  <div class="ui-body full"><div class="ui-main"><div class="g2">
+    <div class="box"><h3>From your profile</h3>
+      <div class="check"><i class="y">✓</i><div>Photo ID: <b>pan-card-asha.jpg</b></div></div>
+      <div class="check"><i class="y">✓</i><div>LinkedIn: <b>linkedin.com/in/asha-patil-fpo</b></div></div>
+      <p class="small muted">Nothing to upload again. To change them, go to <a href="#" data-goto="a-profile">My profile</a>.</p></div>
+    <div class="box"><h3>Proof of employment at Sahyadri FPO</h3><p class="small muted">A company ID card, a letter on letterhead, or a payslip with the salary hidden, <b>dated within the last 3 months</b>.</p>
+      <div class="file">📄 employment-letter-july.pdf <span class="chip gd">Uploaded</span></div>
+      <div class="field" style="margin-top:8px"><label>Date on the document *</label><div class="input">1 July 2026</div><span class="hint">✓ Within the last 3 months</span></div>
+      <div class="small muted" style="margin-bottom:4px">If the document were too old you would see:</div>
+      <div class="badline">✕ This document is dated 2 March 2026, more than 3 months ago. Upload one from the last 3 months.</div></div>
   </div><div class="gap"></div>
-  <div class="check"><i class="y">✓</i><span>I agree that these documents are used only to check my application. They are seen by the award's staff and organisers, never by jury, and deleted 12 months after the results.</span></div>
-  <div class="badline">✕ Proof of employment is missing. You can't submit yet.</div><div class="gap"></div>
+  <div class="check"><i class="y">✓</i><span>I agree that this document is used only to check this application. It is seen by the award's staff and organisers, never by jury, and deleted 12 months after the results.</span></div>
   <button class="btn p" data-goto="a-submit">Continue to review →</button>
   </div></div></div></div>
 </section>
@@ -358,7 +402,8 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
       <div class="check"><i class="y">✓</i>Organisation details (snapshot taken at submit)</div>
       <div class="check"><i class="y">✓</i>All required questions answered</div>
       <div class="check"><i class="y">✓</i>Evidence files uploaded</div>
-      <div class="check"><i class="y">✓</i>Photo ID, proof of employment and LinkedIn link</div>
+      <div class="check"><i class="y">✓</i>Photo ID and LinkedIn link (from your profile)</div>
+      <div class="check"><i class="y">✓</i>Proof of employment dated within 3 months</div>
       <div class="check"><i class="y">✓</i>Consent given</div></div>
     <div class="box"><h3>Places left</h3><div class="bar-m" style="height:12px"><span style="width:99.8%;background:var(--fpo-a)"></span></div><p><b>499 / 500</b> places taken · <b style="color:var(--bad)">1 left</b></p>
       <button class="btn g" data-goto="a-status">Submit application</button><p class="small muted">You can still edit until the deadline, using "Save changes".</p></div>
@@ -395,7 +440,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
 </section>
 
 <section class="screen" data-role="jury" data-id="j-score" data-title="Scoring an application (written round, blind)" data-desc="The answers on the left, the score sheet on the right. In a blind award the jury sees a cleaned copy with no company name, and never the proof documents.">
-  <div class="notes"><span class="rule">R1 · blind: no identity, only the masked copy</span><span class="note"><b>Whole numbers 0–10</b> or Yes/No; the weights are shown</span><span class="note"><b>No total shown</b> to the jury</span></div>
+  <div class="notes"><span class="rule">R1 · blind: no identity, only the masked copy</span><span class="note"><b>Whole numbers 0–10</b> or Yes/No; the weights are shown</span><span class="note"><b>No total shown</b> to the jury</span><span class="note"><b>Other jury</b> may score this application too; you never see their marks (ADR 0013)</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>jury/evaluations/E-5521</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">Application A-0142 · <span class="chip b">Blind</span></div><div class="me">✓ Saved</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g2">
@@ -452,7 +497,7 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
       <div class="field"><label>Blind judging</label><div class="input">On: jury see masked copies only</div></div>
       <div class="field"><label>Entry categories</label><div class="input">4 categories · Market linkages, Women…</div></div></div></div>
     <div class="tabpane" data-pane="t2"><div class="g2">
-      <div class="box"><h3>Round 1 · Written review</h3><p class="small">One jury member per application · blind · department head approves</p><p class="small">Results: <span class="chip gd">Shortlisted</span> moves on · <span class="chip r">Rejected</span></p></div>
+      <div class="box"><h3>Round 1 · Written review</h3><p class="small">Jury per application: <b>at least 2, at most 3</b> · average score · blind · department head approves</p><span class="hint">The maximum can't be more than the jury in the pool (3 here)</span><p class="small">Results: <span class="chip gd">Shortlisted</span> moves on · <span class="chip r">Rejected</span></p></div>
       <div class="box"><h3>Round 2 · On site</h3><p class="small">Panel of 2–5 · average score · no approval · staff close the round</p><p class="small">Results: <span class="chip gold">Gold</span> <span class="chip silver">Silver</span> <span class="chip bronze">Bronze</span> <span class="chip">Participated</span></p></div></div>
       <p class="small muted">Other awards choose "written review only" or "on site only" (shop-floor). Labels can be renamed.</p></div>
     <div class="tabpane" data-pane="t3">
@@ -511,16 +556,16 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
     </table>
   </div></div></div></div>
 </section>
-<section class="screen" data-role="staff" data-id="s-proof" data-title="Proof check" data-desc="Staff look at the ID, the proof of employment and the LinkedIn profile, then mark the application Verified, or Rejected with a reason.">
-  <div class="notes"><span class="note"><b>Rejected?</b> The applicant is emailed and can upload again until the deadline</span><span class="note"><b>Audited:</b> who checked, when, and why</span></div>
+<section class="screen" data-role="staff" data-id="s-proof" data-title="Proof check" data-desc="Staff of each award check their own application: the photo ID and LinkedIn link from the applicant's profile, next to this application's recent proof of employment. Then Verified, or Rejected with a reason.">
+  <div class="notes"><span class="note"><b>Each award checks</b> its own application (ADR 0012)</span><span class="note"><b>Rejected?</b> The applicant is emailed and can fix it until the deadline</span><span class="note"><b>Audited:</b> who checked, when, and why</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/applications/A-0142/proof</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">A-0142 · Sahyadri FPO · <b>Proof check</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g3">
-    <div class="box"><h3>Photo ID</h3><div style="height:120px;border-radius:8px;background:repeating-linear-gradient(45deg,#EEF1F6 0 10px,#F7F9FC 10px 20px);display:grid;place-items:center" class="muted small">pan-card-asha.jpg</div><p class="small">Name: <b>Asha Patil</b></p></div>
-    <div class="box"><h3>Proof of employment</h3><div style="height:120px;border-radius:8px;background:repeating-linear-gradient(45deg,#EEF1F6 0 10px,#F7F9FC 10px 20px);display:grid;place-items:center" class="muted small">employee-id-card.pdf</div><p class="small">Issued by: <b>Sahyadri Farmers Producer Co.</b></p></div>
-    <div class="box"><h3>LinkedIn</h3><div class="input">linkedin.com/in/asha-patil-fpo ↗</div><p class="small">Applied as: <b>Asha Patil</b>, member since 2021</p></div>
+    <div class="box"><h3>Photo ID <span class="chip">from profile</span></h3><div style="height:120px;border-radius:8px;background:repeating-linear-gradient(45deg,#EEF1F6 0 10px,#F7F9FC 10px 20px);display:grid;place-items:center" class="muted small">pan-card-asha.jpg</div><p class="small">Name: <b>Asha Patil</b></p></div>
+    <div class="box"><h3>Proof of employment <span class="chip b">this application</span></h3><div style="height:120px;border-radius:8px;background:repeating-linear-gradient(45deg,#EEF1F6 0 10px,#F7F9FC 10px 20px);display:grid;place-items:center" class="muted small">employment-letter-july.pdf</div><p class="small">Issued by: <b>Sahyadri Farmers Producer Co.</b> · dated <b>1 July 2026</b> <span class="chip gd">within 3 months</span></p></div>
+    <div class="box"><h3>LinkedIn <span class="chip">from profile</span></h3><div class="input">linkedin.com/in/asha-patil-fpo ↗</div><p class="small">Applied as: <b>Asha Patil</b>, member since 2021</p></div>
   </div><div class="gap"></div>
-  <div class="row"><button class="btn g" data-goto="s-mask">✓ Verified</button><button class="btn d">✕ Reject…</button><span class="small muted">Rejecting needs a reason, e.g. "the ID name doesn't match the employee card"</span></div>
+  <div class="row"><button class="btn g" data-goto="s-mask">✓ Verified</button><button class="btn d">✕ Reject…</button><span class="small muted">Rejecting needs a reason naming the document, e.g. "Proof of employment: the name doesn't match the ID"</span></div>
   </div></div></div></div>
 </section>
 
@@ -537,8 +582,8 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="staff" data-id="s-assign" data-title="Jury pool, conflicts and assignment" data-desc="Staff and the department head choose the jury pool and record known conflicts. Only staff assign applications; each written-round application gets exactly one jury member.">
-  <div class="notes"><span class="rule">R2 · a conflicted pair is refused by the server, even through the API</span><span class="note"><b>Unverified proof</b> = can't be assigned</span></div>
+<section class="screen" data-role="staff" data-id="s-assign" data-title="Jury pool, conflicts and assignment" data-desc="Staff and the department head choose the jury pool and record known conflicts. Only staff assign; in a written round each application gets between the round's minimum and maximum of jury, and its score is their average.">
+  <div class="notes"><span class="rule">R2 · a conflicted pair is refused by the server, even through the API</span><span class="note"><b>Jury per application:</b> min 2, max 3 here (ADR 0013)</span><span class="note"><b>Unverified proof</b> = can't be assigned</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/assignment</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · Round 1 · <b>Assignment</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
   <div class="ui-body full"><div class="ui-main"><div class="g2">
@@ -547,33 +592,41 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
       <div class="row sp small" style="padding:6px 0;border-bottom:1px solid var(--line)"><span><b>M. Iyer</b> · 4 assigned</span><span class="chip r">⚠ Conflict: Green Valley FPO</span></div>
       <div class="row sp small" style="padding:6px 0"><span><b>S. Banerjee</b> · 5 assigned</span><span class="chip gd">Available</span></div>
       <div class="gap"></div><button class="btn">+ Add jury member</button> <button class="btn">Record a conflict</button></div>
-    <div class="box"><h3>Assign 3 selected applications</h3><div class="field"><label>Jury member</label><div class="input sel">Dr R. Kulkarni</div><span class="hint">M. Iyer is hidden for A-0187 (recorded conflict)</span></div>
-      <div class="check"><i class="y">✓</i>A-0142 · proof verified · masked</div><div class="check"><i class="y">✓</i>A-0101 · proof verified · masked</div><div class="check"><i class="x">✕</i>A-0190 · proof rejected: can't be assigned</div>
-      <button class="btn p" data-goto="s-judging">Assign (2)</button></div>
+    <div class="box"><h3>Jury per application (round 1)</h3>
+      <div class="row"><div class="field"><label>Minimum</label><div class="input">2</div></div><div class="field"><label>Maximum</label><div class="input">3</div></div></div>
+      <span class="hint">At least 1; the maximum can't be more than the 3 jury in the pool. Can change until the round is sent for approval.</span>
+      <div class="gap"></div><h3>Assign 3 selected applications</h3><div class="field"><label>Jury members</label><div class="row"><span class="chip b">Dr R. Kulkarni ✓</span><span class="chip b">S. Banerjee ✓</span></div><span class="hint">M. Iyer is hidden for A-0187 (recorded conflict)</span></div>
+      <div class="check"><i class="y">✓</i>A-0142 · proof verified · masked → 2 jury</div><div class="check"><i class="y">✓</i>A-0101 · proof verified · masked → 2 jury</div><div class="check"><i class="x">✕</i>A-0190 · proof rejected: can't be assigned</div>
+      <button class="btn p" data-goto="s-judging">Assign (2 applications × 2 jury)</button>
+      <div class="gap"></div><div class="warnline">Needs more jury: <b>A-0187</b> has 1 of at least 2. The round can't be sent for approval until every application has its minimum.</div>
+      <div class="gap"></div><div class="badline">✕ A-0156 already has 3 jury, the maximum. Nothing was assigned; untick it or remove a jury member first.</div></div>
   </div></div></div></div></div>
 </section>
 
-<section class="screen" data-role="staff" data-id="s-judging" data-title="Judging progress and score corrections" data-desc="Staff follow progress and can correct a submitted score, but only with a reason. Every change is kept in the history.">
-  <div class="notes"><span class="rule">R3 · who, when, old value, new value and why</span><span class="note"><b>After approval</b> nobody can change a score</span></div>
+<section class="screen" data-role="staff" data-id="s-judging" data-title="Judging progress and score corrections" data-desc="Staff follow progress per application and per jury member, see each jury member's score next to the average, and can correct a submitted score, but only with a reason.">
+  <div class="notes"><span class="rule">R3 · who, when, old value, new value and why</span><span class="note"><b>Final score</b> = average of the jury's scores</span><span class="note"><b>After approval</b> nobody can change a score</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/judging</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · Round 1 · <b>Judging</b></div><div class="me"><i>NS</i>Neha Shah</div></div>
   <div class="ui-body full"><div class="ui-main">
-    <div class="g3"><div class="kpi"><b>412 / 430</b><span>evaluations submitted</span></div><div class="kpi"><b>3</b><span>disqualified (with reasons)</span></div><div class="kpi"><b>18</b><span>still in progress</span></div></div><div class="gap"></div>
+    <div class="g4"><div class="kpi"><b>824 / 860</b><span>evaluations submitted</span></div><div class="kpi"><b>1</b><span>application needs more jury</span></div><div class="kpi"><b>3</b><span>disqualified (with reasons)</span></div><div class="kpi"><b>36</b><span>still in progress</span></div></div><div class="gap"></div>
     <div class="g2"><table class="t"><tr><th>Application</th><th>Jury</th><th>Score</th><th></th></tr>
-      <tr><td>A-0101</td><td>Dr R. Kulkarni</td><td>78.40</td><td><button class="btn">Edit score…</button></td></tr>
-      <tr><td>A-0142</td><td>Dr R. Kulkarni</td><td><span class="chip w">In progress</span></td><td></td></tr></table>
+      <tr><td rowspan="2">A-0101<div class="small muted">Average <b>79.20</b></div></td><td>Dr R. Kulkarni</td><td>78.40</td><td><button class="btn">Edit score…</button></td></tr>
+      <tr><td>S. Banerjee</td><td>80.00</td><td><button class="btn">Edit score…</button></td></tr>
+      <tr><td rowspan="2">A-0142<div class="small muted">1 of 2 submitted</div></td><td>Dr R. Kulkarni</td><td>86.10</td><td></td></tr>
+      <tr><td>S. Banerjee</td><td><span class="chip w">In progress</span></td><td></td></tr>
+      <tr><td>A-0187</td><td>Dr R. Kulkarni</td><td><span class="chip r">Needs 1 more jury</span></td><td><button class="btn" data-goto="s-assign">Assign</button></td></tr></table>
     <div class="dialog"><b>Change a submitted score</b><p class="small muted">A-0101 · "Buyers reached"</p><div class="row"><div class="field"><label>Old</label><div class="input">6</div></div><div class="field"><label>New</label><div class="input">7</div></div></div>
       <div class="field"><label>Reason * (saved in the history)</label><div class="input">Jury entered 6 by mistake; confirmed 7 by phone on 14 Aug</div></div><div class="row"><button class="btn p" data-goto="s-results">Save change</button><button class="btn">Cancel</button></div></div></div>
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="staff" data-id="s-results" data-title="Send for approval, then results" data-desc="When every application has a submitted evaluation, staff send the written round to the department head. After approval, staff choose who is shortlisted and publish.">
+<section class="screen" data-role="staff" data-id="s-results" data-title="Send for approval, then results" data-desc="When every application has at least the minimum number of submitted evaluations, staff send the written round to the department head. After approval, staff choose who is shortlisted, by the average score, and publish.">
   <div class="notes"><span class="note"><b>Written rounds only</b> need approval; on-site rounds are closed by staff</span><span class="note"><b>Labels:</b> Shortlisted moves on to the on-site round</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>staff/awards/fpo/2026/results</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO 2026 · Round 1 · <b>Results</b> <span class="chip gd">Approved by department head</span></div><div class="me"><i>NS</i>Neha Shah</div></div>
   <div class="ui-body full"><div class="ui-main">
     <div class="row"><div class="input sel">Category: Women entrepreneurship</div><div class="input">Top N: 10</div><button class="btn">Apply</button></div><div class="gap"></div>
-    <table class="t"><tr><th>Rank</th><th>Organisation</th><th>Score</th><th>Result</th></tr>
+    <table class="t"><tr><th>Rank</th><th>Organisation</th><th>Average score</th><th>Result</th></tr>
       <tr><td>1</td><td>Sahyadri FPO</td><td>86.20</td><td><span class="chip gd">Shortlisted</span></td></tr>
       <tr><td>2</td><td>Kisan Mitra FPO</td><td>81.75</td><td><span class="chip gd">Shortlisted</span></td></tr>
       <tr><td>11</td><td>Hill Harvest FPO</td><td>61.10</td><td><span class="chip r">Rejected</span></td></tr></table>
@@ -635,14 +688,14 @@ table.t td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:mi
   </div></div></div></div>
 </section>
 
-<section class="screen" data-role="head" data-id="h-review" data-title="Approve a written round" data-desc="The head sees the ranked list per category, the jury notes, the indicator details and the disqualified list, then approves (locking every score) or sends it back with a remark.">
+<section class="screen" data-role="head" data-id="h-review" data-title="Approve a written round" data-desc="The head sees the ranked list per category by average score, every jury member's score and note, the indicator details and the disqualified list, then approves (locking every score) or sends it back with a remark.">
   <div class="notes"><span class="rule">R3 · approval locks the scores forever</span><span class="note"><b>Send back</b> needs a remark; specific applications can get their own</span></div>
   <div class="frame"><div class="bar"><i></i><i></i><i></i><div class="addr">ourplatform.in/<b>department/approvals/R-2026-01</b></div></div>
   <div class="ui"><div class="ui-top"><div class="logo"><span>★</span>Awards Platform</div><div class="menu">FPO Excellence 2026 · Round 1 · <b>Review</b></div><div class="me"><i>VD</i>V. Deshmukh</div></div>
   <div class="ui-body full"><div class="ui-main">
-    <table class="t"><tr><th>Rank</th><th>Organisation</th><th>Score</th><th>Jury note</th></tr>
-      <tr><td>1</td><td>Sahyadri FPO</td><td>86.20</td><td class="small">Strong, well-evidenced leadership</td></tr>
-      <tr><td>2</td><td>Kisan Mitra FPO</td><td>81.75</td><td class="small">Good technology adoption</td></tr></table>
+    <table class="t"><tr><th>Rank</th><th>Organisation</th><th>Average</th><th>Each jury member</th><th>Jury notes</th></tr>
+      <tr><td>1</td><td>Sahyadri FPO</td><td><b>86.20</b></td><td class="small">Kulkarni 86.10 · Banerjee 86.30</td><td class="small">Strong, well-evidenced leadership</td></tr>
+      <tr><td>2</td><td>Kisan Mitra FPO</td><td><b>81.75</b></td><td class="small">Kulkarni 84.00 · Banerjee 79.50</td><td class="small">Good technology adoption</td></tr></table>
     <p class="small muted">Disqualified: 3 (reasons shown) · Score changes after submission: 4 (each with a reason)</p>
     <div class="row"><button class="btn g">Approve round</button><button class="btn d">Send back with a remark…</button></div>
   </div></div></div></div>

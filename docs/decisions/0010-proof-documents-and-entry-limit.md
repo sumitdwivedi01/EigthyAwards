@@ -1,6 +1,6 @@
 # 0010. Proof documents with every application, and an entry limit
 
-- Status: **Accepted** (owner's answers, 7 Oct 2026)
+- Status: **Accepted** (owner's answers, 7 Oct 2026). **Proof part changed on 9 Oct 2026 by [ADR 0012](0012-proof-once-on-profile-and-account-settings.md):** the identity document and LinkedIn link are now given once, on the applicant's profile; each application needs only a recent proof of employment (within 3 months). The entry limit is unchanged.
 - Date: 2026-10-07
 - Related: spec §5.20; ADR 0007 (still: no signed authorisation letter); GAPS §J
 
@@ -16,6 +16,8 @@ Only one real application per organisation is allowed per award, but anyone who 
 4. **Proof documents with every application:** a photo identity document, a proof of employment, and a LinkedIn link, checked by staff. ← chosen by the owner.
 
 ## Decision
+
+> Changed by ADR 0012 (9 Oct 2026): read "with every application" below as "the identity document and LinkedIn link once on the profile, and a proof of employment dated within the last 3 months with every application".
 
 - With **every application**, before submitting: a photo identity document (PAN card, passport, driving licence, voter ID, or **masked** Aadhaar only), a proof of employment (company ID card, letter on letterhead, or appointment letter or payslip with the salary hidden), and a LinkedIn profile link. Submit is refused without them.
 - **Staff check them:** Verified, or Rejected with a reason (audited). A rejected applicant can upload new documents until the deadline. An unverified application can't be assigned to jury.
@@ -35,5 +37,5 @@ Only one real application per organisation is allowed per award, but anyone who 
 
 ## What would change our mind
 
-- Staff find per-application checks too much work: reuse a verified person-and-organisation check across awards (as proposed in 0.4), with a validity period.
+- Staff find per-application checks too much work: reuse a verified person-and-organisation check across awards (as proposed in 0.4), with a validity period. *(9 Oct: the upload is now reused through the profile, ADR 0012; the check stays per award.)*
 - A legal review asks for a shorter retention: change the 12 months.

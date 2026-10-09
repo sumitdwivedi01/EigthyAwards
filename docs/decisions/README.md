@@ -15,8 +15,10 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | [0007](0007-drop-authorisation-letter.md) | Drop the signed authorisation letter for now; what replaces it is open | Accepted | 2026-10-05 |
 | [0008](0008-onsite-rounds.md) | On-site rounds as a round type (live presentations and shop-floor competitions): panels, averages, no approval, Gold/Silver/Bronze | Accepted | 2026-10-06 |
 | [0009](0009-branded-award-sites.md) | Branded award sites built from ready-made sections, for all awards; staff change them any time; no approval | Accepted | 2026-10-07 |
-| [0010](0010-proof-documents-and-entry-limit.md) | Proof of identity and employment with every application; an entry limit with a public counter | Accepted | 2026-10-07 |
+| [0010](0010-proof-documents-and-entry-limit.md) | Proof of identity and employment with every application; an entry limit with a public counter | Accepted (proof part changed by 0012) | 2026-10-07 |
 | [0011](0011-one-application-per-organisation.md) | One application per organisation, blocked at the start; colleagues read-only; staff can release | Accepted | 2026-10-08 |
+| [0012](0012-proof-once-on-profile-and-account-settings.md) | Identity document and LinkedIn once on the profile; a recent employment proof (3 months) per application; My profile with change password | Accepted (changes part of 0010) | 2026-10-09 |
+| [0013](0013-several-jury-per-application.md) | Several jury per application in document review rounds (minimum and maximum per round); the final score is the average | Accepted (extends 0008) | 2026-10-09 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 

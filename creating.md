@@ -155,6 +155,20 @@ Updated every working session. (The detailed versions live in `docs/`.)
 
 ---
 
+## Lead call (9 Oct): proof once, passwords, several jury
+
+- **ID and LinkedIn once, on the profile** → a person's identity doesn't change between awards, so they upload it once and every application reuses it. Fewer copies of a sensitive document, too.
+- **Only a recent proof of employment per application** → the real question is "does this person work there *now*?", so it must be dated within the last 3 months.
+- **Each award still checks** → the employment proof is new each time, and each department stays responsible for its own applications.
+- **Verified means frozen** → once staff verify, the application keeps exactly what they checked, even if the profile changes later.
+- **My profile for everyone** → change password (needs the old one; other devices get signed out; an email is sent), name and phone.
+- **Several jury per application** → staff set a minimum and maximum per round (e.g. 2 to 3). Averaging several people removes one person's bias.
+- **Rules that keep it honest** → never above the maximum (the database counts under a lock); no approval until every application has its minimum; jury never see each other's marks.
+- **Round once, at the end** → average the exact scores, then round to 2 decimals, so rounding doesn't tilt the result.
+- **Backend list** → what the parked Phase 1 code must change is written down in [docs/proposals/0.7-backend-changes.md](docs/proposals/0.7-backend-changes.md), not fixed yet.
+
+---
+
 ## Words you'll see
 
 - **Migration**: a saved SQL file that changes the database structure, run in order.
@@ -173,6 +187,8 @@ Updated every working session. (The detailed versions live in `docs/`.)
 - **Prototype**: a clickable model of the screens, with no real data, used to agree on the flow before building.
 - **Mermaid**: a way to write diagrams as text; GitHub draws them automatically.
 - **DPDP Act 2023**: India's personal-data law: ask consent, collect the minimum, delete when no longer needed.
+- **Session version**: a number on each user; raising it signs out every device at once (used for password change and deactivation).
+- **Partial unique index**: "unique, but only among rows that match a condition", e.g. one *active* evaluation per jury member and application.
 
 ---
 
