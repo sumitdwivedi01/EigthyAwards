@@ -130,7 +130,7 @@ flowchart LR
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
-| 1 | Leader dashboard | One trustworthy view across every award and department | `#l-dash` |
+| 1 | Leader dashboard | One view across every award and department | `#l-dash` |
 | 2 | Departments | Create a department for an external organiser and appoint its head | `#l-depts` |
 | 3 | People and awards | Find a person; assign staff to awards; resend invites; deactivate accounts; the leader's recent changes | `#l-people` |
 | 4 | Master data | Shared lists (retire, never delete); organisation corrections with a reason | `#l-master` |

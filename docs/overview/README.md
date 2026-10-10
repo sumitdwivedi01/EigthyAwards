@@ -52,7 +52,7 @@ flowchart LR
 | **The same company written ten ways** | Leadership can't trust a combined view. This was the biggest problem |
 | **A developer for every change** | Staff can't start a new award or change its questions on their own |
 
-The awards also work very differently. The largest scores about **250 indicators in 15 areas** over six months and two rounds. Another has **38 categories**. Some charge a fee, most don't. Shop-floor competitions are judged **live, on the shop floor**.
+The awards also work differently. The largest scores about **250 indicators in 15 areas** over six months and two rounds. Another has **38 categories**. Some charge a fee, most don't. Shop-floor competitions are judged **live, on the shop floor**.
 
 ---
 
@@ -100,7 +100,7 @@ flowchart TD
 
 The award always goes to the **organisation** (identified by its PAN), never to one of its plants or units. One real entry per organisation per award.
 
-**New (7 Oct): outside organisers.** An organisation that brings its award to the platform gets its own department. The leader appoints its lead as department head, and from then on it runs its award alone (staff, jury, branded site, approvals), seeing only its own data.
+**Outside organisers.** An organisation that brings its award to the platform gets its own department. The leader appoints its lead as department head, and from then on it runs its award alone (staff, jury, branded site, approvals), seeing only its own data.
 
 ---
 
@@ -150,7 +150,7 @@ flowchart TD
 
 ## 5. Same journey, different awards
 
-Three awards that look nothing alike run on the **same** journey. Only their settings differ.
+Three awards that look nothing alike run on the **same** journey. Only their settings differ. (Phase 1 shows two written-review awards; the on-site columns arrive in Phase 2.)
 
 | | Excellence award | Large award with a live final | Kaizen / 5S competition |
 |---|:---:|:---:|:---:|
@@ -173,12 +173,12 @@ Staff can also rename the results for each award, for example "Winner / Not sele
 
 These come straight from the brief. The platform enforces them on every request. Hiding a button is not enough.
 
-| | Rule | In plain words | Where in the journey |
-|:---:|---|---|:---:|
-| 🔒 | **1. Blind judging** | In a blind award, jury only see a cleaned copy, never the company's name or original files | ④ |
-| 🚫 | **2. Conflict of interest** | Staff record "this juror knows this company" once; the system then refuses that pairing in every award | ④ ⑤ |
-| 📝 | **3. Score history** | After a juror submits, any change needs a reason. Who, when, old score and new score are kept. Approved scores never change | ④ ⑤ |
-| 📁 | **4. Changing questions** | Each published set of questions is saved for good. Last year's applications always open with last year's questions | ① ② |
+| Rule | In plain words | Where in the journey |
+|---|---|:---:|
+| **1. Blind judging** | In a blind award, jury only see a cleaned copy, never the company's name or original files | ④ |
+| **2. Conflict of interest** | Staff record "this juror knows this company" once; the system then refuses that pairing in every award | ④ ⑤ |
+| **3. Score history** | After a juror submits, any change needs a reason. Who, when, old score and new score are kept. Approved scores never change | ④ ⑤ |
+| **4. Changing questions** | Each published set of questions is saved for good. Last year's applications always open with last year's questions | ① ② |
 
 ---
 
@@ -198,7 +198,7 @@ flowchart LR
         B2 -->|yes| B4["Live"]
         B2 -->|no| B3["Developer<br/>adds a type"] --> B4
     end
-    subgraph C["C · One configurable platform ✔ chosen"]
+    subgraph C["C · One configurable platform (chosen)"]
         direction LR
         C1["Staff fill<br/>settings"] --> C2["System checks them<br/>weights add to 100%"] --> C3["Live<br/>same day"]
     end
@@ -210,7 +210,7 @@ flowchart LR
 
 The red boxes are where a developer or a second copy of the data comes in. Option C has neither.
 
-| | A · Site per award | B · Fixed types | C · Configurable ✔ |
+| | A · Site per award | B · Fixed types | C · Configurable (chosen) |
 |---|:---:|:---:|:---:|
 | New award without a developer | ❌ | ⚠️ only if it fits | ✅ |
 | One clean set of company data | ❌ | ✅ | ✅ |
@@ -237,11 +237,11 @@ Smaller choices made the same way:
 
 ```mermaid
 flowchart LR
-    P["👥 People<br/>leader · staff · jury<br/>applicants"] -->|use| W["🖥️ Website<br/>screens for each role<br/>shows only what it's allowed to"]
-    W -->|asks| G["🛡️ Gatekeeper<br/>Who is this?<br/>Is this their award?<br/>Blind? Conflict?<br/>Reason for change?"]
-    G -->|reads and saves| D[("🗄️ One database<br/>every record labelled<br/>with its award and year")]
-    G -->|stores| F["📎 Files<br/>originals and cleaned<br/>copies kept apart"]
-    G -->|sends| E["✉️ Emails<br/>every email logged"]
+    P["People<br/>leader · staff · jury<br/>applicants"] -->|use| W["Website<br/>screens for each role<br/>shows only what it's allowed to"]
+    W -->|asks| G["Gatekeeper<br/>Who is this?<br/>Is this their award?<br/>Blind? Conflict?<br/>Reason for change?"]
+    G -->|reads and saves| D[("One database<br/>every record labelled<br/>with its award and year")]
+    G -->|stores| F["Files<br/>originals and cleaned<br/>copies kept apart"]
+    G -->|sends| E["Emails<br/>every email logged"]
     classDef gate fill:#E6EDFA,stroke:#1F4FA8,stroke-width:2px,color:#16213A
     class G gate
 ```
@@ -256,15 +256,15 @@ flowchart LR
 
 The platform is delivered in three phases ([the full plan](../PLAN.md)). **Phase 1 (10–15 Oct)** is the working platform; the rest builds on it.
 
-| Phase 1 · working platform, online | Phase 2 · complete product (~20 days) | Phase 3 · launch-ready (~15 days) |
+| Phase 1 · working platform, online | Phase 2 · complete product (~24 days) | Phase 3 · launch-ready (~15 days) |
 |---|---|---|
 | Two different awards set up on screen, with no code | On-site rounds and Gold / Silver / Bronze | Security and privacy reviews |
 | Questions saved as frozen versions; scoring sheet with weights | The full site builder (sections, versions) | Load testing for deadline nights |
-| Apply, autosave, submit, withdraw; one application per company | The leader's admin screens | A real payment gateway |
+| Apply, autosave, submit; one application per company | The leader's admin screens | A real payment gateway |
 | Photo ID and LinkedIn once on the profile; recent employment proof | External organisers' dashboard | Own web addresses (fpoawards.in) |
 | Entry limit with a public counter; a branded page per award | Every email, sent for real | Backups, monitoring, accessibility |
-| Blind copies, conflict checks, several jury and the average | Disqualify, reinstate, deadline extension | Client testing |
-| Approval, results, the leader's dashboard | Robot tests of every journey | |
+| Blind copies of the answers, conflict checks, several jury and the average | Masking of files, send back, withdraw, edit after submit | Client testing |
+| Approval, results, the leader's dashboard | Disqualify, reinstate, deadline extension; robot tests | |
 
 **Not planned:** importing past years' data, finding names inside PDFs automatically, member-portal login, offline scoring, a mobile app, other languages.
 
@@ -276,14 +276,14 @@ The platform is delivered in three phases ([the full plan](../PLAN.md)). **Phase
 
 | | |
 |---|---|
-| 🚀 **Staff launch awards themselves** | A new award or a new year is set up on screen the same day, with no developer cost |
-| 📊 **One picture you can trust** | One record per company. The leader can finally compare all 80 awards |
-| ⚖️ **Results you can defend** | Blind judging, conflict checks and score history make every result explainable, which protects the awards' reputation |
-| ⏱️ **Less manual work** | Deadlines lock, scores add up, medals are suggested and emails send by themselves |
-| 🤝 **A better experience** | One login and one company profile for every award, and work is never lost |
-| 📈 **Room to grow** | About 40,000 applications a year (80 awards × 300–500 each) fits comfortably |
+| **Staff launch awards themselves** | A new award or a new year is set up on screen the same day, with no developer cost |
+| **One view of all awards** | One record per company, so the leader can compare all 80 awards |
+| **Results you can explain** | Blind judging, conflict checks and score history give every result a clear record, which protects the awards' reputation |
+| **Less manual work** | Deadlines lock, scores add up, medals are suggested and emails send by themselves |
+| **A better experience** | One login and one company profile for every award, and work is never lost |
+| **Room to grow** | About 40,000 applications a year (80 awards × 300–500 each) fits easily in one database |
 
-**Honest limits:** if staff miss a name hidden inside a PDF, the system can't spot it. A conflict nobody recorded can't be blocked. On-site scoring needs internet. A brand-new kind of step, such as a site visit, would need new work.
+**Limits:** if staff miss a name hidden inside a PDF, the system can't spot it. A conflict nobody recorded can't be blocked. On-site scoring needs internet. A brand-new kind of step, such as a site visit, would need new work.
 
 ---
 
@@ -304,4 +304,4 @@ Each question has a default that we build until it is answered.
 
 ---
 
-<sub>More detail: the full spec is [docs/requirements.md](../requirements.md), the plan is [docs/PHASES.md](../PHASES.md), open items are in [docs/GAPS.md](../GAPS.md), and decisions with their reasons are in [docs/decisions/](../decisions/).</sub>
+<sub>More detail: the full spec is [docs/requirements.md](../requirements.md), the plan is [docs/PLAN.md](../PLAN.md) (detailed steps in [docs/PHASES.md](../PHASES.md)), the technical design is [docs/TECHNICAL-DESIGN.md](../TECHNICAL-DESIGN.md), open items are in [docs/GAPS.md](../GAPS.md), and decisions with their reasons are in [docs/decisions/](../decisions/).</sub>

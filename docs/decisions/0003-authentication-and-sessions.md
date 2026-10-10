@@ -34,7 +34,7 @@ Option 3 with transport (a).
 - One place owns identity, sessions, invites and resets: the identity module.
 - Roles are always read fresh from the database, as the spec requires. The token only names the user.
 - JavaScript cannot read the cookie, and no third-party cookies are needed.
-- Logging out everywhere and resetting a password both just increment `sessionVersion`.
+- Logging out everywhere and resetting a password both increment `sessionVersion`.
 
 ## Consequences
 

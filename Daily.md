@@ -61,4 +61,11 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
   - **Phase 3** (~15 days + client testing): launch work.
   - The technical design is in [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
 - **Changed (night):** No more PA role. The leader's team simply works from the leader's account, so there are five roles ([ADR 0014](docs/decisions/0014-no-pa-role.md)). Removed from the spec, plan, prototype and gaps.
+- **Done (late):** Rewrote the Backend and Front-End READMEs for the new plan (what's built, what each step adds, how to run) and tightened the wording across the docs.
 - **Next:** Sat 10 Oct, Step 1.1: foundation and people.
+
+# DAY 8 (10 Oct)
+- **Done:** Counted Phase 1 hour by hour: the full list was about 100 hours, and we have about 64. Trimmed it to about 71 hours: send back, masking of files, version markers, editing after submit, withdraw, the brand-kit screen and a few smaller items move to Phase 2. The leader dashboard and masking of answers stay.
+- **Next:** Meeting with my lead today, then Step 1.1: foundation and people.
+- **Stuck:** Nothing.
+- **Plan changed:** Phase 1 is now about 71 hours; Thursday morning is a buffer and the walkthrough is Thursday afternoon. Phase 2 grows from about 20 to about 24 working days ([docs/PLAN.md](docs/PLAN.md)).

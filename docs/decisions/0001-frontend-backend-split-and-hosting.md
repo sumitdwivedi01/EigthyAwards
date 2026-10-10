@@ -26,7 +26,7 @@ Option 3. `Front-End/` is a Next.js app deployed to Vercel. It holds **no busine
 
 ## Why
 
-- It matches the hosting we are actually going to use.
+- It matches the hosting we are going to use.
 - The API is a long-running process on Render, so it has no serverless body or timeout limits. It can stream files and run the email outbox after commit.
 - It makes the spec's core principle stronger, not weaker. "Every check lives in a service" now holds **physically**: the UI cannot reach the database at all, only the API, and every API route goes through the actor-first services.
 - Everything that makes the design good stays the same: shared tables tied to the cycle, scoped roles, view models per role, the four rules enforced on the server, and award behaviour read from configuration.

@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-09 (Day 7, Phase 0.8: three-phase plan). Update this file at the end of every step.
+> Last updated: 2026-10-10 (Day 8, Phase 0.9: Phase 1 scope fitted to the dates). Update this file at the end of every step.
 >
 > **Phase numbers** in the "Phase" columns use the old 15-phase list. [PHASES.md §7](PHASES.md#7-where-the-old-15-phase-list-went) maps them to the new steps (1.1–1.5) and packages (2.x, 3.x).
 
@@ -26,7 +26,7 @@
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 7 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 9 |
 | J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
-| K | Lead call (Day 7): proof once on the profile, My profile, several jury per application, re-plan | 16 | 8 |
+| K | Lead call (Day 7): proof once on the profile, My profile, several jury per application, re-plan | 17 | 8 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -254,10 +254,11 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K10 | The "within 3 months" check uses the date the applicant types | Staff confirm the date on the document when they check the proof | 9 | Accepted risk |
 | G-K11 | The parked Phase 1 code predates the 7–9 Oct decisions (sites, proof, release, profile proof, jury per application) | Every change listed in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md); made in Step 1.1 (Sat 10 Oct) | 1.1 | Open |
 | G-K12 | **Re-plan in three phases** (lead, 9 Oct): Phase 1 a fully working demo; what moves to Phases 2 and 3, with time limits; the data model and technical design agreed before coding | Done: [PLAN.md](PLAN.md). Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough Thu 15 (two written-review awards; a simple branded page); Phase 2 ~20 working days; Phase 3 ~15 + client testing. Design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) | Plan | Answered (9 Oct) |
-| G-K13 | Four build days for Phase 1 are tight | A clear finish line per day; the cut order and never-cut list (PHASES §8); Daily updates show any slip at once | 1.1–1.5 | Open |
+| G-K13 | Phase 1's full list was about 100 hours of work against about 64 available | **Trimmed on 10 Oct** to about 71 hours (the moved items are in PLAN.md); 12–13 hour days with Thursday morning as a buffer; the cut order and never-cut list (PHASES §8); Daily shows any slip at once | 1.1–1.5 | Open |
 | G-K14 | Phase 1 seeds departments, heads, staff and jury; their admin screens come in Phase 2 | Accepted for Phase 1: the brief tests award setup by staff, which is on screen. Admin screens in package 2.3 | 1.1 | Accepted risk |
 | G-K15 | Render's free plan sleeps after ~15 minutes, so the first demo request is slow (G-B07) | Open the site a few minutes before the walkthrough; consider a small paid plan for demo week | 1.5 | Open |
 | G-K16 | No PA role: the leader's team shares the leader's account, so the history can't tell which person acted, and several people know one password | Accepted by the owner (ADR 0014). Change the password when a team member leaves (it signs out every device); named accounts if traceability is ever needed | 1.1 | Accepted risk |
+| G-K17 | File masking moves to Phase 2, so in Phase 1 a blind award can't show uploaded files to jury | Jury in a blind award get **no files** until file masking exists (R1 stays safe); the demo's blind award has text answers only | 1.4, 2.5 | Decided (10 Oct) |
 
 ---
 
@@ -280,6 +281,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | Date | Change |
 |---|---|
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
+| 2026-10-10 | Phase 1 trimmed to fit the dates: K13 updated; K17 added (no files for jury in blind awards until file masking). |
 | 2026-10-09 | No PA role (owner, ADR 0014): A11, A12, H02, H03 and H11 removed; E03, H04, H12, C10, J05, J13 and K14 updated; K16 added. |
 | 2026-10-09 | Three-phase plan (Phase 0.8): K12 answered; K13–K15 added; A2 superseded (deploy in Step 1.5); A4 default updated; note that phase numbers use the old list (PHASES §7). |
 | 2026-10-09 | Lead call (Phase 0.7): new section K (12 items); J08, J09, J13, J19, D11 and E07 updated; J21 answered (three phases; the re-plan is K12). |

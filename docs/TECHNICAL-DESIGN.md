@@ -36,19 +36,19 @@ flowchart LR
 | identity (login, roles, My profile, password) | ✅ | invites from admin screens, deactivation |
 | organisations (create, join, normalise) | ✅ | corrections by the leader |
 | master-data (award domains, organisation types) | read; lists seeded | admin screens |
-| departments (brand kit) | brand kit; departments seeded | create departments, appoint heads |
+| departments (brand kit) | departments and brand kits seeded | create departments, appoint heads, brand-kit screen |
 | awards, forms (versions), scoring (weights, formula) | ✅ | copy last year's setup (Phase 3) |
 | sites | one branded page per award | full section builder, versions |
-| applications (start, fee, answers, files, proof, submit, release) | ✅ | deadline extension, "questions changed" alerts |
-| masking, jury-pool (conflicts), judging (several jury, scores, audit) | ✅ | disqualify and reinstate, reopen |
-| approval, results | ✅ | — |
+| applications (start, fee, answers, files, proof, submit, release) | ✅ | edit after submit, withdraw, deadline extension, "questions changed" alerts |
+| masking (answers), jury-pool (conflicts), judging (several jury, scores, audit) | ✅ | masking of files, disqualify and reinstate, reopen |
+| approval (approve), results | ✅ | send back |
 | reporting | leader dashboard | department dashboard |
 | onsite | tables only | ✅ slots, panels, close, medals |
 | audit, notifications | ✅ (outbox, log) | real email provider |
 
 ## 2. Data model
 
-**One set of tables for all awards.** Every award-related row is tied to its **cycle** (one edition of an award), and foreign keys include the cycle, so rows from two awards can never mix. A new award is just new rows, never a new table. The whole model, including the Phase 2 tables, is created in Phase 1, so later phases add features without reshaping the data.
+**One set of tables for all awards.** Every award-related row is tied to its **cycle** (one edition of an award), and foreign keys include the cycle, so rows from two awards can never mix. A new award adds rows, never a new table. The whole model, including the Phase 2 tables, is created in Phase 1, so later phases add features without reshaping the data.
 
 ```mermaid
 erDiagram
@@ -204,10 +204,10 @@ All routes live under `/api` and return view models. The full contract grows in 
 | Public | `GET /public/awards` (open awards), `GET /public/awards/:slug` (branded page, live counter) |
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |
 | Brand (head, staff) | `PUT /departments/:id/brand-kit` |
-| Applying | `POST /cycles/:id/applications`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files`, `POST /applications/:id/employment-proof`, `POST /applications/:id/submit`, `POST /applications/:id/withdraw`, `GET /applications/mine` |
+| Applying | `POST /cycles/:id/applications`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files`, `POST /applications/:id/employment-proof`, `POST /applications/:id/submit`, `GET /applications/mine` |
 | Staff checks | `GET /cycles/:id/applications`, `POST /applications/:id/proof-check`, `POST /applications/:id/release`, masking: `PUT /applications/:id/masked-answers`, `POST /applications/:id/masking-done` |
 | Jury and judging | `POST /cycles/:id/jury-pool`, `POST /conflicts`, `POST /rounds/:id/assignments`, `GET /jury/evaluations`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `POST /evaluations/:id/score-changes` |
-| Approval and results | `POST /rounds/:id/send-for-approval`, `POST /approvals/:id/approve`, `POST /approvals/:id/send-back`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
+| Approval and results | `POST /rounds/:id/send-for-approval`, `POST /approvals/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
 | Leader | `GET /reports/leader-dashboard`; `GET /applications/:id/history` |
 | Files | `GET /files/:id` (checks who may read which kind) |
 
