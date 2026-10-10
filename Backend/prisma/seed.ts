@@ -1,7 +1,8 @@
 /**
  * Starter data (PHASES.md Step 1.1): the master lists, the leader, two departments (one an
  * external award organiser) with their heads and brand kits, staff, jury accounts and demo
- * applicants. Safe to run again: it only adds what is missing, and never resets a password.
+ * applicants. The leader, heads, staff and jury get platform accounts, the applicants applicant
+ * accounts (ADR 0016). Safe to run again: it only adds what is missing, and never resets a password.
  * Everything goes through the same normalisers as the services (GAPS G-H09).
  *
  * Passwords come from the environment, never from the repository (GAPS G-B15):
@@ -10,7 +11,7 @@
  * Awards are not seeded here: staff set them up on screen in Step 1.2, which is what the brief tests.
  */
 import { z } from "zod";
-import type { Role } from "../src/generated/prisma/client.js";
+import type { AccountType, Role } from "../src/generated/prisma/client.js";
 import { db } from "../src/lib/db.js";
 import { normalizeEmail, normalizeName, normalizePhone, normalizeTaxId } from "../src/lib/normalize.js";
 import { hashPassword, passwordSchema } from "../src/lib/password.js";
@@ -78,7 +79,7 @@ const STAFF: { person: Person; departments: string[] }[] = [
   },
 ];
 
-/** Jury accounts. In Phase 1 they get their role when staff add them to a cycle's pool (G-K19). */
+/** Jury accounts: platform accounts with no role until staff add them to a cycle's pool (G-K19). */
 const JURY: Person[] = [
   { email: "jury.anil@demo.test", name: "Anil Mehta" },
   { email: "jury.priya@demo.test", name: "Priya Nair" },
@@ -107,12 +108,19 @@ const ACME = {
   phone: "020 2567 8901",
 };
 
-async function upsertPerson(person: Person, password: string): Promise<string> {
+async function upsertPerson(person: Person, password: string, accountType: AccountType): Promise<string> {
   const email = normalizeEmail(person.email);
-  const existing = await db.user.findUnique({ where: { email }, select: { id: true } });
-  if (existing) return existing.id;
+  const existing = await db.user.findUnique({ where: { email }, select: { id: true, accountType: true } });
+  if (existing) {
+    // Marks a jury account seeded before account types existed (10 Oct). The database refuses the
+    // change once an account is in use.
+    if (existing.accountType !== accountType) {
+      await db.user.update({ where: { id: existing.id }, data: { accountType } });
+    }
+    return existing.id;
+  }
   const created = await db.user.create({
-    data: { email, name: normalizeName(person.name), passwordHash: await hashPassword(password) },
+    data: { email, accountType, name: normalizeName(person.name), passwordHash: await hashPassword(password) },
   });
   return created.id;
 }
@@ -149,7 +157,7 @@ async function main(): Promise<void> {
   }
 
   // The leader: exactly one (a partial unique index enforces it).
-  const leaderId = await upsertPerson({ email: LEADER_EMAIL, name: "Platform Leader" }, LEADER_PASSWORD);
+  const leaderId = await upsertPerson({ email: LEADER_EMAIL, name: "Platform Leader" }, LEADER_PASSWORD, "PLATFORM");
   const otherLeader = await db.roleAssignment.findFirst({
     where: { role: "LEADER", revokedAt: null, userId: { not: leaderId } },
     include: { user: { select: { email: true } } },
@@ -169,12 +177,12 @@ async function main(): Promise<void> {
       update: {},
       create: { departmentId: row.id, ...department.brand, socialLinks: [] },
     });
-    const headId = await upsertPerson(department.head, DEMO_PASSWORD);
+    const headId = await upsertPerson(department.head, DEMO_PASSWORD, "PLATFORM");
     await grant(headId, "DEPT_HEAD", { departmentId: row.id }, leaderId);
   }
 
   for (const { person, departments } of STAFF) {
-    const staffId = await upsertPerson(person, DEMO_PASSWORD);
+    const staffId = await upsertPerson(person, DEMO_PASSWORD, "PLATFORM");
     for (const departmentName of departments) {
       const departmentId = departmentIds.get(normalizeName(departmentName));
       if (!departmentId) throw new Error(`Unknown department ${departmentName}`);
@@ -182,10 +190,12 @@ async function main(): Promise<void> {
     }
   }
 
-  for (const person of JURY) await upsertPerson(person, DEMO_PASSWORD);
+  for (const person of JURY) await upsertPerson(person, DEMO_PASSWORD, "PLATFORM");
 
   const applicantIds = new Map<string, string>();
-  for (const person of APPLICANTS) applicantIds.set(person.email, await upsertPerson(person, DEMO_PASSWORD));
+  for (const person of APPLICANTS) {
+    applicantIds.set(person.email, await upsertPerson(person, DEMO_PASSWORD, "APPLICANT"));
+  }
 
   const kiranId = applicantIds.get("applicant.kiran@demo.test");
   const phone = normalizePhone(ACME.phone);

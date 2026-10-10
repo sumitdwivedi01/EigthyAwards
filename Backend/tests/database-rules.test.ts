@@ -7,8 +7,9 @@ import {
   createFile,
   createOrganisation,
   createRound,
+  createApplicantAccount,
+  createPlatformAccount,
   createSitePage,
-  createUser,
   gstinFor,
   randomPan,
 } from "./helpers/factories.js";
@@ -56,7 +57,7 @@ describe("append-only history (rule 3, rule 4)", () => {
   it("refuses to change disqualification history", async () => {
     const { cycle, category } = await createCycle();
     const application = await createApplication(cycle.id, category.id);
-    const staff = await createUser();
+    const staff = await createPlatformAccount();
     const event = await db.disqualificationEvent.create({
       data: {
         applicationId: application.id,
@@ -74,22 +75,22 @@ describe("append-only history (rule 3, rule 4)", () => {
 
 describe("roles (ADR 0014: five roles, no PA)", () => {
   it("allows exactly one active leader", async () => {
-    const first = await createUser();
-    const second = await createUser();
+    const first = await createPlatformAccount();
+    const second = await createPlatformAccount();
     await db.roleAssignment.create({ data: { userId: first.id, role: "LEADER" } });
     await expect(db.roleAssignment.create({ data: { userId: second.id, role: "LEADER" } })).rejects.toThrow();
   });
 
   it("allows a new leader once the old leader role is revoked", async () => {
-    const first = await createUser();
-    const second = await createUser();
+    const first = await createPlatformAccount();
+    const second = await createPlatformAccount();
     const old = await db.roleAssignment.create({ data: { userId: first.id, role: "LEADER" } });
     await db.roleAssignment.update({ where: { id: old.id }, data: { revokedAt: new Date() } });
     await expect(db.roleAssignment.create({ data: { userId: second.id, role: "LEADER" } })).resolves.toBeTruthy();
   });
 
   it("refuses a role without its proper scope", async () => {
-    const user = await createUser();
+    const user = await createPlatformAccount();
     const department = await createDepartment();
     // A department head needs a department; the leader must have no scope.
     await expect(db.roleAssignment.create({ data: { userId: user.id, role: "DEPT_HEAD" } })).rejects.toThrow(
@@ -101,7 +102,7 @@ describe("roles (ADR 0014: five roles, no PA)", () => {
   });
 
   it("refuses the same active role twice in the same scope, but allows many awards for one staff member", async () => {
-    const staff = await createUser();
+    const staff = await createPlatformAccount();
     const { award: awardA } = await createCycle();
     const { award: awardB } = await createCycle();
     await db.roleAssignment.create({ data: { userId: staff.id, role: "AWARD_STAFF", awardId: awardA.id } });
@@ -109,7 +110,7 @@ describe("roles (ADR 0014: five roles, no PA)", () => {
     await expect(
       db.roleAssignment.create({ data: { userId: staff.id, role: "AWARD_STAFF", awardId: awardA.id } }),
     ).rejects.toThrow();
-    const head = await createUser();
+    const head = await createPlatformAccount();
     const department = await createDepartment();
     await db.roleAssignment.create({ data: { userId: head.id, role: "DEPT_HEAD", departmentId: department.id } });
     await expect(
@@ -118,10 +119,68 @@ describe("roles (ADR 0014: five roles, no PA)", () => {
   });
 });
 
+describe("applicant and platform accounts (ADR 0016)", () => {
+  it("gives roles and evaluations only to platform accounts", async () => {
+    const applicant = await createApplicantAccount();
+    const juror = await createPlatformAccount();
+    const { cycle, category } = await createCycle();
+    await expect(
+      db.roleAssignment.create({ data: { userId: applicant.id, role: "JURY", cycleId: cycle.id } }),
+    ).rejects.toThrow(/Only platform accounts hold roles/);
+    await expect(
+      db.roleAssignment.create({ data: { userId: juror.id, role: "JURY", cycleId: cycle.id } }),
+    ).resolves.toBeTruthy();
+    const round = await createRound(cycle.id);
+    const application = await createApplication(cycle.id, category.id);
+    const base = { cycleId: cycle.id, roundId: round.id, applicationId: application.id };
+    await expect(db.evaluation.create({ data: { ...base, juryUserId: applicant.id } })).rejects.toThrow(
+      /Only platform accounts judge/,
+    );
+    await expect(db.evaluation.create({ data: { ...base, juryUserId: juror.id } })).resolves.toBeTruthy();
+  });
+
+  it("lets only applicant accounts join an organisation, start an application or keep the profile proof", async () => {
+    const staff = await createPlatformAccount();
+    const organisation = await createOrganisation();
+    const { cycle, category } = await createCycle();
+    await expect(
+      db.organisationMember.create({ data: { organisationId: organisation.id, userId: staff.id } }),
+    ).rejects.toThrow(/Only applicant accounts join an organisation/);
+    await expect(
+      createApplication(cycle.id, category.id, { organisationId: organisation.id, createdById: staff.id }),
+    ).rejects.toThrow(/Only applicant accounts start an application/);
+    await expect(
+      createFile("IDENTITY_PROOF", { ownerUserId: staff.id, uploadedById: staff.id, consentAt: new Date() }),
+    ).rejects.toThrow(/Only applicant accounts keep an identity document/);
+    await expect(
+      db.user.update({ where: { id: staff.id }, data: { linkedinUrl: "https://www.linkedin.com/in/staff" } }),
+    ).rejects.toThrow(/users_profile_proof_check/);
+  });
+
+  it("fixes an account's type once the account is in use", async () => {
+    const applicant = await createApplicantAccount();
+    const organisation = await createOrganisation();
+    await db.organisationMember.create({ data: { organisationId: organisation.id, userId: applicant.id } });
+    await expect(
+      db.user.update({ where: { id: applicant.id }, data: { accountType: "PLATFORM" } }),
+    ).rejects.toThrow(/account type is fixed/);
+    const leader = await createPlatformAccount();
+    await db.roleAssignment.create({ data: { userId: leader.id, role: "LEADER" } });
+    await expect(
+      db.user.update({ where: { id: leader.id }, data: { accountType: "APPLICANT" } }),
+    ).rejects.toThrow(/account type is fixed/);
+    // An account nobody has used yet may still change (the seed marks its older jury accounts so).
+    const unused = await createApplicantAccount();
+    await expect(
+      db.user.update({ where: { id: unused.id }, data: { accountType: "PLATFORM" } }),
+    ).resolves.toBeTruthy();
+  });
+});
+
 describe("data consistency (spec §5.18)", () => {
   it("treats emails and department names as the same regardless of letter case", async () => {
-    await createUser({ email: "asha@example.test" });
-    await expect(createUser({ email: "ASHA@Example.test" })).rejects.toThrow();
+    await createApplicantAccount({ email: "asha@example.test" });
+    await expect(createApplicantAccount({ email: "ASHA@Example.test" })).rejects.toThrow();
     await createDepartment({ name: "Energy" });
     await expect(createDepartment({ name: "energy" })).rejects.toThrow();
   });
@@ -153,13 +212,13 @@ describe("data consistency (spec §5.18)", () => {
 
 describe("My profile (ADR 0012)", () => {
   it("stores a person's phone only in the normalised +91 form", async () => {
-    await expect(createUser({ phone: "+919876543210" })).resolves.toBeTruthy();
-    await expect(createUser({ phone: "98765 43210" })).rejects.toThrow(/users_phone_check/);
+    await expect(createApplicantAccount({ phone: "+919876543210" })).resolves.toBeTruthy();
+    await expect(createApplicantAccount({ phone: "98765 43210" })).rejects.toThrow(/users_phone_check/);
   });
 
   it("accepts only an http(s) LinkedIn link", async () => {
-    await expect(createUser({ linkedinUrl: "https://www.linkedin.com/in/asha" })).resolves.toBeTruthy();
-    await expect(createUser({ linkedinUrl: "javascript:alert(1)" })).rejects.toThrow(/users_linkedin_check/);
+    await expect(createApplicantAccount({ linkedinUrl: "https://www.linkedin.com/in/asha" })).resolves.toBeTruthy();
+    await expect(createApplicantAccount({ linkedinUrl: "javascript:alert(1)" })).rejects.toThrow(/users_linkedin_check/);
   });
 });
 
@@ -175,7 +234,7 @@ describe("one award's data stays apart from another's", () => {
     const second = await createCycle();
     const round = await createRound(second.cycle.id);
     const application = await createApplication(first.cycle.id, first.category.id);
-    const jury = await createUser();
+    const jury = await createPlatformAccount();
     await expect(
       db.evaluation.create({
         data: { cycleId: first.cycle.id, roundId: round.id, applicationId: application.id, juryUserId: jury.id },
@@ -215,7 +274,7 @@ describe("one application per organisation per cycle (ADR 0011)", () => {
   it("frees the place once staff release the application, with who, when and why", async () => {
     const { cycle, category } = await createCycle();
     const organisation = await createOrganisation();
-    const staff = await createUser();
+    const staff = await createPlatformAccount();
     const first = await createApplication(cycle.id, category.id, { organisationId: organisation.id });
     await db.application.update({
       where: { id: first.id },
@@ -236,7 +295,7 @@ describe("one application per organisation per cycle (ADR 0011)", () => {
 
   it("refuses a release without its reason, and release details on an application that isn't released", async () => {
     const { cycle, category } = await createCycle();
-    const staff = await createUser();
+    const staff = await createPlatformAccount();
     const application = await createApplication(cycle.id, category.id);
     await expect(
       db.application.update({
@@ -268,7 +327,7 @@ describe("the entry limit (ADR 0010)", () => {
 describe("proof documents (ADR 0010, 0012)", () => {
   it("keeps an identity document on the person's profile, never on an application", async () => {
     const { cycle, category } = await createCycle();
-    const applicant = await createUser();
+    const applicant = await createApplicantAccount();
     const application = await createApplication(cycle.id, category.id, { createdById: applicant.id });
     await expect(
       createFile("IDENTITY_PROOF", { ownerUserId: applicant.id, consentAt: new Date() }),
@@ -280,7 +339,7 @@ describe("proof documents (ADR 0010, 0012)", () => {
 
   it("refuses a file with two owners, or with none", async () => {
     const { cycle, category } = await createCycle();
-    const applicant = await createUser();
+    const applicant = await createApplicantAccount();
     const application = await createApplication(cycle.id, category.id, { createdById: applicant.id });
     await expect(
       createFile("EVIDENCE", { applicationId: application.id, ownerUserId: applicant.id }),
@@ -303,7 +362,7 @@ describe("proof documents (ADR 0010, 0012)", () => {
 
   it("refuses a proof document stored without the uploader's consent", async () => {
     const { cycle, category } = await createCycle();
-    const applicant = await createUser();
+    const applicant = await createApplicantAccount();
     const application = await createApplication(cycle.id, category.id, { createdById: applicant.id });
     await expect(createFile("IDENTITY_PROOF", { ownerUserId: applicant.id })).rejects.toThrow(
       /file_assets_consent_check/,
@@ -317,7 +376,7 @@ describe("proof documents (ADR 0010, 0012)", () => {
 
   it("records who checked the proof and when, and why a rejection was made", async () => {
     const { cycle, category } = await createCycle();
-    const staff = await createUser();
+    const staff = await createPlatformAccount();
     const application = await createApplication(cycle.id, category.id);
     await expect(
       db.application.update({ where: { id: application.id }, data: { proofStatus: "VERIFIED" } }),
@@ -356,7 +415,7 @@ describe("award sites (ADR 0009)", () => {
 
   it("accepts only images, up to 5 MB, with alt text, as site media", async () => {
     const department = await createDepartment();
-    const staff = await createUser();
+    const staff = await createPlatformAccount();
     const image = {
       departmentId: department.id,
       fileName: "banner.jpg",
@@ -385,7 +444,11 @@ describe("judging guards", () => {
     const { cycle, category } = await createCycle();
     const round = await createRound(cycle.id, "DOCUMENT_REVIEW", 1, { juryMin: 2, juryMax: 3 });
     const application = await createApplication(cycle.id, category.id);
-    const [juryA, juryB, juryC] = [await createUser(), await createUser(), await createUser()];
+    const [juryA, juryB, juryC] = [
+      await createPlatformAccount(),
+      await createPlatformAccount(),
+      await createPlatformAccount(),
+    ];
     const base = { cycleId: cycle.id, roundId: round.id, applicationId: application.id };
     const first = await db.evaluation.create({ data: { ...base, juryUserId: juryA.id } });
     await db.evaluation.create({ data: { ...base, juryUserId: juryB.id } });
@@ -407,7 +470,7 @@ describe("judging guards", () => {
     const application = await createApplication(cycle.id, category.id);
     const base = { cycleId: cycle.id, roundId: round.id, applicationId: application.id };
     for (let i = 0; i < 3; i += 1) {
-      const jury = await createUser();
+      const jury = await createPlatformAccount();
       await db.evaluation.create({ data: { ...base, juryUserId: jury.id } });
     }
     expect(await db.evaluation.count({ where: { roundId: round.id } })).toBe(3);
@@ -417,7 +480,7 @@ describe("judging guards", () => {
     const { cycle, category } = await createCycle();
     const round = await createRound(cycle.id);
     const application = await createApplication(cycle.id, category.id);
-    const jury = await createUser();
+    const jury = await createPlatformAccount();
     const evaluation = await db.evaluation.create({
       data: { cycleId: cycle.id, roundId: round.id, applicationId: application.id, juryUserId: jury.id },
     });

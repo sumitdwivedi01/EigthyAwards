@@ -1,8 +1,8 @@
 // Awards Platform data model.
 // Source of truth: docs/requirements.md §10, plus ADRs 0006 (data consistency), 0008 (on-site
 // rounds), 0009 (award sites), 0010 and 0012 (proof documents, entry limit, My profile),
-// 0011 (one application per organisation), 0013 (several jury per application) and 0014 (no PA
-// role).
+// 0011 (one application per organisation), 0013 (several jury per application), 0014 (no PA
+// role) and 0016 (applicant and platform accounts).
 //
 // Ground rules:
 // - Every award-related row reaches its cycle through foreign keys. Where two rows must belong
@@ -26,7 +26,20 @@ datasource db {
 
 // ───────────────────────────── enums ─────────────────────────────
 
-/// The applicant user is not a role: it is membership of an organisation (OrganisationMember).
+/// Two kinds of account (ADR 0016, decided 10 Oct 2026), fixed once the account is in use:
+/// - APPLICANT: registers itself, creates or joins its organisation, applies, and keeps the
+///   profile proof (identity document, LinkedIn link). It never holds a role.
+/// - PLATFORM: the leader, department heads, staff and jury, created by the seed (and by invites
+///   from Phase 2). It holds roles and never applies.
+/// Someone who does both uses two accounts, with two email addresses. Triggers in the migrations
+/// refuse rows that mix them up.
+enum AccountType {
+  APPLICANT
+  PLATFORM
+}
+
+/// Held only by platform accounts. Applying is not a role: an applicant account is a member of an
+/// organisation (OrganisationMember).
 enum Role {
   LEADER
   DEPT_HEAD
@@ -132,22 +145,24 @@ enum EmailStatus {
 // ───────────────────────── people and access ─────────────────────────
 
 model User {
-  id                String    @id @default(uuid()) @db.Uuid
-  email             String    @unique @db.Citext
+  id                String      @id @default(uuid()) @db.Uuid
+  email             String      @unique @db.Citext
+  accountType       AccountType
   name              String
   /// "+91" and 10 digits, like organisation phones (a CHECK constraint guards the format).
   phone             String?
   passwordHash      String?
   /// Raised by a password change, reset or deactivation; sessions carrying an older value end.
-  sessionVersion    Int       @default(0)
+  sessionVersion    Int         @default(0)
   passwordChangedAt DateTime?
-  /// The applicant's profile proof (§5.20): given once, reused by every application.
+  /// The applicant's profile proof (§5.20): given once, reused by every application. Applicant
+  /// accounts only (a CHECK constraint).
   linkedinUrl       String?
   /// The current identity document: an IDENTITY_PROOF file owned by this user.
-  identityFileId    String?   @unique @db.Uuid
+  identityFileId    String?     @unique @db.Uuid
   deactivatedAt     DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
   identityFile FileAsset? @relation("UserIdentityFile", fields: [identityFileId], references: [id])
 

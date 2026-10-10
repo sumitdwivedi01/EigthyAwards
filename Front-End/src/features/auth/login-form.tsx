@@ -32,7 +32,7 @@ export function LoginForm() {
     try {
       const me = await api.post<Me>("/auth/login", values);
       queryClient.setQueryData(ME_KEY, me);
-      router.replace(safeNextPath(searchParams.get("next")) ?? AREA_ROUTES[me.home].href);
+      router.replace(safeNextPath(searchParams.get("next")) ?? (me.home ? AREA_ROUTES[me.home].href : "/home"));
     } catch (error) {
       showApiErrors(error, form.setError, ["email", "password"]);
     }
@@ -53,7 +53,7 @@ export function LoginForm() {
       <p className="text-center text-sm text-muted-foreground">
         Applying for your organisation for the first time?{" "}
         <Link href="/register" className="font-medium text-foreground underline underline-offset-4">
-          Create an account
+          Create an applicant account
         </Link>
       </p>
     </form>

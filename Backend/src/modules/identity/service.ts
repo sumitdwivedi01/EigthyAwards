@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Prisma } from "../../generated/prisma/client.js";
-import { primaryRole, type Actor } from "../../lib/access.js";
+import { primaryRole, requireApplicantAccount, type Actor } from "../../lib/access.js";
 import { clock } from "../../lib/clock.js";
 import { db } from "../../lib/db.js";
 import { NotFoundError, StateError, UnauthenticatedError, ValidationError } from "../../lib/errors.js";
@@ -46,7 +46,10 @@ async function startSession(userId: string, sessionVersion: number): Promise<Ses
   return { me: await loadMe(userId), token: await signSession({ userId, sessionVersion }) };
 }
 
-/** Applicant users register themselves (spec §5.1); everyone else is created by others. */
+/**
+ * Registering creates an applicant account (spec §5.1, ADR 0016). Platform accounts (the leader,
+ * heads, staff, jury) are created by the seed in Phase 1 and by invites from Phase 2.
+ */
 export async function register(input: RegisterInput): Promise<SessionResult> {
   const email = normalizeEmail(input.email);
   if (await db.user.findUnique({ where: { email }, select: { id: true } })) {
@@ -56,7 +59,7 @@ export async function register(input: RegisterInput): Promise<SessionResult> {
   try {
     const user = await db.$transaction(async (tx) => {
       const created = await tx.user.create({
-        data: { email, name: normalizeName(input.name), passwordHash },
+        data: { email, accountType: "APPLICANT", name: normalizeName(input.name), passwordHash },
         select: { id: true, sessionVersion: true },
       });
       await recordAudit(tx, {
@@ -106,6 +109,7 @@ export async function actorFromSession(token: string): Promise<Actor | null> {
     select: {
       id: true,
       email: true,
+      accountType: true,
       name: true,
       sessionVersion: true,
       deactivatedAt: true,
@@ -118,6 +122,7 @@ export async function actorFromSession(token: string): Promise<Actor | null> {
     userId: user.id,
     email: user.email,
     name: user.name,
+    accountType: user.accountType,
     roles: user.roles,
     organisationIds: user.memberships.map((m) => m.organisationId),
   };
@@ -192,6 +197,7 @@ export async function changePassword(actor: Actor, input: ChangePasswordInput): 
 
 /** The LinkedIn link on the profile, given once and reused by every application (§5.20). */
 export async function setLinkedinUrl(actor: Actor, input: LinkedinInput): Promise<MeView> {
+  requireApplicantAccount(actor);
   const url = input.url === null ? null : input.url.trim();
   await db.$transaction(async (tx) => {
     const before = await tx.user.findUniqueOrThrow({ where: { id: actor.userId }, select: { linkedinUrl: true } });
@@ -219,6 +225,7 @@ function cleanFileName(name: string): string {
  * and returns a short-lived link the browser uploads it to, straight to storage (GAPS G-B03).
  */
 export async function startIdentityUpload(actor: Actor, input: StartIdentityUploadInput): Promise<IdentityUploadView> {
+  requireApplicantAccount(actor);
   const fileId = randomUUID();
   const storageKey = `profiles/${actor.userId}/${fileId}`;
   await db.fileAsset.create({
@@ -248,6 +255,7 @@ export async function startIdentityUpload(actor: Actor, input: StartIdentityUplo
  * proof isn't verified yet follow the profile (§5.20).
  */
 export async function setIdentityDocument(actor: Actor, input: SetIdentityDocumentInput): Promise<MeView> {
+  requireApplicantAccount(actor);
   const file = await db.fileAsset.findFirst({
     where: { id: input.fileId, ownerUserId: actor.userId, kind: "IDENTITY_PROOF" },
   });

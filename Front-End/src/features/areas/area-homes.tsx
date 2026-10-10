@@ -11,14 +11,38 @@ import { useMe } from "@/features/auth/use-me";
 import type { Me, Role } from "@/lib/api-types";
 import { AREA_ROUTES } from "@/lib/areas";
 
-/** /home: sends the person to the area the API chose for them. */
+/** /home: sends the person to the area the API chose for them, once they have one. */
 export function HomeRedirect() {
   const me = useMe();
   const router = useRouter();
+  const home = me.data?.home;
   useEffect(() => {
-    if (me.data) router.replace(AREA_ROUTES[me.data.home].href);
-  }, [me.data, router]);
+    if (home) router.replace(AREA_ROUTES[home].href);
+  }, [home, router]);
+  if (me.data && !home) return <NothingAssignedYet />;
   return <p className="text-sm text-muted-foreground">Loading…</p>;
+}
+
+/** A platform account with no role yet: usually a juror before an award's staff add them to its jury. */
+function NothingAssignedYet() {
+  return (
+    <>
+      <PageTitle title="Welcome" description="Your account is ready." />
+      <Card className="max-w-xl">
+        <CardHeader>
+          <CardTitle>Nothing is assigned to you yet</CardTitle>
+          <CardDescription>
+            When an award&apos;s staff add you to its jury, or give you a role, your work appears here.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild size="sm" variant="outline">
+            <Link href="/me">My profile</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </>
+  );
 }
 
 function scopesOf(me: Me, role: Role): string[] {

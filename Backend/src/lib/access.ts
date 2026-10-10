@@ -1,4 +1,4 @@
-import type { Role } from "../generated/prisma/client.js";
+import type { AccountType, Role } from "../generated/prisma/client.js";
 import { ForbiddenError, NotFoundError, UnauthenticatedError } from "./errors.js";
 
 /**
@@ -17,9 +17,11 @@ export interface Actor {
   readonly userId: string;
   readonly email: string;
   readonly name: string;
-  /** Active role assignments only (revoked ones are left out). */
+  /** An applicant account applies; a platform account holds roles (ADR 0016). */
+  readonly accountType: AccountType;
+  /** Active role assignments only (revoked ones are left out). Always empty for an applicant account. */
   readonly roles: readonly ScopedRole[];
-  /** Organisations the user is a member of (applying on their behalf). */
+  /** Organisations the user is a member of (applying on their behalf). Always empty for a platform account. */
   readonly organisationIds: readonly string[];
 }
 
@@ -56,6 +58,18 @@ export function isJuryOfCycle(actor: Actor, cycleId: string): boolean {
 
 export function isMemberOf(actor: Actor, organisationId: string): boolean {
   return actor.organisationIds.includes(organisationId);
+}
+
+/**
+ * Organisations, applying and the profile proof belong to applicant accounts only (ADR 0016). The
+ * leader, department heads, staff and jury use a platform account and apply from a separate one.
+ */
+export function requireApplicantAccount(actor: Actor): void {
+  if (actor.accountType !== "APPLICANT") {
+    throw new ForbiddenError(
+      "Only applicant accounts can do this. To apply for an award, create a separate applicant account.",
+    );
+  }
 }
 
 export function requireLeader(actor: Actor): void {

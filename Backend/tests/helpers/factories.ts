@@ -30,9 +30,20 @@ export function gstinFor(pan: string, stateCode = "27"): string {
   return `${stateCode}${pan}1Z${letters(1)}`;
 }
 
-export async function createUser(overrides: Partial<Prisma.UserUncheckedCreateInput> = {}) {
+/** An account as registering makes it: it applies for its organisation, never holds a role (ADR 0016). */
+export async function createApplicantAccount(overrides: Partial<Prisma.UserUncheckedCreateInput> = {}) {
   const n = unique();
-  return db.user.create({ data: { email: `user${n}@example.test`, name: `User ${n}`, ...overrides } });
+  return db.user.create({
+    data: { email: `applicant${n}@example.test`, name: `Applicant ${n}`, accountType: "APPLICANT", ...overrides },
+  });
+}
+
+/** An account for the leader, a department head, staff or jury: it holds roles, never applies (ADR 0016). */
+export async function createPlatformAccount(overrides: Partial<Prisma.UserUncheckedCreateInput> = {}) {
+  const n = unique();
+  return db.user.create({
+    data: { email: `person${n}@example.test`, name: `Person ${n}`, accountType: "PLATFORM", ...overrides },
+  });
 }
 
 export async function createDepartment(overrides: Partial<Prisma.DepartmentUncheckedCreateInput> = {}) {
@@ -119,7 +130,7 @@ export async function createApplication(
   overrides: Partial<Prisma.ApplicationUncheckedCreateInput> = {},
 ) {
   const organisationId = overrides.organisationId ?? (await createOrganisation()).id;
-  const createdById = overrides.createdById ?? (await createUser()).id;
+  const createdById = overrides.createdById ?? (await createApplicantAccount()).id;
   return db.application.create({
     data: { cycleId, categoryId, ...overrides, organisationId, createdById },
   });
@@ -127,7 +138,7 @@ export async function createApplication(
 
 /** File metadata only (no bytes). The overrides must give the owner the kind needs. */
 export async function createFile(kind: FileKind, overrides: Partial<Prisma.FileAssetUncheckedCreateInput> = {}) {
-  const uploadedById = overrides.uploadedById ?? (await createUser()).id;
+  const uploadedById = overrides.uploadedById ?? (await createApplicantAccount()).id;
   return db.fileAsset.create({
     data: {
       kind,

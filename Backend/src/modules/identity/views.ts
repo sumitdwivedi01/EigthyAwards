@@ -1,4 +1,4 @@
-import type { Prisma, Role } from "../../generated/prisma/client.js";
+import type { AccountType, Prisma, Role } from "../../generated/prisma/client.js";
 import type { UploadLink } from "../../lib/storage/index.js";
 
 /** What the API loads to describe the signed-in user to themselves. */
@@ -34,6 +34,7 @@ export interface RoleView {
 export interface MeView {
   id: string;
   email: string;
+  accountType: AccountType;
   name: string;
   phone: string | null;
   passwordChangedAt: string | null;
@@ -42,28 +43,32 @@ export interface MeView {
   roles: RoleView[];
   organisations: { id: string; legalName: string }[];
   areas: Area[];
-  /** Where the user lands after logging in. */
-  home: Area;
+  /**
+   * Where the user lands after logging in: null for a platform account with no role yet (a juror
+   * before staff add them to a cycle's pool).
+   */
+  home: Area | null;
 }
 
-function areasOf(roles: readonly { role: Role }[]): Area[] {
+/** An applicant account only applies; a platform account gets an area for each kind of role (ADR 0016). */
+function areasOf(accountType: AccountType, roles: readonly { role: Role }[]): Area[] {
+  if (accountType === "APPLICANT") return ["applicant"];
   const has = (...wanted: Role[]) => roles.some((r) => wanted.includes(r.role));
   const areas: Area[] = [];
   if (has("LEADER")) areas.push("leader");
   if (has("DEPT_HEAD")) areas.push("department");
   if (has("DEPT_STAFF", "AWARD_STAFF")) areas.push("staff");
   if (has("JURY")) areas.push("jury");
-  // Anyone can apply on behalf of their organisation, whatever else they do (spec §3).
-  areas.push("applicant");
   return areas;
 }
 
 /** The signed-in user's own view. Never includes the password hash or the session version. */
 export function meView(user: MeRecord): MeView {
-  const areas = areasOf(user.roles);
+  const areas = areasOf(user.accountType, user.roles);
   return {
     id: user.id,
     email: user.email,
+    accountType: user.accountType,
     name: user.name,
     phone: user.phone,
     passwordChangedAt: user.passwordChangedAt?.toISOString() ?? null,
@@ -79,7 +84,7 @@ export function meView(user: MeRecord): MeView {
     })),
     organisations: user.memberships.map((m) => m.organisation),
     areas,
-    home: areas[0] ?? "applicant",
+    home: areas[0] ?? null,
   };
 }
 

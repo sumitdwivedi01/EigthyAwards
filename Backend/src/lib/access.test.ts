@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   primaryRole,
+  requireApplicantAccount,
   requireDeptHead,
   requireJuryOfCycle,
   requireLeader,
@@ -12,14 +13,21 @@ import {
 } from "./access.js";
 import { ForbiddenError, NotFoundError, UnauthenticatedError } from "./errors.js";
 
-function actor(roles: Partial<ScopedRole>[] = [], organisationIds: string[] = []): Actor {
+const person = { userId: "u1", email: "person@example.test", name: "Person" };
+
+/** A platform account (leader, head, staff, jury) holding these roles. */
+function actor(roles: Partial<ScopedRole>[] = []): Actor {
   return {
-    userId: "u1",
-    email: "person@example.test",
-    name: "Person",
+    ...person,
+    accountType: "PLATFORM",
     roles: roles.map((r) => ({ role: "JURY", departmentId: null, awardId: null, cycleId: null, ...r })),
-    organisationIds,
+    organisationIds: [],
   };
+}
+
+/** An applicant account, a member of these organisations. */
+function applicantAccount(organisationIds: string[] = []): Actor {
+  return { ...person, accountType: "APPLICANT", roles: [], organisationIds };
 }
 
 describe("access checks: every role only inside its own scope (spec §3)", () => {
@@ -50,7 +58,7 @@ describe("access checks: every role only inside its own scope (spec §3)", () =>
   });
 
   it("answers 'not found' for another organisation, so its existence isn't revealed", () => {
-    const applicant = actor([], ["org-1"]);
+    const applicant = applicantAccount(["org-1"]);
     expect(() => requireOrgMember(applicant, "org-1")).not.toThrow();
     expect(() => requireOrgMember(applicant, "org-2")).toThrow(NotFoundError);
   });
@@ -59,6 +67,14 @@ describe("access checks: every role only inside its own scope (spec §3)", () =>
     expect(primaryRole(actor([{ role: "JURY", cycleId: "c" }, { role: "DEPT_HEAD", departmentId: "d" }]))).toBe(
       "DEPT_HEAD",
     );
-    expect(primaryRole(actor())).toBeNull();
+    expect(primaryRole(applicantAccount())).toBeNull();
+  });
+
+  it("keeps organisations, applying and the profile proof to applicant accounts (ADR 0016)", () => {
+    expect(() => requireApplicantAccount(applicantAccount())).not.toThrow();
+    expect(() => requireApplicantAccount(actor([{ role: "LEADER" }]))).toThrow(ForbiddenError);
+    expect(() => requireApplicantAccount(actor([{ role: "AWARD_STAFF", awardId: "award-1" }]))).toThrow(ForbiddenError);
+    // A juror before joining a cycle's pool holds no role, and still can't apply from this account.
+    expect(() => requireApplicantAccount(actor())).toThrow(ForbiddenError);
   });
 });

@@ -4,15 +4,17 @@ import { describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
 import { db } from "../../lib/db.js";
 import { hashPassword } from "../../lib/password.js";
-import { createUser } from "../../../tests/helpers/factories.js";
+import { createApplicantAccount, createPlatformAccount } from "../../../tests/helpers/factories.js";
 import { useTestDatabase } from "../../../tests/helpers/database.js";
 
 useTestDatabase();
 
 const PASSWORD = "correct horse battery";
 
-async function signedIn(app: Express, email: string) {
-  await createUser({ email, name: email.split("@")[0], passwordHash: await hashPassword(PASSWORD) });
+/** Signs in a new applicant account, or a platform account (leader, head, staff, jury). */
+async function signedIn(app: Express, email: string, kind: "applicant" | "platform" = "applicant") {
+  const create = kind === "applicant" ? createApplicantAccount : createPlatformAccount;
+  await create({ email, name: email.split("@")[0], passwordHash: await hashPassword(PASSWORD) });
   const agent = request.agent(app);
   expect((await agent.post("/api/auth/login").send({ email, password: PASSWORD })).status).toBe(200);
   return agent;
@@ -30,6 +32,22 @@ const acme = {
   officialEmail: " Office@AcmeSteel.example ",
   phone: "020-2567 8901",
 };
+
+describe("organisations belong to applicant accounts (ADR 0016)", () => {
+  it("refuses a platform account registering, joining or listing organisations, and hides them from it", async () => {
+    const app = createApp();
+    const kiran = await signedIn(app, "kiran@example.test");
+    const created = await kiran.post("/api/organisations").send(acme);
+    expect(created.status).toBe(201);
+
+    const staff = await signedIn(app, "staff@example.test", "platform");
+    expect((await staff.post("/api/organisations").send(acme)).status).toBe(403);
+    expect((await staff.post("/api/organisations/join").send({ pan: acme.pan, gstin: acme.gstin })).status).toBe(403);
+    expect((await staff.get("/api/organisations/mine")).status).toBe(403);
+    expect((await staff.get(`/api/organisations/${created.body.organisation.id}`)).status).toBe(404);
+    expect(await db.organisationMember.count()).toBe(1);
+  });
+});
 
 describe("registering an organisation (spec §5.2, §5.18)", () => {
   it("saves it normalised, makes the person its first member, and audits it", async () => {

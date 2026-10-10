@@ -4,6 +4,8 @@
  */
 
 export type Area = "leader" | "department" | "staff" | "jury" | "applicant";
+/** An applicant account applies; a platform account (leader, head, staff, jury) holds roles. */
+export type AccountType = "APPLICANT" | "PLATFORM";
 export type Role = "LEADER" | "DEPT_HEAD" | "DEPT_STAFF" | "AWARD_STAFF" | "JURY";
 
 export interface RoleView {
@@ -16,6 +18,7 @@ export interface RoleView {
 export interface Me {
   id: string;
   email: string;
+  accountType: AccountType;
   name: string;
   phone: string | null;
   passwordChangedAt: string | null;
@@ -24,7 +27,8 @@ export interface Me {
   roles: RoleView[];
   organisations: { id: string; legalName: string }[];
   areas: Area[];
-  home: Area;
+  /** Null for a platform account with no role yet (a juror before joining an award's jury). */
+  home: Area | null;
 }
 
 export interface Organisation {

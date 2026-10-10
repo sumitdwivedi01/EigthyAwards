@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Building2Icon, PencilIcon } from "lucide-react";
-import { PageTitle } from "@/components/layout/app-shell";
+import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,9 +13,13 @@ import { EditOrganisationForm, JoinOrganisationForm, RegisterOrganisationForm, u
 
 /**
  * My organisation (§5.2): the award goes to the organisation, one record per PAN. The first
- * person from a company registers it; colleagues join it.
+ * person from a company registers it; colleagues join it. Only applicant accounts have one (ADR 0016).
  */
 export function MyOrganisation() {
+  return <AreaPage area="applicant">{() => <OrganisationsOfMine />}</AreaPage>;
+}
+
+function OrganisationsOfMine() {
   const organisations = useMyOrganisations();
   const [adding, setAdding] = useState(false);
 

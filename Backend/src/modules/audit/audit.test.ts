@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { db } from "../../lib/db.js";
 import { useTestDatabase } from "../../../tests/helpers/database.js";
-import { createDepartment, createUser } from "../../../tests/helpers/factories.js";
+import { createDepartment, createPlatformAccount } from "../../../tests/helpers/factories.js";
 import { recordAudit } from "./service.js";
 
 useTestDatabase();
 
 describe("recordAudit (spec §5.15, rule 3)", () => {
   it("records who did what, in which role, with before, after and reason", async () => {
-    const leader = await createUser();
+    const leader = await createPlatformAccount();
     await db.$transaction(async (tx) => {
       await recordAudit(tx, {
         actorId: leader.id,

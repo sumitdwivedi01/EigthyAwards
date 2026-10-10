@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Express } from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
@@ -5,7 +6,7 @@ import { createApp } from "../../app.js";
 import { setClock } from "../../lib/clock.js";
 import { db } from "../../lib/db.js";
 import { hashPassword } from "../../lib/password.js";
-import { createCycle, createUser } from "../../../tests/helpers/factories.js";
+import { createApplicantAccount, createCycle, createPlatformAccount } from "../../../tests/helpers/factories.js";
 import { useTestDatabase } from "../../../tests/helpers/database.js";
 
 useTestDatabase();
@@ -14,8 +15,14 @@ const PASSWORD = "correct horse battery";
 const PDF = Buffer.from("%PDF-1.4\n% a tiny test document\n");
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
 
+/** An applicant account, as registering makes it. */
 async function personWithPassword(email = "asha@example.test", password = PASSWORD) {
-  return createUser({ email, name: "Asha Rao", passwordHash: await hashPassword(password) });
+  return createApplicantAccount({ email, name: "Asha Rao", passwordHash: await hashPassword(password) });
+}
+
+/** A platform account (leader, head, staff, jury), as the seed makes it. */
+async function platformPersonWithPassword(email = "asha@example.test", password = PASSWORD) {
+  return createPlatformAccount({ email, name: "Asha Rao", passwordHash: await hashPassword(password) });
 }
 
 async function signedIn(app: Express, email = "asha@example.test", password = PASSWORD) {
@@ -37,7 +44,14 @@ describe("registering and logging in (spec §5.1)", () => {
       .post("/api/auth/register")
       .send({ name: "  Asha   Rao ", email: " Asha@Example.TEST ", password: PASSWORD });
     expect(res.status).toBe(201);
-    expect(res.body).toMatchObject({ email: "asha@example.test", name: "Asha Rao", home: "applicant", roles: [] });
+    expect(res.body).toMatchObject({
+      email: "asha@example.test",
+      name: "Asha Rao",
+      accountType: "APPLICANT",
+      areas: ["applicant"],
+      home: "applicant",
+      roles: [],
+    });
     const cookie = sessionCookie(res);
     expect(cookie).toMatch(/HttpOnly/);
     expect(cookie).toMatch(/SameSite=Lax/);
@@ -118,20 +132,49 @@ describe("registering and logging in (spec §5.1)", () => {
 
 describe("roles are read from the database on every request (ADR 0003)", () => {
   it("shows a new role, and drops a revoked one, within the same session", async () => {
-    const person = await personWithPassword();
+    const person = await platformPersonWithPassword();
     const { award } = await createCycle();
     const agent = await signedIn(createApp());
-    expect((await agent.get("/api/me")).body.home).toBe("applicant");
+    // A platform account without a role (a juror before joining a pool) has no area yet.
+    expect((await agent.get("/api/me")).body).toMatchObject({ accountType: "PLATFORM", areas: [], home: null });
 
     const role = await db.roleAssignment.create({ data: { userId: person.id, role: "AWARD_STAFF", awardId: award.id } });
     const asStaff = await agent.get("/api/me");
-    expect(asStaff.body).toMatchObject({ home: "staff", areas: ["staff", "applicant"] });
+    expect(asStaff.body).toMatchObject({ home: "staff", areas: ["staff"] });
     expect(asStaff.body.roles).toEqual([
       { role: "AWARD_STAFF", award: { id: award.id, name: award.name }, department: null, cycle: null },
     ]);
 
     await db.roleAssignment.update({ where: { id: role.id }, data: { revokedAt: new Date() } });
-    expect((await agent.get("/api/me")).body).toMatchObject({ home: "applicant", roles: [] });
+    expect((await agent.get("/api/me")).body).toMatchObject({ areas: [], home: null, roles: [] });
+  });
+});
+
+describe("applying belongs to applicant accounts only (ADR 0016)", () => {
+  it("gives an applicant account the Applying area and nothing else", async () => {
+    await personWithPassword();
+    const me = await (await signedIn(createApp())).get("/api/me");
+    expect(me.body).toMatchObject({ accountType: "APPLICANT", areas: ["applicant"], home: "applicant" });
+  });
+
+  it("never gives the leader the Applying area or the profile proof, but keeps their details and password", async () => {
+    const leader = await platformPersonWithPassword();
+    await db.roleAssignment.create({ data: { userId: leader.id, role: "LEADER" } });
+    const agent = await signedIn(createApp());
+    expect((await agent.get("/api/me")).body).toMatchObject({ areas: ["leader"], home: "leader" });
+
+    const linkedin = await agent.put("/api/me/linkedin").send({ url: "https://www.linkedin.com/in/the-leader" });
+    expect(linkedin.status).toBe(403);
+    const upload = await agent
+      .post("/api/me/identity-document/uploads")
+      .send({ fileName: "passport.pdf", contentType: "application/pdf", sizeBytes: PDF.length, consent: true });
+    expect(upload.status).toBe(403);
+    expect((await agent.put("/api/me/identity-document").send({ fileId: randomUUID() })).status).toBe(403);
+    expect(await db.fileAsset.count()).toBe(0);
+
+    expect((await agent.patch("/api/me/profile").send({ phone: "98765 43210" })).status).toBe(200);
+    const changed = await agent.post("/api/me/password").send({ currentPassword: PASSWORD, newPassword: "a brand new password" });
+    expect(changed.status).toBe(200);
   });
 });
 

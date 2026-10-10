@@ -10,7 +10,7 @@ export default function LoginPage() {
     <Card>
       <CardHeader>
         <CardTitle className="text-xl">Log in</CardTitle>
-        <CardDescription>One account for every award and every role you have.</CardDescription>
+        <CardDescription>Applicants, staff, jury, department heads and the leader all log in here.</CardDescription>
       </CardHeader>
       <CardContent>
         {/* The form reads ?next= from the address, which needs a Suspense boundary. */}

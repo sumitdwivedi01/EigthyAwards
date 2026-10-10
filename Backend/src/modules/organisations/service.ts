@@ -1,5 +1,5 @@
 import type { Organisation } from "../../generated/prisma/client.js";
-import { primaryRole, requireOrgMember, type Actor } from "../../lib/access.js";
+import { primaryRole, requireApplicantAccount, requireOrgMember, type Actor } from "../../lib/access.js";
 import { db } from "../../lib/db.js";
 import { NotFoundError, StateError, ValidationError } from "../../lib/errors.js";
 import {
@@ -22,7 +22,8 @@ import { organisationInclude, organisationView, type OrganisationResult, type Or
 /**
  * Organisations: the legal bodies that apply and receive awards, one per PAN (spec §5.2). Every
  * value is normalised here, on the server, before it is saved (spec §5.18, ADR 0006); the
- * database repeats the format checks as CHECK constraints.
+ * database repeats the format checks as CHECK constraints. Only applicant accounts register, join
+ * or list them (ADR 0016); a platform account is never a member, so the member checks give it 404.
  */
 
 interface FieldIssue {
@@ -177,6 +178,7 @@ function panRegistered(): StateError {
 
 /** Registers an organisation; the person registering it becomes its first member. */
 export async function createOrganisation(actor: Actor, input: CreateOrganisationInput): Promise<OrganisationResult> {
+  requireApplicantAccount(actor);
   const issues = new FieldIssues();
   const pan = normalizeTaxId(input.pan);
   if (!isValidPan(pan)) issues.add("pan", PAN_FORMAT);
@@ -216,6 +218,7 @@ export async function createOrganisation(actor: Actor, input: CreateOrganisation
  * no GSTIN (spec §5.2). The PAN is normalised, so "abcde 1234f" finds ABCDE1234F.
  */
 export async function joinOrganisation(actor: Actor, input: JoinOrganisationInput): Promise<OrganisationResult> {
+  requireApplicantAccount(actor);
   const organisation = await db.organisation.findUnique({
     where: { pan: normalizeTaxId(input.pan) },
     include: organisationInclude,
@@ -267,6 +270,7 @@ export async function joinOrganisation(actor: Actor, input: JoinOrganisationInpu
 }
 
 export async function listMyOrganisations(actor: Actor): Promise<OrganisationView[]> {
+  requireApplicantAccount(actor);
   const rows = await db.organisation.findMany({
     where: { members: { some: { userId: actor.userId } } },
     include: organisationInclude,
