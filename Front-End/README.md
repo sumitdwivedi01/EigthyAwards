@@ -9,7 +9,7 @@ What the screens look like: the clickable prototype in [docs/ui/](../docs/ui/REA
 | | |
 |---|---|
 | **Built (Step 1.1)** | Login, register, logout; the signed-in shell with the areas the API gives each person; **My profile** (details and change password for everyone; the LinkedIn link and identity document for applicant accounts); **My organisation** (register, join, edit; applicant accounts); a home page per role, and "Nothing is assigned to you yet" for a juror not yet on a jury |
-| **Next** | **Step 1.2 (11 Oct):** staff's award setup screens, Open awards and the branded award page |
+| **Next** | **Step 1.2 (11–12 Oct):** the leader's Departments, the head's People, Set your password; then staff's award setup screens, Open awards and the award page |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds) |
 
 ## What gets built when
@@ -19,12 +19,14 @@ What the screens look like: the clickable prototype in [docs/ui/](../docs/ui/REA
 | Account | Login, register, My profile (details, change password, ID and LinkedIn for applicants) | Built (1.1) | Forgot password, accept invite (2.3) |
 | Applicant | My organisation | Built (1.1) | — |
 | Applicant | My applications, start and demo payment, the form, proof of employment, review and submit, status | 1.3 | Edit after submit, withdraw, status timeline (2.5); on-site slot and medals (2.1) |
-| Public | Open awards (branded cards), the award's branded page | 1.2 | Multi-page sites from the site builder (2.2) |
+| Public | Open awards (branded cards), the award's page (department logo and colours, facts filled in automatically) | 1.2 | Banner, about, contacts and multi-page sites from the site builder (2.2) |
 | Staff | My awards, create award, cycle setup (settings, questions, scoring sheet, jury per application, award page), applications, proof check | 1.2, 1.3 | Site builder and brand kit (2.2); release screen, full scoring-sheet builder (2.5) |
-| Staff, judging | Masking of answers, jury pool and conflicts, assignment, judging progress, send for approval, results | 1.4 | Masking of files (2.5); on-site schedule, panels and progress (2.1) |
+| Staff, judging | Conflicts, the assignment board (by application and by juror), judging progress with the exact average, send for approval, results | 1.4 | On-site schedule, panels and progress (2.1) |
 | Jury | My assignments, scoring | 1.4 | Phone scoring on site (2.1) |
+| Department head | People (staff and jury lists, temporary passwords) | 1.2 | Invites by email (2.3) |
 | Department head | Approval queue, round review (approve) | 1.4 | Send back (2.5); brand kit (2.2); department dashboard, staff screens (2.3, 2.4) |
-| Leader | Dashboard | 1.4 | Departments, people, master data, organisation corrections (2.3) |
+| Leader | Departments (create with its head) | 1.2 | Replace a head, master data, organisation corrections, invites by email (2.3) |
+| Leader | Dashboard | 1.4 | — |
 
 ## Structure
 

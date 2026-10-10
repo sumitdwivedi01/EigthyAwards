@@ -1,6 +1,7 @@
 # 0016. Applicant accounts and platform accounts are separate
 
 - Status: **Accepted** (owner, 2026-10-10)
+- Update (2026-10-11, [ADR 0017](0017-people-created-on-screen.md)): jury are added to a department's jury list by its head, not to a cycle's pool; an applicant account is refused there, as below.
 - Date: 2026-10-10
 - Related: changes spec §3 and §5.1 ("a person who is both a juror and an applicant uses the same account with two roles"); [ADR 0012](0012-proof-once-on-profile-and-account-settings.md) (proof once on the profile), [ADR 0014](0014-no-pa-role.md) (five roles); GAPS G-K19, G-K21
 

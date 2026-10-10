@@ -82,7 +82,7 @@ A staff member:
 
 - `accountType` (ADR 0016): `APPLICANT` (made by registering; applies for its organisation, keeps the LinkedIn link and identity document, never holds a role) or `PLATFORM` (the leader, department heads, staff and jury; holds roles, never applies). Someone who does both has two accounts, with two emails.
 - `areas` are the parts of the app the user may open (`leader`, `department`, `staff`, `jury`, `applicant`). An applicant account has exactly `["applicant"]`; a platform account has one area per kind of role it holds.
-- `home` is where they land after logging in. A platform account with no role yet (a juror before staff add them to a cycle's pool) has no area, and `home` is `null`.
+- `home` is where they land after logging in. A platform account with no role yet (for example a seeded juror before a head lists them) has no area, and `home` is `null`.
 
 ## Uploading a file (signed links, GAPS G-B03)
 

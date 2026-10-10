@@ -9,24 +9,25 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 | Phase | What | When |
 |---|---|---|
 | **1. Working platform** (we're judged on this) | 2 different awards, set up on screen, run end to end online; the 4 rules tested | **Sat 10 – Thu 15 Oct** (~71 h) |
-| **2. Complete product** | On-site rounds, site builder, admin screens, emails, the items moved out of Phase 1, robot tests | ~24 working days |
+| **2. Complete product** | On-site rounds, site builder, invites by email and the other admin screens, emails, the items moved out of Phase 1, robot tests | ~23 working days |
 | **3. Launch-ready** | Security, privacy, load, payments, domains, client testing | ~15 days + testing |
 
-**Phase 1, day by day**
-- **Sat 10:** foundation + people (logins, roles, My profile, companies)
-- **Sun 11:** award setup (settings, questions, scoring sheet, branded page)
-- **Mon 12:** applying (form, proof, submit, entry limit) + proof check
-- **Tue 13:** judging (masking, conflicts, several jury, scores, approval, results)
-- **Wed 14:** online (Supabase + Render + Vercel) as a staging site and the production site, demo data, docs
-- **Thu 15:** morning buffer; walkthrough with the lead in the afternoon
+**Phase 1, day by day** (re-planned 11 Oct; from Sunday each step runs across two days)
+- **Sat 10:** 1.1 foundation + people (logins, roles, accounts, My profile, companies)
+- **Sun 11:** 1.2 departments and people on screen, then award setup starts
+- **Mon 12:** 1.2 ends (questions, scoring sheet, simple award page); 1.3 applying starts
+- **Tue 13:** 1.3 ends (proof, submit, entry limit, proof check); 1.4 assignment and judging start
+- **Wed 14:** 1.4 ends (scores, exact average, approval, results, dashboard); 1.5 production goes online
+- **Thu 15:** morning: demo data and docs (no buffer left); walkthrough with the lead in the afternoon
 
 - **Why 3 phases** → the lead wants one solid, working thing first, then the rest in order.
 - **Why only written rounds in Phase 1** → on-site rounds are a big feature used once or twice a year; Phase 2.
-- **Why a simple branded page, not the builder** → shows the brand idea in a day; the builder takes four.
+- **Why a simple award page, not the builder** → the department's logo and colours with the award's facts, filled in by itself; the builder takes four days.
 - **Why deploy on its own day** → things that work on a laptop can break online (cookies, database, files).
 - **Trimmed on 10 Oct** → the full list was ~100 h for ~64 h available. Moved to Phase 2: send back, file masking, version markers, edit after submit, withdraw, brand-kit screen, image uploads, the full scoring builder. Kept: leader dashboard, masking of answers.
-- **Blind award in the demo has no file uploads** → jury can't see files until file masking exists, so rule 1 stays safe.
-- **If still late** → cut join-on-screen, then the page banner, then scoring sections. **Never** cut the 4 rules or the dashboard.
+- **Re-planned on 11 Oct** → the lead wants the focus on forms and judging, and no masking; I want the organiser's people created on screen. People (+8 h) paid for by no masking (−3), a simpler award page (−2) and one online site (−3); Thursday morning is build time now.
+- **No masking** (ADR 0018) → a blind award just leaves the company, the applicant and every file out of the jury view. A name typed inside an answer isn't caught; the form warns applicants.
+- **If still late** → cut removing people, then branded cards, then list filters, then the dashboard's panels. **Never** cut the 4 rules, people on screen, forms, assignment or the exact average.
 - Files: `docs/PLAN.md` (simple, for the lead), `docs/PHASES.md` (detailed steps), `docs/TECHNICAL-DESIGN.md` (data model, API).
 
 ---
@@ -54,7 +55,8 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 - **Award goes to the company** (one per PAN) → never to plants or units.
 - **Data consistency** → one record per company, person, department; cleaned on save; lists instead of free text. It was the client's biggest problem.
 - **No signed letter** → too manual. Instead: proof documents.
-- **Jury accounts in Phase 1 come from the seed** → inviting by email needs a real email provider (Phase 2); staff add the seeded jury to a cycle's pool by email.
+- **People created on screen** (11 Oct, ADR 0017) → the leader makes a department and its head; the head makes staff and jury. No email yet, so a temporary password, shown once, changed at first login. Invites by email in Phase 2.
+- **Jury belong to a department's list** → no pool per award; after the deadline staff assign by hand and see the counts per application and per juror.
 
 **Applying**
 - **One application per company, blocked at the start** → no wasted forms; colleagues see it read-only (status only, no name); staff can release a wrong one.
@@ -67,6 +69,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 
 **Judging**
 - **Several jury per application** (staff set min–max) → averaging removes one person's bias.
+- **Exact maths** (ADR 0019) → whole-number points, one rounding at the end, ties share a rank. Anyone can check a result with a calculator.
 - **Jury never see each other's marks** → independent judgement.
 - **Average, rounded once at the end** → rounding doesn't tilt the result.
 - **Scores 0–10, whole numbers** → simple, also on a phone.
@@ -104,8 +107,8 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 |---|---|---|
 | My laptop | `awards` in Docker (port 5433) | Development |
 | My laptop + GitHub CI | `awards_test`, or a fresh one in CI | Tests |
-| Online staging (from 14 Oct) | Its own Supabase project | Testing each step online: the `staging` branch |
 | Online production (from 14 Oct) | Its own Supabase project | The demo the lead uses: `main`; API on Render, screens on Vercel |
+| Online staging (Phase 2) | Its own Supabase project | Testing each step online; in Phase 1 `staging` is tested by CI and on my laptop |
 
 - Secrets only in `.env`, the Render or Vercel dashboards, never in Git.
 - Tests refuse to run on a database without "test" in its name.
