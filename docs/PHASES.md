@@ -73,7 +73,8 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | 7 | ✅ Merged (`phase-0.8-done`) |
 | 0.9 | Docs refined: app READMEs, wording, status; Phase 1 fitted to the dates | `phase-0.9-docs` | 7–8 | ✅ Merged (sumitdwivedi01/EigthyAwards#9) |
 | 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | ✅ Merged (`phase-0.10-done`) |
-| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | 9 | 🧪 Written; owner's review, then pull request after Step 1.1 merges |
+| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | 9 | ✅ Merged into `staging` (sumitdwivedi01/EigthyAwards#13) |
+| 0.12 | README problem first: the awards, one award walked through, today's pain, terms, same vs different | `phase-0.12-readme` | 9 | 🧪 Written; pull request into `staging` next |
 
 **Phase 1: working platform** (the dates are fixed: build 10–14 Oct, production online 14–15 Oct, walkthrough Thu 15 Oct afternoon; re-planned 11 Oct)
 
@@ -481,3 +482,11 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 **Builds.** ADRs 0017–0019 (0013, 0015 and 0016 marked); this plan (change log, §1, §2, §3, Steps 1.2–1.5, Phase 2, the cut order); PLAN; the Phase 1 roadmap; the spec (revision log and every section the decisions touch); TECHNICAL-DESIGN; GAPS; CLAUDE.md; creating.md; the UI overview; the app READMEs; PROGRESS and Daily.
 
 **Done when.** The owner has reviewed it; merged into `staging` after Step 1.1, then into `main`. Step 1.2 is then cut from `staging`.
+
+### Phase 0.12: README problem first (Docs)
+
+**Goal.** A first-time reader understands the problem before the solution (11 Oct). The README went straight to the platform, and a reader without the domain couldn't picture the awards, the systems in use today, or terms like "250 indicators in 15 areas" and "38 categories".
+
+**Builds.** README.md rewritten: §1 the organisation and its awards (what an award programme is, who applies and why, the scale and differences), §2 one award walked through with a sample scoring sheet, §3 how the awards are run today and where it hurts for each user, with the inconsistent-data example, §4 the terms, §5 what must stay the same and what may differ (and why the separate software, not the different processes, is the problem), §6 what we know, assumed and still have open; then the solution, status, where to look and how to run it. The overview's problem section points to it, and three overview lines from before 11 Oct are updated. GAPS F10.
+
+**Done when.** Merged into `staging`, then into `main` with Step 1.1 and the re-plan.

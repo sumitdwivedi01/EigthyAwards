@@ -21,7 +21,7 @@
 | C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 5 |
 | D | Contradictions and holes found in the spec while planning | 11 | 4 |
 | E | Client questions from spec §18 | 16 | 9 |
-| F | Brief deliverables not yet in the repo | 9 | 6 |
+| F | Brief deliverables not yet in the repo | 10 | 6 |
 | G | Repository and process gaps | 7 | 3 |
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 3 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 8 |
@@ -160,6 +160,7 @@ The full wording and the 13 assumptions (A1–A13) are in [requirements.md §18]
 | G-F07 | What the tests check and what they don't | docs/testing.md (drafted in spec §15) | 15 | Open |
 | G-F08 | One place AI looked right but was wrong, and how it was caught | docs/ai-notes.md, recorded as soon as it happens | Ongoing | Open |
 | G-F09 | Three cycles that work differently (including on-site rounds), configured with no code change | Phases 5 and 13 | 13 | Open |
+| G-F10 | A newcomer understands the **problem** before the solution: what the awards are, why organisations apply, one award walked through, how they are run today and where it hurts, the terms (areas, indicators, categories), and what must stay the same or differ. The README went to the solution too quickly | [README.md](../README.md) §1–6 | 0.12 | Done (11 Oct, Phase 0.12) |
 
 ---
 
@@ -291,6 +292,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-11 | README rewritten problem first (Phase 0.12): F10 added and done. |
 | 2026-10-11 | Re-plan (Phase 0.11; ADRs 0017–0019): K13 updated (still ~71 h, no buffer); K14 removed (people on screen in Phase 1); K17 superseded and C13, D11 removed (no masking); K18 decided (one online site in Phase 1); K19 changed (jury listed per department, no pool); K03 and K07 reworded; A10 updated (16 module folders); K22–K27 added (no-masking limits, temporary passwords, a head reissuing passwords, score arithmetic, the department's own people off its jury list, removing people with work). |
 | 2026-10-10 | Applicant and platform accounts (owner, ADR 0016): K19 updated (jury are platform accounts; an applicant account is refused from a pool); K21 added (two emails for someone who does both); the K18–K20 rows fixed to the table's five columns and put in order. |
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
