@@ -10,7 +10,7 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 |---|---|
 | **On `main`** | Nothing yet |
 | **Built** | The foundation, on branch `phase/01-be-foundation` (tag `parked/phase-01-be-foundation`): project setup, the full database schema with its rules, shared libraries, the audit and email-outbox modules, `GET /api/health`, CI and 62 passing tests |
-| **Next** | **Step 1.1 (Sat 10 Oct)** brings that code onto `main` with the changes decided on 7–9 Oct ([list](../docs/proposals/0.7-backend-changes.md)), then adds logins, roles, My profile and organisations |
+| **Next** | **Step 1.1 (Sat 10 Oct)** brings that code onto `staging`, and then `main` (ADR 0015), with the changes decided on 7–9 Oct ([list](../docs/proposals/0.7-backend-changes.md)), then adds logins, roles, My profile and organisations |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds and tests) |
 
 ## What gets built when
@@ -122,4 +122,4 @@ Listed in `.env.example`. Secrets never go into Git.
 
 ## Online (Step 1.5, 14 Oct)
 
-A Render web service built from this folder: build with `npm ci && npm run build`, migrate with `npm run db:deploy`, start with `npm start`, health check `/api/health`. The steps will be written down in `docs/DEPLOYMENT.md`.
+Two Render web services built from this folder, one for staging (the `staging` branch) and one for production (`main`): build with `npm ci && npm run build`, migrate with `npm run db:deploy`, start with `npm start`, health check `/api/health`. The steps will be written down in `docs/DEPLOYMENT.md`.

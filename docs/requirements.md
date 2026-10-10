@@ -14,6 +14,7 @@
 | 2026-10-09 | **Lead call: proof once, account settings, several jury.** (1) The photo identity document and the LinkedIn link are given **once, on the applicant's profile**, and reused for every application; each application only needs a **recent proof of employment** (dated within the last 3 months). Staff of each award still check the proof for their application. (2) Every user has **My profile**: name, phone and **change password**. (3) In a **document review round**, staff set the **jury per application** (a minimum and a maximum, 1 or more, up to the jury in the pool); every application must get that many, and its final score is the **average** of their scores. On-site panels are unchanged. Sections changed: 2, 3, 4, 5.1, 5.2, 5.3, 5.5–5.13, 5.15, 5.16, 5.20, new 5.21, 6, 7, 8, 10–15, 18. | ADR 0012, 0013 |
 | 2026-10-09 | **No separate PA role** (owner, 9 Oct). The leader's team works from the leader's account, so the platform has **five roles**: leader, department head, staff, jury, applicant user. Everything the PA could do is done by the leader. §5.17 now describes the leader's team. Sections changed: 1–3, 5.1–5.3, 5.13–5.20, 7, 8, 10–15, 18. | ADR 0014 (supersedes 0005) |
 | 2026-10-09 | **Delivered in three phases** (lead call). Phase 1 (10–15 Oct) builds a working subset of §14: two written-review awards, online. On-site rounds, the full site builder and the admin screens move to Phase 2; launch work to Phase 3. Sections changed: 1, 14, 15, 17 (notes only; behaviour unchanged). | docs/PLAN.md, docs/PHASES.md |
+| 2026-10-10 | **Git workflow:** step branches → `staging` (tested there) → `main` (production), close to §16's `develop` → `main`; two online environments from 14 Oct. Sections changed: 16 (note only; behaviour unchanged). | ADR 0015 |
 
 # Awards Platform — Product & Technical Specification
 
@@ -1129,6 +1130,8 @@ The repository is the single source of truth: code, plan, decisions, daily log a
 ```
 
 ### Git workflow
+
+> Superseded by ADR 0004 and then [ADR 0015](decisions/0015-staging-branch.md) (10 Oct 2026): step branches → `staging` (tested there) → `main` (production).
 
 - main: always stable and demo-ready; protected; updated only from develop when CI is green.
 - develop: the testing branch where features come together.

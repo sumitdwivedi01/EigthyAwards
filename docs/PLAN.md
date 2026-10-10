@@ -68,10 +68,10 @@ Both are set up **on screen by staff**. In the walkthrough, staff also set up a 
 | 2 | **Sun 11 Oct** | **Award setup.** Awards, settings, the question builder with versions, the scoring sheet with weights, the branded award page, the Open awards page | Staff set up both awards on screen and publish them; they appear on Open awards |
 | 3 | **Mon 12 Oct** | **Applying.** Start (one per company), demo fee, the form with autosave, uploads, proof of employment, submit with the entry limit, the deadline lock. Staff: applications list, proof check | An applicant submits to both awards; staff verify the proof |
 | 4 | **Tue 13 Oct** | **Judging and results.** Masking of answers, jury pool and conflicts, several jury per application, scoring, score changes with reasons, approval, results, the leader dashboard. All rule tests green | Both awards run from application to published results |
-| 5 | **Wed 14 Oct** | **Online and polished.** Deploy (Supabase, Render, Vercel), load the demo data, test every role online, finish the README and documents, rehearse | The platform runs at a public address |
+| 5 | **Wed 14 Oct** | **Online and polished.** Deploy (Supabase, Render, Vercel) as a staging site and the production site, load the demo data, test every role online, finish the README and documents, rehearse | The platform runs at a public address |
 | — | **Thu 15 Oct** | Morning: buffer for anything late. **Afternoon: walkthrough with the lead** | — |
 
-Every day ends with its work tested and merged, and a short update in [Daily.md](../Daily.md).
+Every day ends with its work tested on the `staging` branch and then merged into `main` (production), and a short update in [Daily.md](../Daily.md).
 
 ### Kept simple in Phase 1, on purpose
 
@@ -176,7 +176,7 @@ We cut from the top, and never the core:
 |---|---|
 | Four build days are tight (about 71 hours of work) | The scope was trimmed on 10 Oct; each day has a clear finish line; Thursday morning is a buffer; the cut list protects the core |
 | The free server sleeps after 15 minutes idle | Wake it before the demo; consider a small paid plan for demo week |
-| Something only breaks online | Day 5 is kept for deployment and fixes |
+| Something only breaks online | Day 5 is kept for deployment and fixes; from then on each step is tried on the staging site before production |
 | No email provider chosen yet | Emails are logged in Phase 1; real sending in Phase 2 |
 
 ## Open questions for the lead (none of them blocks Phase 1)
