@@ -22,18 +22,18 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 | `identity` | Register, login, sessions, scoped roles, My profile, change password, profile proof (ID and LinkedIn) | 1.1 | Invites from admin screens, deactivation (2.3) |
 | `organisations` | Create and join with PAN and GSTIN checks, normalised profile | 1.1 | Corrections by the leader (2.3) |
 | `master-data` | Award domains and organisation types (retired, never deleted) | 1.1 (read; lists seeded) | Admin screens (2.3) |
-| `departments` | Departments, heads, staff on awards, brand kit | 1.2 (brand kit; departments seeded) | Create departments, appoint heads (2.3) |
+| `departments` | Departments, heads, staff on awards, brand kit | Seeded (departments and brand kits) | Create departments, appoint heads (2.3); brand-kit screen (2.2) |
 | `awards` | Awards, cycles, categories, rounds, jury per application, entry limit, publish gate | 1.2 | Copy last year's setup (3.8) |
-| `forms` | Questionnaire drafts, immutable versions, version diff (R4) | 1.2 | — |
+| `forms` | Questionnaire drafts, immutable versions (R4) | 1.2 | Version diff, New/Updated markers, more question types (2.5) |
 | `scoring` | Scoring sheets, weight checks, score formula, average | 1.2 | — |
 | `sites` | One branded page per award; public award pages | 1.2 | Full section builder, versions, restore (2.2) |
-| `applications` | Start (one per organisation), demo fee, answers, files, employment proof, submit with the entry limit, deadline lock, proof check, release | 1.3 | Deadline extension, "questions changed" alerts (2.5) |
-| `masking` | Masked answers and files for blind awards (R1) | 1.4 | — |
+| `applications` | Start (one per organisation), demo fee, answers, files, employment proof, submit with the entry limit, deadline lock, proof check, release | 1.3 | Edit after submit, withdraw, deadline extension, "questions changed" alerts (2.5) |
+| `masking` | Masked answers for blind awards (R1) | 1.4 | Masked files (2.5) |
 | `jury-pool` | Jury pool per cycle, recorded conflicts (R2) | 1.4 | — |
 | `judging` | Assigning several jury per application, scoring, score changes with a reason (R1–R3) | 1.4 | Disqualify and reinstate, reopen (2.5) |
-| `approval` | Send for approval, approve, send back (written rounds) | 1.4 | — |
+| `approval` | Send for approval and approve (written rounds) | 1.4 | Send back (2.5) |
 | `results` | Ranks, result labels, publishing | 1.4 | Medals for on-site rounds (2.1) |
-| `reporting` | The leader dashboard | 1.4 | Department dashboard (2.4) |
+| `reporting` | The leader dashboard (applications by status, judging progress, approvals waiting, deadlines) | 1.4 | Department dashboard (2.4) |
 | `onsite` | Slots, panels, staff backup entry, closing the round | — (tables exist) | 2.1 |
 
 ## Structure

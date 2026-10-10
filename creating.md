@@ -8,8 +8,8 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 
 | Phase | What | When |
 |---|---|---|
-| **1. Working platform** (we're judged on this) | 2 different awards, set up on screen, run end to end online; the 4 rules tested | **Sat 10 – Thu 15 Oct** |
-| **2. Complete product** | On-site rounds, site builder, admin screens, emails, robot tests | ~20 working days |
+| **1. Working platform** (we're judged on this) | 2 different awards, set up on screen, run end to end online; the 4 rules tested | **Sat 10 – Thu 15 Oct** (~71 h) |
+| **2. Complete product** | On-site rounds, site builder, admin screens, emails, the items moved out of Phase 1, robot tests | ~24 working days |
 | **3. Launch-ready** | Security, privacy, load, payments, domains, client testing | ~15 days + testing |
 
 **Phase 1, day by day**
@@ -18,13 +18,15 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 - **Mon 12:** applying (form, proof, submit, entry limit) + proof check
 - **Tue 13:** judging (masking, conflicts, several jury, scores, approval, results)
 - **Wed 14:** online (Supabase + Render + Vercel), demo data, docs
-- **Thu 15:** walkthrough with the lead
+- **Thu 15:** morning buffer; walkthrough with the lead in the afternoon
 
 - **Why 3 phases** → the lead wants one solid, working thing first, then the rest in order.
 - **Why only written rounds in Phase 1** → on-site rounds are a big feature used once or twice a year; Phase 2.
 - **Why a simple branded page, not the builder** → shows the brand idea in a day; the builder takes four.
 - **Why deploy on its own day** → things that work on a laptop can break online (cookies, database, files).
-- **If late** → cut send-back, then file masking, then the dashboard. **Never** cut the 4 rules.
+- **Trimmed on 10 Oct** → the full list was ~100 h for ~64 h available. Moved to Phase 2: send back, file masking, version markers, edit after submit, withdraw, brand-kit screen, image uploads, the full scoring builder. Kept: leader dashboard, masking of answers.
+- **Blind award in the demo has no file uploads** → jury can't see files until file masking exists, so rule 1 stays safe.
+- **If still late** → cut join-on-screen, then the page banner, then scoring sections. **Never** cut the 4 rules or the dashboard.
 - Files: `docs/PLAN.md` (simple, for the lead), `docs/PHASES.md` (detailed steps), `docs/TECHNICAL-DESIGN.md` (data model, API).
 
 ---

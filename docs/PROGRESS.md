@@ -6,14 +6,14 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-09 · Day 7 (late) |
-| **Current phase** | Phase 0.9: docs refined (🧪 committed locally, not pushed) |
+| **Last updated** | 2026-10-10 · Day 8 |
+| **Current phase** | Phase 0.9: docs refined and Phase 1 scope fitted to the dates (🧪 committed locally, not pushed) |
 | **Current branch** | `phase-0.9-docs` |
 | **What runs today** | Nothing on `main`. The backend foundation is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`); Step 1.1 brings it in |
-| **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15**; then Phase 2 (~20 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner reviews, pushes and merges `phase-0.9-docs`, tag `phase-0.9-done`. 2) **Sat 10 Oct: Step 1.1** Foundation and people, on `phase-1.1-foundation` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
+| **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15 (afternoon)**, about 71 hours of work; then Phase 2 (~24 working days) and Phase 3 (~15 + client testing) |
+| **Next action** | 1) Meeting with the lead today. 2) The owner reviews, pushes and merges `phase-0.9-docs`, tag `phase-0.9-done`. 3) **Step 1.1** Foundation and people, on `phase-1.1-foundation` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
-| **Risk** | Four build days are tight (G-K13): daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order) |
+| **Risk** | Four build days are tight even after the trim (about 71 hours against about 64; G-K13): Thursday morning is the buffer; daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order) |
 
 ## Phase status board
 
@@ -36,8 +36,8 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
 | **1.4** | Judging, approval and results · **Tue 13 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
 | **1.5** | Online and polished · **Wed 14 Oct** | `phase-1.5-deploy` | ⬜ | — | — | — |
-| — | Walkthrough with the lead · **Thu 15 Oct** | — | ⬜ | — | `phase-1-done` | — |
-| 2 | Complete product (~20 working days) | per package | ⬜ | — | — | — |
+| — | Buffer, then walkthrough with the lead · **Thu 15 Oct** | — | ⬜ | — | `phase-1-done` | — |
+| 2 | Complete product (~24 working days) | per package | ⬜ | — | — | — |
 | 3 | Launch-ready (~15 working days + client testing) | per package | ⬜ | — | — | — |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · ✅ merged · ⛔ blocked
@@ -52,8 +52,8 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 | Branded award page and Open awards, with the live "499 / 500" counter | 1.2 | ⬜ |
 | Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ⬜ |
 | Staff: proof check, release | 1.3 | ⬜ |
-| Masking (R1), conflicts (R2), several jury with the average, score changes with reasons (R3) | 1.4 | ⬜ |
-| Approval by the head, results published, leader dashboard | 1.4 | ⬜ |
+| Masking of answers (R1; files in Phase 2), conflicts (R2), several jury with the average, score changes with reasons (R3) | 1.4 | ⬜ |
+| Approval by the head (send back: Phase 2), results published, the leader dashboard screen | 1.4 | ⬜ |
 | Online on Supabase, Render and Vercel, with demo data and logins | 1.5 | ⬜ |
 | The brief's documents: README, user journeys, architecture, testing, AI notes, decisions | 1.5 | ⬜ |
 
@@ -96,6 +96,7 @@ The owner asked for the Backend README to match the new plan, and for every docu
 - [x] `Front-End/README.md` rewritten the same way: status, which screens come in which step, structure, how to run, deployment.
 - [x] Wording: decorative emojis and marketing phrases removed from the overview; "How Phase 1 stands out" became "What the walkthrough will show" in PLAN; filler words removed from creating.md, the UI README and ADRs 0001, 0003 and 0008. The overview now points to PLAN.md and TECHNICAL-DESIGN.md and says which awards Phase 1 shows.
 - [x] Status of 0.7 and 0.8 set to merged in PROGRESS and PHASES.
+- [x] **Phase 1 fitted to the dates (10 Oct).** The full list came to about 100 hours against about 64 available. Moved to Phase 2: send back and reopen, file masking, version comparison and markers, editing after submit and withdraw, the release screen, the full scoring-sheet builder and three question types, the brand-kit screen and image uploads, jury invites by email, the status timeline, edge-case tests. Kept: the leader dashboard screen and masking of answers. Phase 1 ≈ 71 h; Thursday morning is a buffer. PLAN, PHASES, TECHNICAL-DESIGN, GAPS (K13, K17), the overview, the app READMEs, creating.md and Daily updated.
 - [ ] Owner review, push and merge.
 
 ### Phase 0.8: Three-phase plan and technical design · ✅ · 2026-10-09 (Day 7, evening)

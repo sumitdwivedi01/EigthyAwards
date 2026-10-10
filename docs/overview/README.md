@@ -256,15 +256,15 @@ flowchart LR
 
 The platform is delivered in three phases ([the full plan](../PLAN.md)). **Phase 1 (10–15 Oct)** is the working platform; the rest builds on it.
 
-| Phase 1 · working platform, online | Phase 2 · complete product (~20 days) | Phase 3 · launch-ready (~15 days) |
+| Phase 1 · working platform, online | Phase 2 · complete product (~24 days) | Phase 3 · launch-ready (~15 days) |
 |---|---|---|
 | Two different awards set up on screen, with no code | On-site rounds and Gold / Silver / Bronze | Security and privacy reviews |
 | Questions saved as frozen versions; scoring sheet with weights | The full site builder (sections, versions) | Load testing for deadline nights |
-| Apply, autosave, submit, withdraw; one application per company | The leader's admin screens | A real payment gateway |
+| Apply, autosave, submit; one application per company | The leader's admin screens | A real payment gateway |
 | Photo ID and LinkedIn once on the profile; recent employment proof | External organisers' dashboard | Own web addresses (fpoawards.in) |
 | Entry limit with a public counter; a branded page per award | Every email, sent for real | Backups, monitoring, accessibility |
-| Blind copies, conflict checks, several jury and the average | Disqualify, reinstate, deadline extension | Client testing |
-| Approval, results, the leader's dashboard | Robot tests of every journey | |
+| Blind copies of the answers, conflict checks, several jury and the average | Masking of files, send back, withdraw, edit after submit | Client testing |
+| Approval, results, the leader's dashboard | Disqualify, reinstate, deadline extension; robot tests | |
 
 **Not planned:** importing past years' data, finding names inside PDFs automatically, member-portal login, offline scoring, a mobile app, other languages.
 
