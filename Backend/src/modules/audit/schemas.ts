@@ -3,7 +3,7 @@ import { Role } from "../../generated/prisma/client.js";
 
 /**
  * One audit event. `action` is "<entity>.<verb>", e.g. "score.changed", "department.created".
- * `actorRole` is the role the actor acted in, so the leader can see what each PA did (ADR 0005).
+ * `actorRole` is the role the actor acted in: staff, department head, leader and so on (spec §5.15).
  */
 export const auditEventSchema = z.object({
   actorId: z.uuid().nullable(),

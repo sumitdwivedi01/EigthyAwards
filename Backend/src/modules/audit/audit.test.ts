@@ -8,11 +8,11 @@ useTestDatabase();
 
 describe("recordAudit (spec §5.15, rule 3)", () => {
   it("records who did what, in which role, with before, after and reason", async () => {
-    const pa = await createUser();
+    const leader = await createUser();
     await db.$transaction(async (tx) => {
       await recordAudit(tx, {
-        actorId: pa.id,
-        actorRole: "LEADER_PA",
+        actorId: leader.id,
+        actorRole: "LEADER",
         action: "department.renamed",
         entityType: "department",
         entityId: "d1",
@@ -23,8 +23,8 @@ describe("recordAudit (spec §5.15, rule 3)", () => {
     });
     const [event] = await db.auditEvent.findMany();
     expect(event).toMatchObject({
-      actorId: pa.id,
-      actorRole: "LEADER_PA",
+      actorId: leader.id,
+      actorRole: "LEADER",
       action: "department.renamed",
       before: { name: "Enrgy" },
       after: { name: "Energy" },

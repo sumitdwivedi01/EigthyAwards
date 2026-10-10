@@ -1,6 +1,8 @@
 // Awards Platform data model.
-// Source of truth: docs/requirements.md §10, plus ADR 0005 (PA role), 0006 (data consistency)
-// and 0008 (on-site rounds).
+// Source of truth: docs/requirements.md §10, plus ADRs 0006 (data consistency), 0008 (on-site
+// rounds), 0009 (award sites), 0010 and 0012 (proof documents, entry limit, My profile),
+// 0011 (one application per organisation), 0013 (several jury per application) and 0014 (no PA
+// role).
 //
 // Ground rules:
 // - Every award-related row reaches its cycle through foreign keys. Where two rows must belong
@@ -24,9 +26,9 @@ datasource db {
 
 // ───────────────────────────── enums ─────────────────────────────
 
+/// The applicant user is not a role: it is membership of an organisation (OrganisationMember).
 enum Role {
   LEADER
-  LEADER_PA
   DEPT_HEAD
   DEPT_STAFF
   AWARD_STAFF
@@ -65,7 +67,7 @@ enum ApplicationStatus {
   SUBMITTED
   WITHDRAWN
   NOT_SUBMITTED
-  REJECTED_DUPLICATE
+  RELEASED
 }
 
 enum MaskingStatus {
@@ -74,9 +76,17 @@ enum MaskingStatus {
   DONE
 }
 
+enum ProofStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 enum FileKind {
   EVIDENCE
   MASKED_EVIDENCE
+  IDENTITY_PROOF
+  EMPLOYMENT_PROOF
 }
 
 enum FileStatus {
@@ -107,6 +117,12 @@ enum DisqualificationAction {
   REINSTATE
 }
 
+enum SiteStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
 enum EmailStatus {
   PENDING
   SENT
@@ -116,14 +132,24 @@ enum EmailStatus {
 // ───────────────────────── people and access ─────────────────────────
 
 model User {
-  id             String    @id @default(uuid()) @db.Uuid
-  email          String    @unique @db.Citext
-  name           String
-  passwordHash   String?
-  sessionVersion Int       @default(0)
-  deactivatedAt  DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                String    @id @default(uuid()) @db.Uuid
+  email             String    @unique @db.Citext
+  name              String
+  /// "+91" and 10 digits, like organisation phones (a CHECK constraint guards the format).
+  phone             String?
+  passwordHash      String?
+  /// Raised by a password change, reset or deactivation; sessions carrying an older value end.
+  sessionVersion    Int       @default(0)
+  passwordChangedAt DateTime?
+  /// The applicant's profile proof (§5.20): given once, reused by every application.
+  linkedinUrl       String?
+  /// The current identity document: an IDENTITY_PROOF file owned by this user.
+  identityFileId    String?   @unique @db.Uuid
+  deactivatedAt     DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  identityFile FileAsset? @relation("UserIdentityFile", fields: [identityFileId], references: [id])
 
   roles                  RoleAssignment[]        @relation("RoleHolder")
   rolesGranted           RoleAssignment[]        @relation("RoleGranter")
@@ -136,9 +162,12 @@ model User {
   awardsCreated          Award[]
   formVersionsPublished  FormVersion[]
   roundsClosed           Round[]
-  applicationsCreated    Application[]
+  applicationsCreated    Application[]           @relation("ApplicationCreator")
+  applicationsReleased   Application[]           @relation("ApplicationReleaser")
+  proofChecks            Application[]           @relation("ProofChecker")
   maskedAnswers          MaskedAnswer[]
-  filesUploaded          FileAsset[]
+  filesUploaded          FileAsset[]             @relation("FileUploader")
+  filesOwned             FileAsset[]             @relation("FileOwner")
   conflicts              Conflict[]              @relation("ConflictedJury")
   conflictsRecorded      Conflict[]              @relation("ConflictRecorder")
   evaluations            Evaluation[]            @relation("EvaluationJury")
@@ -148,13 +177,15 @@ model User {
   disqualificationEvents DisqualificationEvent[]
   slotsScheduled         PresentationSlot[]
   resultsDecided         RoundResult[]
+  sitePagesPublished     SitePageVersion[]
+  mediaUploaded          MediaAsset[]
   auditEvents            AuditEvent[]
 
   @@map("users")
 }
 
-/// A role held inside a scope. LEADER and LEADER_PA have no scope; DEPT_HEAD and DEPT_STAFF a
-/// department; AWARD_STAFF an award; JURY a cycle (a CHECK constraint enforces the shape).
+/// A role held inside a scope. LEADER has no scope; DEPT_HEAD and DEPT_STAFF a department;
+/// AWARD_STAFF an award; JURY a cycle (a CHECK constraint enforces the shape).
 /// Removing a role sets revokedAt; rows are kept.
 model RoleAssignment {
   id           String    @id @default(uuid()) @db.Uuid
@@ -204,15 +235,18 @@ model AuthToken {
   @@map("auth_tokens")
 }
 
+/// A unit that runs awards: part of the industry body, or an external award organiser.
 model Department {
   id          String   @id @default(uuid()) @db.Uuid
   name        String   @unique @db.Citext
   createdById String?  @db.Uuid
   createdAt   DateTime @default(now())
 
-  createdBy User?            @relation(fields: [createdById], references: [id])
-  awards    Award[]
-  roles     RoleAssignment[]
+  createdBy   User?            @relation(fields: [createdById], references: [id])
+  brandKit    BrandKit?
+  mediaAssets MediaAsset[]
+  awards      Award[]
+  roles       RoleAssignment[]
 
   @@map("departments")
 }
@@ -283,6 +317,7 @@ model OrganisationMember {
   user         User         @relation(fields: [userId], references: [id])
 
   @@id([organisationId, userId])
+  @@index([userId])
   @@map("organisation_members")
 }
 
@@ -300,6 +335,7 @@ model Award {
   department Department       @relation(fields: [departmentId], references: [id])
   domain     AwardDomain      @relation(fields: [domainId], references: [id])
   createdBy  User?            @relation(fields: [createdById], references: [id])
+  site       AwardSite?
   cycles     Cycle[]
   roles      RoleAssignment[]
 
@@ -316,6 +352,8 @@ model Cycle {
   deadlineAt      DateTime
   feePaise        Int         @default(0)
   blindJudging    Boolean     @default(false)
+  /// The optional entry limit: the most submitted applications the cycle accepts (§5.20).
+  maxEntries      Int?
   status          CycleStatus @default(DRAFT)
   draftFormSchema Json?
   publishedAt     DateTime?
@@ -368,8 +406,10 @@ model FormVersion {
   @@map("form_versions")
 }
 
-/// One judging stage. DOCUMENT_REVIEW: one jury member per application, approved by the
-/// department head. ON_SITE: a panel (panelMin..panelMax) per entry, no approval; closed by staff.
+/// One judging stage. juryMin..juryMax is the jury per application (ADR 0013): in a
+/// DOCUMENT_REVIEW round 1 <= min <= max (the service also caps max at the cycle's pool); in an
+/// ON_SITE round it is the panel size, 2 <= min <= max <= 5. Document rounds are approved by the
+/// department head; on-site rounds have no approval and are closed by staff.
 model Round {
   id           String      @id @default(uuid()) @db.Uuid
   cycleId      String      @db.Uuid
@@ -378,8 +418,8 @@ model Round {
   status       RoundStatus @default(NOT_STARTED)
   /// [{ "label": "Shortlisted", "advances": true }, { "label": "Rejected" }]
   resultLabels Json
-  panelMin     Int?
-  panelMax     Int?
+  juryMin      Int         @default(1)
+  juryMax      Int         @default(1)
   closedAt     DateTime?
   closedById   String?     @db.Uuid
 
@@ -409,8 +449,111 @@ model ScoringSheet {
   @@map("scoring_sheets")
 }
 
+// ───────────────────────────── award sites (ADR 0009) ─────────────────────────────
+
+/// A department's brand, used by all its award sites (an award site can override colours).
+model BrandKit {
+  id            String   @id @default(uuid()) @db.Uuid
+  departmentId  String   @unique @db.Uuid
+  logoAssetId   String?  @db.Uuid
+  /// "#RRGGBB"
+  primaryColour String
+  accentColour  String
+  /// A key from the safe font list in code.
+  fontKey       String
+  /// [{ "network": "linkedin", "url": "https://..." }]
+  socialLinks   Json     @default("[]")
+  footerText    String   @default("")
+  updatedAt     DateTime @updatedAt
+
+  department Department  @relation(fields: [departmentId], references: [id])
+  logo       MediaAsset? @relation(fields: [logoAssetId], references: [id])
+
+  @@map("brand_kits")
+}
+
+/// An award's public site at /awards/<slug>. customDomain is designed for, not used yet.
+model AwardSite {
+  id             String     @id @default(uuid()) @db.Uuid
+  awardId        String     @unique @db.Uuid
+  slug           String     @unique @db.Citext
+  status         SiteStatus @default(DRAFT)
+  themeOverrides Json       @default("{}")
+  customDomain   String?    @unique @db.Citext
+  publishedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  award Award      @relation(fields: [awardId], references: [id])
+  pages SitePage[]
+
+  @@map("award_sites")
+}
+
+/// One page of an award site. Staff edit the draft; publishing inserts a SitePageVersion.
+model SitePage {
+  id            String   @id @default(uuid()) @db.Uuid
+  siteId        String   @db.Uuid
+  slug          String   @db.Citext
+  title         String
+  navOrder      Int      @default(0)
+  showInNav     Boolean  @default(true)
+  /// Ready-made sections (ADR 0009), checked by a Zod schema; never HTML.
+  draftSections Json     @default("[]")
+  draftSeo      Json     @default("{}")
+  updatedAt     DateTime @updatedAt
+
+  site     AwardSite         @relation(fields: [siteId], references: [id])
+  versions SitePageVersion[]
+
+  @@unique([siteId, slug])
+  @@map("site_pages")
+}
+
+/// A published page, immutable like FormVersion (a trigger refuses UPDATE and DELETE).
+model SitePageVersion {
+  id            String   @id @default(uuid()) @db.Uuid
+  pageId        String   @db.Uuid
+  version       Int
+  sections      Json
+  seo           Json
+  publishedAt   DateTime @default(now())
+  publishedById String?  @db.Uuid
+
+  page        SitePage @relation(fields: [pageId], references: [id])
+  publishedBy User?    @relation(fields: [publishedById], references: [id])
+
+  @@unique([pageId, version])
+  @@map("site_page_versions")
+}
+
+/// An image for award sites. Lives in the PUBLIC bucket, never next to applicants' files.
+model MediaAsset {
+  id           String   @id @default(uuid()) @db.Uuid
+  departmentId String   @db.Uuid
+  storageKey   String   @unique
+  fileName     String
+  mimeType     String
+  sizeBytes    Int
+  width        Int
+  height       Int
+  altText      String
+  uploadedById String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  department Department @relation(fields: [departmentId], references: [id])
+  uploadedBy User       @relation(fields: [uploadedById], references: [id])
+  brandKits  BrandKit[]
+
+  @@index([departmentId])
+  @@map("media_assets")
+}
+
 // ───────────────────────────── applications ─────────────────────────────
 
+/// One organisation's entry in one cycle. At most one active (not WITHDRAWN or RELEASED) per
+/// organisation and cycle (ADR 0011): checked by the service at start, enforced by the partial
+/// unique index below.
 model Application {
   id               String            @id @default(uuid()) @db.Uuid
   cycleId          String            @db.Uuid
@@ -420,28 +563,42 @@ model Application {
   formVersionId    String?           @db.Uuid
   status           ApplicationStatus @default(DRAFT)
   maskingStatus    MaskingStatus     @default(NOT_REQUIRED)
-  duplicateFlag    Boolean           @default(false)
   updateRequested  Boolean           @default(false)
   /// The organisation's identity fields, taken at submit and frozen at the deadline.
   identitySnapshot Json?
+  /// The profile proof this application uses (§5.20): set at submit, following the profile
+  /// until staff verify the proof or the deadline locks the application.
+  identityFileId   String?           @db.Uuid
+  linkedinUrl      String?
+  proofStatus      ProofStatus       @default(PENDING)
+  proofCheckedById String?           @db.Uuid
+  proofCheckedAt   DateTime?
+  proofNote        String?
   submittedAt      DateTime?
   lockedAt         DateTime?
   withdrawnAt      DateTime?
   withdrawReason   String?
+  /// Set together, exactly when the status is RELEASED (a CHECK constraint enforces it).
+  releasedAt       DateTime?
+  releasedById     String?           @db.Uuid
+  releaseReason    String?
   /// Cache of the latest DisqualificationEvent, written in the same transaction.
   disqualifiedAt   DateTime?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  cycle        Cycle         @relation(fields: [cycleId], references: [id])
-  organisation Organisation  @relation(fields: [organisationId], references: [id])
-  createdBy    User          @relation(fields: [createdById], references: [id])
-  category     EntryCategory @relation(fields: [categoryId, cycleId], references: [id, cycleId])
-  formVersion  FormVersion?  @relation(fields: [formVersionId, cycleId], references: [id, cycleId])
+  cycle          Cycle         @relation(fields: [cycleId], references: [id])
+  organisation   Organisation  @relation(fields: [organisationId], references: [id])
+  createdBy      User          @relation("ApplicationCreator", fields: [createdById], references: [id])
+  category       EntryCategory @relation(fields: [categoryId, cycleId], references: [id, cycleId])
+  formVersion    FormVersion?  @relation(fields: [formVersionId, cycleId], references: [id, cycleId])
+  identityFile   FileAsset?    @relation("ApplicationIdentityFile", fields: [identityFileId], references: [id])
+  proofCheckedBy User?         @relation("ProofChecker", fields: [proofCheckedById], references: [id])
+  releasedBy     User?         @relation("ApplicationReleaser", fields: [releasedById], references: [id])
 
   answers          Answer[]
   maskedAnswers    MaskedAnswer[]
-  files            FileAsset[]
+  files            FileAsset[]             @relation("ApplicationFiles")
   payments         Payment[]
   evaluations      Evaluation[]
   approvalRemarks  ApprovalRemark[]
@@ -450,8 +607,10 @@ model Application {
   results          RoundResult[]
 
   @@unique([id, cycleId])
-  @@index([cycleId, organisationId])
+  @@unique([cycleId, organisationId], map: "applications_one_active_per_organisation_key", where: raw("status <> 'WITHDRAWN' AND status <> 'RELEASED'"))
+  @@index([cycleId, status])
   @@index([organisationId])
+  @@index([identityFileId])
   @@map("applications")
 }
 
@@ -483,29 +642,41 @@ model MaskedAnswer {
   @@map("masked_answers")
 }
 
-/// File metadata; the bytes live in storage under storageKey. A "safe as is" masked copy
-/// points at the same storageKey as its original.
+/// File metadata; the bytes live in storage under storageKey. Exactly one owner (a CHECK
+/// constraint enforces it): IDENTITY_PROOF belongs to a user (their profile), every other kind
+/// to an application. A "safe as is" masked copy points at the same storageKey as its original.
+/// Proof files are deleted after the retention period; the row stays with purgedAt.
 model FileAsset {
   id            String     @id @default(uuid()) @db.Uuid
-  applicationId String     @db.Uuid
+  applicationId String?    @db.Uuid
+  ownerUserId   String?    @db.Uuid
   questionKey   String?
   kind          FileKind
   status        FileStatus @default(PENDING)
   maskedFromId  String?    @db.Uuid
   safeAsIs      Boolean    @default(false)
+  /// The date printed on an EMPLOYMENT_PROOF (required for it; within 3 months, checked by the service).
+  documentDate  DateTime?  @db.Date
+  /// When the uploader consented to keeping this proof document (required for both proof kinds).
+  consentAt     DateTime?
   storageKey    String
   fileName      String
   mimeType      String
   sizeBytes     Int
   uploadedById  String     @db.Uuid
+  purgedAt      DateTime?
   createdAt     DateTime   @default(now())
 
-  application Application @relation(fields: [applicationId], references: [id])
-  uploadedBy  User        @relation(fields: [uploadedById], references: [id])
-  maskedFrom  FileAsset?  @relation("MaskedCopy", fields: [maskedFromId], references: [id])
-  maskedCopy  FileAsset[] @relation("MaskedCopy")
+  application        Application?  @relation("ApplicationFiles", fields: [applicationId], references: [id])
+  owner              User?         @relation("FileOwner", fields: [ownerUserId], references: [id])
+  uploadedBy         User          @relation("FileUploader", fields: [uploadedById], references: [id])
+  maskedFrom         FileAsset?    @relation("MaskedCopy", fields: [maskedFromId], references: [id])
+  maskedCopy         FileAsset[]   @relation("MaskedCopy")
+  identityOfUser     User?         @relation("UserIdentityFile")
+  usedByApplications Application[] @relation("ApplicationIdentityFile")
 
   @@index([applicationId, kind])
+  @@index([ownerUserId])
   @@map("file_assets")
 }
 
@@ -543,8 +714,9 @@ model Conflict {
   @@map("conflicts")
 }
 
-/// One jury member's scoring of one application in one round. A trigger allows only one
-/// active (non-revoked) evaluation per application in a DOCUMENT_REVIEW round.
+/// One jury member's scoring of one application in one round. An application has up to the
+/// round's juryMax active evaluations (counted by the service under a lock on the application);
+/// the same jury member can hold only one active (non-revoked) evaluation of it.
 model Evaluation {
   id            String           @id @default(uuid()) @db.Uuid
   cycleId       String           @db.Uuid
@@ -569,7 +741,8 @@ model Evaluation {
   scores   IndicatorScore[]
   comments QuestionComment[]
 
-  @@unique([roundId, applicationId, juryUserId])
+  @@unique([roundId, applicationId, juryUserId], map: "evaluations_one_active_per_jury_key", where: raw("status <> 'REVOKED'"))
+  @@index([roundId, applicationId])
   @@index([juryUserId, status])
   @@map("evaluations")
 }
@@ -668,8 +841,8 @@ model PresentationSlot {
   @@map("presentation_slots")
 }
 
-/// An application's outcome in one round: final score (one evaluation, or the panel average),
-/// rank and result label. Snapshotted when the round's scores lock.
+/// An application's outcome in one round: final score (the average of its submitted
+/// evaluations, rounded once), rank and result label. Snapshotted when the round's scores lock.
 model RoundResult {
   id            String    @id @default(uuid()) @db.Uuid
   cycleId       String    @db.Uuid
@@ -693,7 +866,7 @@ model RoundResult {
 // ───────────────────────────── platform ─────────────────────────────
 
 /// Append-only history of every decision that matters (a trigger refuses UPDATE and DELETE).
-/// actorRole records the role the actor acted in, so the leader can see what each PA did.
+/// actorRole records the role the actor acted in (staff, department head, leader, ...).
 model AuditEvent {
   id         String   @id @default(uuid()) @db.Uuid
   actorId    String?  @db.Uuid

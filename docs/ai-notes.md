@@ -43,3 +43,11 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **What looked right.** The append-only and one-jury triggers raised standard error codes (`restrict_violation`, `unique_violation`) with clear messages.
 - **How it was caught.** The tests expected the message ("append-only", "one active evaluation per application") but got Prisma's generic "Foreign key constraint violated" / "Unique constraint failed". Reading `@prisma/adapter-pg` showed it maps those two codes to its own error kinds and drops the original message.
 - **Fix.** The triggers now raise the default code `P0001`, which the adapter passes through with the message intact (same corrective migration). The database still refused every bad write; only the explanation was lost.
+
+## 7. A correct partial index that the drift check would never accept (Step 1.1, 10 Oct)
+
+- **What looked right.** The rule "one active application per organisation per cycle" (ADR 0011), written as `CREATE UNIQUE INDEX … WHERE (status NOT IN ('WITHDRAWN', 'RELEASED'))`, with the same text in `schema.prisma`'s `where: raw(…)`. The SQL is valid and means exactly the rule.
+- **How it was caught.** By the drift check CI runs (`prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code`), run locally before pushing. It reported the index as removed and added again, so CI would have failed on every pull request.
+- **Why.** PostgreSQL stores an index predicate in its own rewritten form: `NOT IN (…)` becomes `<> ALL (ARRAY[…])`. Prisma compares that stored form with the schema's text and sees a difference. Comparisons joined with `AND` come back in a form it matches (the other partial indexes never drifted).
+- **Fix.** `status <> 'WITHDRAWN' AND status <> 'RELEASED'`, in both the schema and the migration. Same meaning, no drift; the tests for the rule still pass.
+- **Lesson.** "The SQL is right" isn't enough when a tool compares text; run the same checks CI runs before pushing.

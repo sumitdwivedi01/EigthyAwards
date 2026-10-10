@@ -1,7 +1,7 @@
 /**
  * Seed data. Safe to run again: it only adds what is missing.
- * Phase 1 seeds the master data lists. Phase 2 adds the leader (from LEADER_EMAIL and
- * LEADER_PASSWORD), a PA, departments and staff; Phase 11 adds the full demo data.
+ * The master data lists. Step 1.1 adds the leader (from LEADER_EMAIL and LEADER_PASSWORD),
+ * departments, staff, jury and demo applicants; Step 1.5 adds the full demo data.
  * Everything goes through the same normalisers as the services (GAPS G-H09).
  */
 import { db } from "../src/lib/db.js";

@@ -1,10 +1,10 @@
 import { randomInt } from "node:crypto";
 import { db } from "../../src/lib/db.js";
-import type { Prisma, RoundType } from "../../src/generated/prisma/client.js";
+import type { FileKind, Prisma, RoundType } from "../../src/generated/prisma/client.js";
 
 /**
  * Small builders for test data. Each returns the created row and accepts overrides.
- * They write straight to the database (no services yet), which is fine for tests.
+ * They write straight to the database (no services), which is fine for tests.
  */
 
 let counter = 0;
@@ -86,7 +86,18 @@ export async function createCycle(overrides: Partial<Prisma.CycleUncheckedCreate
   return { department, domain, award, cycle, category };
 }
 
-export async function createRound(cycleId: string, type: RoundType = "DOCUMENT_REVIEW", number = 1) {
+export interface JuryPerApplication {
+  juryMin: number;
+  juryMax: number;
+}
+
+/** Defaults follow the spec: a document round 1 and 1; an on-site panel 2 to 5. */
+export async function createRound(
+  cycleId: string,
+  type: RoundType = "DOCUMENT_REVIEW",
+  number = 1,
+  jury: JuryPerApplication = type === "ON_SITE" ? { juryMin: 2, juryMax: 5 } : { juryMin: 1, juryMax: 1 },
+) {
   return db.round.create({
     data: {
       cycleId,
@@ -96,16 +107,43 @@ export async function createRound(cycleId: string, type: RoundType = "DOCUMENT_R
         type === "DOCUMENT_REVIEW"
           ? [{ label: "Shortlisted", advances: true }, { label: "Rejected" }]
           : [{ label: "Gold" }, { label: "Silver" }, { label: "Bronze" }, { label: "Participated" }],
-      panelMin: type === "ON_SITE" ? 2 : null,
-      panelMax: type === "ON_SITE" ? 5 : null,
+      ...jury,
     },
   });
 }
 
-export async function createApplication(cycleId: string, categoryId: string) {
-  const organisation = await createOrganisation();
-  const applicant = await createUser();
+/** A draft application; a new organisation and applicant unless the overrides name them. */
+export async function createApplication(
+  cycleId: string,
+  categoryId: string,
+  overrides: Partial<Prisma.ApplicationUncheckedCreateInput> = {},
+) {
+  const organisationId = overrides.organisationId ?? (await createOrganisation()).id;
+  const createdById = overrides.createdById ?? (await createUser()).id;
   return db.application.create({
-    data: { cycleId, categoryId, organisationId: organisation.id, createdById: applicant.id },
+    data: { cycleId, categoryId, ...overrides, organisationId, createdById },
   });
+}
+
+/** File metadata only (no bytes). The overrides must give the owner the kind needs. */
+export async function createFile(kind: FileKind, overrides: Partial<Prisma.FileAssetUncheckedCreateInput> = {}) {
+  const uploadedById = overrides.uploadedById ?? (await createUser()).id;
+  return db.fileAsset.create({
+    data: {
+      kind,
+      storageKey: `test/${unique()}`,
+      fileName: "document.pdf",
+      mimeType: "application/pdf",
+      sizeBytes: 1024,
+      ...overrides,
+      uploadedById,
+    },
+  });
+}
+
+/** An award site with one page. */
+export async function createSitePage(awardId: string, slug = `site-${unique()}`) {
+  const site = await db.awardSite.create({ data: { awardId, slug } });
+  const page = await db.sitePage.create({ data: { siteId: site.id, slug: "home", title: "Home" } });
+  return { site, page };
 }
