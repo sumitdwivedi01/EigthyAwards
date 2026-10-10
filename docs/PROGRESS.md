@@ -7,11 +7,11 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-10 · Day 8 |
-| **Current phase** | Phase 0.10: a `staging` branch between the step branches and `main` (ADR 0015) (🧪 in review) |
-| **Current branch** | `phase-0.10-staging`, cut from `staging` (`main` is production) |
-| **What runs today** | Nothing on `main`. The backend foundation is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`); Step 1.1 brings it in |
+| **Current phase** | **Step 1.1: Foundation and people** (🧪 built; the pull request into `staging` is next) |
+| **Current branch** | `phase-1.1-foundation`, cut from `staging` (`main` is production) |
+| **What runs today** | On the step branch, locally: the API (logins, applicant and platform accounts, scoped roles, My profile, organisations, master lists, the seed; 136 tests) and the web app (login, register, My profile, My organisation, a home per role), checked by hand in a browser. `staging` and `main` hold the docs until this step merges |
 | **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15 (afternoon)**, about 71 hours of work; then Phase 2 (~24 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner merges `phase-0.10-staging` into `staging`, then `staging` into `main`, and protects `staging` on GitHub. 2) **Step 1.1** Foundation and people, on `phase-1.1-foundation` cut from `staging` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
+| **Next action** | 1) The owner opens the pull request `phase-1.1-foundation` → `staging`, checks CI and merges it; runs the manual check on `staging`; then `staging` → `main` and the tag `phase-1.1-done`. 2) **Step 1.2** Award setup and branded pages (Sun 11 Oct), on `phase-1.2-setup` cut from `staging` |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
 | **Risk** | Four build days are tight even after the trim (about 71 hours against about 64; G-K13): Thursday morning is the buffer; daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 starts on Saturday evening, so it runs into Sunday. Two online environments add setup on 14 Oct (G-K18) |
 
@@ -31,8 +31,8 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | ✅ Merged | sumitdwivedi01/EigthyAwards#7 | 2026-10-09 · `phase-0.7-done` | n/a |
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
 | 0.9 | Docs refined | `phase-0.9-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#9 | 2026-10-10 · `phase-0.9-done` (tag to push) | n/a |
-| 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | 🧪 In review | — | — | n/a |
-| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | ⬜ (starts from the parked code: tag `parked/phase-01-be-foundation`, 62 tests) | — | — | — |
+| 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | ✅ Merged | sumitdwivedi01/EigthyAwards#10 → `staging`, sumitdwivedi01/EigthyAwards#11 → `main` | 2026-10-10 · `phase-0.10-done` | n/a |
+| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 Built, pull request next | — | — | 136 backend (were 62); frontend: lint, type check, build |
 | **1.2** | Award setup and branded pages · **Sun 11 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
 | **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
 | **1.4** | Judging, approval and results · **Tue 13 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
@@ -49,8 +49,8 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 
 | Goal | Step | Status |
 |---|---|---|
-| Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | ⬜ |
-| Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | ⬜ |
+| Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | 🧪 Built and tested; in review |
+| Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | 🧪 Built and tested; in review |
 | Staff set up an award on screen: settings, questions with versions (R4), scoring sheet, jury per application | 1.2 | ⬜ |
 | Branded award page and Open awards, with the live "499 / 500" counter | 1.2 | ⬜ |
 | Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ⬜ |
@@ -91,7 +91,33 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
 
-### Phase 0.10: A staging branch · 🧪 · 2026-10-10 (Day 8, evening)
+### Step 1.1: Foundation and people · 🧪 · 2026-10-10 (Day 8, evening and night)
+
+The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided first with the owner: copy the parked code (not merge it) with one new migration; jury accounts only from the seed until staff add them to a pool (G-K19); uploads through signed links (G-B03).
+
+**Backend** (136 tests, were 62; lint, type check and the schema drift check clean)
+- [x] The parked foundation copied across (0.7 list, B0.1), CI also on `staging`.
+- [x] One new migration with every 7–9 Oct change (B1–B4, B6): site tables, entry limit, proof files and their owners, application proof status and release, profile fields, `juryMin`/`juryMax` for both round types, several jury per application, `LEADER_PA` removed. Database-rule tests rewritten from the rules.
+- [x] **identity:** register, login (constant-time for unknown emails), logout, a signed session cookie (ADR 0003), the actor rebuilt from the database on every request, `GET /me` with areas and home; My profile (name, phone, change password that ends other sessions, is audited without the password and queues an email), LinkedIn link, identity document through a signed upload link with its content checked.
+- [x] **Applicant and platform accounts** (the owner's decision on the night of 10 Oct, [ADR 0016](decisions/0016-applicant-and-platform-accounts.md)): only applicant accounts create or join organisations and keep the profile proof; the leader, heads, staff and jury use platform accounts and get `403` there, and a juror with no role yet has no area. A second migration adds `accountType`, a CHECK and triggers that refuse mixed rows; the seed sets every account's type; 7 more tests.
+- [x] **Request safety:** same-origin check on writes (G-B11), `Cache-Control: no-store` (G-B16), failed-login limits per visitor and per email (G-C12).
+- [x] **organisations:** register (normalised, PAN and GSTIN checks, state warning, master-data type), one record per PAN (409 → Join), join with PAN + GSTIN or PAN + official email, members-only view and edit (never the PAN), audited.
+- [x] **master-data:** public lists of organisation types, award domains and states.
+- [x] **Seed:** the leader, two departments (one an external organiser) with heads and brand kits, three staff (one in both), six jury, three applicants and Acme Steel Ltd; passwords from the environment; safe to repeat.
+
+**Frontend** (Next.js 16.3.6, Tailwind 4, shadcn/ui on Radix; lint, type check and build clean; frontend CI added)
+- [x] The `/api` proxy to the backend; `src/proxy.ts` as the coarse login gate (Next.js 16 renamed middleware, ai-notes #8).
+- [x] Login, register, logout; the app shell with the areas the API gives; a home per role.
+- [x] My profile (details, password, LinkedIn, identity document) and My organisation (register, join, edit).
+- [x] The Applying link, the proof tab and My organisation only for applicant accounts; "Nothing is assigned to you yet" for a juror not yet in a pool; register and login say "applicant account".
+
+**Checked by hand** (browser, against the running API): register with messy input (cleaned); register a PAN that exists (moved to Join); join with a wrong GSTIN (the state named) and the right one in lower case (one Acme record); phone and LinkedIn on My profile; the identity document upload; a role granted and revoked in the database showing and disappearing at once; a password changed on screen ending the session of a second device at once, with the "password changed" email in Mailpit; logout; the login gate. Every seeded role logs in to its own area through the API: the leader, a head and staff see only their area and get `403` on the profile proof and organisations; a juror has no area until added to a pool; an applicant has Applying. In the browser, a platform account sees no Applying link and no proof tab, and "Not available" on the applicant pages.
+
+- [x] Docs: `docs/API.md`, both READMEs, CLAUDE.md commands, TECHNICAL-DESIGN, ai-notes #7–#10, GAPS (13 gaps closed, K20 and K21 added, K19 updated), the 0.7 change list ticked, Daily; for the accounts decision, ADR 0016, the spec (§2, §3, §5.1, §5.2, §5.8, §5.21, §10, §12, §18), PLAN and PHASES (Steps 1.1, 1.3, 1.4).
+- [ ] Not yet: "a jury user gets 403 on a staff endpoint" through HTTP: there is no staff endpoint until Step 1.2; the access checks have unit tests now, and the HTTP test comes with the first staff endpoint.
+- [ ] The owner merges into `staging`, checks it there, then into `main`; tag `phase-1.1-done`.
+
+### Phase 0.10: A staging branch · ✅ · 2026-10-10 (Day 8, evening)
 
 The owner met the lead (nothing changed) and asked for a staging branch: each step is merged into `staging` and tested there, then merged into `main` (production). Four details were agreed first (all recommended options): `main` is production; step branches go into `staging`; until 14 Oct, testing on `staging` means CI plus the step's manual check run locally, with two online environments from then; `staging` goes into `main` after each step.
 
@@ -99,7 +125,8 @@ The owner met the lead (nothing changed) and asked for a staging branch: each st
 - [x] The workflow everywhere it is written: CLAUDE.md, PHASES (§1 routine and checklist, §2, Steps 1.1, 1.3 and 1.5, change log), PLAN, the Phase 1 roadmap, TECHNICAL-DESIGN, creating.md, the app READMEs, the spec's revision log and §16 note, the PR template (with a short `staging` → `main` checklist).
 - [x] Also decided today: the paused backend is copied into Step 1.1 with one new migration; Phase 1 jury accounts come only from the seed (G-K19); uploads use signed links, as ADR 0003 says (G-B03). Found: Vercel caches proxied responses that carry caching headers, so the API sends `Cache-Control: no-store` (G-B16).
 - [x] Small fixes: `requireLeaderOrPA` → `requireLeader`; the 0.7 change list (branch from `staging`, the extra files to copy, change password now in Step 1.1, partial indexes in the schema, the enum switch); 0.9 marked merged.
-- [ ] The owner merges into `staging`, then into `main`, and protects `staging` on GitHub.
+- [x] Merged through sumitdwivedi01/EigthyAwards#10 (→ `staging`) and sumitdwivedi01/EigthyAwards#11 (→ `main`); tagged `phase-0.10-done`.
+- [ ] `staging` protected on GitHub like `main` (the owner's setting; G-G03).
 
 ### Phase 0.9: Docs refined · ✅ · 2026-10-09 (Day 7, late)
 
@@ -239,16 +266,29 @@ Filled in as things get built. Never put secrets here; only names and where they
 | Local machine | Windows 11; Node v22.17.0, npm 11.8.0; Docker 29.7; Git Bash; Python 3.12. The `gh` CLI is **not** installed |
 | GitHub repo | `https://github.com/sumitdwivedi01/EigthyAwards` (note the typo in the repo name, G-G05) |
 | Branches | `main` = production; `staging` = where finished steps are tested; one branch per step, cut from `staging` (ADR 0015) |
-| Backend local URL | `http://localhost:4000` (planned) |
-| Frontend local URL | `http://localhost:3000` (planned) |
+| Backend local URL | `http://localhost:4000` |
+| Frontend local URL | `http://localhost:3000` (its `/api/*` goes to the backend) |
 | PostgreSQL (Docker) | `localhost:5433`, databases `awards`, `awards_test` and `awards_shadow` (built on the parked branch) |
-| Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` (planned) |
+| Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` |
 | Online | Two environments from Step 1.5 (14 Oct): staging (the `staging` branch) and production (`main`), each with Vercel, Render and its own Supabase project. Not created yet |
-| Pinned versions | Express 5.2.1, TypeScript 6.0.3, Prisma 7.10.0, Zod 4, Vitest 5 (backend); the frontend's recorded in Step 1.1 |
+| Pinned versions | Backend: Express 5.2.1, TypeScript 6.0.3, Prisma 7.10.0, Zod 4.6.5, Vitest 5.0.3, bcryptjs 3.0.3, jose 6.2.12, express-rate-limit 8.7.0. Frontend: Next.js 16.3.6, React 19.2.8, Tailwind 4.3.3, TanStack Query 5.104.0, React Hook Form 7.89.0, radix-ui 1.6.7, TypeScript 6.0.3, ESLint 9.39.5 (G-K20). Exact versions at least two weeks old |
 
 ## Seeded test accounts
 
-Added in Step 1.1. Passwords live only in `Backend/.env` and `.env.example` placeholders, never in this file.
+Created by `npm run db:seed` (Step 1.1). The leader signs in with `LEADER_PASSWORD`, every other account with `DEMO_PASSWORD`; both live only in `Backend/.env` (online: the hosting dashboards), never in this file or in Git.
+
+| Account | Role |
+|---|---|
+| `leader@demo.test` (`LEADER_EMAIL`) | Leader (the leader's team uses this account) |
+| `head.she@demo.test` | Department head, Safety, Health and Environment |
+| `head.fpo@demo.test` | Department head, FPO Awards team (an external organiser) |
+| `staff.asha@demo.test` | Staff, Safety, Health and Environment |
+| `staff.ravi@demo.test` | Staff, FPO Awards team |
+| `staff.neha@demo.test` | Staff in both departments |
+| `jury.anil@`, `jury.priya@`, `jury.vikram@`, `jury.sunita@`, `jury.farhan@`, `jury.lakshmi@demo.test` | Jury accounts: no role until staff add them to a cycle's pool (G-K19) |
+| `applicant.kiran@demo.test` | Applicant, member of Acme Steel Ltd |
+| `applicant.deepa@demo.test` | Applicant, a colleague who joins Acme Steel on screen |
+| `applicant.rahul@demo.test` | Applicant with no organisation yet (registers one on screen) |
 
 ## Deviations from the spec
 

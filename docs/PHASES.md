@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-10 (Day 8, night) | **Applicant accounts and platform accounts** (owner, ADR 0016), inside Step 1.1: only applicant accounts register or join organisations, apply and keep the profile proof; the leader, heads, staff and jury use platform accounts and never apply. Steps 1.1 (identity, seed, screens, tests), 1.3 (start) and 1.4 (jury pool) updated. No change to dates. | The owner saw the applicant's proof tab on the leader's profile; the people who run and judge awards must never apply from those accounts |
 | 2026-10-10 (Day 8, evening) | **A `staging` branch** (Phase 0.10, ADR 0015). Each step's branch is cut from `staging` and merged into it; the step is tested on `staging` (CI and its manual check), then `staging` is merged into `main` (production) and the step is tagged there. From Step 1.5 there are two online environments, staging and production. Also decided: Phase 1 jury accounts come only from the seed (G-K19), and uploads use signed links as ADR 0003 says (G-B03). No change to scope or dates; about 15 minutes more per step, and more setup on 14 Oct (G-K18). | Owner, 10 Oct: test each step before it reaches production |
 | 2026-10-10 (Day 8) | **Phase 1 trimmed to fit the dates.** The full Phase 1 came to about 100 hours against about 64 available. Moved to Phase 2: send back and reopen, masking of files, version comparison and New/Updated markers, editing after submit and withdraw, the release screen, the full scoring-sheet builder and three question types, the brand-kit screen and image uploads, inviting jury by email, the status timeline, edge-case tests. Kept at the owner's request: the leader dashboard screen and masking of answers. Phase 1 is now about 71 hours; Thursday morning is a buffer and the walkthrough is Thursday afternoon. Phase 2 grows to about 24 days. | Owner, 10 Oct |
 | 2026-10-09 (Day 7, late) | **Docs refined** (Phase 0.9): the Backend and Front-End READMEs rewritten for the three-phase plan (status, what each step builds, how to run); wording tightened across the lead-facing docs. No change to scope or dates. | Owner: keep the docs clear and current |
@@ -70,13 +71,13 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.7 | Lead call: proof once on the profile, My profile, several jury per application | `phase-0.7-lead` | 7 | ✅ Merged (`phase-0.7-done`) |
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | 7 | ✅ Merged (`phase-0.8-done`) |
 | 0.9 | Docs refined: app READMEs, wording, status; Phase 1 fitted to the dates | `phase-0.9-docs` | 7–8 | ✅ Merged (sumitdwivedi01/EigthyAwards#9) |
-| 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | 🧪 In review |
+| 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | ✅ Merged (`phase-0.10-done`) |
 
 **Phase 1: working platform** (the dates are fixed; the build is 10–13 Oct, deployment 14 Oct, demo 15 Oct)
 
 | Step | Date | Work | Branch | Status |
 |---|---|---|---|---|
-| 1.1 | **Sat 10 Oct** | Foundation and people | `phase-1.1-foundation` | ⬜ |
+| 1.1 | **Sat 10 Oct** | Foundation and people | `phase-1.1-foundation` | 🧪 Built; pull request next |
 | 1.2 | **Sun 11 Oct** | Award setup and branded pages | `phase-1.2-setup` | ⬜ |
 | 1.3 | **Mon 12 Oct** | Applying and proof check | `phase-1.3-apply` | ⬜ |
 | 1.4 | **Tue 13 Oct** | Judging, approval and results | `phase-1.4-judging` | ⬜ |
@@ -134,7 +135,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 └─ Front-End/                 Next.js + TypeScript UI, deployed to Vercel
    ├─ next.config.ts          rewrites /api/* to the backend (same-origin cookies)
    ├─ src/
-   │  ├─ middleware.ts        coarse gate: logged in or not (never decides permissions)
+   │  ├─ proxy.ts             coarse gate: logged in or not (never decides permissions); Next.js 16's name for middleware
    │  ├─ app/                 (public) · applicant · staff · jury · dept · leader · auth pages
    │  ├─ components/          ui/ (shadcn) · form-renderer/ · form-builder/ · scoring-sheet/ · layout/
    │  ├─ features/<area>/     API hooks and feature components per area
@@ -164,20 +165,20 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 
 **Backend**
 - Bring the parked Phase 1 code onto this branch: only `Backend/`, its CI (now also run on pushes to `staging`), `docs/API.md` and `docs/ai-notes.md`, plus the old branch's `.gitattributes` and its two `.gitignore` lines (the generated Prisma client, the test storage). Add **one new migration** with every change in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md) (B1–B4): site tables, proof fields, `maxEntries`, `RELEASED` and the one-per-organisation index, profile proof fields, `juryMin`/`juryMax`, and active-evaluation uniqueness.
-- **identity:** register (applicants), login and logout (bcrypt; a signed session cookie, ADR 0003; a rate limit on login), `GET /me` with every scoped role, and the access helpers (`requireLeader`, `requireDeptHead`, `requireStaffOfAward`, `requireJuryOfCycle`, `requireOrgMember`…).
-- **My profile:** edit name and phone; `changePassword` (needs the current one; raises `sessionVersion`; "password changed" email to the outbox; audited without the password); for applicants, the identity document (private storage through a signed upload link, G-B03; consent) and the LinkedIn link.
-- **organisations:** create (normalised; PAN and GSTIN checks; a warning when the GSTIN state differs), join (PAN + GSTIN, or PAN + official email), list mine, edit (audited).
+- **identity:** register (always an **applicant account**, ADR 0016), login and logout (bcrypt; a signed session cookie, ADR 0003; a rate limit on login), `GET /me` with every scoped role, and the access helpers (`requireLeader`, `requireDeptHead`, `requireStaffOfAward`, `requireJuryOfCycle`, `requireOrgMember`, `requireApplicantAccount`…).
+- **My profile:** edit name and phone; `changePassword` (needs the current one; raises `sessionVersion`; "password changed" email to the outbox; audited without the password); for applicant accounts only, the identity document (private storage through a signed upload link, G-B03; consent) and the LinkedIn link.
+- **organisations** (applicant accounts only): create (normalised; PAN and GSTIN checks; a warning when the GSTIN state differs), join (PAN + GSTIN, or PAN + official email), list mine, edit (audited).
 - **Storage and responses:** the storage interface issues short-lived signed upload and download links after the API's access check (G-B03): the disk driver behind an API route locally, Supabase Storage from Step 1.5. Every API response sends `Cache-Control: no-store` unless it is a public award page (G-B16).
-- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury (in Phase 1 jury accounts come only from the seed, with no role until they are added to a cycle's pool in Step 1.4; G-K19); the master lists; demo applicant accounts. Passwords come from the environment, never from the repo.
+- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury (in Phase 1 jury accounts come only from the seed, with no role until they are added to a cycle's pool in Step 1.4; G-K19); the master lists; demo applicant accounts. The leader, heads, staff and jury get **platform accounts**, the demo applicants applicant accounts (ADR 0016). Passwords come from the environment, never from the repo.
 
 **Frontend**
 - A Next.js app (App Router, strict TypeScript, Tailwind, shadcn/ui, TanStack Query, React Hook Form + Zod). `/api/*` is rewritten to the backend; an API client maps 400/401/403/404/409 to messages; ₹ and India-time formatters.
-- Pages: login, register, a home page per role (redirect after login), **My profile** (details, change password, and the proof tab for applicants), **My organisation** (create or join).
+- Pages: login, register (an applicant account), a home page per role (redirect after login; "Nothing is assigned to you yet" for a juror not yet in a pool), **My profile** (details, change password, and the proof tab for applicant accounts only), **My organisation** (create or join; applicant accounts only).
 - `frontend-ci.yml`: lint, type check, build, on pull requests and on pushes to `main` and `staging`.
 
-**Tests:** the database-rule tests from the change list (B1.5, B2.4, B3.5, B4.4) · a wrong password gives 401 · the password hash is never in a response · a password change needs the current password and ends other sessions · `abcde 1234f` joins the existing `ABCDE1234F` · a GSTIN without the PAN is refused · joining needs the PAN and GSTIN (or the official email) · an applicant gets 404 for another company · a jury user gets 403 on a staff endpoint.
+**Tests:** the database-rule tests from the change list (B1.5, B2.4, B3.5, B4.4) · a wrong password gives 401 · the password hash is never in a response · a password change needs the current password and ends other sessions · `abcde 1234f` joins the existing `ABCDE1234F` · a GSTIN without the PAN is refused · joining needs the PAN and GSTIN (or the official email) · an applicant gets 404 for another company · a jury user gets 403 on a staff endpoint · a platform account (leader, head, staff, jury) gets 403 on the profile proof and on organisations · the database refuses a role or an evaluation for an applicant account, and a membership, an application or an identity document for a platform account.
 
-**Done when:** every seeded role logs in and lands in its own area (jury from Step 1.4, once they are in a cycle's pool); an applicant creates or joins a company and adds their ID and LinkedIn link; CI is green.
+**Done when:** every seeded role logs in and lands in its own area (jury from Step 1.4, once they are in a cycle's pool; until then "Nothing is assigned to you yet"), and only applicant accounts see the applying screens; an applicant creates or joins a company and adds their ID and LinkedIn link; CI is green.
 
 **Manual check:** log in as each seeded role; change a password and see the other browser signed out.
 
@@ -210,7 +211,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 **Goal.** The applicant's whole journey up to the deadline, and the staff checks before judging.
 
 **Backend**
-- **Start:** logged in, a company member, a category chosen, the cycle open. **One application per company** (a service check plus the database index); colleagues see it read-only, status only.
+- **Start:** an applicant account (ADR 0016), a company member, a category chosen, the cycle open. **One application per company** (a service check plus the database index); colleagues see it read-only, status only.
 - **Fee:** `payFee` (demo) records a payment with a fake reference; the category's fee if it has one, otherwise the cycle's.
 - **Answers and files:** autosaved drafts stored by question key and checked against the question types; uploads through signed links from the storage interface (type and size checked; 10 MB; G-B03).
 - **Proof:** `uploadEmploymentProof` with the document's date (within 3 months; consent recorded). Submit needs the profile's ID and LinkedIn link too, and records which ones it used.
@@ -235,7 +236,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 
 **Backend**
 - **masking** (blind cycles): the workspace; masked answers; masking done (one transaction with the status); reopening while no evaluation is submitted. In a blind award, jury get **no files** until file masking arrives in Phase 2.
-- **jury pool and conflicts:** add existing jury accounts (staff or the head; inviting by email is Phase 2); remove one who has submitted nothing; `recordConflict` (applies to every award; a late conflict revokes an unsubmitted evaluation).
+- **jury pool and conflicts:** add existing platform accounts by email (staff or the head; an applicant account is refused, ADR 0016; inviting by email is Phase 2); remove one who has submitted nothing; `recordConflict` (applies to every award; a late conflict revokes an unsubmitted evaluation).
 - **assignment:** `setJuryPerApplication`; bulk assignment of one or more jury to each application, all or nothing, under a lock on the application. Checked: the maximum, conflicts, verified proof, masking done (if blind), and the head of the award's department never judging its written round.
 - **judging:** the jury view (masked only in blind awards; never proof documents, a total or another jury member's scores); `saveScores`; `submitEvaluation` (every indicator plus the note; the first score locks the scoring sheet); `editScoreWithReason` (one transaction with the audit event; refused after approval); progress per application and per jury member; `GET /applications/:id/history`.
 - **approval:** `sendForApproval` (every eligible application has its minimum of submitted evaluations); `approve` (the round locks, and the averages and ranks are saved in `RoundResult`); (`sendBack` and `reopenEvaluation`: Phase 2.)
@@ -249,7 +250,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 - **R2:** a conflicted pair is refused even through the API · conflicted jury are left out of the list · a late conflict revokes.
 - **R3:** a change without a reason is refused · the audit row has old, new, who, when and why · a failed audit write rolls back the change (fault injected) · changes after approval are refused.
 - **Several jury:** going above the maximum is refused, also when two staff assign at once · a maximum above the pool is refused · sending is refused below the minimum · the average matches the hand calculation · a jury member can't see others' scores.
-- **Also:** the head can't be assigned in their own department's written round · the leader is refused on every judging write · approving locks the scores · no label before approval.
+- **Also:** the head can't be assigned in their own department's written round · the leader is refused on every judging write · adding an applicant account to a pool is refused · approving locks the scores · no label before approval.
 
 **Done when:** both awards run from submitted to **published results** in the browser; all rule tests are green in CI.
 
@@ -443,7 +444,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.10: A staging branch (Docs) 🧪
+### Phase 0.10: A staging branch (Docs) ✅
 
 **Goal.** Test every step on a `staging` branch before it reaches `main` (production), as the owner asked on 10 Oct (ADR 0015).
 

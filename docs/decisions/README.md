@@ -21,6 +21,7 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | [0014](0014-no-pa-role.md) | No separate PA role: the leader's team works from the leader's account (five roles) | Accepted (supersedes 0005) | 2026-10-09 |
 | [0013](0013-several-jury-per-application.md) | Several jury per application in document review rounds (minimum and maximum per round); the final score is the average | Accepted (extends 0008) | 2026-10-09 |
 | [0015](0015-staging-branch.md) | A `staging` branch between the step branches and `main` (production): step → `staging` (tested) → `main` | Accepted (supersedes 0004's flow) | 2026-10-10 |
+| [0016](0016-applicant-and-platform-accounts.md) | Applicant accounts and platform accounts are separate: only applicant accounts apply; the leader, heads, staff and jury hold roles and never apply | Accepted (changes spec §3, §5.1) | 2026-10-10 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 

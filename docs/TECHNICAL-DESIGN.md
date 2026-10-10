@@ -82,6 +82,7 @@ erDiagram
     USER {
         uuid id PK
         citext email UK
+        enum accountType
         text passwordHash
         int sessionVersion
         text linkedinUrl
@@ -150,6 +151,7 @@ The services check everything first, with friendly errors. The database refuses 
 | History can't be edited | Triggers refuse UPDATE and DELETE on audit events, form versions, published page versions and disqualification history |
 | Valid values | CHECKs: PAN and GSTIN format, scores 0–10, jury minimum ≤ maximum, file owner rules, money in whole paise |
 | Exactly one leader | Partial unique index |
+| Applicants and the platform's people never mix | `accountType` on every user (ADR 0016): triggers refuse a role or an evaluation for an applicant account, and an organisation, an application or an identity document for a platform account |
 
 ### Where each award's differences live (all data, no code)
 
@@ -199,7 +201,8 @@ All routes live under `/api` and return view models. The full contract grows in 
 
 | Area | Main endpoints |
 |---|---|
-| Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password`; `PUT /me/identity-document`; `PUT /me/linkedin` |
+| Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password`; `PUT /me/linkedin`; `POST /me/identity-document/uploads` (an upload link), then `PUT /me/identity-document` |
+| Master data (public) | `GET /master-data/organisation-types`, `/master-data/award-domains`, `/master-data/states` |
 | Organisations | `POST /organisations`, `POST /organisations/join`, `GET /organisations/mine`, `PATCH /organisations/:id` |
 | Public | `GET /public/awards` (open awards), `GET /public/awards/:slug` (branded page, live counter) |
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |
