@@ -76,3 +76,10 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** Merge Step 1.1 into `staging`, check it there, then into `main`. Sun 11 Oct: Step 1.2, award setup and branded pages.
 - **Stuck:** Nothing. The frontend stays on ESLint 9 for now (G-K20).
 - **Plan changed (late night):** Only applicants apply. The leader, department heads, staff and jury have their own kind of account: they never see the applying screens or the proof tab, and can't create or join a company. To apply, they register a separate applicant account with another email ([ADR 0016](docs/decisions/0016-applicant-and-platform-accounts.md)). Fixed in Step 1.1 before it merges; the database refuses mixed-up rows too.
+
+# DAY 9 (11 Oct)
+
+- **Plan changed:** My lead wants the focus on the form builder, filling the form and judging, and no masking. So: blind awards simply hide the company, the applicant and every file from the jury, and the masking step is gone ([ADR 0018](docs/decisions/0018-blind-judging-without-masking.md)). In Phase 1 the leader now creates departments and their heads on screen, and each head creates their own staff and jury, who get a temporary password and set their own at first login ([ADR 0017](docs/decisions/0017-people-created-on-screen.md)). After the deadline staff assign applications to the department's jury by hand, with the counts per application and per juror, and the final mark is an exact average ([ADR 0019](docs/decisions/0019-exact-score-arithmetic.md)). To make room: a simpler award page, only production online, and Thursday morning becomes build time. Still about 71 hours, with no buffer.
+- **Done:** The re-plan written down everywhere (PLAN, PHASES, the Phase 1 roadmap, the spec, the technical design, GAPS).
+- **Next:** My review of the re-plan; merge Step 1.1 into `staging` and `main`, then the re-plan; then Step 1.2: departments and people first, then award setup.
+- **Stuck:** Nothing.

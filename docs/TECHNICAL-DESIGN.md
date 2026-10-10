@@ -27,24 +27,26 @@ flowchart LR
 
 - Routes never touch the database; services know nothing about HTTP.
 - Every service function takes the **acting user first** and checks their role **and scope**, for example "staff of this award" or "jury of this cycle".
-- Raw database rows never leave the API. Each role gets its own view. In a blind award the jury view is built **only** from the masked copy.
+- Raw database rows never leave the API. Each role gets its own view. In a blind award the jury view is built from an allow-list: never the company's details, the applicant, team members or any file (ADR 0018).
 
 ### Modules
 
 | Module | Phase 1 | Phase 2 |
 |---|---|---|
-| identity (login, roles, My profile, password) | ✅ | invites from admin screens, deactivation |
+| identity (login, roles, My profile, password, temporary passwords) | ✅ | invites by email, deactivation |
 | organisations (create, join, normalise) | ✅ | corrections by the leader |
 | master-data (award domains, organisation types) | read; lists seeded | admin screens |
-| departments (brand kit) | departments and brand kits seeded | create departments, appoint heads, brand-kit screen |
+| departments (departments and their heads, staff and jury lists, brand colours) | ✅ created on screen (ADR 0017) | replace a head, more staff on an award, brand-kit screen |
 | awards, forms (versions), scoring (weights, formula) | ✅ | copy last year's setup (Phase 3) |
 | sites | one branded page per award | full section builder, versions |
 | applications (start, fee, answers, files, proof, submit, release) | ✅ | edit after submit, withdraw, deadline extension, "questions changed" alerts |
-| masking (answers), jury-pool (conflicts), judging (several jury, scores, audit) | ✅ | masking of files, disqualify and reinstate, reopen |
+| judging (conflicts, assignment by hand with the board, several jury, scores, audit) | ✅ | disqualify and reinstate, reopen |
 | approval (approve), results | ✅ | send back |
 | reporting | leader dashboard | department dashboard |
 | onsite | tables only | ✅ slots, panels, close, medals |
 | audit, notifications | ✅ (outbox, log) | real email provider |
+
+There is no masking module: blind awards leave identity and files out of the jury view, and the masking step is dropped (ADR 0018).
 
 ## 2. Data model
 
@@ -52,10 +54,11 @@ flowchart LR
 
 ```mermaid
 erDiagram
-    USER ||--o{ ROLE_ASSIGNMENT : holds
+    USER ||--o{ ROLE_ASSIGNMENT : "holds (jury: a department's list)"
     USER ||--o{ ORGANISATION_MEMBER : "belongs to"
     ORGANISATION ||--o{ ORGANISATION_MEMBER : has
     DEPARTMENT ||--o| BRAND_KIT : has
+    DEPARTMENT ||--o{ ROLE_ASSIGNMENT : "head, staff, jury list"
     DEPARTMENT ||--o{ AWARD : runs
     AWARD ||--o| AWARD_SITE : "has a page"
     AWARD ||--o{ CYCLE : "edition per year"
@@ -67,7 +70,6 @@ erDiagram
     ORGANISATION ||--o{ APPLICATION : submits
     APPLICATION }o--|| FORM_VERSION : "pinned to"
     APPLICATION ||--o{ ANSWER : has
-    APPLICATION ||--o{ MASKED_ANSWER : "jury-safe copy"
     APPLICATION ||--o{ FILE_ASSET : "evidence, proof"
     USER ||--o{ FILE_ASSET : "ID on profile"
     APPLICATION ||--o{ EVALUATION : "scored by 1..n jury"
@@ -83,6 +85,7 @@ erDiagram
         uuid id PK
         citext email UK
         enum accountType
+        bool mustChangePassword
         text passwordHash
         int sessionVersion
         text linkedinUrl
@@ -122,6 +125,12 @@ erDiagram
         jsonb identitySnapshot
         uuid identityFileId
     }
+    ROUND_RESULT {
+        int totalPoints
+        int evaluationCount
+        decimal finalScore
+        int rank
+    }
     EVALUATION {
         uuid id PK
         enum status
@@ -149,7 +158,7 @@ The services check everything first, with friendly errors. The database refuses 
 | One active application per company per award | Partial unique index (Withdrawn and Released don't count) |
 | A jury member gets an application only once | Partial unique index on active evaluations |
 | History can't be edited | Triggers refuse UPDATE and DELETE on audit events, form versions, published page versions and disqualification history |
-| Valid values | CHECKs: PAN and GSTIN format, scores 0–10, jury minimum ≤ maximum, file owner rules, money in whole paise |
+| Valid values | CHECKs: PAN and GSTIN format, scores 0–10, jury minimum ≤ maximum, file owner rules, money in whole paise, the jury role scoped to a department |
 | Exactly one leader | Partial unique index |
 | Applicants and the platform's people never mix | `accountType` on every user (ADR 0016): triggers refuse a role or an evaluation for an applicant account, and an organisation, an application or an identity document for a platform account |
 
@@ -186,14 +195,23 @@ sequenceDiagram
     end
 ```
 
-**Assign several jury**: never above the maximum, never a conflict.
-1. Staff choose applications and one or more jury members.
-2. In one transaction: lock each application, count its active jury, and check the maximum, recorded conflicts, verified proof and masking.
+**Create a person** (ADR 0017): the leader creates a department with its head; the head adds staff and jury.
+1. The service checks the creator's role and scope, and that the email isn't an applicant account (and, on the jury list, isn't the department's own head or staff).
+2. In one transaction: a new platform account with a random temporary password (stored as a hash, `mustChangePassword`, valid 7 days), or the existing platform account; the role in the department; the audit event (never the password).
+3. The temporary password is returned once, in that response only. At first login every endpoint except setting a password answers 403 until the person sets their own.
+
+**Assign jury by hand**: after the deadline, never above the maximum, never a conflict.
+1. Staff choose applications and one or more jury from the award's department list.
+2. In one transaction: lock each application, count its active jury, and check the deadline, the maximum, recorded conflicts, verified proof and that each juror is on the list.
 3. All or nothing: if any check fails, nothing is assigned, and staff see why.
+4. The assignment board reads the counts per application (assigned, minimum, maximum, submitted, "needs N more") and per juror (assigned, submitted, pending).
 
 **Change a score after submission (rule 3).** In one transaction, the score is updated and an audit event is written with who, when, old value, new value and reason. If either fails, both are undone. After approval, every change is refused.
 
-**Final score.** Each jury member's score comes from the formula in spec §5.5. The application's final score is the average of the submitted scores, rounded to 2 decimals once, at the end.
+**Final score** (ADR 0019): exact, whole numbers until one division at the end.
+- A juror's points: `P = Σ W × w × v` (whole-percent weights; `v` 0–10, Yes = 10, No = 0), from 0 to 100,000; their score is `P ÷ 1000`.
+- The application's final score over its `n` submitted evaluations: `F₂ = ⌊(ΣP + 5n) ÷ (10n)⌋ ÷ 100`, the exact average rounded once, half up, to 2 decimals. `ΣP`, `n` and `F₂` are stored in `RoundResult` at approval.
+- Ranks by `F₂`; equal scores share a rank (1, 2, 2, 4). Example: points 78,200, 79,200 and 50,400 give 69.27.
 
 ## 4. API for Phase 1 (summary)
 
@@ -201,15 +219,15 @@ All routes live under `/api` and return view models. The full contract grows in 
 
 | Area | Main endpoints |
 |---|---|
-| Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password`; `PUT /me/linkedin`; `POST /me/identity-document/uploads` (an upload link), then `PUT /me/identity-document` |
+| Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password` (also replaces a temporary password); `PUT /me/linkedin`; `POST /me/identity-document/uploads` (an upload link), then `PUT /me/identity-document` |
 | Master data (public) | `GET /master-data/organisation-types`, `/master-data/award-domains`, `/master-data/states` |
 | Organisations | `POST /organisations`, `POST /organisations/join`, `GET /organisations/mine`, `PATCH /organisations/:id` |
+| Departments and people (leader, head) | `POST /departments` (with its head), `GET /departments`, `GET /departments/:id/people`, `POST /departments/:id/staff`, `POST /departments/:id/jury`, `DELETE /departments/:id/people/:userId`, `POST /departments/:id/people/:userId/temporary-password` |
 | Public | `GET /public/awards` (open awards), `GET /public/awards/:slug` (branded page, live counter) |
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |
-| Brand (head, staff) | `PUT /departments/:id/brand-kit` |
 | Applying | `POST /cycles/:id/applications`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files`, `POST /applications/:id/employment-proof`, `POST /applications/:id/submit`, `GET /applications/mine` |
-| Staff checks | `GET /cycles/:id/applications`, `POST /applications/:id/proof-check`, `POST /applications/:id/release`, masking: `PUT /applications/:id/masked-answers`, `POST /applications/:id/masking-done` |
-| Jury and judging | `POST /cycles/:id/jury-pool`, `POST /conflicts`, `POST /rounds/:id/assignments`, `GET /jury/evaluations`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `POST /evaluations/:id/score-changes` |
+| Staff checks | `GET /cycles/:id/applications`, `POST /applications/:id/proof-check`, `POST /applications/:id/release` |
+| Assignment and judging | `POST /conflicts`, `GET /rounds/:id/assignment-board`, `POST /rounds/:id/assignments`, `POST /evaluations/:id/revoke`, `GET /jury/evaluations`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `POST /evaluations/:id/score-changes` |
 | Approval and results | `POST /rounds/:id/send-for-approval`, `POST /approvals/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
 | Leader | `GET /reports/leader-dashboard`; `GET /applications/:id/history` |
 | Files | `GET /files/:id` (checks who may read which kind, then answers with a short-lived signed link). Uploads get a signed link from the endpoint that owns the file, for example `PUT /me/identity-document` |
@@ -242,13 +260,14 @@ All routes live under `/api` and return view models. The full contract grows in 
 |---|---|---|
 | Laptop | PostgreSQL in Docker (`awards`), Mailpit | Development |
 | Laptop and CI | `awards_test`, or a fresh database in CI | Automated tests against a real database |
-| Online staging (from 14 Oct) | A Supabase project of its own | The `staging` branch: each step tried online before production (ADR 0015) |
 | Online production (from 14 Oct) | A Supabase project of its own | `main`: the Phase 1 demo the lead uses; API on Render, screens on Vercel |
+| Online staging (Phase 2) | A Supabase project of its own | The `staging` branch tried online before production (ADR 0015). In Phase 1 `staging` is tested by CI and on a laptop |
 
 ## 8. Testing in Phase 1
 
 - **Service tests against a real PostgreSQL** for the four rules, the permissions, one application per company, the entry limit, several jury and the average, and the proof rules.
-- **Unit tests** for the score formula, weight checks, PAN and GSTIN checks, and normalising.
+- **Unit tests** for the exact score arithmetic (worked examples, Yes/No, rounding boundary, ties), weight checks, PAN and GSTIN checks, and normalising.
+- **People:** who may create whom, temporary passwords (once, 7 days, blocking until replaced), and that no password appears in a response, log or audit event.
 - **CI** runs lint, type check, migrations and all tests on every pull request.
-- **A manual checklist** for each role, run locally and again online on 14 Oct.
+- **A manual checklist** for each role, run locally and again online on 14–15 Oct.
 - Browser robot tests (Playwright) come in Phase 2.

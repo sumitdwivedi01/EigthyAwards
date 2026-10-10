@@ -22,6 +22,9 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | [0013](0013-several-jury-per-application.md) | Several jury per application in document review rounds (minimum and maximum per round); the final score is the average | Accepted (extends 0008) | 2026-10-09 |
 | [0015](0015-staging-branch.md) | A `staging` branch between the step branches and `main` (production): step → `staging` (tested) → `main` | Accepted (supersedes 0004's flow) | 2026-10-10 |
 | [0016](0016-applicant-and-platform-accounts.md) | Applicant accounts and platform accounts are separate: only applicant accounts apply; the leader, heads, staff and jury hold roles and never apply | Accepted (changes spec §3, §5.1) | 2026-10-10 |
+| [0017](0017-people-created-on-screen.md) | Departments, heads, staff and jury created on screen in Phase 1, with temporary passwords; jury listed per department and assigned by hand | Accepted (updates 0013, 0016) | 2026-10-11 |
+| [0018](0018-blind-judging-without-masking.md) | Blind judging without a masking step: identity, names and files never reach the jury; masking dropped | Accepted (replaces spec §5.7's masking) | 2026-10-11 |
+| [0019](0019-exact-score-arithmetic.md) | Exact score arithmetic: whole-number points, one half-up rounding to 2 decimals, ties share a rank | Accepted | 2026-10-11 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 

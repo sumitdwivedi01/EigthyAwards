@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-11 (Day 9) | **Re-plan around the lead's focus** (Phase 0.11; ADRs 0017–0019). People are created on screen in Phase 1: the leader creates departments and their heads, heads create their staff and jury, with temporary passwords changed at first login; jury are listed per department (no cycle pool) and staff assign applications to them by hand, with counts per application and per juror. **Masking is dropped**: blind awards hide identity, names and files automatically. The score arithmetic is exact (whole-number points, one rounding). The award page is simpler, only production goes online in Phase 1, and Thursday morning becomes build time. Steps 1.2–1.5 now run across two days each; about 71 hours in total, as before. Package 2.3 shrinks; file masking leaves 2.5. | The lead wants the focus on building and filling forms and on judging, and no masking. The owner wants the organisers' hierarchy working in Phase 1, as the brief's addendum describes |
 | 2026-10-10 (Day 8, night) | **Applicant accounts and platform accounts** (owner, ADR 0016), inside Step 1.1: only applicant accounts register or join organisations, apply and keep the profile proof; the leader, heads, staff and jury use platform accounts and never apply. Steps 1.1 (identity, seed, screens, tests), 1.3 (start) and 1.4 (jury pool) updated. No change to dates. | The owner saw the applicant's proof tab on the leader's profile; the people who run and judge awards must never apply from those accounts |
 | 2026-10-10 (Day 8, evening) | **A `staging` branch** (Phase 0.10, ADR 0015). Each step's branch is cut from `staging` and merged into it; the step is tested on `staging` (CI and its manual check), then `staging` is merged into `main` (production) and the step is tagged there. From Step 1.5 there are two online environments, staging and production. Also decided: Phase 1 jury accounts come only from the seed (G-K19), and uploads use signed links as ADR 0003 says (G-B03). No change to scope or dates; about 15 minutes more per step, and more setup on 14 Oct (G-K18). | Owner, 10 Oct: test each step before it reaches production |
 | 2026-10-10 (Day 8) | **Phase 1 trimmed to fit the dates.** The full Phase 1 came to about 100 hours against about 64 available. Moved to Phase 2: send back and reopen, masking of files, version comparison and New/Updated markers, editing after submit and withdraw, the release screen, the full scoring-sheet builder and three question types, the brand-kit screen and image uploads, inviting jury by email, the status timeline, edge-case tests. Kept at the owner's request: the leader dashboard screen and masking of answers. Phase 1 is now about 71 hours; Thursday morning is a buffer and the walkthrough is Thursday afternoon. Phase 2 grows to about 24 days. | Owner, 10 Oct |
@@ -27,7 +28,7 @@
 
 ## 1. How every step is run
 
-The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five steps, one per day**. Each step goes through the same routine, and a step is either **done** (every part below) or **not done**.
+The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five steps**; since the 11 Oct re-plan, Steps 1.2 to 1.5 each run across two days (§2). Each step goes through the same routine, and a step is either **done** (every part below) or **not done**. A step merges when its checklist is ticked, whatever the time of day.
 
 1. **Branch** from an up-to-date `staging` (ADR 0015): `git checkout staging && git pull && git checkout -b phase-1.<n>-<word>` (for example `phase-1.2-setup`).
 2. **Backend first, then its screens, in the same step.** The service and its tests are finished before the screen that uses it.
@@ -36,9 +37,9 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 5. **Run the step's exit checklist** (below).
 6. **Update tracking:** [PROGRESS.md](PROGRESS.md), [GAPS.md](GAPS.md), [Daily.md](../Daily.md), `docs/API.md`, and an ADR if a decision was made.
 7. **Open a pull request into `staging`**, wait for green CI, read the diff line by line, and merge with a merge commit.
-8. **Test on `staging`:** CI runs on the `staging` push, and the step's manual check is run again on the `staging` branch (on a laptop until 14 Oct, on the staging site after).
+8. **Test on `staging`:** CI runs on the `staging` push, and the step's manual check is run again on the `staging` branch, on a laptop.
 9. **Open a pull request `staging` → `main`** (production), wait for green CI, merge with a merge commit, and tag `main`: `git tag phase-1.<n>-done && git push origin phase-1.<n>-done`. When Phase 1 is complete, tag `phase-1-done`.
-10. **Deploy only in Step 1.5** (14 Oct): `staging` → the staging site, `main` → production. Both branches must run on a laptop after every merge.
+10. **Deploy only in Step 1.5** (14 Oct): `main` → production. In Phase 1 `staging` is tested by CI and on a laptop; the staging site comes in Phase 2 (11 Oct; ADR 0015's update). Both branches must run on a laptop after every merge.
 
 ### Step exit checklist (definition of done)
 
@@ -72,19 +73,22 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | 7 | ✅ Merged (`phase-0.8-done`) |
 | 0.9 | Docs refined: app READMEs, wording, status; Phase 1 fitted to the dates | `phase-0.9-docs` | 7–8 | ✅ Merged (sumitdwivedi01/EigthyAwards#9) |
 | 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | ✅ Merged (`phase-0.10-done`) |
+| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | 9 | 🧪 Written; owner's review, then pull request after Step 1.1 merges |
 
-**Phase 1: working platform** (the dates are fixed; the build is 10–13 Oct, deployment 14 Oct, demo 15 Oct)
+**Phase 1: working platform** (the dates are fixed: build 10–14 Oct, production online 14–15 Oct, walkthrough Thu 15 Oct afternoon; re-planned 11 Oct)
 
-| Step | Date | Work | Branch | Status |
-|---|---|---|---|---|
-| 1.1 | **Sat 10 Oct** | Foundation and people | `phase-1.1-foundation` | 🧪 Built; pull request next |
-| 1.2 | **Sun 11 Oct** | Award setup and branded pages | `phase-1.2-setup` | ⬜ |
-| 1.3 | **Mon 12 Oct** | Applying and proof check | `phase-1.3-apply` | ⬜ |
-| 1.4 | **Tue 13 Oct** | Judging, approval and results | `phase-1.4-judging` | ⬜ |
-| 1.5 | **Wed 14 Oct** | Online and polished | `phase-1.5-deploy` | ⬜ |
-| — | **Thu 15 Oct** | Morning: buffer. Afternoon: walkthrough with the lead; tag `phase-1-done` | — | ⬜ |
+| Step | Dates | Work | Hours | Branch | Status |
+|---|---|---|---|---|---|
+| 1.1 | **Sat 10 Oct** | Foundation and people (logins, accounts, My profile, companies) | ~15 | `phase-1.1-foundation` | 🧪 Built; pull request next |
+| 1.2 | **Sun 11 – Mon 12 Oct** (morning) | Departments, people and award setup | ~19 | `phase-1.2-setup` | ⬜ |
+| 1.3 | **Mon 12 – Tue 13 Oct** (morning) | Applying and proof check | ~14 | `phase-1.3-apply` | ⬜ |
+| 1.4 | **Tue 13 – Wed 14 Oct** (midday) | Assignment, judging and results | ~14 | `phase-1.4-judging` | ⬜ |
+| 1.5 | **Wed 14 – Thu 15 Oct** (morning) | Online (production) and documents | ~9 | `phase-1.5-deploy` | ⬜ |
+| — | **Thu 15 Oct** (afternoon) | Walkthrough with the lead; tag `phase-1-done` | — | — | ⬜ |
 
-**Phase 2: complete product** (about 24 working days) and **Phase 3: launch-ready** (about 15 working days plus client testing): see [§5](#5-phase-2-complete-product-about-24-working-days) and [§6](#6-phase-3-launch-ready-about-15-working-days--client-testing).
+About 71 hours in all, in 12–13 hour days, with Thursday morning as planned work: **there is no buffer left** (G-K13).
+
+**Phase 2: complete product** (about 23 working days) and **Phase 3: launch-ready** (about 15 working days plus client testing): see [§5](#5-phase-2-complete-product-about-23-working-days) and [§6](#6-phase-3-launch-ready-about-15-working-days--client-testing).
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · ✅ merged · ⛔ blocked. Live status: [PROGRESS.md](PROGRESS.md).
 
@@ -128,9 +132,10 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 │  │  ├─ lib/                 db, clock, errors, logger, ids, normalize, states (GST codes), storage/, mailer/, auth/
 │  │  ├─ middleware/          actor (session → actor), error-handler, validate, rate-limit
 │  │  └─ modules/<module>/    routes.ts · service.ts · access.ts · schemas.ts · views.ts · *.test.ts
-│  │       modules (18): identity, departments, master-data, organisations, awards, forms,
-│  │                scoring, sites, applications, masking, jury-pool, judging, onsite,
-│  │                approval, results, reporting, audit, notifications
+│  │       modules (16): identity, departments (with people and the jury lists), master-data,
+│  │                organisations, awards, forms, scoring, sites, applications, judging
+│  │                (conflicts, assignment, scores), onsite, approval, results, reporting,
+│  │                audit, notifications
 │  └─ tests/                  helpers (test DB reset, factories, clock), integration suites
 └─ Front-End/                 Next.js + TypeScript UI, deployed to Vercel
    ├─ next.config.ts          rewrites /api/* to the backend (same-origin cookies)
@@ -152,10 +157,10 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 
 The two demo awards (see [PLAN.md](PLAN.md#the-two-awards-in-the-demo)):
 
-- **A. Safety Excellence 2026:** blind, ₹10,000 fee, 1 category, 2–3 jury per application, 3 sections of text answers (no uploads: file masking is in Phase 2).
+- **A. Safety Excellence 2026:** blind (jury never see the company, the applicant or any file; ADR 0018), ₹10,000 fee, 1 category, 2–3 jury per application, 3 sections of text answers.
 - **B. FPO Excellence 2026:** not blind, free, 4 categories, 1 jury per application, entry limit 500, 2 sections with evidence uploads.
 
-The items moved out of Phase 1 on 10 Oct are listed in [PLAN.md](PLAN.md#moved-to-phase-2-to-fit-the-dates). Estimated hours per step: 1.1 ≈ 15 h · 1.2 ≈ 13 h · 1.3 ≈ 14 h · 1.4 ≈ 17 h · 1.5 ≈ 12 h (about 71 h).
+The lead's focus (11 Oct) is the **form builder, filling the form, and judging**: those parts get the most care and the most tests. What moved out of Phase 1, and what was dropped, is listed in [PLAN.md](PLAN.md#moved-to-phase-2-to-fit-the-dates). Estimated hours per step: 1.1 ≈ 15 h · 1.2 ≈ 19 h (people 8, award setup 11) · 1.3 ≈ 14 h · 1.4 ≈ 14 h · 1.5 ≈ 9 h (about 71 h).
 
 Both use one written (document review) round. On-site rounds wait for Phase 2, but their tables already exist.
 
@@ -169,60 +174,73 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 - **My profile:** edit name and phone; `changePassword` (needs the current one; raises `sessionVersion`; "password changed" email to the outbox; audited without the password); for applicant accounts only, the identity document (private storage through a signed upload link, G-B03; consent) and the LinkedIn link.
 - **organisations** (applicant accounts only): create (normalised; PAN and GSTIN checks; a warning when the GSTIN state differs), join (PAN + GSTIN, or PAN + official email), list mine, edit (audited).
 - **Storage and responses:** the storage interface issues short-lived signed upload and download links after the API's access check (G-B03): the disk driver behind an API route locally, Supabase Storage from Step 1.5. Every API response sends `Cache-Control: no-store` unless it is a public award page (G-B16).
-- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury (in Phase 1 jury accounts come only from the seed, with no role until they are added to a cycle's pool in Step 1.4; G-K19); the master lists; demo applicant accounts. The leader, heads, staff and jury get **platform accounts**, the demo applicants applicant accounts (ADR 0016). Passwords come from the environment, never from the repo.
+- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury (with no role yet; since 11 Oct heads list jury on screen in Step 1.2, ADR 0017; G-K19); the master lists; demo applicant accounts. The leader, heads, staff and jury get **platform accounts**, the demo applicants applicant accounts (ADR 0016). Passwords come from the environment, never from the repo.
 
 **Frontend**
 - A Next.js app (App Router, strict TypeScript, Tailwind, shadcn/ui, TanStack Query, React Hook Form + Zod). `/api/*` is rewritten to the backend; an API client maps 400/401/403/404/409 to messages; ₹ and India-time formatters.
-- Pages: login, register (an applicant account), a home page per role (redirect after login; "Nothing is assigned to you yet" for a juror not yet in a pool), **My profile** (details, change password, and the proof tab for applicant accounts only), **My organisation** (create or join; applicant accounts only).
+- Pages: login, register (an applicant account), a home page per role (redirect after login; "Nothing is assigned to you yet" for a platform account with no role yet), **My profile** (details, change password, and the proof tab for applicant accounts only), **My organisation** (create or join; applicant accounts only).
 - `frontend-ci.yml`: lint, type check, build, on pull requests and on pushes to `main` and `staging`.
 
 **Tests:** the database-rule tests from the change list (B1.5, B2.4, B3.5, B4.4) · a wrong password gives 401 · the password hash is never in a response · a password change needs the current password and ends other sessions · `abcde 1234f` joins the existing `ABCDE1234F` · a GSTIN without the PAN is refused · joining needs the PAN and GSTIN (or the official email) · an applicant gets 404 for another company · a jury user gets 403 on a staff endpoint · a platform account (leader, head, staff, jury) gets 403 on the profile proof and on organisations · the database refuses a role or an evaluation for an applicant account, and a membership, an application or an identity document for a platform account.
 
-**Done when:** every seeded role logs in and lands in its own area (jury from Step 1.4, once they are in a cycle's pool; until then "Nothing is assigned to you yet"), and only applicant accounts see the applying screens; an applicant creates or joins a company and adds their ID and LinkedIn link; CI is green.
+**Done when:** every seeded role logs in and lands in its own area (jury once a head lists them, from Step 1.2; until then "Nothing is assigned to you yet"), and only applicant accounts see the applying screens; an applicant creates or joins a company and adds their ID and LinkedIn link; CI is green.
 
 **Manual check:** log in as each seeded role; change a password and see the other browser signed out.
 
 ---
 
-### Step 1.2: Award setup and branded pages · Sun 11 Oct · `phase-1.2-setup`
+### Step 1.2: Departments, people and award setup · Sun 11 – Mon 12 Oct · `phase-1.2-setup`
 
-**Goal.** Staff configure and publish an award entirely on screen. This is the heart of "an award is data, not code" (rule R4).
+**Goal.** The organisers' hierarchy works on screen: the leader creates a department and its head, and the head creates their staff and jury ([ADR 0017](decisions/0017-people-created-on-screen.md)). Then staff configure and publish an award entirely on screen: the heart of "an award is data, not code" (rule R4).
 
-**Backend**
+**Backend: departments and people** (first, about 8 hours)
+- **One migration:** the JURY role belongs to a department (its jury list; no cycle pool); `mustChangePassword` and a temporary password's expiry on users; brand colours for new departments; the masking tables and fields removed ([ADR 0018](decisions/0018-blind-judging-without-masking.md)).
+- **identity:** temporary passwords: random, shown once to the creator, stored only as a hash, valid 7 days. Login reports `mustChangePassword`, and every other endpoint answers 403 until the person sets their own password (`POST /me/password`, with the temporary one as the current password). `GET /me` lists the departments behind each role.
+- **departments:** `createDepartment` (leader): the name (unique, ignoring case), whether it is an external award organiser, its brand colours, and its **head**: a new platform account, or an existing one found by email. Department, role and audit event in one transaction. `listDepartments` (leader: all; head: their own).
+- **people:** `addStaff` and `addJuror` (the department's head, or the leader): a new platform account with a temporary password, or an existing platform account by email. Refused for an applicant account (ADR 0016), and on the jury list for the department's own head and staff. Also `listPeople`; `removeFromDepartment` while the person has no work there; and `issueTemporaryPassword` (the leader for heads; the head or the leader for staff and jury), which ends the person's sessions and is audited.
+
+**Backend: award setup** (about 11 hours)
 - **awards:** create in the staff member's own department (the domain from the master list; the name unique ignoring case); the creator becomes award staff; "my awards" across departments.
 - **cycles:** dates, fee, category fees, blind judging, entry categories, an optional entry limit, one written round with its **jury per application** (`juryMin`–`juryMax`) and result labels (Shortlisted / Rejected, renamable); the publish gate; fee and blind frozen after publishing; status worked out from the clock.
-- **forms:** a draft editor (the server makes the keys); question types short text, long text, number, single choice, yes/no and file upload; publishing inserts an immutable version with a change summary; inside a cycle nothing can be removed and no type can change. (Version comparison and New/Updated markers: Phase 2.)
-- **scoring:** the scoring sheet per round; `validateWeights` (100% at each level; every indicator points to a real question); `computeScore` and `averageScore` as pure functions.
-- **sites (simple):** a brand kit per department (logo and colours from the starter data); one branded page per award (slug, banner text, about text, contacts) whose deadline, categories, fees and "499 / 500" counter fill in **automatically**; text only, no HTML; links http(s). (Brand-kit screen and image uploads: Phase 2.)
+- **forms:** a draft editor (the server makes the keys); question types short text, long text, number, single choice, yes/no and file upload; publishing inserts an immutable version with a change summary; inside a cycle nothing can be removed and no type can change. In a blind award the builder says that jury won't see file answers. (Version comparison and New/Updated markers: Phase 2.)
+- **scoring:** the scoring sheet per round: sections and indicators with whole-percent weights and "split evenly". `validateWeights` checks 100 at each level and that every indicator points to a real question. The exact arithmetic of [ADR 0019](decisions/0019-exact-score-arithmetic.md) is pure functions: `evaluationPoints`, `finalScore` (one half-up rounding to 2 decimals) and `rankResults` (ties share a rank).
+- **sites (simple):** each award gets one public page in its department's colours and logo, with the name, description, dates, categories, fees and the "499 / 500" counter filled in **automatically**; staff only choose its address (slug). (Banner, about text, contacts, the brand-kit screen and image uploads: Phase 2.)
 - **public:** the Open awards list (published, and open now) and the award page by slug.
 
-**Frontend:** staff **My awards**, **Create award**, and **cycle setup** tabs: basics and dates · categories · round and jury per application · **question builder** · **scoring-sheet builder** (a table of sections and indicators with running totals) · award page (form plus preview) · publish (gate errors listed). Public **Open awards** (branded cards) and the **award page**.
+**Frontend:**
+- **People:** the leader's **Departments** (the list; create a department with its head; the temporary password shown once); the head's **People** (staff and jury lists; add someone; issue a new temporary password; remove); **Set your password** at first login; homes that list each person's departments.
+- **Award setup:** staff **My awards**, **Create award**, and the **cycle setup** tabs: basics and dates · categories · round and jury per application · **question builder** · **scoring-sheet builder** (sections and indicators with running totals) · award page address · publish (gate errors listed).
+- **Public:** **Open awards** and the **award page**.
 
-**Tests (R4 and setup):** editing a published version is refused (by the service and the database) · removing a question or changing its type inside a cycle is refused · removing an option is refused · keys are never reused · weights that don't total 100 are refused · the formula matches the worked example (27.2), including Yes/No · the average of three scores matches the hand calculation · each publish-gate failure gives a clear 409 · fee or blind changes after publishing give 409 · staff of another award get 403 · a jury minimum of 0, or a minimum above the maximum, is refused · Open awards hides drafts and closed cycles · HTML in page text is stored as text.
+**Tests:**
+- **People:** only the leader creates a department · a head adds people only to their own department · on the jury list, an applicant account and the department's own head or staff are refused · a temporary password works once, expires after 7 days, and blocks everything but setting a password · issuing a new one ends the old sessions · a password appears in no response except the one that creates it, and in no log or audit event · a jury user gets 403 on a staff endpoint.
+- **Award setup (R4):** editing a published version is refused (by the service and the database) · removing a question or changing its type inside a cycle is refused · removing an option is refused · keys are never reused · weights that don't total 100 are refused.
+- **Scoring (ADR 0019):** the formula matches the worked examples (27.2 for one section; 69.27 for three jury) · Yes/No · all zeros give 0.00 and all tens 100.00 · a half-up boundary · ties share a rank.
+- **Also:** each publish-gate failure gives a clear 409 · fee or blind changes after publishing give 409 · staff of another award get 403 · a jury minimum of 0, or a minimum above the maximum, is refused · Open awards hides drafts and closed cycles.
 
-**Done when:** both demo awards are configured and published **through the UI only**, and appear on Open awards with their branded pages.
+**Done when:** the leader creates a new department with its head on screen; the head adds a staff member and two jury; each logs in with the temporary password, sets their own and sees their department; both demo awards are configured and published **through the UI only** and appear on Open awards with their pages.
 
-**Manual check:** build Award B from scratch in the browser.
+**Manual check:** create "Water Conservation" with a head; add a staff member and a juror; log in as each; then build Award B from scratch in the browser.
 
 ---
 
-### Step 1.3: Applying and proof check · Mon 12 Oct · `phase-1.3-apply`
+### Step 1.3: Applying and proof check · Mon 12 – Tue 13 Oct · `phase-1.3-apply`
 
-**Goal.** The applicant's whole journey up to the deadline, and the staff checks before judging.
+**Goal.** The applicant's whole journey up to the deadline, and the staff checks before judging. Filling the form is one of the lead's focus areas: clear messages per question, reliable autosave, and nothing lost.
 
 **Backend**
 - **Start:** an applicant account (ADR 0016), a company member, a category chosen, the cycle open. **One application per company** (a service check plus the database index); colleagues see it read-only, status only.
 - **Fee:** `payFee` (demo) records a payment with a fake reference; the category's fee if it has one, otherwise the cycle's.
-- **Answers and files:** autosaved drafts stored by question key and checked against the question types; uploads through signed links from the storage interface (type and size checked; 10 MB; G-B03).
+- **Answers and files:** autosaved drafts stored by question key and checked against the question types, with a message per question; uploads through signed links from the storage interface (type and size checked; 10 MB; G-B03).
 - **Proof:** `uploadEmploymentProof` with the document's date (within 3 months; consent recorded). Submit needs the profile's ID and LinkedIn link too, and records which ones it used.
 - **Submit:** all required answers and files; the entry limit checked under a lock on the cycle; the company snapshot; the confirmation email to the outbox. (Save changes after submitting, and withdraw: Phase 2.)
-- **Deadline lock:** every write checks `clock.now()`; drafts become Not submitted; the form version and snapshot are pinned.
+- **Deadline lock:** every write checks `clock.now()`; drafts become Not submitted; the form version and snapshot are pinned; submitted applications are ready to assign at once, blind or not (no masking step, ADR 0018).
 - **Staff:** the applications list (filters: status, category, proof); `checkProof` (Verified, or Rejected with a reason; audited; email to the outbox); `releaseApplication` with a reason (one transaction with its audit event; API only, the screen is Phase 2).
 - The public `entryCount`; the applicant-facing status mapping; `GET /files/:id` with access checks.
 
-**Frontend:** **My applications** (with the colleague's read-only row) · start and demo payment · the **form renderer** (sections, progress, autosave, uploads) · the proof step · review and submit with the counter · the status and result · staff **Applications** and **Proof check**.
+**Frontend:** **My applications** (with the colleague's read-only row) · start and demo payment · the **form renderer** (sections, progress, autosave, uploads, a message next to each question; in a blind award the "don't name your organisation" notice) · the proof step · review and submit with the counter · the status and result · staff **Applications** and **Proof check**.
 
-**Tests:** a second start by the same company is refused, also when two colleagues start at once · releasing frees the place · the colleague's view hides the starter's name · the form stays locked until the fee is paid · a partial draft saves · submit is refused with a missing answer or missing proof · an employment proof older than 3 months is refused · a second application reuses the profile's ID · the 501st submission is refused, also when two race for the last place · any write after the deadline gives 409 · **R4:** an application opens with its pinned version · the snapshot stays after the company's name changes · 404 for another company's application · the status mapping (table-driven).
+**Tests:** a second start by the same company is refused, also when two colleagues start at once · releasing frees the place · the colleague's view hides the starter's name · the form stays locked until the fee is paid · a partial draft saves · each question type refuses a wrong answer with its own message · submit is refused with a missing answer or missing proof · an employment proof older than 3 months is refused · a second application reuses the profile's ID · the 501st submission is refused, also when two race for the last place · any write after the deadline gives 409 · **R4:** an application opens with its pinned version · the snapshot stays after the company's name changes · 404 for another company's application · the status mapping (table-driven).
 
 **Done when:** an applicant submits to both awards in the browser; staff verify the proof; the counter shows the right number.
 
@@ -230,50 +248,51 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 
 ---
 
-### Step 1.4: Judging, approval and results · Tue 13 Oct · `phase-1.4-judging`
+### Step 1.4: Assignment, judging and results · Tue 13 – Wed 14 Oct · `phase-1.4-judging`
 
-**Goal.** After the deadline, applications reach their jury (masked in blind awards); several jury score each one; the head approves; staff publish. Rules R1, R2 and R3.
+**Goal.** After the deadline, staff assign each application by hand to jury from the department's list; several jury score each one alone; the final score is the exact average; the head approves; staff publish. Rules R1, R2 and R3. Judging is the lead's other focus area.
 
 **Backend**
-- **masking** (blind cycles): the workspace; masked answers; masking done (one transaction with the status); reopening while no evaluation is submitted. In a blind award, jury get **no files** until file masking arrives in Phase 2.
-- **jury pool and conflicts:** add existing platform accounts by email (staff or the head; an applicant account is refused, ADR 0016; inviting by email is Phase 2); remove one who has submitted nothing; `recordConflict` (applies to every award; a late conflict revokes an unsubmitted evaluation).
-- **assignment:** `setJuryPerApplication`; bulk assignment of one or more jury to each application, all or nothing, under a lock on the application. Checked: the maximum, conflicts, verified proof, masking done (if blind), and the head of the award's department never judging its written round.
-- **judging:** the jury view (masked only in blind awards; never proof documents, a total or another jury member's scores); `saveScores`; `submitEvaluation` (every indicator plus the note; the first score locks the scoring sheet); `editScoreWithReason` (one transaction with the audit event; refused after approval); progress per application and per jury member; `GET /applications/:id/history`.
-- **approval:** `sendForApproval` (every eligible application has its minimum of submitted evaluations); `approve` (the round locks, and the averages and ranks are saved in `RoundResult`); (`sendBack` and `reopenEvaluation`: Phase 2.)
-- **results:** labels by top N or by hand, only after approval; `publishResults` (applicants see their label; emails to the outbox).
+- **The blind view (R1):** the jury view is built from an allow-list. In a blind award it has no identity section, applicant, team members, proof, payment or file ([ADR 0018](decisions/0018-blind-judging-without-masking.md)); a jury file download in a blind award is refused.
+- **conflicts (R2):** `recordConflict` by staff or the head (a juror and an organisation; applies to every award; a late conflict revokes an unsubmitted evaluation).
+- **assignment:** `setJuryPerApplication`; staff assign one or more listed jury to each application, one at a time or several at once, all or nothing, under a lock on the application. Checked: the deadline has passed, the maximum, conflicts, verified proof, the juror is on the award's department list, and never the same juror twice. `revokeAssignment` before submission, with a reason. **The assignment board:** per application, assigned against the minimum and maximum, submitted, and "needs N more"; per juror, assigned, submitted and pending.
+- **judging:** the jury view (never proof documents, a total or another jury member's scores); `saveScores`; `submitEvaluation` (every indicator plus the note; the first score locks the scoring sheet); `editScoreWithReason` (one transaction with the audit event; refused after approval); progress per application and per jury member; `GET /applications/:id/history`.
+- **approval:** `sendForApproval` (every eligible application has its minimum of submitted evaluations); `approve` (the round locks, and `ΣP`, `n`, the final score and the ranks are saved in `RoundResult`, [ADR 0019](decisions/0019-exact-score-arithmetic.md)); (`sendBack` and `reopenEvaluation`: Phase 2.)
+- **results:** labels by top N, by a minimum final score or by hand, only after approval; ties shown; `publishResults` (applicants see their label; emails to the outbox).
 - **reporting:** the leader dashboard: per department and award, applications by status, judging progress, rounds waiting for approval, upcoming deadlines.
 
-**Frontend:** staff **Masking** (answers), **Jury pool and conflicts**, **Assignment** (minimum and maximum; "needs more jury"), **Judging progress** (each jury member's score, the average, edit with a reason), **Send for approval**, **Results** · jury **My assignments** and **Scoring** · the head's **approval queue** and **round review** (approve) · the **leader dashboard** · a history panel on the application page.
+**Frontend:** staff **Assignment** (jury per application; the board by application and by juror; assign; "needs more jury"; conflicts) · **Judging progress** (each juror's score; the final score, with `ΣP` and `n` shown for checking; edit with a reason) · **Send for approval** · **Results** · jury **My assignments** (per department and award, with counts) and **Scoring** · the head's **approval queue** and **round review** (approve) · the **leader dashboard** · a history panel on the application page.
 
 **Tests:**
-- **R1:** no company name, PAN, GSTIN, email or address anywhere in a jury response · in a blind award jury get no files, and downloading one is refused · an unmasked application is refused · a non-blind award shows the originals · proof documents never appear.
+- **R1:** no organisation name, PAN, GSTIN, email, address or applicant name anywhere in a jury response of a blind award · in a blind award jury get no files, and downloading one is refused · a non-blind award shows the answers and files · proof documents never appear.
 - **R2:** a conflicted pair is refused even through the API · conflicted jury are left out of the list · a late conflict revokes.
 - **R3:** a change without a reason is refused · the audit row has old, new, who, when and why · a failed audit write rolls back the change (fault injected) · changes after approval are refused.
-- **Several jury:** going above the maximum is refused, also when two staff assign at once · a maximum above the pool is refused · sending is refused below the minimum · the average matches the hand calculation · a jury member can't see others' scores.
-- **Also:** the head can't be assigned in their own department's written round · the leader is refused on every judging write · adding an applicant account to a pool is refused · approving locks the scores · no label before approval.
+- **Assignment:** before the deadline, refused · above the maximum, refused, also when two staff assign at once · a juror who isn't on the department's list, refused · the same juror twice, refused · an unverified application, refused · sending for approval below the minimum, refused · the board's counts match the evaluations.
+- **Scoring (ADR 0019):** the final score of three jury matches the hand calculation (69.27) · a revoked evaluation never counts · ties share a rank · a jury member can't see others' scores.
+- **Also:** the head can't be assigned in their own department's written round · the leader is refused on every judging write · approving locks the scores · no label before approval.
 
 **Done when:** both awards run from submitted to **published results** in the browser; all rule tests are green in CI.
 
-**Manual check:** Award A with 2 jury per application: mask the answers, assign, score from two jury accounts, correct a score with a reason, approve, publish, and see the result as the applicant; then open the leader dashboard.
+**Manual check:** Award A with 2 jury per application: assign from the board, score from two jury accounts, correct a score with a reason, check the final score by hand from `ΣP` and `n`, approve, publish, and see the result as the applicant; then open the leader dashboard.
 
 ---
 
-### Step 1.5: Online and polished · Wed 14 Oct · `phase-1.5-deploy`
+### Step 1.5: Online and polished · Wed 14 – Thu 15 Oct (morning) · `phase-1.5-deploy`
 
 **Goal.** The platform runs online with demo data, and the repo holds everything the brief asks for.
 
-- **Two environments** (ADR 0015): staging, built from the `staging` branch, and production, built from `main`, each with its own Supabase project, Render service and Vercel environment variables. Check the free-tier limits first (G-K18). The demo data and demo logins go on production.
+- **One online environment, production**, built from `main` (decided 11 Oct; ADR 0015's update): its Supabase project, Render service and Vercel project. `staging` stays tested by CI and on a laptop; the staging site comes in Phase 2. Check the free-tier limits first (G-K18).
 - **Supabase:** the database (a pooled URL for the app, a direct one for migrations), the automatic table API locked down (G-B04: a `curl` with the public key must return nothing), a private bucket for applicant files and a public one for page images.
 - **Render:** the API service (build, migrate, start, health check, environment variables). **Vercel:** the frontend with `BACKEND_URL`. The login cookie checked in Chrome and Edge, and in Safari if possible.
-- **Demo data online:** both awards, about 20 companies, applications in mixed states (one award already judged), and a demo login for each role. Passwords stay in environment variables and go to the lead privately.
-- **Documents:** a README a stranger can run from a fresh clone in under 10 minutes, with the live links · `docs/user-journeys.md` (one page, every role) · `docs/testing.md` (what the tests check and don't) · `docs/ai-notes.md` · `docs/DEPLOYMENT.md` (the runbook) · `docs/walkthrough.md` (the 20-minute demo script) · the architecture drawing ([TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md)).
-- **Online smoke test**, on staging first and then on production: each role logs in; a file uploads and downloads; submit, assign, score, approve and publish all work; two accounts never see each other's data (G-B16).
+- **Demo data online:** both awards; the two departments with their heads, staff and jury; about 20 companies; applications in mixed states (one award already judged); and a demo login for each role. Passwords stay in environment variables and go to the lead privately.
+- **Documents:** a README a stranger can run from a fresh clone in under 10 minutes, with the live link · `docs/user-journeys.md` (one page, every role) · `docs/testing.md` (what the tests check and don't) · `docs/ai-notes.md` · `docs/DEPLOYMENT.md` (the runbook) · `docs/walkthrough.md` (the 20-minute demo script) · the architecture drawing ([TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md)).
+- **Online smoke test:** each role logs in; a new department with its head, staff and a juror is created; a file uploads and downloads; submit, assign, score, approve and publish all work; two accounts never see each other's data (G-B16).
 
-**Done when:** every box under "Phase 1 is done when" in [PLAN.md](PLAN.md#phase-1-is-done-when) is ticked. Then the walkthrough on Thu 15 Oct, and the tag `phase-1-done`.
+**Done when:** every box under "Phase 1 is done when" in [PLAN.md](PLAN.md#phase-1-is-done-when) is ticked. Then the walkthrough on Thursday afternoon, and the tag `phase-1-done`.
 
 ---
 
-## 5. Phase 2: complete product (about 24 working days)
+## 5. Phase 2: complete product (about 23 working days)
 
 Started after the Phase 1 review. Each package becomes one or more steps run by the same routine (§1). The days are estimates for one developer.
 
@@ -281,13 +300,15 @@ Started after the Phase 1 review. Each package becomes one or more steps run by 
 |---|---|---|---|
 | 2.1 | On-site rounds | 4 | `onsite` module: entries of the round, slots (move until scored), panels of 2–5 with conflict checks, staff backup entry (`enteredById`), absent members, close the round, Gold/Silver/Bronze for ranks 1–3 of the round; a phone scoring screen; the shop-floor (on-site-only) award as a third type |
 | 2.2 | Full site builder | 5 | Pages and the 13 section types, layouts, a phone and desktop preview, `SitePageVersion` publish and restore, galleries, past winners and the jury section; the brand-kit screen and image uploads (public bucket) |
-| 2.3 | Leader's admin screens | 3 | Departments and external organisers, appointing heads, staff on awards, master-data screens, company corrections with a reason, deactivating and reactivating accounts, invitations by email |
+| 2.3 | Leader's admin screens | 2 | Invitations by email with a set-password link (instead of temporary passwords), replacing a department head, assigning more staff to an award, removing people who have work, master-data screens, company corrections with a reason, deactivating and reactivating accounts. (Creating departments, heads, staff and jury moved to Phase 1, ADR 0017) |
 | 2.4 | Department dashboard | 1 | `departmentDashboard` and the head's screens for external organisers |
-| 2.5 | Applying and judging extras | 4 | Send back and reopen; file masking (masked copy or "safe as is"); version diff and New/Updated markers; Save changes after submit and withdraw; the release screen; the full scoring-sheet builder; date, multi-choice and team-member questions; disqualify and reinstate; deadline extension; "update requested"; a spread flag; the applicant timeline |
+| 2.5 | Applying and judging extras | 3.5 | Send back and reopen; version diff and New/Updated markers; Save changes after submit and withdraw; the release screen; the full scoring-sheet builder; date, multi-choice and team-member questions; disqualify and reinstate; deadline extension; "update requested"; a spread flag; the applicant timeline |
 | 2.6 | Emails | 1 | All 12 templates; an HTTP email provider (decision A4) for production |
 | 2.7 | Privacy housekeeping | 1 | A daily clean-up of proof documents after 12 months (G-J19, G-K05) |
 | 2.8 | End-to-end and edge-case tests | 3 | Playwright journeys (setup, apply, judge, approve, on-site) and the edge-case service tests skipped in Phase 1 |
-| 2.9 | Review and buffer | 2 | The client's feedback on Phase 1 |
+| 2.9 | Review, buffer and the staging site | 2.5 | The client's feedback on Phase 1; the staging site online (ADR 0015) |
+
+Masking (of answers and of files) is no longer planned: dropped on 11 Oct at the lead's request ([ADR 0018](decisions/0018-blind-judging-without-masking.md)).
 
 ## 6. Phase 3: launch-ready (about 15 working days + client testing)
 
@@ -319,7 +340,7 @@ The full-product breakdown written on 4–8 Oct maps onto the new plan like this
 | 6 Setup screens, brand kit, site builder | Step 1.2 + 2.2 + 2.3 |
 | 7 Applications, proof, entry limit, deadline lock | Step 1.3 (deadline extension and update alerts: 2.5) |
 | 8 Applicant screens | Step 1.3 |
-| 9 Proof check, masking, jury, judging, audit | Steps 1.3 + 1.4 (disqualify and reinstate: 2.5) |
+| 9 Proof check, masking, jury, judging, audit | Steps 1.3 + 1.4 (masking dropped, ADR 0018; disqualify and reinstate: 2.5) |
 | 10 Staff operations and jury screens | Step 1.4 |
 | 11 Approval, results, emails, dashboards, seed | Step 1.4 + 1.5 (all emails: 2.6; department dashboard: 2.4) |
 | 12 On-site rounds (backend) | 2.1 |
@@ -333,15 +354,14 @@ Phase numbers in [GAPS.md](GAPS.md) (the "Phase" column) still use the old numbe
 
 ## 8. If a Phase 1 day runs late: cut order
 
-Cut from the top first:
+The scope was trimmed on 10 Oct and re-planned on 11 Oct ([PLAN.md](PLAN.md#moved-to-phase-2-to-fit-the-dates)). With no buffer left, cut from the top first:
 
-The scope was already trimmed on 10 Oct ([PLAN.md](PLAN.md#moved-to-phase-2-to-fit-the-dates)). If a day still runs late:
+1. Removing a person from a department (package 2.3 instead)
+2. Open awards as branded cards (a plain list stays; each award page keeps its colours and logo)
+3. Filters on the staff applications list
+4. The leader dashboard's panels (one table of counts per department and award stays)
 
-1. Joining an existing company on screen (create stays; join works through the API)
-2. The award page's banner and contacts (logo, colours, deadline and counter stay)
-3. Scoring-sheet sections (one section with weighted indicators stays)
-
-**Never cut:** the four rules and their tests, both awards configured on screen with no code, several jury per application with the average, masking of answers, the proof check, one application per company, the entry limit, the leader dashboard, normalised company data, and the online deployment.
+**Never cut:** the four rules and their tests; both awards configured on screen with no code; people created on screen (department → head → staff and jury); the question builder with versions and the form with autosave; manual assignment with the minimum and the counts; several jury per application with the exact average; the proof check; one application per company; the entry limit; the leader dashboard (at least its table of counts); normalised company data; and the online deployment.
 
 ---
 
@@ -451,3 +471,13 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 **Builds.** ADR 0015 (0004 and the ADR index marked); the workflow rules in CLAUDE.md, this plan (§1 routine and checklist, §2, Steps 1.1, 1.3 and 1.5, the change log), PLAN, the Phase 1 roadmap, TECHNICAL-DESIGN, creating.md, the app READMEs and the PR template; GAPS (B03, B16, D05, G03, K18, K19); the 0.7 change list; PROGRESS and Daily.
 
 **Done when.** Merged into `staging` and then into `main`; `staging` is protected on GitHub like `main`. Step 1.1 is then cut from `staging`.
+
+### Phase 0.11: Re-plan around the lead's focus (Docs)
+
+**Goal.** Fit three new directions into Phase 1 without moving the dates (11 Oct): the lead wants the focus on the form builder, filling the form and judging, and no masking; the owner wants departments, heads, staff and jury created on screen, with staff assigning applications to jury by hand and an exact average.
+
+**Decided first with the owner:** blind awards hide identity, names and files automatically, and masking leaves the plan (ADR 0018); new accounts get a temporary password that must be changed at first login (ADR 0017); jury are listed per department, with no cycle pool, and staff assign by hand with counts per application and per juror (ADR 0017); the room comes from a simpler award page, one online site and Thursday morning; the score arithmetic is exact (ADR 0019).
+
+**Builds.** ADRs 0017–0019 (0013, 0015 and 0016 marked); this plan (change log, §1, §2, §3, Steps 1.2–1.5, Phase 2, the cut order); PLAN; the Phase 1 roadmap; the spec (revision log and every section the decisions touch); TECHNICAL-DESIGN; GAPS; CLAUDE.md; creating.md; the UI overview; the app READMEs; PROGRESS and Daily.
+
+**Done when.** The owner has reviewed it; merged into `staging` after Step 1.1, then into `main`. Step 1.2 is then cut from `staging`.

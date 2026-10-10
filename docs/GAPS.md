@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-10 (Day 8, Step 1.1: foundation and people). Update this file at the end of every step.
+> Last updated: 2026-10-11 (Day 9, Phase 0.11: the re-plan). Update this file at the end of every step.
 >
 > **Phase numbers** in the "Phase" columns use the old 15-phase list. [PHASES.md §7](PHASES.md#7-where-the-old-15-phase-list-went) maps them to the new steps (1.1–1.5) and packages (2.x, 3.x).
 
@@ -18,15 +18,15 @@
 |---|---|---|---|
 | A | Decisions we need from you before or during the build | 14 | 1 |
 | B | Gaps caused by splitting frontend and backend across Vercel, Render and Supabase | 16 | 8 |
-| C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 6 |
-| D | Contradictions and holes found in the spec while planning | 11 | 5 |
+| C | Architecture gaps from the architecture PDF (pages 10–11) | 15 | 5 |
+| D | Contradictions and holes found in the spec while planning | 11 | 4 |
 | E | Client questions from spec §18 | 16 | 9 |
 | F | Brief deliverables not yet in the repo | 9 | 6 |
 | G | Repository and process gaps | 7 | 3 |
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 3 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 8 |
 | J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
-| K | Lead call (Day 7) and Phase 1 planning (Day 8): proof once, My profile, several jury, re-plan, staging, accounts | 21 | 8 |
+| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores | 27 | 9 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -47,7 +47,7 @@ Until you answer, the **default** is what gets built. Each one points to the det
 | A7 | Snapshot the organisation's identity onto the application at submit (frozen at the deadline)? | Yes. Now part of data consistency (ADR 0006) | Phase 1 (schema) | Decided |
 | A8 | Editing an already-submitted application: an explicit "Save changes" that runs full validation (no autosave)? | Yes (G-D02) | Phase 7 | Decided (6 Oct): yes |
 | A9 | Indicator scores: whole numbers 0–10, or decimals like 7.5? | Whole numbers (G-D09) | Phase 3 | Decided (6 Oct): whole numbers |
-| A10 | Module folders: 18 (adding `departments`, `jury-pool`, `master-data`, `onsite` and `sites`), or fold some together? | 18 folders (G-C01) | Phase 1 | Decided: 18 folders (adds `sites`, 7 Oct) |
+| A10 | Module folders: 18 (adding `departments`, `jury-pool`, `master-data`, `onsite` and `sites`), or fold some together? | 18 folders (G-C01) | Phase 1 | Decided: 18 folders (adds `sites`, 7 Oct); 16 since 11 Oct (no `masking`, ADR 0018; the jury list in `departments` and conflicts in `judging`, ADR 0017) |
 | A11 | Do all PAs get the **same** powers, or does the leader switch powers on and off for each PA? | The same powers for every PA (ADR 0005, G-H02) | Phase 2 | Removed (9 Oct: no PA role, ADR 0014) |
 | A12 | Can a PA **create awards** in any department (staff then configure them), or only staff? Should PAs get other powers too (reminders, CSV exports, a duplicate-organisation clean-up list)? | PAs create awards: yes. The other three are "could have" (spec §14) | Phase 3 | Removed (9 Oct: no PA role, ADR 0014) |
 | A13 | What replaces the signed letter as proof that an applicant may act for the organisation? | Nothing for now (leader's decision). **Recommended:** a confirmation link sent to the organisation's official email (G-H01) | Phase 2 | Decided (6 Oct): nothing for now |
@@ -98,7 +98,7 @@ The numbers match the PDF's cards (the PDF was removed on 7 Oct 2026 as out of d
 | G-C10 | "Append-only audit" is only a convention. | A DB trigger that rejects UPDATE and DELETE on AuditEvent (and on FormVersion). Also audit role assignments, staff changes, the leader's actions (with the actor's role), master data changes and organisation edits. | 1 | Fixed (Step 1.1) |
 | G-C11 | Unique keys with NULL scope columns let duplicates in, and "exactly one leader" isn't enforced. | `NULLS NOT DISTINCT` (PostgreSQL 15+, which Supabase has) or partial unique indexes, plus a partial unique index on LEADER. | 1 | Fixed (Step 1.1) |
 | G-C12 | No login throttling and no monitoring. | Rate limits per email and per IP on login and reset; structured pino logs; an error tracker is optional. | 2, 13 | Default adopted |
-| G-C13 | "Safe as is" files need a representation. | A MASKED_EVIDENCE row pointing at the same storage key, so the jury file check stays one rule. | 9 | Default adopted |
+| G-C13 | "Safe as is" files need a representation. | A MASKED_EVIDENCE row pointing at the same storage key, so the jury file check stays one rule. | 9 | Removed (11 Oct: no masking, ADR 0018) |
 | G-C14 | Should totals be computed or stored? | Computed with `computeScore` on read; totals and ranks snapshotted on approval so results never shift. | 9, 11 | Default adopted |
 | G-C15 | The live round would need realtime updates. | Not needed: on-site panel members score independently and there is no live scoreboard (ADR 0008). Staff progress pages refresh. | — | Removed (6 Oct) |
 
@@ -118,7 +118,7 @@ The numbers match the PDF's cards (the PDF was removed on 7 Oct 2026 as out of d
 | G-D08 | §5.11 | "Every non-disqualified application has a submitted evaluation" doesn't define the set. What about Withdrawn, Not submitted or Released? | Eligible = submitted at the lock, and not withdrawn, released or disqualified. (Duplicates can no longer exist: a second application is blocked at the start, ADR 0011.) | 11 | Default adopted |
 | G-D09 | §5.5 | "Score 0 to 10": whole numbers or decimals? | Whole numbers (A9). | 3 | Decided (6 Oct): whole numbers |
 | G-D10 | §5.10 | "Reinstate returns it to the state it was in", even if the round has been approved since? | Reinstating is refused once the round is approved. | 9 | Default adopted |
-| G-D11 | §5.7 | Masking can be reopened while the jury holds draft scores. What does the jury see? | Reopening hides the application from the jury until masking is marked done again. Draft scores are kept. | 9 | Default adopted (9 Oct: with several jury, masking reopens only while none of the application's evaluations is submitted) |
+| G-D11 | §5.7 | Masking can be reopened while the jury holds draft scores. What does the jury see? | Reopening hides the application from the jury until masking is marked done again. Draft scores are kept. | 9 | Removed (11 Oct: no masking, ADR 0018) |
 
 ---
 
@@ -245,25 +245,31 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 |---|---|---|---|---|
 | G-K01 | Uploading the ID, the LinkedIn link and the employment proof with **every** application repeats work and stores many copies of an ID | The ID and LinkedIn once, on the profile; a proof of employment **dated within 3 months** with each application; the staff of **each award** check their own application | 2, 7, 9 | Answered (9 Oct) |
 | G-K02 | Users can't change their password or their details | **My profile** for every role: name, phone, change password (needs the current one; ends other sessions; email; audited without the password) | 2, 5 | Answered (9 Oct) |
-| G-K03 | One jury member per application lets one person's bias decide the result | Staff set the **jury per application** (minimum and maximum, at least 1, at most the pool) for each document round; every application needs the minimum; the final score is the **average** | 3, 9, 11 | Answered (9 Oct) |
+| G-K03 | One jury member per application lets one person's bias decide the result | Staff set the **jury per application** (minimum and maximum, at least 1, at most the department's jury list since 11 Oct) for each document round; every application needs the minimum; the final score is the **average** | 3, 9, 11 | Answered (9 Oct) |
 | G-K04 | If an applicant replaces their profile ID after staff verified it, what did staff check? | The application records the ID and LinkedIn it used; they follow the profile until verified or locked, then stay fixed (spec A30) | 7, 9 | Default adopted |
 | G-K05 | A profile's ID belongs to no cycle, so "12 months after results" is unclear | 12 months after the results of the last cycle that used it; one replaced before any use is deleted at once | 7 | Default adopted |
 | G-K06 | Two staff assigning at the same moment could go above the maximum | Count and assign under a lock on the application; a partial unique index stops the same jury member twice | 9 | Default adopted |
-| G-K07 | A high minimum multiplies jury work; a small pool may not cover it | The maximum is capped by the pool; staff see "needs more jury"; the round can't be sent for approval until every application has its minimum | 9, 10 | Default adopted |
+| G-K07 | A high minimum multiplies jury work; a small jury list may not cover it | The maximum is capped by the department's jury list; staff see "needs more jury"; the round can't be sent for approval until every application has its minimum | 9, 10 | Default adopted |
 | G-K08 | An average hides a wide disagreement between jury members | Staff and the department head see every score next to the average; a "large spread" flag is Could have | 10, 13 | Open |
 | G-K09 | A user can't change their login email | Not built; designed for (spec A27) | Later | Accepted risk |
 | G-K10 | The "within 3 months" check uses the date the applicant types | Staff confirm the date on the document when they check the proof | 9 | Accepted risk |
 | G-K11 | The parked Phase 1 code predates the 7–9 Oct decisions (sites, proof, release, profile proof, jury per application) | Every change listed in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md); made in Step 1.1 (Sat 10 Oct) | 1.1 | Fixed (Step 1.1: one migration, tests rewritten from the rules) |
 | G-K12 | **Re-plan in three phases** (lead, 9 Oct): Phase 1 a fully working demo; what moves to Phases 2 and 3, with time limits; the data model and technical design agreed before coding | Done: [PLAN.md](PLAN.md). Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough Thu 15 (two written-review awards; a simple branded page); Phase 2 ~20 working days; Phase 3 ~15 + client testing. Design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) | Plan | Answered (9 Oct) |
-| G-K13 | Phase 1's full list was about 100 hours of work against about 64 available | **Trimmed on 10 Oct** to about 71 hours (the moved items are in PLAN.md); 12–13 hour days with Thursday morning as a buffer; the cut order and never-cut list (PHASES §8); Daily shows any slip at once | 1.1–1.5 | Open |
-| G-K14 | Phase 1 seeds departments, heads, staff and jury; their admin screens come in Phase 2 | Accepted for Phase 1: the brief tests award setup by staff, which is on screen. Admin screens in package 2.3 | 1.1 | Accepted risk |
+| G-K13 | Phase 1's full list was about 100 hours of work against about 64 available | **Trimmed on 10 Oct** to about 71 hours (the moved items are in PLAN.md). **Re-planned on 11 Oct:** people on screen (+8 h) paid for by dropping masking (−3 h), a simpler award page (−2 h) and one online site (−3 h); still about 71 hours in 12–13 hour days, with Thursday morning now build time, so **no buffer is left**. The cut order and never-cut list (PHASES §8); Daily shows any slip at once | 1.1–1.5 | Open |
+| G-K14 | Phase 1 seeds departments, heads, staff and jury; their admin screens come in Phase 2 | Changed 11 Oct: the leader creates departments and heads, and heads create staff and jury, on screen in Step 1.2 (ADR 0017); the rest of the admin screens stay in 2.3 | 1.2 | Removed (11 Oct, ADR 0017) |
 | G-K15 | Render's free plan sleeps after ~15 minutes, so the first demo request is slow (G-B07) | Open the site a few minutes before the walkthrough; consider a small paid plan for demo week | 1.5 | Open |
 | G-K16 | No PA role: the leader's team shares the leader's account, so the history can't tell which person acted, and several people know one password | Accepted by the owner (ADR 0014). Change the password when a team member leaves (it signs out every device); named accounts if traceability is ever needed | 1.1 | Accepted risk |
-| G-K17 | File masking moves to Phase 2, so in Phase 1 a blind award can't show uploaded files to jury | Jury in a blind award get **no files** until file masking exists (R1 stays safe); the demo's blind award has text answers only | 1.4, 2.5 | Decided (10 Oct) |
-| G-K18 | **Two online environments** (ADR 0015): staging and production each need a Supabase project, a Render service and Vercel environment variables. More setup on 14 Oct; the free tiers may not allow two of each (number of free projects, instance hours, sleeping) | Check the free-tier limits before 14 Oct. If two don't fit, keep `staging` tested by CI and locally, and put only production online (ADR 0015, "what would change our mind") | 1.5 | Open |
-| G-K19 | The JURY role always belongs to a cycle, but Phase 1 seeds jury accounts before any cycle exists, and inviting jury by email moved to Phase 2. A seeded juror has no role until added to a pool | Owner, 10 Oct: jury accounts come only from the seed (passwords from the environment), as **platform accounts** (ADR 0016); staff or the department head add them to a cycle's pool by email (Step 1.4), and an applicant account is refused; until then a juror sees "Nothing is assigned to you yet"; email invites in package 2.3 | 1.1, 1.4 | Decided (10 Oct; ADR 0016) |
+| G-K17 | File masking moves to Phase 2, so in Phase 1 a blind award can't show uploaded files to jury | Jury in a blind award get **no files** until file masking exists (R1 stays safe); the demo's blind award has text answers only | 1.4, 2.5 | Superseded (11 Oct): masking is dropped, and a blind award never shows files to jury (ADR 0018, G-K22) |
+| G-K18 | **Two online environments** (ADR 0015): staging and production each need a Supabase project, a Render service and Vercel environment variables. More setup on 14 Oct; the free tiers may not allow two of each (number of free projects, instance hours, sleeping) | **Decided 11 Oct:** only production goes online in Phase 1; `staging` is tested by CI and locally; the staging site comes in package 2.9 (ADR 0015's update). Still check the free-tier limits for one environment | 1.5 | Decided (11 Oct) |
+| G-K19 | The JURY role always belongs to a cycle, but Phase 1 seeds jury accounts before any cycle exists, and inviting jury by email moved to Phase 2. A seeded juror has no role until added to a pool | Owner, 10 Oct: jury accounts from the seed, as **platform accounts** (ADR 0016). **Changed 11 Oct (ADR 0017):** the jury role belongs to a department's jury list, kept by its head, who creates jury on screen; there is no cycle pool; staff assign from the list by hand; the seed puts its jury on the demo departments' lists; email invites in package 2.3 | 1.1, 1.2 | Decided (11 Oct; ADR 0017) |
 | G-K20 | The frontend stays on **ESLint 9.39.5**, which ESLint no longer supports: ESLint 10 crashes inside the `eslint-plugin-react` that `eslint-config-next` 16.3.6 bundles (`getFilename is not a function`). No security fixes for the linter itself; it never runs in production | Move to ESLint 10 when `eslint-config-next` supports it; the backend already uses ESLint 10 | 1.1 | Accepted risk |
 | G-K21 | Someone who judges or works on awards and also applies needs **two accounts with two emails** (ADR 0016), and the platform doesn't link them, so a juror's second account applying for their company isn't flagged by itself | Accepted by the owner (10 Oct): staff record the juror–organisation conflict as for anyone (spec §5.8, rule 2); one login that switches between linked accounts if two emails become a burden | 1.1, 1.4 | Accepted risk |
+| G-K22 | **No masking** (ADR 0018): a name an applicant types inside an answer of a blind award reaches the jury, and a blind award can't show evidence files to jury | Accepted by the lead and the owner (11 Oct). The form warns applicants; staff see that file questions are staff-only in a blind award; if a blind award needs judged evidence, a light "safe to show" mark per file, or the award runs non-blind | 1.3, 1.4 | Accepted risk |
+| G-K23 | A **temporary password** is passed on by hand (phone, chat), so it can leak on the way | Shown once, stored only as a hash, works once, valid 7 days, and must be changed at first login; issuing a new one ends the old sessions and is audited; invites by email replace it in 2.3 (ADR 0017) | 1.2 | Accepted risk |
+| G-K24 | A head can issue a new temporary password for anyone on their lists, including someone who also works in another department | Audited with the head and the department; the person's sessions end, so they notice. Per-department accounts are not worth it for Phase 1 | 1.2 | Accepted risk |
+| G-K25 | Score arithmetic and ties weren't specified (floating point, rounding each score, equal scores) | Whole-number points, one half-up rounding to 2 decimals at the end, equal final scores share a rank; weights in whole percentages (ADR 0019) | 1.2, 1.4 | Default adopted |
+| G-K26 | Can the department's own head or staff be on its jury list? | No: the head approves the department's written rounds, and staff assign applications, so they could assign themselves (spec A36) | 1.2 | Default adopted |
+| G-K27 | Removing a person who already has work (staff with an award, a juror with assignments) | Not in Phase 1: removal only while they have no work there; the rest with deactivation in 2.3 | 1.2, 2.3 | Accepted risk |
 
 ---
 
@@ -285,6 +291,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-11 | Re-plan (Phase 0.11; ADRs 0017–0019): K13 updated (still ~71 h, no buffer); K14 removed (people on screen in Phase 1); K17 superseded and C13, D11 removed (no masking); K18 decided (one online site in Phase 1); K19 changed (jury listed per department, no pool); K03 and K07 reworded; A10 updated (16 module folders); K22–K27 added (no-masking limits, temporary passwords, a head reissuing passwords, score arithmetic, the department's own people off its jury list, removing people with work). |
 | 2026-10-10 | Applicant and platform accounts (owner, ADR 0016): K19 updated (jury are platform accounts; an applicant account is refused from a pool); K21 added (two emails for someone who does both); the K18–K20 rows fixed to the table's five columns and put in order. |
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
 | 2026-10-10 | Step 1.1 (foundation and people): fixed B11, B15, C03, C06, C10, C11, D06, G02, H05, H06, H08, H09, I13 and K11 (built and tested); B14 now ongoing (versions pinned in both apps, current docs read); K20 added (the frontend stays on ESLint 9). |

@@ -6,14 +6,14 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-10 · Day 8 |
-| **Current phase** | **Step 1.1: Foundation and people** (🧪 built; the pull request into `staging` is next) |
-| **Current branch** | `phase-1.1-foundation`, cut from `staging` (`main` is production) |
+| **Last updated** | 2026-10-11 · Day 9 |
+| **Current phase** | **Step 1.1: Foundation and people** (🧪 built; the pull request into `staging` is next) and **Phase 0.11: the re-plan** (🧪 written; the owner's review) |
+| **Current branch** | `phase-0.11-replan` (docs), cut from `phase-1.1-foundation`; Step 1.1's branch was cut from `staging` (`main` is production) |
 | **What runs today** | On the step branch, locally: the API (logins, applicant and platform accounts, scoped roles, My profile, organisations, master lists, the seed; 136 tests) and the web app (login, register, My profile, My organisation, a home per role), checked by hand in a browser. `staging` and `main` hold the docs until this step merges |
-| **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15 (afternoon)**, about 71 hours of work; then Phase 2 (~24 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner opens the pull request `phase-1.1-foundation` → `staging`, checks CI and merges it; runs the manual check on `staging`; then `staging` → `main` and the tag `phase-1.1-done`. 2) **Step 1.2** Award setup and branded pages (Sun 11 Oct), on `phase-1.2-setup` cut from `staging` |
+| **The plan** | [PLAN.md](PLAN.md), **re-planned 11 Oct**: Step 1.2 departments, people and award setup (Sun 11 – Mon 12), 1.3 applying (Mon 12 – Tue 13), 1.4 assignment and judging (Tue 13 – Wed 14), 1.5 production online (Wed 14 – Thu 15 morning), **walkthrough Thu 15 afternoon**; about 71 hours, no buffer left. Then Phase 2 (~23 working days) and Phase 3 (~15 + client testing) |
+| **Next action** | 1) The owner reviews the re-plan (Phase 0.11). 2) Pull request `phase-1.1-foundation` → `staging`, CI, merge; the manual check on `staging`; `staging` → `main`; tag `phase-1.1-done`. 3) Pull request `phase-0.11-replan` → `staging` (after 1.1, so it shows only the docs), then → `main`. 4) **Step 1.2** on `phase-1.2-setup` cut from `staging` |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
-| **Risk** | Four build days are tight even after the trim (about 71 hours against about 64; G-K13): Thursday morning is the buffer; daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 starts on Saturday evening, so it runs into Sunday. Two online environments add setup on 14 Oct (G-K18) |
+| **Risk** | About 71 hours with Thursday morning now build time: **no buffer** (G-K13). Daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 ran into Sunday. Only production goes online, so there is one set-up to get right (G-K18) |
 
 ## Phase status board
 
@@ -32,13 +32,14 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
 | 0.9 | Docs refined | `phase-0.9-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#9 | 2026-10-10 · `phase-0.9-done` (tag to push) | n/a |
 | 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | ✅ Merged | sumitdwivedi01/EigthyAwards#10 → `staging`, sumitdwivedi01/EigthyAwards#11 → `main` | 2026-10-10 · `phase-0.10-done` | n/a |
+| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | 🧪 Written; owner's review | — | — | n/a |
 | **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 Built, pull request next | — | — | 136 backend (were 62); frontend: lint, type check, build |
-| **1.2** | Award setup and branded pages · **Sun 11 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
-| **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
-| **1.4** | Judging, approval and results · **Tue 13 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
-| **1.5** | Online and polished · **Wed 14 Oct** | `phase-1.5-deploy` | ⬜ | — | — | — |
-| — | Buffer, then walkthrough with the lead · **Thu 15 Oct** | — | ⬜ | — | `phase-1-done` | — |
-| 2 | Complete product (~24 working days) | per package | ⬜ | — | — | — |
+| **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
+| **1.3** | Applying and proof check · **Mon 12 – Tue 13 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
+| **1.4** | Assignment, judging and results · **Tue 13 – Wed 14 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
+| **1.5** | Online (production) and documents · **Wed 14 – Thu 15 Oct** (morning) | `phase-1.5-deploy` | ⬜ | — | — | — |
+| — | Walkthrough with the lead · **Thu 15 Oct** (afternoon) | — | ⬜ | — | `phase-1-done` | — |
+| 2 | Complete product (~23 working days) | per package | ⬜ | — | — | — |
 | 3 | Launch-ready (~15 working days + client testing) | per package | ⬜ | — | — | — |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · ✅ merged · ⛔ blocked
@@ -51,13 +52,14 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 |---|---|---|
 | Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | 🧪 Built and tested; in review |
 | Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | 🧪 Built and tested; in review |
-| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet, jury per application | 1.2 | ⬜ |
-| Branded award page and Open awards, with the live "499 / 500" counter | 1.2 | ⬜ |
+| The leader creates departments and their heads; heads create staff and jury (temporary passwords, changed at first login) | 1.2 | ⬜ |
+| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet with exact arithmetic, jury per application | 1.2 | ⬜ |
+| A simple award page (department logo and colours) and Open awards, with the live "499 / 500" counter | 1.2 | ⬜ |
 | Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ⬜ |
 | Staff: proof check, release | 1.3 | ⬜ |
-| Masking of answers (R1; files in Phase 2), conflicts (R2), several jury with the average, score changes with reasons (R3) | 1.4 | ⬜ |
+| Blind view without masking (R1), conflicts (R2), assignment by hand with the counts, several jury with the exact average, score changes with reasons (R3) | 1.4 | ⬜ |
 | Approval by the head (send back: Phase 2), results published, the leader dashboard screen | 1.4 | ⬜ |
-| Online on Supabase, Render and Vercel, with demo data and logins | 1.5 | ⬜ |
+| Production online on Supabase, Render and Vercel, with demo data and logins | 1.5 | ⬜ |
 | The brief's documents: README, user journeys, architecture, testing, AI notes, decisions | 1.5 | ⬜ |
 
 ## The four rules: where they stand
@@ -79,9 +81,11 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 | One application per organisation, blocked at the start; staff release | 1.3 | — |
 | Proof: ID and LinkedIn once on the profile, recent employment proof, each award checks | 1.1, 1.3 | Automatic deletion after 12 months (2.7) |
 | Entry limit with the public counter | 1.2, 1.3 | — |
-| Several jury per application, average | 1.2, 1.4 | Spread flag (2.5) |
-| Branded award sites | One branded page per award (1.2) | Full section builder, versions (2.2); own domains (3.6) |
-| External organisers as departments | Seeded ("FPO Awards team") | Admin screens (2.3), department dashboard (2.4) |
+| Several jury per application, exact average (ADR 0019) | 1.2, 1.4 | Spread flag (2.5) |
+| People on screen: departments, heads, staff and jury lists (ADR 0017) | 1.2 | Invites by email, replace a head, deactivation (2.3) |
+| Blind judging without masking (ADR 0018) | 1.4 | — (masking dropped) |
+| Branded award sites | A simple page per award (1.2) | Banner, about, contacts, full section builder, versions (2.2); own domains (3.6) |
+| External organisers as departments | Created on screen by the leader (1.2) | Department dashboard (2.4) |
 | On-site rounds and medals | Tables only | 2.1 |
 
 ---
@@ -89,6 +93,16 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 ## What has been achieved (newest first)
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
+
+### Phase 0.11: Re-plan around the lead's focus · 🧪 · 2026-10-11 (Day 9)
+
+The lead wants the focus on the form builder, filling the form and judging, and doesn't want masking. The owner wants departments, heads, staff and jury created on screen in Phase 1, staff assigning applications to jury by hand with the counts in view, and an exact average. Four points were agreed first (recommended options): blind awards hide identity, names and files automatically and masking leaves the plan; new accounts get a temporary password changed at first login; jury are listed per department with no cycle pool, and staff assign by hand; room comes from a simpler award page, one online site and Thursday morning.
+
+- [x] [ADR 0017](decisions/0017-people-created-on-screen.md) (people on screen, temporary passwords, the department's jury list), [ADR 0018](decisions/0018-blind-judging-without-masking.md) (blind judging without masking), [ADR 0019](decisions/0019-exact-score-arithmetic.md) (exact score arithmetic, with a worked example); ADRs 0013, 0015 and 0016 marked; the ADR index.
+- [x] PLAN and the Phase 1 roadmap (who does what, the two awards, rule 1, day by day, moved and dropped, cut order, walkthrough, risks); PHASES (change log, routine, timeline, Steps 1.2–1.5 rewritten, Phase 2 packages, cut order, history).
+- [x] The spec: revision log and every section the decisions touch (§1–4, §5.1, §5.3–5.9, §5.12, §5.14, §5.15, §5.17, §6–8, §10–12, §14, §15, §18); TECHNICAL-DESIGN (modules, data model, flows, API, environments, testing).
+- [x] GAPS (K13, K14, K17, K18, K19, C13, D11, K03, K07, A10; K22–K27 added); CLAUDE.md; creating.md; the UI overview; the overview; both READMEs; Daily.
+- [ ] The owner's review; merged into `staging` after Step 1.1, then into `main`.
 
 
 ### Step 1.1: Foundation and people · 🧪 · 2026-10-10 (Day 8, evening and night)
@@ -270,7 +284,7 @@ Filled in as things get built. Never put secrets here; only names and where they
 | Frontend local URL | `http://localhost:3000` (its `/api/*` goes to the backend) |
 | PostgreSQL (Docker) | `localhost:5433`, databases `awards`, `awards_test` and `awards_shadow` (built on the parked branch) |
 | Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` |
-| Online | Two environments from Step 1.5 (14 Oct): staging (the `staging` branch) and production (`main`), each with Vercel, Render and its own Supabase project. Not created yet |
+| Online | Production only in Phase 1, from Step 1.5 (14–15 Oct): `main` on Vercel, Render and its own Supabase project; `staging` is tested by CI and locally, and the staging site comes in Phase 2 (decided 11 Oct). Not created yet |
 | Pinned versions | Backend: Express 5.2.1, TypeScript 6.0.3, Prisma 7.10.0, Zod 4.6.5, Vitest 5.0.3, bcryptjs 3.0.3, jose 6.2.12, express-rate-limit 8.7.0. Frontend: Next.js 16.3.6, React 19.2.8, Tailwind 4.3.3, TanStack Query 5.104.0, React Hook Form 7.89.0, radix-ui 1.6.7, TypeScript 6.0.3, ESLint 9.39.5 (G-K20). Exact versions at least two weeks old |
 
 ## Seeded test accounts
@@ -285,7 +299,7 @@ Created by `npm run db:seed` (Step 1.1). The leader signs in with `LEADER_PASSWO
 | `staff.asha@demo.test` | Staff, Safety, Health and Environment |
 | `staff.ravi@demo.test` | Staff, FPO Awards team |
 | `staff.neha@demo.test` | Staff in both departments |
-| `jury.anil@`, `jury.priya@`, `jury.vikram@`, `jury.sunita@`, `jury.farhan@`, `jury.lakshmi@demo.test` | Jury accounts: no role until staff add them to a cycle's pool (G-K19) |
+| `jury.anil@`, `jury.priya@`, `jury.vikram@`, `jury.sunita@`, `jury.farhan@`, `jury.lakshmi@demo.test` | Jury accounts: no role yet; from Step 1.2 the seed puts them on the demo departments' jury lists, and heads add more on screen (ADR 0017, G-K19) |
 | `applicant.kiran@demo.test` | Applicant, member of Acme Steel Ltd |
 | `applicant.deepa@demo.test` | Applicant, a colleague who joins Acme Steel on screen |
 | `applicant.rahul@demo.test` | Applicant with no organisation yet (registers one on screen) |

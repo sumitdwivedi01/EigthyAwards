@@ -9,7 +9,7 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 | | |
 |---|---|
 | **Built (Step 1.1)** | The foundation (database schema with its rules, shared libraries, audit, email outbox), the migration with the decisions of 7–9 Oct, logins and sessions, applicant and platform accounts (ADR 0016), scoped roles, My profile (change password; LinkedIn and identity document for applicants), organisations, master-data lists, the seed. 136 tests |
-| **Next** | **Step 1.2 (11 Oct):** award setup (awards, cycles, questions with versions, scoring sheets, branded pages, Open awards) |
+| **Next** | **Step 1.2 (11–12 Oct):** departments and people on screen (temporary passwords, jury lists), then award setup (awards, cycles, questions with versions, scoring sheets with exact arithmetic, simple award pages, Open awards) |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds and tests) |
 
 ## What gets built when
@@ -21,15 +21,13 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 | `identity` | Register (applicant accounts), login, sessions, scoped roles (platform accounts), My profile, change password, profile proof (ID and LinkedIn; applicant accounts only) | Built (1.1) | Invites, password reset, deactivation (2.3) |
 | `organisations` | Register and join with PAN and GSTIN checks, normalised profile (applicant accounts only) | Built (1.1) | Corrections by the leader (2.3) |
 | `master-data` | Award domains and organisation types (retired, never deleted), states | Built (1.1: read; lists seeded) | Admin screens (2.3) |
-| `departments` | Departments, heads, staff on awards, brand kit | Seeded (departments, heads, brand kits) | Create departments, appoint heads (2.3); brand-kit screen (2.2) |
+| `departments` | Departments and their heads, the staff and jury lists, temporary passwords, brand colours | 1.2 (seeded until then) | Replace a head, more staff on an award, invites by email (2.3); brand-kit screen (2.2) |
 | `awards` | Awards, cycles, categories, rounds, jury per application, entry limit, publish gate | 1.2 | Copy last year's setup (3.8) |
 | `forms` | Questionnaire drafts, immutable versions (R4) | 1.2 | Version diff, New/Updated markers, more question types (2.5) |
-| `scoring` | Scoring sheets, weight checks, score formula, average | 1.2 | — |
+| `scoring` | Scoring sheets, weight checks, the exact score arithmetic (whole-number points, one rounding, ties; ADR 0019) | 1.2 | — |
 | `sites` | One branded page per award; public award pages | 1.2 | Full section builder, versions, restore (2.2) |
 | `applications` | Start (one per organisation), demo fee, answers, files, employment proof, submit with the entry limit, deadline lock, proof check, release | 1.3 | Edit after submit, withdraw, deadline extension, "questions changed" alerts (2.5) |
-| `masking` | Masked answers for blind awards (R1) | 1.4 | Masked files (2.5) |
-| `jury-pool` | Jury pool per cycle, recorded conflicts (R2) | 1.4 | — |
-| `judging` | Assigning several jury per application, scoring, score changes with a reason (R1–R3) | 1.4 | Disqualify and reinstate, reopen (2.5) |
+| `judging` | The blind jury view (R1, no masking: ADR 0018), recorded conflicts (R2), assigning listed jury by hand with the assignment board, scoring, score changes with a reason (R3) | 1.4 | Disqualify and reinstate, reopen (2.5) |
 | `approval` | Send for approval and approve (written rounds) | 1.4 | Send back (2.5) |
 | `results` | Ranks, result labels, publishing | 1.4 | Medals for on-site rounds (2.1) |
 | `reporting` | The leader dashboard (applications by status, judging progress, approvals waiting, deadlines) | 1.4 | Department dashboard (2.4) |
