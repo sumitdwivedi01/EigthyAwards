@@ -8,6 +8,7 @@
 
 | Date | Change | Why |
 |---|---|---|
+| 2026-10-10 (Day 8, evening) | **A `staging` branch** (Phase 0.10, ADR 0015). Each step's branch is cut from `staging` and merged into it; the step is tested on `staging` (CI and its manual check), then `staging` is merged into `main` (production) and the step is tagged there. From Step 1.5 there are two online environments, staging and production. Also decided: Phase 1 jury accounts come only from the seed (G-K19), and uploads use signed links as ADR 0003 says (G-B03). No change to scope or dates; about 15 minutes more per step, and more setup on 14 Oct (G-K18). | Owner, 10 Oct: test each step before it reaches production |
 | 2026-10-10 (Day 8) | **Phase 1 trimmed to fit the dates.** The full Phase 1 came to about 100 hours against about 64 available. Moved to Phase 2: send back and reopen, masking of files, version comparison and New/Updated markers, editing after submit and withdraw, the release screen, the full scoring-sheet builder and three question types, the brand-kit screen and image uploads, inviting jury by email, the status timeline, edge-case tests. Kept at the owner's request: the leader dashboard screen and masking of answers. Phase 1 is now about 71 hours; Thursday morning is a buffer and the walkthrough is Thursday afternoon. Phase 2 grows to about 24 days. | Owner, 10 Oct |
 | 2026-10-09 (Day 7, late) | **Docs refined** (Phase 0.9): the Backend and Front-End READMEs rewritten for the three-phase plan (status, what each step builds, how to run); wording tightened across the lead-facing docs. No change to scope or dates. | Owner: keep the docs clear and current |
 | 2026-10-09 (Day 7, night) | **No PA role** (owner): the leader's team works from the leader's account (ADR 0014). Removed from the seed (1.1), the leader dashboard (1.4) and package 2.3 (no PA team or PA activity screens). | Simpler; fewer roles, flows and tests |
@@ -27,15 +28,16 @@
 
 The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five steps, one per day**. Each step goes through the same routine, and a step is either **done** (every part below) or **not done**.
 
-1. **Branch** from an up-to-date `main`: `git checkout main && git pull && git checkout -b phase-1.<n>-<word>` (for example `phase-1.2-setup`).
+1. **Branch** from an up-to-date `staging` (ADR 0015): `git checkout staging && git pull && git checkout -b phase-1.<n>-<word>` (for example `phase-1.2-setup`).
 2. **Backend first, then its screens, in the same step.** The service and its tests are finished before the screen that uses it.
 3. **Write the tests with the feature.** Rule tests (R1–R4) come straight from the wording of the rule, not from the code.
 4. **Commit in small steps** with Conventional Commits: `feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`.
 5. **Run the step's exit checklist** (below).
 6. **Update tracking:** [PROGRESS.md](PROGRESS.md), [GAPS.md](GAPS.md), [Daily.md](../Daily.md), `docs/API.md`, and an ADR if a decision was made.
-7. **Open a pull request** into `main`, wait for green CI, and read the diff line by line.
-8. **Merge** with a merge commit and tag it: `git tag phase-1.<n>-done && git push origin phase-1.<n>-done`. When Phase 1 is complete, tag `phase-1-done`.
-9. **Deploy only in Step 1.5** (14 Oct). `main` must run on a laptop after every merge.
+7. **Open a pull request into `staging`**, wait for green CI, read the diff line by line, and merge with a merge commit.
+8. **Test on `staging`:** CI runs on the `staging` push, and the step's manual check is run again on the `staging` branch (on a laptop until 14 Oct, on the staging site after).
+9. **Open a pull request `staging` → `main`** (production), wait for green CI, merge with a merge commit, and tag `main`: `git tag phase-1.<n>-done && git push origin phase-1.<n>-done`. When Phase 1 is complete, tag `phase-1-done`.
+10. **Deploy only in Step 1.5** (14 Oct): `staging` → the staging site, `main` → production. Both branches must run on a laptop after every merge.
 
 ### Step exit checklist (definition of done)
 
@@ -47,14 +49,14 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 - [ ] Every new service function takes the actor first and checks permission and scope
 - [ ] Responses are view models, never raw database rows
 - [ ] Every write of shared data goes through `lib/normalize.ts`; new uniqueness rules have a case-insensitive database index
-- [ ] The step's manual check was run by hand and works
+- [ ] The step's manual check was run by hand and works (before the pull request into `staging`, and again on `staging` before the one into `main`)
 - [ ] PROGRESS, GAPS, Daily and `docs/API.md` updated
 
 ---
 
 ## 2. Timeline at a glance
 
-**Docs phases** (understanding, client answers, design: Days 1–7)
+**Docs phases** (understanding, client answers, design: Days 1–8)
 
 | # | Phase | Branch | Day | Status |
 |---|---|---|---|---|
@@ -67,7 +69,8 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.6 | One application per organisation, blocked at the start | `phase-0.6-entry` | 6 | ✅ Merged (`phase-0.6-done`) |
 | 0.7 | Lead call: proof once on the profile, My profile, several jury per application | `phase-0.7-lead` | 7 | ✅ Merged (`phase-0.7-done`) |
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | 7 | ✅ Merged (`phase-0.8-done`) |
-| 0.9 | Docs refined: app READMEs, wording, status | `phase-0.9-docs` | 7 | 🧪 In review |
+| 0.9 | Docs refined: app READMEs, wording, status; Phase 1 fitted to the dates | `phase-0.9-docs` | 7–8 | ✅ Merged (sumitdwivedi01/EigthyAwards#9) |
+| 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | 🧪 In review |
 
 **Phase 1: working platform** (the dates are fixed; the build is 10–13 Oct, deployment 14 Oct, demo 15 Oct)
 
@@ -160,20 +163,21 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 **Goal.** A running backend with the complete, up-to-date data model; people can log in with their scoped roles, manage their profile, and create or join their company. A web app that logs them in.
 
 **Backend**
-- Bring the parked Phase 1 code onto this branch (only `Backend/`, its CI, `docs/API.md` and `docs/ai-notes.md`). Add **one new migration** with every change in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md) (B1–B4): site tables, proof fields, `maxEntries`, `RELEASED` and the one-per-organisation index, profile proof fields, `juryMin`/`juryMax`, and active-evaluation uniqueness.
-- **identity:** register (applicants), login and logout (bcrypt; a signed session cookie, ADR 0003; a rate limit on login), `GET /me` with every scoped role, and the access helpers (`requireLeaderOrPA`, `requireDeptHead`, `requireStaffOfAward`, `requireJuryOfCycle`, `requireOrgMember`…).
-- **My profile:** edit name and phone; `changePassword` (needs the current one; raises `sessionVersion`; "password changed" email to the outbox; audited without the password); for applicants, the identity document (private storage, consent) and the LinkedIn link.
+- Bring the parked Phase 1 code onto this branch: only `Backend/`, its CI (now also run on pushes to `staging`), `docs/API.md` and `docs/ai-notes.md`, plus the old branch's `.gitattributes` and its two `.gitignore` lines (the generated Prisma client, the test storage). Add **one new migration** with every change in [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md) (B1–B4): site tables, proof fields, `maxEntries`, `RELEASED` and the one-per-organisation index, profile proof fields, `juryMin`/`juryMax`, and active-evaluation uniqueness.
+- **identity:** register (applicants), login and logout (bcrypt; a signed session cookie, ADR 0003; a rate limit on login), `GET /me` with every scoped role, and the access helpers (`requireLeader`, `requireDeptHead`, `requireStaffOfAward`, `requireJuryOfCycle`, `requireOrgMember`…).
+- **My profile:** edit name and phone; `changePassword` (needs the current one; raises `sessionVersion`; "password changed" email to the outbox; audited without the password); for applicants, the identity document (private storage through a signed upload link, G-B03; consent) and the LinkedIn link.
 - **organisations:** create (normalised; PAN and GSTIN checks; a warning when the GSTIN state differs), join (PAN + GSTIN, or PAN + official email), list mine, edit (audited).
-- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury; the master lists; demo applicant accounts. Passwords come from the environment, never from the repo.
+- **Storage and responses:** the storage interface issues short-lived signed upload and download links after the API's access check (G-B03): the disk driver behind an API route locally, Supabase Storage from Step 1.5. Every API response sends `Cache-Control: no-store` unless it is a public award page (G-B16).
+- **Seed:** the leader (the account the leader's team also uses; no PA role, ADR 0014); 2 departments (one an external organiser, "FPO Awards team") with their heads; 3 staff (one in both departments); 6 jury (in Phase 1 jury accounts come only from the seed, with no role until they are added to a cycle's pool in Step 1.4; G-K19); the master lists; demo applicant accounts. Passwords come from the environment, never from the repo.
 
 **Frontend**
 - A Next.js app (App Router, strict TypeScript, Tailwind, shadcn/ui, TanStack Query, React Hook Form + Zod). `/api/*` is rewritten to the backend; an API client maps 400/401/403/404/409 to messages; ₹ and India-time formatters.
 - Pages: login, register, a home page per role (redirect after login), **My profile** (details, change password, and the proof tab for applicants), **My organisation** (create or join).
-- `frontend-ci.yml`: lint, type check, build.
+- `frontend-ci.yml`: lint, type check, build, on pull requests and on pushes to `main` and `staging`.
 
 **Tests:** the database-rule tests from the change list (B1.5, B2.4, B3.5, B4.4) · a wrong password gives 401 · the password hash is never in a response · a password change needs the current password and ends other sessions · `abcde 1234f` joins the existing `ABCDE1234F` · a GSTIN without the PAN is refused · joining needs the PAN and GSTIN (or the official email) · an applicant gets 404 for another company · a jury user gets 403 on a staff endpoint.
 
-**Done when:** every seeded role logs in and lands in its own area; an applicant creates or joins a company and adds their ID and LinkedIn link; CI is green.
+**Done when:** every seeded role logs in and lands in its own area (jury from Step 1.4, once they are in a cycle's pool); an applicant creates or joins a company and adds their ID and LinkedIn link; CI is green.
 
 **Manual check:** log in as each seeded role; change a password and see the other browser signed out.
 
@@ -208,7 +212,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 **Backend**
 - **Start:** logged in, a company member, a category chosen, the cycle open. **One application per company** (a service check plus the database index); colleagues see it read-only, status only.
 - **Fee:** `payFee` (demo) records a payment with a fake reference; the category's fee if it has one, otherwise the cycle's.
-- **Answers and files:** autosaved drafts stored by question key and checked against the question types; uploads through the storage interface (type and size checked; 10 MB).
+- **Answers and files:** autosaved drafts stored by question key and checked against the question types; uploads through signed links from the storage interface (type and size checked; 10 MB; G-B03).
 - **Proof:** `uploadEmploymentProof` with the document's date (within 3 months; consent recorded). Submit needs the profile's ID and LinkedIn link too, and records which ones it used.
 - **Submit:** all required answers and files; the entry limit checked under a lock on the cycle; the company snapshot; the confirmation email to the outbox. (Save changes after submitting, and withdraw: Phase 2.)
 - **Deadline lock:** every write checks `clock.now()`; drafts become Not submitted; the form version and snapshot are pinned.
@@ -257,11 +261,12 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 
 **Goal.** The platform runs online with demo data, and the repo holds everything the brief asks for.
 
+- **Two environments** (ADR 0015): staging, built from the `staging` branch, and production, built from `main`, each with its own Supabase project, Render service and Vercel environment variables. Check the free-tier limits first (G-K18). The demo data and demo logins go on production.
 - **Supabase:** the database (a pooled URL for the app, a direct one for migrations), the automatic table API locked down (G-B04: a `curl` with the public key must return nothing), a private bucket for applicant files and a public one for page images.
 - **Render:** the API service (build, migrate, start, health check, environment variables). **Vercel:** the frontend with `BACKEND_URL`. The login cookie checked in Chrome and Edge, and in Safari if possible.
 - **Demo data online:** both awards, about 20 companies, applications in mixed states (one award already judged), and a demo login for each role. Passwords stay in environment variables and go to the lead privately.
 - **Documents:** a README a stranger can run from a fresh clone in under 10 minutes, with the live links · `docs/user-journeys.md` (one page, every role) · `docs/testing.md` (what the tests check and don't) · `docs/ai-notes.md` · `docs/DEPLOYMENT.md` (the runbook) · `docs/walkthrough.md` (the 20-minute demo script) · the architecture drawing ([TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md)).
-- **Online smoke test:** each role logs in; a file uploads and downloads; submit, assign, score, approve and publish all work.
+- **Online smoke test**, on staging first and then on production: each role logs in; a file uploads and downloads; submit, assign, score, approve and publish all work; two accounts never see each other's data (G-B16).
 
 **Done when:** every box under "Phase 1 is done when" in [PLAN.md](PLAN.md#phase-1-is-done-when) is ticked. Then the walkthrough on Thu 15 Oct, and the tag `phase-1-done`.
 
@@ -428,10 +433,20 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.9: Docs refined and Phase 1 scope fitted (Docs) 🧪
+### Phase 0.9: Docs refined and Phase 1 scope fitted (Docs) ✅
 
 **Goal.** Bring every document in line with the three-phase plan before Step 1.1, tighten the wording, and fit Phase 1 into the hours available (10 Oct).
 
 **Builds.** `Backend/README.md` and `Front-End/README.md` rewritten (status, what each step builds, structure, how to run, environment, deployment); wording fixes in PLAN, the overview, the UI README, creating.md and three ADRs; PROGRESS and PHASES status for 0.7 and 0.8.
 
-**Done when.** The owner has reviewed it; merged before Step 1.1 starts.
+**Done when.** The owner has reviewed it; merged before Step 1.1 starts. Merged through sumitdwivedi01/EigthyAwards#9 on 10 Oct.
+
+---
+
+### Phase 0.10: A staging branch (Docs) 🧪
+
+**Goal.** Test every step on a `staging` branch before it reaches `main` (production), as the owner asked on 10 Oct (ADR 0015).
+
+**Builds.** ADR 0015 (0004 and the ADR index marked); the workflow rules in CLAUDE.md, this plan (§1 routine and checklist, §2, Steps 1.1, 1.3 and 1.5, the change log), PLAN, the Phase 1 roadmap, TECHNICAL-DESIGN, creating.md, the app READMEs and the PR template; GAPS (B03, B16, D05, G03, K18, K19); the 0.7 change list; PROGRESS and Daily.
+
+**Done when.** Merged into `staging` and then into `main`; `staging` is protected on GitHub like `main`. Step 1.1 is then cut from `staging`.
