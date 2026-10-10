@@ -97,6 +97,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 │  ├─ brief.md                the original problem statement
 │  ├─ requirements.md         the product and technical spec
 │  ├─ PLAN.md                 the three phases in plain words (for the lead)
+│  ├─ PHASE-1-ROADMAP.md      Phase 1 day by day, how it's checked, the walkthrough
 │  ├─ PHASES.md               this plan, in detail
 │  ├─ TECHNICAL-DESIGN.md     architecture, data model, flows, API, scaling
 │  ├─ PROGRESS.md             what is achieved; start here in a new session

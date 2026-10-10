@@ -2,7 +2,7 @@
 
 > **For the lead and reviewers.** This page is the whole plan in plain words, from start to finish. It takes 5 minutes to read.
 > Agreed on 9 Oct 2026 after the lead call. Phase 1 starts **Saturday 10 October**.
-> The detailed working steps are in [PHASES.md](PHASES.md), the technical design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), and live status in [PROGRESS.md](PROGRESS.md).
+> **Phase 1, day by day, for presenting:** [PHASE-1-ROADMAP.md](PHASE-1-ROADMAP.md). The detailed working steps are in [PHASES.md](PHASES.md), the technical design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), and live status in [PROGRESS.md](PROGRESS.md).
 
 ## The three phases at a glance
 

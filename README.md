@@ -15,6 +15,7 @@ It is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)). **Phase 1, t
 | You want… | Open |
 |---|---|
 | **The plan: three phases, dates, what's in each (start here)** | [docs/PLAN.md](docs/PLAN.md) |
+| **Phase 1 roadmap: what we deliver by 15 Oct, day by day, and the walkthrough** | [docs/PHASE-1-ROADMAP.md](docs/PHASE-1-ROADMAP.md) |
 | The platform in 5 minutes, with pictures | [docs/overview/](docs/overview/) |
 | **What the platform looks like: clickable prototype and flows per role** | [docs/ui/](docs/ui/README.md) |
 | How it's built: architecture, data model, API | [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md) |
