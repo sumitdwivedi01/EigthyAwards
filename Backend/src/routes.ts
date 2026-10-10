@@ -4,6 +4,7 @@ import { db } from "./lib/db.js";
 import { buildDiskStorageRouter } from "./lib/storage/disk-routes.js";
 import { buildIdentityRouter, type IdentityRouterOptions } from "./modules/identity/routes.js";
 import { buildMasterDataRouter } from "./modules/master-data/routes.js";
+import { buildOrganisationsRouter } from "./modules/organisations/routes.js";
 
 export type ApiOptions = IdentityRouterOptions;
 
@@ -26,6 +27,7 @@ export function buildApiRouter(options: ApiOptions): Router {
 
   router.use(buildIdentityRouter(options));
   router.use("/master-data", buildMasterDataRouter());
+  router.use("/organisations", buildOrganisationsRouter());
 
   // Upload and download links of the local disk driver; Supabase Storage serves its own online.
   if (env.STORAGE_DRIVER === "disk") {
