@@ -15,6 +15,7 @@
 | 2026-10-09 | **No separate PA role** (owner, 9 Oct). The leader's team works from the leader's account, so the platform has **five roles**: leader, department head, staff, jury, applicant user. Everything the PA could do is done by the leader. §5.17 now describes the leader's team. Sections changed: 1–3, 5.1–5.3, 5.13–5.20, 7, 8, 10–15, 18. | ADR 0014 (supersedes 0005) |
 | 2026-10-09 | **Delivered in three phases** (lead call). Phase 1 (10–15 Oct) builds a working subset of §14: two written-review awards, online. On-site rounds, the full site builder and the admin screens move to Phase 2; launch work to Phase 3. Sections changed: 1, 14, 15, 17 (notes only; behaviour unchanged). | docs/PLAN.md, docs/PHASES.md |
 | 2026-10-10 | **Git workflow:** step branches → `staging` (tested there) → `main` (production), close to §16's `develop` → `main`; two online environments from 14 Oct. Sections changed: 16 (note only; behaviour unchanged). | ADR 0015 |
+| 2026-10-10 | **Applicant accounts and platform accounts** (owner, 10 Oct). Only an applicant account (made by registering) creates or joins an organisation, applies and keeps the profile proof; the leader, department heads, staff and jury use platform accounts (seeded now, invited later) that hold roles and never apply. Someone who does both registers a second, applicant account with another email. This replaces "the same account with two roles". Sections changed: 2, 3, 5.1, 5.2, 5.8, 5.21, 10, 12, 18. | ADR 0016 |
 
 # Awards Platform — Product & Technical Specification
 
@@ -51,7 +52,8 @@ Every word below means exactly one thing in code, UI and docs. Two different thi
 | Cycle | One edition of an award, with its own dates, questionnaire and scoring sheet | 2026 edition |
 | Entry category | A category inside a cycle that an applicant competes in; one award can have many | Large manufacturing, MSME |
 | Organisation | The legal body that applies and receives the award, identified by PAN. Its plants or units never apply separately | Acme Steel Ltd |
-| Applicant user | A person who applies on behalf of an organisation | Plant HR manager |
+| Applicant user | A person who applies on behalf of an organisation, from an applicant account | Plant HR manager |
+| Applicant account, platform account | The two kinds of account (ADR 0016). An applicant account registers itself and applies; a platform account belongs to the leader, a department head, staff or jury, is given by the platform, holds roles and never applies | A juror who also applies for their company has one of each, with two emails |
 | Questionnaire | The form applicants fill: sections that contain questions |   |
 | Section (area) | A group of questions; also carries a weight in scoring | Environment |
 | Question | One item in a section, with a stable key that never changes across versions | Describe your tree plantation |
@@ -88,7 +90,7 @@ Every word below means exactly one thing in code, UI and docs. Two different thi
 
 ## 3. Users, roles and permissions
 
-Five roles use the platform. The leader works across the whole platform (the leader's team uses the leader's account); every other role is held inside a scope. One person can hold different roles in different scopes, for example jury in one cycle and applicant user for an organisation in another.
+Five roles use the platform. The leader works across the whole platform (the leader's team uses the leader's account); every other role is held inside a scope. One platform account can hold different roles in different scopes, for example staff on one award and jury in another award's cycle. **Applying is separate** (decided 10 Oct 2026; ADR 0016): only an applicant account applies, and it never holds a role; someone who also works on or judges awards uses a second account (§5.1).
 
 | Role | Scope | Who they are |
 |---|---|---|
@@ -232,20 +234,21 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 ### 5.1 Accounts and login
 
 - Everyone logs in with email and password. Passwords are hashed, never stored plain.
-- Applicant users register themselves. The leader's account is created at setup. The leader invites department heads; department heads or the leader invite staff; staff or department heads invite jury. Each invitee sets their own password from the invite link.
-- One account per person: an email address can belong to only one user, compared without regard to case. A person who is both a juror and an applicant uses the same account with two roles.
+- Applicant users register themselves, which creates an **applicant account**. The leader's account is created at setup. The leader invites department heads; department heads or the leader invite staff; staff or department heads invite jury. Each invitee sets their own password from the invite link. Everyone created this way has a **platform account** (in Phase 1 the seed creates them).
+- An email address belongs to only one account, compared without regard to case.
+- **An account either applies or works on awards, never both** (decided 10 Oct 2026; ADR 0016). An applicant account creates or joins organisations, applies and keeps the profile proof (§5.20), and never holds a role. A platform account (leader, department head, staff, jury) holds roles and never applies. A juror or staff member who wants to apply for their own organisation registers a separate applicant account with another email address. The type is fixed once the account is in use.
 - A deactivated account cannot log in, and its sessions end at once. Nothing it did is removed. Only the leader can deactivate or reactivate an account, and nobody can deactivate the leader.
 - Password reset works through an emailed link that expires.
 - Every user can change their own password and edit their name and phone on **My profile** (§5.21, added 9 Oct 2026).
 - Every request loads the user's role assignments from the database; the UI never decides permissions on its own.
-- Accept when: a jury user opening any staff page gets "forbidden"; an applicant can never open another organisation's application; a deactivated user cannot log in; registering `Asha@Example.com` when `asha@example.com` exists is refused; a password change ends the user's other sessions.
+- Accept when: a jury user opening any staff page gets "forbidden"; an applicant can never open another organisation's application; a deactivated user cannot log in; registering `Asha@Example.com` when `asha@example.com` exists is refused; a password change ends the user's other sessions; the leader, a department head, staff or a juror can't create or join an organisation, apply or add profile proof; an applicant account can't be given a role or added to a jury pool.
 
 ### 5.2 Organisations and one application per organisation
 
 - **The award goes to the organisation, the legal entity identified by PAN.** Its plants, units or branches never apply separately and never get their own record (client answer, 5 Oct 2026).
 - Organisation profile fields. Required: legal name, PAN, registered address (line, city, state, PIN code), official email, phone. Optional: GSTIN (small units, NGOs and government bodies may not have one; client answer, 6 Oct 2026), organisation type, CIN, website. More fields can be added later. State and organisation type are picked from controlled lists, never typed (§5.18).
 - PAN is unique: one organisation record per PAN. PAN format is checked (5 letters, 4 digits, 1 letter). When a GSTIN is given, its format is checked and characters 3 to 12 must equal the PAN.
-- To join an organisation that already exists, a user must enter its PAN and its GSTIN, or, if it has no GSTIN, its PAN and its official email address.
+- Only applicant accounts register or join an organisation (ADR 0016). To join one that already exists, the user must enter its PAN and its GSTIN, or, if it has no GSTIN, its PAN and its official email address.
 - **No signed authorisation letter** (client decision, 5 Oct 2026). Instead, the applicant keeps a **photo identity document** and their **LinkedIn profile** link on their own profile (given once, reused for every application), and uploads a **recent proof of employment** at this organisation with each application; staff check them (§5.20, decided 7 Oct 2026, changed 9 Oct 2026). Joining an organisation with PAN and GSTIN alone proves little (the PAN is part of the GSTIN, which is printed on every invoice), so these documents are what staff rely on.
 - The application belongs to the organisation, not to the person. All formal communication goes to the organisation's official email as well as the applicant user.
 - **One application per organisation per award cycle, blocked at the start** (client decision, 8 Oct 2026; ADR 0011). As soon as any member of the organisation **starts** an application for a cycle, no other member can start another one for that cycle.
@@ -338,7 +341,7 @@ Score = 100 × Σ over sections s of ( W_s × Σ over indicators i in s of ( w_i
 
 ### 5.8 Jury pool, assignment and conflicts
 
-- Staff and the department head both select jury for the cycle's pool: an existing user, or a new invite by email. Either can remove a pool member who has no submitted evaluation.
+- Staff and the department head both select jury for the cycle's pool: an existing platform account, or a new invite by email (which creates one). An applicant account is refused: applicants never judge (ADR 0016). Either can remove a pool member who has no submitted evaluation.
 - **Jury per application** (decided 9 Oct 2026; ADR 0013). For each document review round, staff set a **minimum** and a **maximum** number of jury per application. Both are at least 1, the minimum is never above the maximum, and the maximum is never more than the jury in the cycle's pool who may judge the round (the award's department head doesn't count: they approve it). The default is 1 and 1, which is one jury member per application. A jury member can have many applications. Only staff assign applications to jury.
 - **Every application must get between the minimum and the maximum.** An assignment that would take an application above the maximum is refused, and the same jury member can't be given the same application twice. An application with fewer than the minimum shows as "needs more jury" to staff, and the round can't be sent for approval until it has enough (§5.11).
 - Staff assign in bulk: select applications, choose one or more jury members; each selected application gets all of them. The action is all or nothing: if any pair is conflicted, or any application would go above the maximum, nothing is assigned and staff see which ones and why. Counting and assigning lock the application, so two staff assigning at the same moment can't go above the maximum.
@@ -534,7 +537,7 @@ Every user, in every role, has a **My profile** page (decided 9 Oct 2026; ADR 00
 - **Details.** Name and phone (optional) can be edited; values are normalised like all shared data (§5.18). The email address is shown but can't be changed by the user for now (it is their login and is unique); changing it is later work.
 - **Change password.** The user enters their current password and a new one (the same rules as at registration). A wrong current password is refused. After a change, every other session of the user ends at once (the session version increases) and the current one is renewed. An email tells the user their password was changed. The change is audited as an event, never with the password.
 - Forgot password (§5.1) stays for users who can't log in.
-- **Applicants** also keep their **identity document** and **LinkedIn link** here (§5.20): given once, replaced at any time, with consent asked at each upload. The page shows which applications use them and whether staff verified them.
+- **Applicant accounts** also keep their **identity document** and **LinkedIn link** here (§5.20): given once, replaced at any time, with consent asked at each upload. The page shows which applications use them and whether staff verified them. Platform accounts don't have this part (ADR 0016).
 - A person's own name or phone never changes an application's identity snapshot, which comes from the organisation (§5.18).
 - Accept when: a password change with a wrong current password is refused; after a change, a session opened before it is refused on its next request; the user gets the email; neither the old nor the new password appears in any response, log or audit event; an applicant's second application doesn't ask for the identity document again.
 
@@ -739,7 +742,7 @@ All awards share the same tables. Every award-related row carries its cycle (and
 
 | Entity | Key fields | Constraints and notes |
 |---|---|---|
-| User | id, email, name, phone?, passwordHash, sessionVersion, passwordChangedAt?, deactivatedAt?, linkedinUrl?, identityFileId? | email stored lower case and unique. Deactivated users cannot log in. linkedinUrl and identityFileId (an IDENTITY_PROOF FileAsset owned by the user) are the applicant's profile proof (§5.20, §5.21) |
+| User | id, email, accountType (APPLICANT, PLATFORM), name, phone?, passwordHash, sessionVersion, passwordChangedAt?, deactivatedAt?, linkedinUrl?, identityFileId? | email stored lower case and unique. Deactivated users cannot log in. linkedinUrl and identityFileId (an IDENTITY_PROOF FileAsset owned by the user) are the applicant's profile proof (§5.20, §5.21). accountType is fixed once the account is in use: only APPLICANT accounts are organisation members, start applications and keep the profile proof; only PLATFORM accounts hold roles and evaluations (ADR 0016; triggers and a CHECK) |
 | Department | id, name | name unique without regard to case |
 | RoleAssignment | userId, role (LEADER, DEPT_HEAD, DEPT_STAFF, AWARD_STAFF, JURY), departmentId?, awardId?, cycleId?, grantedById, revokedAt? | Leader has no scope; dept head → department; dept staff → department (may create awards there); award staff → award (a user may hold many); jury → cycle. Unique per user, role and scope among active rows. Removing a role sets revokedAt; rows are kept |
 | Organisation | id, legalName, pan, gstin?, addressLine, city, stateCode, pincode, officialEmail, phone, orgTypeId?, cin?, website? | pan unique (stored upper case); GSTIN optional, and when present its characters 3 to 12 equal PAN; stateCode from the fixed list of states; values normalised on save (§5.18) |
@@ -925,7 +928,7 @@ The app has about 39 screens grouped by role. Each role sees only its own area a
 | Public | Open awards | Published awards as branded cards (logo, banner, colours) with deadline and fee |
 | Public | Award site | The award's own branded pages built from sections, with the entry count and the Apply button |
 | Public | Login, register, forgot password | Account access |
-| Everyone | My profile | Name and phone; change password; for applicants, the identity document and LinkedIn link (given once) and which applications use them |
+| Everyone | My profile | Name and phone; change password; for applicant accounts, the identity document and LinkedIn link (given once) and which applications use them |
 | Applicant | My organisation | Create, or join with PAN and GSTIN; edit profile (state and type from lists) |
 | Applicant | My applications | Each application with its applicant-facing status |
 | Applicant | Payment (demo) | Shows the fee; "Pay" unlocks the form |
@@ -1194,6 +1197,12 @@ Each day: open the issues for that day's slice, merge through pull requests into
 
 Sixteen questions were asked. The leader call on 5 October 2026 answered question 1 and part of question 3; the answers on 6 October answered questions 2, 7, 8, 14 and 15 (see below). The rest stay open with their defaults. Questions 1 to 7 change the data model or the roles, so they matter most.
 
+### Answered on 10 Oct 2026 (owner)
+
+| # | Answer |
+|---|---|
+| New | Only applicants apply. The leader, department heads, staff and jury never apply from their accounts and never see the applying screens or the profile proof; to apply, they register a separate applicant account with another email (ADR 0016). |
+
 ### Answered on 9 Oct 2026 (lead call)
 
 | # | Answer |
@@ -1306,6 +1315,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | A31 | The jury per application can change until the round is first sent for approval; the maximum never goes below an application's current jury | Fix it at the first assignment |
 | A32 | Any one of an application's jury can disqualify it (with a reason); staff can reinstate | Need staff to confirm a jury disqualification |
 | A33 | The leader's team shares the leader's account; the audit history can't tell which member acted (9 Oct) | Give each member a named account with the leader's powers |
+| A34 | Someone who both judges (or works on awards) and applies uses two accounts with two email addresses (10 Oct, ADR 0016) | One login that switches between two linked accounts |
 
 Improvement ideas already offered to the client: a fixed identity section that hides itself from jury, masking only after the deadline, one organisation profile reused across awards, highlighting changed questions, flagging large disagreements in a future multi-judge setup, copying last year's setup, and feedback reports for applicants.
 

@@ -8,7 +8,7 @@ What the screens look like: the clickable prototype in [docs/ui/](../docs/ui/REA
 
 | | |
 |---|---|
-| **Built (Step 1.1)** | Login, register, logout; the signed-in shell with the areas the API gives each person; **My profile** (details, change password, LinkedIn link and identity document); **My organisation** (register, join, edit); a home page per role |
+| **Built (Step 1.1)** | Login, register, logout; the signed-in shell with the areas the API gives each person; **My profile** (details and change password for everyone; the LinkedIn link and identity document for applicant accounts); **My organisation** (register, join, edit; applicant accounts); a home page per role, and "Nothing is assigned to you yet" for a juror not yet on a jury |
 | **Next** | **Step 1.2 (11 Oct):** staff's award setup screens, Open awards and the branded award page |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds) |
 

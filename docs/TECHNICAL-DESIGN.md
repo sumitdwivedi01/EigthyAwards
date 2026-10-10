@@ -82,6 +82,7 @@ erDiagram
     USER {
         uuid id PK
         citext email UK
+        enum accountType
         text passwordHash
         int sessionVersion
         text linkedinUrl
@@ -150,6 +151,7 @@ The services check everything first, with friendly errors. The database refuses 
 | History can't be edited | Triggers refuse UPDATE and DELETE on audit events, form versions, published page versions and disqualification history |
 | Valid values | CHECKs: PAN and GSTIN format, scores 0–10, jury minimum ≤ maximum, file owner rules, money in whole paise |
 | Exactly one leader | Partial unique index |
+| Applicants and the platform's people never mix | `accountType` on every user (ADR 0016): triggers refuse a role or an evaluation for an applicant account, and an organisation, an application or an identity document for a platform account |
 
 ### Where each award's differences live (all data, no code)
 

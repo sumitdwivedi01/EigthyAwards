@@ -26,7 +26,7 @@
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 3 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 8 |
 | J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
-| K | Lead call (Day 7) and Phase 1 planning (Day 8): proof once, My profile, several jury, re-plan, staging | 20 | 8 |
+| K | Lead call (Day 7) and Phase 1 planning (Day 8): proof once, My profile, several jury, re-plan, staging, accounts | 21 | 8 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -237,7 +237,7 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J24 | If the person who started the application leaves the organisation, nobody else can continue it. | Staff release it and a colleague starts again; a draft hand-over is later work (spec A26) | 7 | Accepted risk |
 | G-J16 | Sub-domains and own domains need a domain we own and Vercel domain setup, which can't be tested in the 10 days. | Store a slug and an empty `customDomain` field now; build sub-domains and own domains later | 4, later | Open |
 
-## K. Lead call (Day 7, 9 Oct) and Phase 1 planning (Day 8): proof once, My profile, several jury, staging
+## K. Lead call (Day 7, 9 Oct) and Phase 1 planning (Day 8): proof once, My profile, several jury, staging, accounts
 
 From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/0012-proof-once-on-profile-and-account-settings.md) and [0013](decisions/0013-several-jury-per-application.md); what the built backend must change: [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md).
 
@@ -260,9 +260,10 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K15 | Render's free plan sleeps after ~15 minutes, so the first demo request is slow (G-B07) | Open the site a few minutes before the walkthrough; consider a small paid plan for demo week | 1.5 | Open |
 | G-K16 | No PA role: the leader's team shares the leader's account, so the history can't tell which person acted, and several people know one password | Accepted by the owner (ADR 0014). Change the password when a team member leaves (it signs out every device); named accounts if traceability is ever needed | 1.1 | Accepted risk |
 | G-K17 | File masking moves to Phase 2, so in Phase 1 a blind award can't show uploaded files to jury | Jury in a blind award get **no files** until file masking exists (R1 stays safe); the demo's blind award has text answers only | 1.4, 2.5 | Decided (10 Oct) |
-| G-K18 | **Two online environments** (ADR 0015): staging and production each need a Supabase project, a Render service and Vercel environment variables | More setup on 14 Oct; the free tiers may not allow two of each (number of free projects, instance hours, sleeping) | Check the free-tier limits before 14 Oct. If two don't fit, keep `staging` tested by CI and locally, and put only production online (ADR 0015, "what would change our mind") | 1.5 | Open |
-| G-K20 | The frontend stays on **ESLint 9.39.5**, which ESLint no longer supports: ESLint 10 crashes inside the `eslint-plugin-react` that `eslint-config-next` 16.3.6 bundles (`getFilename is not a function`) | No security fixes for the linter itself; it never runs in production | Move to ESLint 10 when `eslint-config-next` supports it; the backend already uses ESLint 10 | 1.1 | Accepted risk |
-| G-K19 | The JURY role always belongs to a cycle, but Phase 1 seeds jury accounts before any cycle exists, and inviting jury by email moved to Phase 2 | A seeded juror has no role until added to a pool, so at first they see the applicant area | Owner, 10 Oct: jury accounts come only from the seed (passwords from the environment); staff or the department head add them to a cycle's pool by email (Step 1.4); no platform-wide jury marker; email invites in package 2.3 | 1.1, 1.4 | Decided (10 Oct) |
+| G-K18 | **Two online environments** (ADR 0015): staging and production each need a Supabase project, a Render service and Vercel environment variables. More setup on 14 Oct; the free tiers may not allow two of each (number of free projects, instance hours, sleeping) | Check the free-tier limits before 14 Oct. If two don't fit, keep `staging` tested by CI and locally, and put only production online (ADR 0015, "what would change our mind") | 1.5 | Open |
+| G-K19 | The JURY role always belongs to a cycle, but Phase 1 seeds jury accounts before any cycle exists, and inviting jury by email moved to Phase 2. A seeded juror has no role until added to a pool | Owner, 10 Oct: jury accounts come only from the seed (passwords from the environment), as **platform accounts** (ADR 0016); staff or the department head add them to a cycle's pool by email (Step 1.4), and an applicant account is refused; until then a juror sees "Nothing is assigned to you yet"; email invites in package 2.3 | 1.1, 1.4 | Decided (10 Oct; ADR 0016) |
+| G-K20 | The frontend stays on **ESLint 9.39.5**, which ESLint no longer supports: ESLint 10 crashes inside the `eslint-plugin-react` that `eslint-config-next` 16.3.6 bundles (`getFilename is not a function`). No security fixes for the linter itself; it never runs in production | Move to ESLint 10 when `eslint-config-next` supports it; the backend already uses ESLint 10 | 1.1 | Accepted risk |
+| G-K21 | Someone who judges or works on awards and also applies needs **two accounts with two emails** (ADR 0016), and the platform doesn't link them, so a juror's second account applying for their company isn't flagged by itself | Accepted by the owner (10 Oct): staff record the juror–organisation conflict as for anyone (spec §5.8, rule 2); one login that switches between linked accounts if two emails become a burden | 1.1, 1.4 | Accepted risk |
 
 ---
 
@@ -284,6 +285,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-10 | Applicant and platform accounts (owner, ADR 0016): K19 updated (jury are platform accounts; an applicant account is refused from a pool); K21 added (two emails for someone who does both); the K18–K20 rows fixed to the table's five columns and put in order. |
 | 2026-10-04 | First version: gaps from the architecture PDF, the deployment split, the spec review, the open client questions, deliverables and process. |
 | 2026-10-10 | Step 1.1 (foundation and people): fixed B11, B15, C03, C06, C10, C11, D06, G02, H05, H06, H08, H09, I13 and K11 (built and tested); B14 now ongoing (versions pinned in both apps, current docs read); K20 added (the frontend stays on ESLint 9). |
 | 2026-10-10 | Staging branch (Phase 0.10, ADR 0015): D05 and G03 updated; B03 decided (signed upload links from Phase 1); B16 (Vercel caching proxied responses), K18 (two online environments) and K19 (seeded jury accounts) added. |

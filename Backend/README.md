@@ -8,7 +8,7 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 
 | | |
 |---|---|
-| **Built (Step 1.1)** | The foundation (database schema with its rules, shared libraries, audit, email outbox), the migration with the decisions of 7–9 Oct, logins and sessions, scoped roles, My profile (change password, LinkedIn, identity document), organisations, master-data lists, the seed. 129 tests |
+| **Built (Step 1.1)** | The foundation (database schema with its rules, shared libraries, audit, email outbox), the migration with the decisions of 7–9 Oct, logins and sessions, applicant and platform accounts (ADR 0016), scoped roles, My profile (change password; LinkedIn and identity document for applicants), organisations, master-data lists, the seed. 136 tests |
 | **Next** | **Step 1.2 (11 Oct):** award setup (awards, cycles, questions with versions, scoring sheets, branded pages, Open awards) |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds and tests) |
 
@@ -18,8 +18,8 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 |---|---|---|---|
 | `audit` | Insert-only history, written inside the caller's transaction (R3) | Built | — |
 | `notifications` | Email templates and the EmailLog outbox | Built (outbox, "password changed"); templates as needed | All templates and a real provider (2.6) |
-| `identity` | Register, login, sessions, scoped roles, My profile, change password, profile proof (ID and LinkedIn) | Built (1.1) | Invites, password reset, deactivation (2.3) |
-| `organisations` | Register and join with PAN and GSTIN checks, normalised profile | Built (1.1) | Corrections by the leader (2.3) |
+| `identity` | Register (applicant accounts), login, sessions, scoped roles (platform accounts), My profile, change password, profile proof (ID and LinkedIn; applicant accounts only) | Built (1.1) | Invites, password reset, deactivation (2.3) |
+| `organisations` | Register and join with PAN and GSTIN checks, normalised profile (applicant accounts only) | Built (1.1) | Corrections by the leader (2.3) |
 | `master-data` | Award domains and organisation types (retired, never deleted), states | Built (1.1: read; lists seeded) | Admin screens (2.3) |
 | `departments` | Departments, heads, staff on awards, brand kit | Seeded (departments, heads, brand kits) | Create departments, appoint heads (2.3); brand-kit screen (2.2) |
 | `awards` | Awards, cycles, categories, rounds, jury per application, entry limit, publish gate | 1.2 | Copy last year's setup (3.8) |

@@ -51,6 +51,8 @@ Both are set up **on screen by staff**. In the walkthrough, staff also set up a 
 | **Department head** | Add jury to the pool. Review the ranked results and approve the round |
 | **Leader** (and the leader's team, on the same account) | A read-only dashboard across all awards and departments: applications, judging progress, rounds waiting for approval, deadlines |
 
+**Two kinds of account** (decided 10 Oct, [ADR 0016](decisions/0016-applicant-and-platform-accounts.md)). Applicants register their own account, and only they apply. The leader, department heads, staff and jury get their accounts from the platform and never apply from them; a juror who also wants to apply for their company registers a second account with another email.
+
 ### How the four rules are proven
 
 | Rule | In Phase 1 | Proof |
@@ -94,7 +96,7 @@ On 10 Oct the full Phase 1 list came to about 100 hours of work against about 64
 | A screen for releasing an application | The release works through the API, with its test |
 | The full scoring-sheet builder; date, multi-choice and team-member questions | A simpler builder and six question types cover both demo awards |
 | The brand-kit screen and image uploads on award pages (2.2) | Logos and colours come from the starter data |
-| Inviting a new juror by email (2.3) | Jury are picked from existing accounts |
+| Inviting a new juror by email (2.3) | Jury are picked from the seeded jury accounts |
 | The applicant's status timeline | The status and result still show |
 | Edge-case tests beyond the four rules and the main flows (2.8) | Every rule keeps its tests |
 

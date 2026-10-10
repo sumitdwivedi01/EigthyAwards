@@ -50,6 +50,7 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 ## Roles and the leader-call rules (5 Oct 2026; PA role removed 9 Oct)
 
 - **Five roles:** Leader, Department head, Staff, Jury, Applicant user. Matrix: spec §3. **There is no PA role** (ADR 0014, supersedes 0005): the leader's team works from the leader's account. Don't reintroduce `LEADER_PA`.
+- **Applicant accounts and platform accounts are separate** (ADR 0016, 10 Oct). Only an applicant account (made by registering) creates or joins an organisation, applies and keeps the profile proof, and it never holds a role. The leader, heads, staff and jury use platform accounts (seeded in Phase 1, invited from Phase 2) that hold roles and never apply. Someone who does both registers a second account with another email. Services check `requireApplicantAccount`; database triggers refuse mixed rows.
 - The leader only does **organisational** writes (departments, heads, staff assignment, award creation, master data, organisation corrections, accounts) and never writes judging data. Every audit event stores `actorRole`.
 - One staff member can hold **many awards** (one AWARD_STAFF row per award).
 - The award goes to the **organisation** (one per PAN). Plants and units never apply.

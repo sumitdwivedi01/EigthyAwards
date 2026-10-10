@@ -20,7 +20,7 @@ Status: **Step 1.1** (identity, My profile, master data, organisations). Award s
   |---|---|---|
   | 400 | `VALIDATION_ERROR`, `MALFORMED_JSON` | Input failed its checks (`details` lists each field), or the body isn't JSON |
   | 401 | `UNAUTHENTICATED` | Not logged in, or the session ended |
-  | 403 | `FORBIDDEN` | Role or scope doesn't allow it, or the write came from another site |
+  | 403 | `FORBIDDEN` | Role or scope doesn't allow it, the account is of the wrong kind (ADR 0016), or the write came from another site |
   | 404 | `NOT_FOUND` | Missing, or exists but isn't yours to see |
   | 409 | `STATE_CONFLICT` | Valid, but the current state forbids it. `details.reason` may name it, e.g. `PAN_REGISTERED` |
   | 413 | `PAYLOAD_TOO_LARGE` | Body over 1 MB |
@@ -41,31 +41,48 @@ Status: **Step 1.1** (identity, My profile, master data, organisations). Award s
 
 | Method | Path | Who | Body | Response |
 |---|---|---|---|---|
-| POST | `/api/auth/register` | Anyone (applicants register themselves) | `{ name, email, password }` (password 8 to 72 bytes) | `201` Me, and the session cookie. `409` if the email has an account (letter case ignored) |
+| POST | `/api/auth/register` | Anyone: creates an **applicant account** | `{ name, email, password }` (password 8 to 72 bytes) | `201` Me, and the session cookie. `409` if the email has an account (letter case ignored) |
 | POST | `/api/auth/login` | Anyone | `{ email, password }` | `200` Me, and the session cookie. `401` for a wrong email or password (the same message for both), or a deactivated account. `429` after repeated failures |
 | POST | `/api/auth/logout` | Anyone | — | `204`; the cookie is cleared |
 | GET | `/api/me` | Signed in | — | `200` Me |
 | PATCH | `/api/me/profile` | Signed in | `{ name?, phone? }`; `phone: null` removes it | `200` Me |
 | POST | `/api/me/password` | Signed in | `{ currentPassword, newPassword }` | `200` Me, and a renewed cookie. Other sessions end; a "password changed" email is queued; audited without the password. `400` for a wrong current password |
-| PUT | `/api/me/linkedin` | Signed in | `{ url }`: a LinkedIn profile (`https://…linkedin.com/…`), or `null` to remove | `200` Me |
-| POST | `/api/me/identity-document/uploads` | Signed in | `{ fileName, contentType, sizeBytes, consent: true }`; PDF, JPG or PNG, up to 10 MB | `201 { fileId, upload: { url, method: "PUT", headers, expiresAt } }` |
-| PUT | `/api/me/identity-document` | Signed in | `{ fileId }`, after the file is uploaded | `200` Me. The content must match the declared type. `409` if not uploaded yet; audited (added or replaced) |
+| PUT | `/api/me/linkedin` | Applicant accounts | `{ url }`: a LinkedIn profile (`https://…linkedin.com/…`), or `null` to remove | `200` Me |
+| POST | `/api/me/identity-document/uploads` | Applicant accounts | `{ fileName, contentType, sizeBytes, consent: true }`; PDF, JPG or PNG, up to 10 MB | `201 { fileId, upload: { url, method: "PUT", headers, expiresAt } }` |
+| PUT | `/api/me/identity-document` | Applicant accounts | `{ fileId }`, after the file is uploaded | `200` Me. The content must match the declared type. `409` if not uploaded yet; audited (added or replaced) |
 
 **Me** (the signed-in user's own view; never the password hash or session version):
 
+An applicant:
+
 ```json
 {
-  "id": "…", "email": "asha@example.test", "name": "Asha Rao", "phone": "+919876543210",
-  "passwordChangedAt": null, "linkedinUrl": "https://www.linkedin.com/in/asha-rao",
+  "id": "…", "email": "kiran@example.test", "accountType": "APPLICANT", "name": "Kiran Desai", "phone": "+919876543210",
+  "passwordChangedAt": null, "linkedinUrl": "https://www.linkedin.com/in/kiran-desai",
   "identityDocument": { "fileName": "passport.pdf", "uploadedAt": "2026-10-10T17:07:00.000Z" },
-  "roles": [{ "role": "DEPT_STAFF", "department": { "id": "…", "name": "FPO Awards team" }, "award": null, "cycle": null }],
+  "roles": [],
   "organisations": [{ "id": "…", "legalName": "Acme Steel Ltd" }],
-  "areas": ["staff", "applicant"],
+  "areas": ["applicant"],
+  "home": "applicant"
+}
+```
+
+A staff member:
+
+```json
+{
+  "id": "…", "email": "asha@example.test", "accountType": "PLATFORM", "name": "Asha Rao", "phone": null,
+  "passwordChangedAt": null, "linkedinUrl": null, "identityDocument": null,
+  "roles": [{ "role": "DEPT_STAFF", "department": { "id": "…", "name": "FPO Awards team" }, "award": null, "cycle": null }],
+  "organisations": [],
+  "areas": ["staff"],
   "home": "staff"
 }
 ```
 
-`areas` are the parts of the app the user may open (`leader`, `department`, `staff`, `jury`, `applicant`); `home` is where they land after logging in. Everyone has `applicant`: anyone may apply for their organisation.
+- `accountType` (ADR 0016): `APPLICANT` (made by registering; applies for its organisation, keeps the LinkedIn link and identity document, never holds a role) or `PLATFORM` (the leader, department heads, staff and jury; holds roles, never applies). Someone who does both has two accounts, with two emails.
+- `areas` are the parts of the app the user may open (`leader`, `department`, `staff`, `jury`, `applicant`). An applicant account has exactly `["applicant"]`; a platform account has one area per kind of role it holds.
+- `home` is where they land after logging in. A platform account with no role yet (a juror before staff add them to a cycle's pool) has no area, and `home` is `null`.
 
 ## Uploading a file (signed links, GAPS G-B03)
 
@@ -87,13 +104,13 @@ Public, read-only. Only values that aren't retired are listed (spec §5.18).
 
 ## Organisations
 
-The award goes to the organisation, one record per PAN (spec §5.2). Members see and edit it; anyone else gets `404`.
+The award goes to the organisation, one record per PAN (spec §5.2). Only applicant accounts register, join or list organisations; a platform account gets `403` (ADR 0016). Members see and edit it; anyone else gets `404`.
 
 | Method | Path | Who | Body | Response |
 |---|---|---|---|---|
-| POST | `/api/organisations` | Signed in | `{ pan, legalName, gstin?, addressLine, city, stateCode, pincode, officialEmail, phone, orgTypeId?, cin?, website? }` | `201 { organisation, warnings }`; the caller becomes a member. `400` lists every invalid field (PAN format; a GSTIN must contain the PAN; a retired organisation type). `409` with `reason: "PAN_REGISTERED"` if the PAN exists: join instead |
-| POST | `/api/organisations/join` | Signed in | `{ pan, gstin }`, or `{ pan, officialEmail }` when the organisation has no GSTIN | `200 { organisation, warnings: [] }`. `404` for an unknown PAN; `400` if the GSTIN or email doesn't match (a wrong GSTIN names the state of the one on record) |
-| GET | `/api/organisations/mine` | Signed in | — | `[Organisation]` |
+| POST | `/api/organisations` | Applicant accounts | `{ pan, legalName, gstin?, addressLine, city, stateCode, pincode, officialEmail, phone, orgTypeId?, cin?, website? }` | `201 { organisation, warnings }`; the caller becomes a member. `400` lists every invalid field (PAN format; a GSTIN must contain the PAN; a retired organisation type). `409` with `reason: "PAN_REGISTERED"` if the PAN exists: join instead |
+| POST | `/api/organisations/join` | Applicant accounts | `{ pan, gstin }`, or `{ pan, officialEmail }` when the organisation has no GSTIN | `200 { organisation, warnings: [] }`. `404` for an unknown PAN; `400` if the GSTIN or email doesn't match (a wrong GSTIN names the state of the one on record) |
+| GET | `/api/organisations/mine` | Applicant accounts | — | `[Organisation]` |
 | GET | `/api/organisations/:id` | Members | — | `Organisation` |
 | PATCH | `/api/organisations/:id` | Members | Any profile field except `pan` (sending `pan` is refused) | `200 { organisation, warnings }`; audited with before and after |
 

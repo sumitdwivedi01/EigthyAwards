@@ -9,7 +9,7 @@
 | **Last updated** | 2026-10-10 · Day 8 |
 | **Current phase** | **Step 1.1: Foundation and people** (🧪 built; the pull request into `staging` is next) |
 | **Current branch** | `phase-1.1-foundation`, cut from `staging` (`main` is production) |
-| **What runs today** | On the step branch, locally: the API (logins, scoped roles, My profile, organisations, master lists, the seed; 129 tests) and the web app (login, register, My profile, My organisation, a home per role), checked by hand in a browser. `staging` and `main` hold the docs until this step merges |
+| **What runs today** | On the step branch, locally: the API (logins, applicant and platform accounts, scoped roles, My profile, organisations, master lists, the seed; 136 tests) and the web app (login, register, My profile, My organisation, a home per role), checked by hand in a browser. `staging` and `main` hold the docs until this step merges |
 | **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15 (afternoon)**, about 71 hours of work; then Phase 2 (~24 working days) and Phase 3 (~15 + client testing) |
 | **Next action** | 1) The owner opens the pull request `phase-1.1-foundation` → `staging`, checks CI and merges it; runs the manual check on `staging`; then `staging` → `main` and the tag `phase-1.1-done`. 2) **Step 1.2** Award setup and branded pages (Sun 11 Oct), on `phase-1.2-setup` cut from `staging` |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
@@ -32,7 +32,7 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
 | 0.9 | Docs refined | `phase-0.9-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#9 | 2026-10-10 · `phase-0.9-done` (tag to push) | n/a |
 | 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | ✅ Merged | sumitdwivedi01/EigthyAwards#10 → `staging`, sumitdwivedi01/EigthyAwards#11 → `main` | 2026-10-10 · `phase-0.10-done` | n/a |
-| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 Built, pull request next | — | — | 129 backend (were 62); frontend: lint, type check, build |
+| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 Built, pull request next | — | — | 136 backend (were 62); frontend: lint, type check, build |
 | **1.2** | Award setup and branded pages · **Sun 11 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
 | **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
 | **1.4** | Judging, approval and results · **Tue 13 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
@@ -95,10 +95,11 @@ Each phase gets an entry when it starts. Tick items off as they land and keep th
 
 The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided first with the owner: copy the parked code (not merge it) with one new migration; jury accounts only from the seed until staff add them to a pool (G-K19); uploads through signed links (G-B03).
 
-**Backend** (129 tests, were 62; lint, type check and the schema drift check clean)
+**Backend** (136 tests, were 62; lint, type check and the schema drift check clean)
 - [x] The parked foundation copied across (0.7 list, B0.1), CI also on `staging`.
 - [x] One new migration with every 7–9 Oct change (B1–B4, B6): site tables, entry limit, proof files and their owners, application proof status and release, profile fields, `juryMin`/`juryMax` for both round types, several jury per application, `LEADER_PA` removed. Database-rule tests rewritten from the rules.
 - [x] **identity:** register, login (constant-time for unknown emails), logout, a signed session cookie (ADR 0003), the actor rebuilt from the database on every request, `GET /me` with areas and home; My profile (name, phone, change password that ends other sessions, is audited without the password and queues an email), LinkedIn link, identity document through a signed upload link with its content checked.
+- [x] **Applicant and platform accounts** (the owner's decision on the night of 10 Oct, [ADR 0016](decisions/0016-applicant-and-platform-accounts.md)): only applicant accounts create or join organisations and keep the profile proof; the leader, heads, staff and jury use platform accounts and get `403` there, and a juror with no role yet has no area. A second migration adds `accountType`, a CHECK and triggers that refuse mixed rows; the seed sets every account's type; 7 more tests.
 - [x] **Request safety:** same-origin check on writes (G-B11), `Cache-Control: no-store` (G-B16), failed-login limits per visitor and per email (G-C12).
 - [x] **organisations:** register (normalised, PAN and GSTIN checks, state warning, master-data type), one record per PAN (409 → Join), join with PAN + GSTIN or PAN + official email, members-only view and edit (never the PAN), audited.
 - [x] **master-data:** public lists of organisation types, award domains and states.
@@ -108,10 +109,11 @@ The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided fi
 - [x] The `/api` proxy to the backend; `src/proxy.ts` as the coarse login gate (Next.js 16 renamed middleware, ai-notes #8).
 - [x] Login, register, logout; the app shell with the areas the API gives; a home per role.
 - [x] My profile (details, password, LinkedIn, identity document) and My organisation (register, join, edit).
+- [x] The Applying link, the proof tab and My organisation only for applicant accounts; "Nothing is assigned to you yet" for a juror not yet in a pool; register and login say "applicant account".
 
-**Checked by hand** (browser, against the running API): register with messy input (cleaned); register a PAN that exists (moved to Join); join with a wrong GSTIN (the state named) and the right one in lower case (one Acme record); phone and LinkedIn on My profile; the identity document upload; a role granted and revoked in the database showing and disappearing at once; a password changed on screen ending the session of a second device at once, with the "password changed" email in Mailpit; logout; the login gate. Every seeded role logs in to its own area (jury: the applicant area until added to a pool, as decided).
+**Checked by hand** (browser, against the running API): register with messy input (cleaned); register a PAN that exists (moved to Join); join with a wrong GSTIN (the state named) and the right one in lower case (one Acme record); phone and LinkedIn on My profile; the identity document upload; a role granted and revoked in the database showing and disappearing at once; a password changed on screen ending the session of a second device at once, with the "password changed" email in Mailpit; logout; the login gate. Every seeded role logs in to its own area through the API: the leader, a head and staff see only their area and get `403` on the profile proof and organisations; a juror has no area until added to a pool; an applicant has Applying. In the browser, a platform account sees no Applying link and no proof tab, and "Not available" on the applicant pages.
 
-- [x] Docs: `docs/API.md`, both READMEs, CLAUDE.md commands, TECHNICAL-DESIGN, ai-notes #7–#9, GAPS (13 gaps closed, K20 added), the 0.7 change list ticked, Daily.
+- [x] Docs: `docs/API.md`, both READMEs, CLAUDE.md commands, TECHNICAL-DESIGN, ai-notes #7–#10, GAPS (13 gaps closed, K20 and K21 added, K19 updated), the 0.7 change list ticked, Daily; for the accounts decision, ADR 0016, the spec (§2, §3, §5.1, §5.2, §5.8, §5.21, §10, §12, §18), PLAN and PHASES (Steps 1.1, 1.3, 1.4).
 - [ ] Not yet: "a jury user gets 403 on a staff endpoint" through HTTP: there is no staff endpoint until Step 1.2; the access checks have unit tests now, and the HTTP test comes with the first staff endpoint.
 - [ ] The owner merges into `staging`, checks it there, then into `main`; tag `phase-1.1-done`.
 

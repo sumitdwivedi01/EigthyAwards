@@ -66,3 +66,10 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **Why.** Zod checks the email format on the raw value, before any trimming, so the leading space made it invalid; the normaliser never ran.
 - **Fix.** `z.string().trim().max(254).pipe(z.email())`: trim first, then check. The same pattern is used for every email the API accepts.
 - **Lesson.** Validation order matters; a test with realistic messy input catches what a happy-path test can't.
+
+## 10. Every account could apply, because one sentence of the spec was read too widely (Step 1.1, 10 Oct)
+
+- **What looked right.** `GET /me` gave every account the Applying area, with the comment "anyone can apply on behalf of their organisation, whatever else they do (spec §3)". The spec does say one person can be "jury in one cycle and applicant user for an organisation in another", and §5.1 that such a person "uses the same account with two roles". The tests passed and every role could log in.
+- **How it was caught.** The owner logged in as the leader and found "Proof for applying" on My profile and an Applying link. The permission matrix in the same §3 gives applying and the profile proof to the Applicant column only, and PHASES Step 1.1 says "the proof tab for applicants": the code followed one sentence and missed the table.
+- **Fix.** The owner decided that applicants and the people who run and judge awards use separate accounts (ADR 0016): `User.accountType`, `requireApplicantAccount` in the services, triggers and a CHECK in the database, the applying screens shown only to applicant accounts, and tests for each kind of account.
+- **Lesson.** When a sentence and a table disagree, ask instead of picking the reading that is easiest to build; and look at every screen as each role, not only as the role the feature is for.
