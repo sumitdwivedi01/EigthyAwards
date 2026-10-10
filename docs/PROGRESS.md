@@ -7,13 +7,13 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-10 · Day 8 |
-| **Current phase** | Phase 0.9: docs refined and Phase 1 scope fitted to the dates (🧪 committed locally, not pushed) |
-| **Current branch** | `phase-0.9-docs` |
+| **Current phase** | Phase 0.10: a `staging` branch between the step branches and `main` (ADR 0015) (🧪 in review) |
+| **Current branch** | `phase-0.10-staging`, cut from `staging` (`main` is production) |
 | **What runs today** | Nothing on `main`. The backend foundation is built and tested on its own branch, **parked** (tag `parked/phase-01-be-foundation`); Step 1.1 brings it in |
 | **The plan** | [PLAN.md](PLAN.md): **Phase 1 build Sat 10 – Tue 13 Oct, deploy Wed 14, walkthrough with the lead Thu 15 (afternoon)**, about 71 hours of work; then Phase 2 (~24 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) Meeting with the lead today. 2) The owner reviews, pushes and merges `phase-0.9-docs`, tag `phase-0.9-done`. 3) **Step 1.1** Foundation and people, on `phase-1.1-foundation` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
+| **Next action** | 1) The owner merges `phase-0.10-staging` into `staging`, then `staging` into `main`, and protects `staging` on GitHub. 2) **Step 1.1** Foundation and people, on `phase-1.1-foundation` cut from `staging` ([PHASES.md §4](PHASES.md#4-phase-1-steps-in-detail)) |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
-| **Risk** | Four build days are tight even after the trim (about 71 hours against about 64; G-K13): Thursday morning is the buffer; daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order) |
+| **Risk** | Four build days are tight even after the trim (about 71 hours against about 64; G-K13): Thursday morning is the buffer; daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 starts on Saturday evening, so it runs into Sunday. Two online environments add setup on 14 Oct (G-K18) |
 
 ## Phase status board
 
@@ -30,7 +30,8 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.6 | One application per organisation | `phase-0.6-entry` | ✅ Merged | sumitdwivedi01/EigthyAwards#6 | 2026-10-08 · `phase-0.6-done` | n/a |
 | 0.7 | Lead call: proof once, My profile, several jury | `phase-0.7-lead` | ✅ Merged | sumitdwivedi01/EigthyAwards#7 | 2026-10-09 · `phase-0.7-done` | n/a |
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
-| 0.9 | Docs refined | `phase-0.9-docs` | 🧪 In review (local commit) | — | — | n/a |
+| 0.9 | Docs refined | `phase-0.9-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#9 | 2026-10-10 · `phase-0.9-done` (tag to push) | n/a |
+| 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | 🧪 In review | — | — | n/a |
 | **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | ⬜ (starts from the parked code: tag `parked/phase-01-be-foundation`, 62 tests) | — | — | — |
 | **1.2** | Award setup and branded pages · **Sun 11 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
 | **1.3** | Applying and proof check · **Mon 12 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
@@ -41,6 +42,8 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 3 | Launch-ready (~15 working days + client testing) | per package | ⬜ | — | — | — |
 
 Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · ✅ merged · ⛔ blocked
+
+From 0.10 on, the PR column lists both pull requests (into `staging`, then `staging` → `main`), and **Merged** means merged into `main` (ADR 0015).
 
 ## Phase 1 goals: where they stand
 
@@ -88,7 +91,17 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
 
-### Phase 0.9: Docs refined · 🧪 · 2026-10-09 (Day 7, late)
+### Phase 0.10: A staging branch · 🧪 · 2026-10-10 (Day 8, evening)
+
+The owner met the lead (nothing changed) and asked for a staging branch: each step is merged into `staging` and tested there, then merged into `main` (production). Four details were agreed first (all recommended options): `main` is production; step branches go into `staging`; until 14 Oct, testing on `staging` means CI plus the step's manual check run locally, with two online environments from then; `staging` goes into `main` after each step.
+
+- [x] [ADR 0015](decisions/0015-staging-branch.md) (supersedes 0004's flow); 0004 and the ADR index marked.
+- [x] The workflow everywhere it is written: CLAUDE.md, PHASES (§1 routine and checklist, §2, Steps 1.1, 1.3 and 1.5, change log), PLAN, the Phase 1 roadmap, TECHNICAL-DESIGN, creating.md, the app READMEs, the spec's revision log and §16 note, the PR template (with a short `staging` → `main` checklist).
+- [x] Also decided today: the paused backend is copied into Step 1.1 with one new migration; Phase 1 jury accounts come only from the seed (G-K19); uploads use signed links, as ADR 0003 says (G-B03). Found: Vercel caches proxied responses that carry caching headers, so the API sends `Cache-Control: no-store` (G-B16).
+- [x] Small fixes: `requireLeaderOrPA` → `requireLeader`; the 0.7 change list (branch from `staging`, the extra files to copy, change password now in Step 1.1, partial indexes in the schema, the enum switch); 0.9 marked merged.
+- [ ] The owner merges into `staging`, then into `main`, and protects `staging` on GitHub.
+
+### Phase 0.9: Docs refined · ✅ · 2026-10-09 (Day 7, late)
 
 The owner asked for the Backend README to match the new plan, and for every document to be clear, current and free of filler words.
 
@@ -98,7 +111,7 @@ The owner asked for the Backend README to match the new plan, and for every docu
 - [x] Status of 0.7 and 0.8 set to merged in PROGRESS and PHASES.
 - [x] [PHASE-1-ROADMAP.md](PHASE-1-ROADMAP.md): Phase 1 for presenting to the lead: the goal, what's delivered, the two awards, the timeline, the daily routine, each day's work and checks, how the rules are proven, what's left out, the walkthrough plan, done-when, risks, and what we need from the lead.
 - [x] **Phase 1 fitted to the dates (10 Oct).** The full list came to about 100 hours against about 64 available. Moved to Phase 2: send back and reopen, file masking, version comparison and markers, editing after submit and withdraw, the release screen, the full scoring-sheet builder and three question types, the brand-kit screen and image uploads, jury invites by email, the status timeline, edge-case tests. Kept: the leader dashboard screen and masking of answers. Phase 1 ≈ 71 h; Thursday morning is a buffer. PLAN, PHASES, TECHNICAL-DESIGN, GAPS (K13, K17), the overview, the app READMEs, creating.md and Daily updated.
-- [ ] Owner review, push and merge.
+- [x] Merged through sumitdwivedi01/EigthyAwards#9 on 10 Oct (the tag `phase-0.9-done` is still to push).
 
 ### Phase 0.8: Three-phase plan and technical design · ✅ · 2026-10-09 (Day 7, evening)
 
@@ -225,11 +238,12 @@ Filled in as things get built. Never put secrets here; only names and where they
 |---|---|
 | Local machine | Windows 11; Node v22.17.0, npm 11.8.0; Docker 29.7; Git Bash; Python 3.12. The `gh` CLI is **not** installed |
 | GitHub repo | `https://github.com/sumitdwivedi01/EigthyAwards` (note the typo in the repo name, G-G05) |
+| Branches | `main` = production; `staging` = where finished steps are tested; one branch per step, cut from `staging` (ADR 0015) |
 | Backend local URL | `http://localhost:4000` (planned) |
 | Frontend local URL | `http://localhost:3000` (planned) |
 | PostgreSQL (Docker) | `localhost:5433`, databases `awards`, `awards_test` and `awards_shadow` (built on the parked branch) |
 | Mailpit | SMTP `localhost:1025`, inbox UI `http://localhost:8025` (planned) |
-| Production | Frontend → Vercel · API → Render · DB and files → Supabase. Not created yet (Step 1.5, 14 Oct) |
+| Online | Two environments from Step 1.5 (14 Oct): staging (the `staging` branch) and production (`main`), each with Vercel, Render and its own Supabase project. Not created yet |
 | Pinned versions | Express 5.2.1, TypeScript 6.0.3, Prisma 7.10.0, Zod 4, Vitest 5 (backend); the frontend's recorded in Step 1.1 |
 
 ## Seeded test accounts
@@ -242,7 +256,7 @@ Added in Step 1.1. Passwords live only in `Backend/.env` and `.env.example` plac
 |---|---|---|
 | Two apps (Next.js on Vercel, Express on Render) instead of one Next.js app | The chosen hosting | ADR 0001 |
 | Our own auth in the API instead of Auth.js | Auth.js doesn't fit a separate API | ADR 0003 |
-| Phase branches → `main` instead of `develop` | The owner's workflow; one builder | ADR 0004 |
+| Step branches → `staging` → `main` instead of `feature` → `develop` → `main` | The owner's workflow; one builder (ADR 0004, changed on 10 Oct) | ADR 0015 |
 | EmailLog used as an outbox instead of sending during the request | Bulk emails and rollbacks | GAPS G-C03 |
 | ~~New role: Leader's PA~~ removed 9 Oct; the team uses the leader's account | Leader call, 5 Oct; owner, 9 Oct | ADR 0005, superseded by ADR 0014 |
 | Data consistency rules and master data | Leader call, 5 Oct | ADR 0006, spec §5.18 |
@@ -256,7 +270,7 @@ Added in Step 1.1. Passwords live only in `Backend/.env` and `.env.example` plac
 
 Paste this to an AI assistant (Claude Code loads `CLAUDE.md` automatically, but this works anywhere):
 
-> We are building the Awards Platform in this repo. Read `CLAUDE.md`, then `docs/PROGRESS.md` (where we are), `docs/PLAN.md` (the three phases), `docs/PHASES.md` (the detailed steps, especially the current one), `docs/TECHNICAL-DESIGN.md`, and `docs/GAPS.md` §A (open decisions). The spec is in `docs/requirements.md`. Continue the current phase on its branch. Don't start a new phase until the current one meets its exit checklist. At the end, update PROGRESS.md, GAPS.md and Daily.md.
+> We are building the Awards Platform in this repo. Read `CLAUDE.md`, then `docs/PROGRESS.md` (where we are), `docs/PLAN.md` (the three phases), `docs/PHASES.md` (the detailed steps, especially the current one), `docs/TECHNICAL-DESIGN.md`, and `docs/GAPS.md` §A (open decisions). The spec is in `docs/requirements.md`. Continue the current phase on its branch (step branches are cut from `staging`; `main` is production, ADR 0015). Don't start a new phase until the current one meets its exit checklist. At the end, update PROGRESS.md, GAPS.md and Daily.md.
 
 ## End-of-session routine (every time)
 

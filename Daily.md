@@ -69,3 +69,6 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** Meeting with my lead today, then Step 1.1: foundation and people.
 - **Stuck:** Nothing.
 - **Plan changed:** Phase 1 is now about 71 hours; Thursday morning is a buffer and the walkthrough is Thursday afternoon. Phase 2 grows from about 20 to about 24 working days ([docs/PLAN.md](docs/PLAN.md)).
+- **Later (Day 8):** Met my lead: nothing changed. Decided: the paused backend is copied into Step 1.1 with one new migration; in Phase 1 jury accounts come only from the seed (invites by email in Phase 2); uploads go straight to storage through signed links.
+- **Plan changed:** A `staging` branch. Each step is merged into `staging` and tested there, then merged into `main` (production). From 14 Oct there are two online sites, staging and production ([ADR 0015](docs/decisions/0015-staging-branch.md)).
+- **Next:** Step 1.1, foundation and people. It starts this evening and will run into Sunday.

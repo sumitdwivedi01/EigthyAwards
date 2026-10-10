@@ -72,4 +72,4 @@ npm run dev                 # screens on http://localhost:3000
 
 ## Online (Step 1.5, 14 Oct)
 
-A Vercel project built from this folder, with `BACKEND_URL` set to the Render API. The steps will be written down in `docs/DEPLOYMENT.md`.
+A Vercel project built from this folder: production from `main`, and a staging deployment from the `staging` branch, each with `BACKEND_URL` set to its own Render API (ADR 0015). The steps will be written down in `docs/DEPLOYMENT.md`.

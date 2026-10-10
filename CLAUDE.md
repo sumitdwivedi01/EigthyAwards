@@ -21,10 +21,12 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 
 ## Workflow rules (the owner's)
 
-- **One branch per step:** `phase-1.<n>-<word>` (e.g. `phase-1.2-setup`), cut from an up-to-date `main`. Never commit straight to `main`.
+- **Branches (ADR 0015, 10 Oct):** `main` is production; `staging` is where finished steps are tested. Never commit straight to either.
+- **One branch per step:** `phase-1.<n>-<word>` (e.g. `phase-1.2-setup`), cut from an up-to-date `staging`. Docs phases (0.x) and `fix/<name>` branches follow the same path.
 - Within a step, the backend service and its tests come before the screen that uses it.
-- A step merges only when its **exit checklist** (PHASES.md §1) is fully ticked. Use a merge commit, then tag `phase-1.<n>-done` (and `phase-1-done` after the walkthrough).
-- **Deploy only in Step 1.5 (14 Oct)**: Supabase, Render, Vercel.
+- **Step → `staging`:** only when its **exit checklist** (PHASES.md §1) is fully ticked; PR into `staging`, CI green, merge commit.
+- **`staging` → `main`:** after the step is tested on `staging` (CI on the push, and the step's manual check run on `staging`); PR, CI green, merge commit, then tag `phase-1.<n>-done` on `main` (and `phase-1-done` after the walkthrough).
+- **Deploy only in Step 1.5 (14 Oct)**: Supabase, Render, Vercel, as two environments: `staging` → the staging site, `main` → production.
 - Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 - Ask before committing, pushing or opening a PR, unless the owner already asked for it this session.
 - **End of every session:** update PROGRESS.md, GAPS.md and Daily.md (see the routine at the bottom of PROGRESS.md).
@@ -42,6 +44,8 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 - TypeScript strict, no `any`. Zod at every boundary (input, configuration, env).
 - Rule tests (R1–R4) are written **from the rule's wording**, against a real PostgreSQL, **with** the feature, not after it.
 - The frontend holds no business rules. It shows what the API decides.
+- Files move through **signed links** (ADR 0003, G-B03): the API checks access, then issues a short-lived link; file bytes never pass through the Vercel proxy. Locally the disk driver stands in for storage behind the same interface.
+- Every API response sends `Cache-Control: no-store` unless it is a public award page: Vercel caches proxied responses that carry caching headers (G-B16).
 
 ## Roles and the leader-call rules (5 Oct 2026; PA role removed 9 Oct)
 

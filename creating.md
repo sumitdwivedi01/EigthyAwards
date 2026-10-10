@@ -17,7 +17,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 - **Sun 11:** award setup (settings, questions, scoring sheet, branded page)
 - **Mon 12:** applying (form, proof, submit, entry limit) + proof check
 - **Tue 13:** judging (masking, conflicts, several jury, scores, approval, results)
-- **Wed 14:** online (Supabase + Render + Vercel), demo data, docs
+- **Wed 14:** online (Supabase + Render + Vercel) as a staging site and the production site, demo data, docs
 - **Thu 15:** morning buffer; walkthrough with the lead in the afternoon
 
 - **Why 3 phases** → the lead wants one solid, working thing first, then the rest in order.
@@ -40,7 +40,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 
 ## How we work
 
-- **One branch per step** (`phase-1.2-setup`) → test → pull request → merge → tag. `main` always works.
+- **One branch per step** (`phase-1.2-setup`, cut from `staging`) → pull request into `staging` → test on `staging` → pull request into `main` → tag. `main` is production and always works (ADR 0015, 10 Oct).
 - **Tests come with the code** → the reviewer trusts the tests, not my word.
 - **Every decision is written down** (`docs/decisions/`) → options, choice, why, what would change it.
 
@@ -54,6 +54,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 - **Award goes to the company** (one per PAN) → never to plants or units.
 - **Data consistency** → one record per company, person, department; cleaned on save; lists instead of free text. It was the client's biggest problem.
 - **No signed letter** → too manual. Instead: proof documents.
+- **Jury accounts in Phase 1 come from the seed** → inviting by email needs a real email provider (Phase 2); staff add the seeded jury to a cycle's pool by email.
 
 **Applying**
 - **One application per company, blocked at the start** → no wasted forms; colleagues see it read-only (status only, no name); staff can release a wrong one.
@@ -62,6 +63,7 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 - **Each award checks its own proof** → each department stays responsible.
 - **Entry limit "499 / 500"** → the count and the submit happen in one locked step, so the last place can't go twice.
 - **Change password on My profile** → needs the old one; other devices get signed out; an email is sent.
+- **Uploads through signed links** → the API checks who may upload, then the file goes straight to storage; nothing big passes through Vercel or Render.
 
 **Judging**
 - **Several jury per application** (staff set min–max) → averaging removes one person's bias.
@@ -102,7 +104,8 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 |---|---|---|
 | My laptop | `awards` in Docker (port 5433) | Development |
 | My laptop + GitHub CI | `awards_test`, or a fresh one in CI | Tests |
-| Online (from 14 Oct) | Supabase | The demo: API on Render, screens on Vercel |
+| Online staging (from 14 Oct) | Its own Supabase project | Testing each step online: the `staging` branch |
+| Online production (from 14 Oct) | Its own Supabase project | The demo the lead uses: `main`; API on Render, screens on Vercel |
 
 - Secrets only in `.env`, the Render or Vercel dashboards, never in Git.
 - Tests refuse to run on a database without "test" in its name.
@@ -126,16 +129,17 @@ My own notes. One line per choice: **what** → **why**. The details live in `do
 
 ## What I do by hand
 
-**Tonight (9 Oct)**
-1. Read `docs/PLAN.md`.
-2. Push and open a PR for `phase-0.8-plan` (it contains 0.7), merge it with a merge commit, and tag `phase-0.8-done`.
+**Now (10 Oct)**
+1. Open a PR from `phase-0.10-staging` into `staging` and merge it with a merge commit; then open a PR from `staging` into `main` and merge it.
+2. On GitHub: protect `staging` like `main` (require a PR and green CI). Keep `main` as the default branch.
+3. Start Docker Desktop.
 
 **Each day of Phase 1**
 1. Start Docker Desktop.
 2. In `Backend/`: `docker compose up -d`, then `npm test`, then `npm run dev` (API on http://localhost:4000).
 3. In `Front-End/` (from Step 1.1): `npm run dev` (screens on http://localhost:3000).
 4. Emails: http://localhost:8025 (Mailpit).
-5. At the end of the day: review the PR, merge it, and tag `phase-1.<n>-done`.
+5. At the end of the day: review the step's PR into `staging` and merge it; run the step's manual check on `staging`; then open the `staging` → `main` PR, merge it, and tag `phase-1.<n>-done` on `main`.
 
 **Wed 14 Oct (deployment): my accounts, my clicks**
 - Supabase, Render and Vercel accounts are mine. Claude never creates accounts or types passwords. I paste the keys into their dashboards.

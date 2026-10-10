@@ -209,7 +209,7 @@ All routes live under `/api` and return view models. The full contract grows in 
 | Jury and judging | `POST /cycles/:id/jury-pool`, `POST /conflicts`, `POST /rounds/:id/assignments`, `GET /jury/evaluations`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `POST /evaluations/:id/score-changes` |
 | Approval and results | `POST /rounds/:id/send-for-approval`, `POST /approvals/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
 | Leader | `GET /reports/leader-dashboard`; `GET /applications/:id/history` |
-| Files | `GET /files/:id` (checks who may read which kind) |
+| Files | `GET /files/:id` (checks who may read which kind, then answers with a short-lived signed link). Uploads get a signed link from the endpoint that owns the file, for example `PUT /me/identity-document` |
 
 ## 5. How it scales
 
@@ -228,9 +228,10 @@ All routes live under `/api` and return view models. The full contract grows in 
 - Passwords hashed with bcrypt. Changing a password signs out every other device (`sessionVersion`).
 - Every input is checked with Zod; every permission is checked in the service, never only on screen.
 - Supabase's automatic table API is locked down, so tables can't be read around our API (G-B04, checked on deployment day).
-- Applicant files sit in a **private** bucket and download through one checked route; award-page images sit in a separate **public** bucket.
+- Applicant files sit in a **private** bucket. The API checks who may upload or read a file, then issues a short-lived signed link, so file bytes never pass through Vercel or Render (G-B03). Award-page images sit in a separate **public** bucket.
 - Proof documents are never in any jury response, and are deleted 12 months after results (the automatic clean-up comes in Phase 2).
 - Secrets live only in environment variables; `.env.example` lists the names.
+- API responses send `Cache-Control: no-store` unless they are public award pages, because Vercel caches proxied responses that carry caching headers (G-B16).
 
 ## 7. Environments
 
@@ -238,7 +239,8 @@ All routes live under `/api` and return view models. The full contract grows in 
 |---|---|---|
 | Laptop | PostgreSQL in Docker (`awards`), Mailpit | Development |
 | Laptop and CI | `awards_test`, or a fresh database in CI | Automated tests against a real database |
-| Online (from 14 Oct) | Supabase | The Phase 1 demo: API on Render, screens on Vercel |
+| Online staging (from 14 Oct) | A Supabase project of its own | The `staging` branch: each step tried online before production (ADR 0015) |
+| Online production (from 14 Oct) | A Supabase project of its own | `main`: the Phase 1 demo the lead uses; API on Render, screens on Vercel |
 
 ## 8. Testing in Phase 1
 

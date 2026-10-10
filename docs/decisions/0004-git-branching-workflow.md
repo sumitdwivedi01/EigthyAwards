@@ -1,6 +1,6 @@
 # 0004. One branch per phase → pull request → `main`, tagged per phase
 
-- Status: **Accepted**. This is the workflow the project owner asked for on 2026-10-04.
+- Status: **Superseded by [0015](0015-staging-branch.md)** (10 Oct 2026): step branches now go into `staging`, and `staging` into `main` after testing. The naming, Conventional Commits, merge commits and tags below still apply. Accepted on 2026-10-04 as the workflow the project owner asked for.
 - Date: 2026-10-04
 - Related gaps: G-D05, G-G03, G-G04
 

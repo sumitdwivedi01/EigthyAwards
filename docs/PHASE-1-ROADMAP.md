@@ -76,12 +76,12 @@ Every day follows the same routine, so progress is visible and nothing half-done
 
 ```mermaid
 flowchart LR
-    A["New branch<br/>for the day"] --> B["Backend rules<br/>and their tests"] --> C["Screens that<br/>use them"] --> D["All tests pass<br/>in CI"] --> E["Pull request,<br/>reviewed line by line"] --> F["Merged and tagged"] --> G["Daily update<br/>Done · Next · Stuck"]
+    A["New branch<br/>for the day"] --> B["Backend rules<br/>and their tests"] --> C["Screens that<br/>use them"] --> D["All tests pass<br/>in CI"] --> E["Pull request into staging,<br/>reviewed line by line"] --> S["Tested again<br/>on staging"] --> F["Merged into main<br/>(production), tagged"] --> G["Daily update<br/>Done · Next · Stuck"]
 ```
 
 - **The rules come before the screens.** Each rule is written and tested in the backend first, then the screen shows it. The screens hold no rules of their own.
 - **Tests come with the code, not after.** The tests for the four rules are written from the brief's wording.
-- **Every day ends merged.** `main` always works, and the lead can open the repo at any moment.
+- **Every day ends merged.** Each step is tested on the `staging` branch first, then merged into `main` (production), so `main` always works and the lead can open the repo at any moment.
 - **[Daily.md](../Daily.md)** says what was done, what's next and what's stuck, every day.
 
 ---
@@ -157,7 +157,7 @@ flowchart LR
 
 | Part | What we do |
 |---|---|
-| Online | The database and files on Supabase, the backend on Render, the screens on Vercel |
+| Online | The database and files on Supabase, the backend on Render, the screens on Vercel: a staging site for testing and the production site for the lead |
 | Demo data | Both awards, about 20 companies, applications at different stages, one award already judged |
 | Demo logins | One per role, shared privately with the lead |
 | Documents | The README (run it from scratch in under 10 minutes), user journeys, the architecture drawing, what the tests check and don't, the AI notes, the walkthrough script |
@@ -230,7 +230,7 @@ The full list, with reasons, is in [PLAN.md](PLAN.md#moved-to-phase-2-to-fit-the
 | Risk | What we do |
 |---|---|
 | Four build days are tight (about 71 hours) | The scope is already trimmed; each day has a finish line; Thursday morning is a buffer; if a day slips, it shows in Daily.md that day, and we cut from a short, agreed list |
-| Something breaks only online | Wednesday is reserved for deployment; the hosting accounts are set up by Monday |
+| Something breaks only online | Wednesday is reserved for deployment; the hosting accounts are set up by Monday; a staging site catches problems before production |
 | The free server sleeps when idle | It is woken a few minutes before the walkthrough |
 | No email provider yet | Emails are logged in Phase 1; real sending comes in Phase 2 |
 
