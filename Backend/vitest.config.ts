@@ -20,6 +20,8 @@ export default defineConfig({
       DATABASE_URL: testDatabaseUrl,
       DIRECT_URL: testDatabaseUrl,
       STORAGE_DISK_ROOT: "./storage-test",
+      // A low bcrypt work factor keeps the many password tests fast.
+      BCRYPT_ROUNDS: "4",
     },
     // Tests share one real PostgreSQL database, so test files run one at a time.
     fileParallelism: false,
