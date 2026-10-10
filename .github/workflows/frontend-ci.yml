@@ -1,0 +1,36 @@
+name: Frontend CI
+
+# Every pull request that touches the frontend must prove itself: lint, type check and a
+# production build. Pushes to staging and main run it again (ADR 0015).
+on:
+  pull_request:
+    paths:
+      - "Front-End/**"
+      - ".github/workflows/frontend-ci.yml"
+  push:
+    branches: [main, staging]
+    paths:
+      - "Front-End/**"
+      - ".github/workflows/frontend-ci.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Front-End
+    env:
+      # The build only needs an address to write the /api rewrite; nothing is called.
+      BACKEND_URL: http://localhost:4000
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: Front-End/.nvmrc
+          cache: npm
+          cache-dependency-path: Front-End/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
