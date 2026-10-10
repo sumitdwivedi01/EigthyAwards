@@ -199,7 +199,8 @@ All routes live under `/api` and return view models. The full contract grows in 
 
 | Area | Main endpoints |
 |---|---|
-| Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password`; `PUT /me/identity-document`; `PUT /me/linkedin` |
+| Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password`; `PUT /me/linkedin`; `POST /me/identity-document/uploads` (an upload link), then `PUT /me/identity-document` |
+| Master data (public) | `GET /master-data/organisation-types`, `/master-data/award-domains`, `/master-data/states` |
 | Organisations | `POST /organisations`, `POST /organisations/join`, `GET /organisations/mine`, `PATCH /organisations/:id` |
 | Public | `GET /public/awards` (open awards), `GET /public/awards/:slug` (branded page, live counter) |
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |

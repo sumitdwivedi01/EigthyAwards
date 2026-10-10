@@ -51,3 +51,18 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **Why.** PostgreSQL stores an index predicate in its own rewritten form: `NOT IN (…)` becomes `<> ALL (ARRAY[…])`. Prisma compares that stored form with the schema's text and sees a difference. Comparisons joined with `AND` come back in a form it matches (the other partial indexes never drifted).
 - **Fix.** `status <> 'WITHDRAWN' AND status <> 'RELEASED'`, in both the schema and the migration. Same meaning, no drift; the tests for the rule still pass.
 - **Lesson.** "The SQL is right" isn't enough when a tool compares text; run the same checks CI runs before pushing.
+
+## 8. A plan that named a file Next.js no longer uses (Step 1.1, 10 Oct)
+
+- **What looked right.** Our own plan (PHASES.md §3, the Front-End README), written with AI help on 4–9 Oct, put the login gate in `src/middleware.ts`, the file every Next.js tutorial uses.
+- **How it was caught.** `create-next-app` 16 now writes an `AGENTS.md` saying the version has breaking changes and pointing to the docs inside the package. The bundled upgrade guide (`node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md`) says `middleware` was renamed to `proxy` (file `proxy.ts`, function `proxy`, Node.js runtime only), and that `next lint` was removed.
+- **Fix.** The gate is `src/proxy.ts`; linting runs ESLint directly; the plan and the README now say so.
+- **Lesson.** Read the docs shipped with the installed version before writing code against a framework that changes every year; a plan is only as current as the day it was written.
+
+## 9. A check that looked like it cleaned input but refused it (Step 1.1, 10 Oct)
+
+- **What looked right.** The registration schema: `email: z.email().max(254)`, with the service normalising the address (trim, lower case) before saving, as spec §5.18 asks.
+- **How it was caught.** A test written from the rule ("a pasted `Asha@Example.TEST` with spaces is stored as `asha@example.test`") got 400 instead of 201.
+- **Why.** Zod checks the email format on the raw value, before any trimming, so the leading space made it invalid; the normaliser never ran.
+- **Fix.** `z.string().trim().max(254).pipe(z.email())`: trim first, then check. The same pattern is used for every email the API accepts.
+- **Lesson.** Validation order matters; a test with realistic messy input catches what a happy-path test can't.

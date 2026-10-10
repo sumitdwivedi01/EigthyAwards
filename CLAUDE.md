@@ -89,4 +89,21 @@ The brief asks for one example of AI output that looked right but was wrong. Rec
 
 ## Commands
 
-Filled in as steps land (Step 1.1: backend and frontend).
+Docker Desktop must be running. The demo accounts' passwords are in `Backend/.env` (`LEADER_PASSWORD`, `DEMO_PASSWORD`); never print or commit them.
+
+```bash
+# Backend (Backend/): API on http://localhost:4000
+docker compose up -d          # PostgreSQL on 5433 (awards, awards_test, awards_shadow), Mailpit on 8025
+npm run db:deploy && npm run db:seed
+npm test                      # every test, against awards_test
+npm run lint && npm run typecheck
+npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code   # CI's drift check
+npm run dev
+
+# Frontend (Front-End/): screens on http://localhost:3000, /api/* passed to the backend
+npm run dev
+npm run lint && npm run typecheck && npm run build
+```
+
+- `prisma migrate dev` needs an interactive terminal; to draft a migration, run `prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --script`, then add by hand what Prisma can't express (CHECKs, triggers).
+- Next.js 16: `src/proxy.ts` (not middleware), no `next lint`, generated `PageProps`/`LayoutProps` (`next typegen`). Read `Front-End/node_modules/next/dist/docs/` before using a Next.js API.

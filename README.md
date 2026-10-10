@@ -37,4 +37,24 @@ The four rules from the brief (blind judging, conflicts of interest, score audit
 
 ## Running it
 
-Coming with Step 1.1 (10 Oct); the live links come with Step 1.5 (14 Oct). The final version of this section will let a stranger run the project from a fresh clone in under 10 minutes.
+You need Node.js 22 and Docker Desktop. In one terminal, the API:
+
+```bash
+cd Backend
+cp .env.example .env     # set AUTH_SECRET, LEADER_PASSWORD and DEMO_PASSWORD (comments inside)
+npm ci
+docker compose up -d     # PostgreSQL and Mailpit
+npm run db:deploy && npm run db:seed
+npm run dev              # http://localhost:4000/api/health
+```
+
+In a second terminal, the screens:
+
+```bash
+cd Front-End
+cp .env.example .env.local
+npm ci
+npm run dev              # http://localhost:3000
+```
+
+Log in with a demo account (listed in [PROGRESS.md](docs/PROGRESS.md#seeded-test-accounts)) or register as an applicant. Details: [Backend/README.md](Backend/README.md), [Front-End/README.md](Front-End/README.md). The live links come with Step 1.5 (14 Oct).

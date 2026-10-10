@@ -70,13 +70,13 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.7 | Lead call: proof once on the profile, My profile, several jury per application | `phase-0.7-lead` | 7 | ✅ Merged (`phase-0.7-done`) |
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | 7 | ✅ Merged (`phase-0.8-done`) |
 | 0.9 | Docs refined: app READMEs, wording, status; Phase 1 fitted to the dates | `phase-0.9-docs` | 7–8 | ✅ Merged (sumitdwivedi01/EigthyAwards#9) |
-| 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | 🧪 In review |
+| 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | ✅ Merged (`phase-0.10-done`) |
 
 **Phase 1: working platform** (the dates are fixed; the build is 10–13 Oct, deployment 14 Oct, demo 15 Oct)
 
 | Step | Date | Work | Branch | Status |
 |---|---|---|---|---|
-| 1.1 | **Sat 10 Oct** | Foundation and people | `phase-1.1-foundation` | ⬜ |
+| 1.1 | **Sat 10 Oct** | Foundation and people | `phase-1.1-foundation` | 🧪 Built; pull request next |
 | 1.2 | **Sun 11 Oct** | Award setup and branded pages | `phase-1.2-setup` | ⬜ |
 | 1.3 | **Mon 12 Oct** | Applying and proof check | `phase-1.3-apply` | ⬜ |
 | 1.4 | **Tue 13 Oct** | Judging, approval and results | `phase-1.4-judging` | ⬜ |
@@ -134,7 +134,7 @@ Status key: ⬜ not started · 🚧 in progress · 🧪 testing or in review · 
 └─ Front-End/                 Next.js + TypeScript UI, deployed to Vercel
    ├─ next.config.ts          rewrites /api/* to the backend (same-origin cookies)
    ├─ src/
-   │  ├─ middleware.ts        coarse gate: logged in or not (never decides permissions)
+   │  ├─ proxy.ts             coarse gate: logged in or not (never decides permissions); Next.js 16's name for middleware
    │  ├─ app/                 (public) · applicant · staff · jury · dept · leader · auth pages
    │  ├─ components/          ui/ (shadcn) · form-renderer/ · form-builder/ · scoring-sheet/ · layout/
    │  ├─ features/<area>/     API hooks and feature components per area
@@ -443,7 +443,7 @@ The whole plan in plain language with diagrams ([docs/overview/](overview/)) for
 
 ---
 
-### Phase 0.10: A staging branch (Docs) 🧪
+### Phase 0.10: A staging branch (Docs) ✅
 
 **Goal.** Test every step on a `staging` branch before it reaches `main` (production), as the owner asked on 10 Oct (ADR 0015).
 
