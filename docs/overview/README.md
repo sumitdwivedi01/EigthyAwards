@@ -22,7 +22,7 @@
 
 ## 1. The problem
 
-The body runs about **80 awards**: business excellence, energy, safety, design, innovation, sustainability, regional awards, and shop-floor competitions such as Kaizen and 5S. Each award grew up on its own system.
+The body runs about **80 awards**: business excellence, energy, safety, design, innovation, sustainability, regional awards, and shop-floor competitions such as Kaizen and 5S. Each award grew up on its own system. (What these awards are, one award walked through from start to finish, and the terms used here: [the README, sections 1 to 6](../../README.md#1-the-organisation-and-its-awards).)
 
 ```mermaid
 flowchart LR
@@ -112,7 +112,7 @@ Every award follows this path. **Dotted** steps only happen when the award's set
 flowchart TD
     subgraph S1["① SET UP · once per award, no developer"]
         direction LR
-        a1["Leader<br/>creates a department"] --> a2["Department head<br/>assigns staff"] --> a3["Staff choose the settings<br/>questions · scoring · fee<br/>blind or not · rounds"] --> a4["Publish<br/>shows on Open awards"]
+        a1["Leader<br/>creates a department<br/>and its head"] --> a2["Department head<br/>adds staff and jury"] --> a3["Staff choose the settings<br/>questions · scoring · fee<br/>blind or not · rounds"] --> a4["Publish<br/>shows on Open awards"]
     end
     subgraph S2["② APPLY · until the deadline"]
         direction LR
@@ -124,7 +124,7 @@ flowchart TD
     end
     subgraph S4["④ ROUND 1 · written review"]
         direction LR
-        d1["Hide the company name<br/>blind awards only"] --> d2["Give each application<br/>to 1 or more jurors<br/>(staff set how many)"] --> d3["Each juror scores 0 to 10<br/>alone; the average counts"] --> d4{"Department<br/>head"}
+        d1["Jury never see the company<br/>blind awards only"] --> d2["Give each application<br/>to 1 or more jurors<br/>(staff set how many)"] --> d3["Each juror scores 0 to 10<br/>alone; the average counts"] --> d4{"Department<br/>head"}
         d4 -->|send back| d3
         d4 -->|approve| d5["Shortlisted<br/>or Rejected"]
     end
@@ -175,7 +175,7 @@ These come straight from the brief. The platform enforces them on every request.
 
 | Rule | In plain words | Where in the journey |
 |---|---|:---:|
-| **1. Blind judging** | In a blind award, jury only see a cleaned copy, never the company's name or original files | ④ |
+| **1. Blind judging** | In a blind award, jury see the answers but never the company's details, the applicant's name or any file | ④ |
 | **2. Conflict of interest** | Staff record "this juror knows this company" once; the system then refuses that pairing in every award | ④ ⑤ |
 | **3. Score history** | After a juror submits, any change needs a reason. Who, when, old score and new score are kept. Approved scores never change | ④ ⑤ |
 | **4. Changing questions** | Each published set of questions is saved for good. Last year's applications always open with last year's questions | ① ② |

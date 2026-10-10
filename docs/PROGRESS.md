@@ -7,11 +7,11 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-11 · Day 9 |
-| **Current phase** | **Step 1.1: Foundation and people** (🧪 built; the pull request into `staging` is next) and **Phase 0.11: the re-plan** (🧪 written; the owner's review) |
-| **Current branch** | `phase-0.11-replan` (docs), cut from `phase-1.1-foundation`; Step 1.1's branch was cut from `staging` (`main` is production) |
+| **Current phase** | **Phase 0.12: README problem first** (🧪 written; pull request into `staging` next). Step 1.1 and the re-plan (0.11) are merged into `staging` |
+| **Current branch** | `phase-0.12-readme` (docs), cut from `staging` (`main` is production) |
 | **What runs today** | On the step branch, locally: the API (logins, applicant and platform accounts, scoped roles, My profile, organisations, master lists, the seed; 136 tests) and the web app (login, register, My profile, My organisation, a home per role), checked by hand in a browser. `staging` and `main` hold the docs until this step merges |
 | **The plan** | [PLAN.md](PLAN.md), **re-planned 11 Oct**: Step 1.2 departments, people and award setup (Sun 11 – Mon 12), 1.3 applying (Mon 12 – Tue 13), 1.4 assignment and judging (Tue 13 – Wed 14), 1.5 production online (Wed 14 – Thu 15 morning), **walkthrough Thu 15 afternoon**; about 71 hours, no buffer left. Then Phase 2 (~23 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner reviews the re-plan (Phase 0.11). 2) Pull request `phase-1.1-foundation` → `staging`, CI, merge; the manual check on `staging`; `staging` → `main`; tag `phase-1.1-done`. 3) Pull request `phase-0.11-replan` → `staging` (after 1.1, so it shows only the docs), then → `main`. 4) **Step 1.2** on `phase-1.2-setup` cut from `staging` |
+| **Next action** | 1) Pull request `phase-0.12-readme` → `staging`, merge. 2) The manual check of Step 1.1 on `staging`; then `staging` → `main` (Step 1.1, the re-plan and the README together); tag `phase-1.1-done`. 3) **Step 1.2** on `phase-1.2-setup` cut from `staging` |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
 | **Risk** | About 71 hours with Thursday morning now build time: **no buffer** (G-K13). Daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 ran into Sunday. Only production goes online, so there is one set-up to get right (G-K18) |
 
@@ -32,8 +32,9 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
 | 0.9 | Docs refined | `phase-0.9-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#9 | 2026-10-10 · `phase-0.9-done` (tag to push) | n/a |
 | 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | ✅ Merged | sumitdwivedi01/EigthyAwards#10 → `staging`, sumitdwivedi01/EigthyAwards#11 → `main` | 2026-10-10 · `phase-0.10-done` | n/a |
-| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | 🧪 Written; owner's review | — | — | n/a |
-| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 Built, pull request next | — | — | 136 backend (were 62); frontend: lint, type check, build |
+| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | ✅ In `staging` | sumitdwivedi01/EigthyAwards#13 → `staging` | — | n/a |
+| 0.12 | README problem first | `phase-0.12-readme` | 🧪 Written; pull request next | — | — | n/a |
+| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 In `staging`; check, then `main` | sumitdwivedi01/EigthyAwards#12 → `staging` | — | 136 backend (were 62); frontend: lint, type check, build |
 | **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
 | **1.3** | Applying and proof check · **Mon 12 – Tue 13 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
 | **1.4** | Assignment, judging and results · **Tue 13 – Wed 14 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
@@ -94,7 +95,15 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
-### Phase 0.11: Re-plan around the lead's focus · 🧪 · 2026-10-11 (Day 9)
+### Phase 0.12: README problem first · 🧪 · 2026-10-11 (Day 9)
+
+A first-time reader couldn't picture the problem from the README: it went straight to the platform, and assumed the reader knew what these awards are, what "different systems" means in practice, and terms like "250 indicators in 15 areas" or "38 categories". The README now explains the problem first and the solution after.
+
+- [x] README.md: §1 the organisation and its awards (what an award programme is, who applies and why, the scale and the differences); §2 one award from start to finish, with a sample scoring sheet; §3 how the awards are run today and where it hurts for each user, with the inconsistent-data example; §4 the terms; §5 what must be the same and what may differ; §6 what we know, assumed and still have open; then §7 the solution in short, §8 status, §9 where to look, §10 running it. Brought up to date (16 modules, the re-plan, the status).
+- [x] The overview's problem section points to the README; three overview lines from before 11 Oct updated (people, rule 1). GAPS F10; PHASES and Daily.
+- [ ] Merged into `staging`, then into `main`.
+
+### Phase 0.11: Re-plan around the lead's focus · ✅ in `staging` · 2026-10-11 (Day 9)
 
 The lead wants the focus on the form builder, filling the form and judging, and doesn't want masking. The owner wants departments, heads, staff and jury created on screen in Phase 1, staff assigning applications to jury by hand with the counts in view, and an exact average. Four points were agreed first (recommended options): blind awards hide identity, names and files automatically and masking leaves the plan; new accounts get a temporary password changed at first login; jury are listed per department with no cycle pool, and staff assign by hand; room comes from a simpler award page, one online site and Thursday morning.
 
@@ -102,7 +111,8 @@ The lead wants the focus on the form builder, filling the form and judging, and 
 - [x] PLAN and the Phase 1 roadmap (who does what, the two awards, rule 1, day by day, moved and dropped, cut order, walkthrough, risks); PHASES (change log, routine, timeline, Steps 1.2–1.5 rewritten, Phase 2 packages, cut order, history).
 - [x] The spec: revision log and every section the decisions touch (§1–4, §5.1, §5.3–5.9, §5.12, §5.14, §5.15, §5.17, §6–8, §10–12, §14, §15, §18); TECHNICAL-DESIGN (modules, data model, flows, API, environments, testing).
 - [x] GAPS (K13, K14, K17, K18, K19, C13, D11, K03, K07, A10; K22–K27 added); CLAUDE.md; creating.md; the UI overview; the overview; both READMEs; Daily.
-- [ ] The owner's review; merged into `staging` after Step 1.1, then into `main`.
+- [x] Reviewed and merged into `staging` (sumitdwivedi01/EigthyAwards#13), after Step 1.1 (sumitdwivedi01/EigthyAwards#12).
+- [ ] Merged into `main`.
 
 
 ### Step 1.1: Foundation and people · 🧪 · 2026-10-10 (Day 8, evening and night)
