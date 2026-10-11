@@ -81,7 +81,9 @@ describe("the leader creates a department with its head (ADR 0017)", () => {
     const leader = await signIn(app, "leader@example.test");
     const taken = await leader.post("/api/departments").send({ ...newDepartment, name: "ENERGY" });
     expect(taken.status).toBe(400);
-    expect(taken.body.error.details).toEqual([expect.objectContaining({ path: "name" })]);
+    expect(taken.body.error.details).toEqual([
+      { path: "name", message: 'A department called "Energy" already exists.' },
+    ]);
   });
 
   it("appoints an existing platform account as head without a new password, but never the leader or an applicant", async () => {

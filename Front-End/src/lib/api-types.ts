@@ -32,6 +32,49 @@ export interface Me {
   home: Area | null;
 }
 
+/** A person on a department's lists. */
+export interface Person {
+  id: string;
+  name: string;
+  email: string;
+  /** Still on a temporary password: they haven't logged in and chosen their own yet. */
+  waitingForFirstLogin: boolean;
+}
+
+export interface ListedPerson extends Person {
+  /** Staff: awards they work on here. Jury: applications assigned to them here. */
+  workCount: number;
+  canRemove: boolean;
+}
+
+export interface DepartmentSummary {
+  id: string;
+  name: string;
+  externalOrganiser: boolean;
+  colours: { primary: string; accent: string } | null;
+  heads: Person[];
+  counts: { staff: number; jury: number; awards: number };
+}
+
+export interface People {
+  department: { id: string; name: string; externalOrganiser: boolean };
+  heads: Person[];
+  staff: ListedPerson[];
+  jury: ListedPerson[];
+}
+
+/** temporaryPassword is set only when one was made now; it is shown once and never again. */
+export interface PersonWithPassword {
+  person: Person;
+  temporaryPassword: string | null;
+}
+
+export interface CreatedDepartment {
+  department: DepartmentSummary;
+  head: Person;
+  temporaryPassword: string | null;
+}
+
 export interface Organisation {
   id: string;
   legalName: string;

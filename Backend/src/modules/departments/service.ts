@@ -126,8 +126,10 @@ export async function listDepartments(actor: Actor): Promise<DepartmentSummaryVi
 export async function createDepartment(actor: Actor, input: CreateDepartmentInput): Promise<CreatedDepartmentView> {
   requireLeader(actor);
   const name = normalizeName(input.name);
-  const nameTaken = () => fieldIssue("name", `A department called "${name}" already exists.`);
-  if (await db.department.findUnique({ where: { name }, select: { id: true } })) throw nameTaken();
+  // Names compare without letter case; the message names the department as it is stored.
+  const nameTaken = (stored: string) => fieldIssue("name", `A department called "${stored}" already exists.`);
+  const existing = await db.department.findUnique({ where: { name }, select: { name: true } });
+  if (existing) throw nameTaken(existing.name);
   try {
     return await db.$transaction(async (tx) => {
       const head = await findOrCreatePlatformAccount(tx, input.head, "head.email");
@@ -169,7 +171,7 @@ export async function createDepartment(actor: Actor, input: CreateDepartmentInpu
       };
     });
   } catch (error) {
-    if (isUniqueViolation(error)) throw nameTaken();
+    if (isUniqueViolation(error)) throw nameTaken(name);
     throw error;
   }
 }

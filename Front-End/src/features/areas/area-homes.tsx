@@ -168,11 +168,30 @@ export function DepartmentHome() {
     <AreaPage area="department">
       {(me) => (
         <>
-          <PageTitle title="Department" description="Your department's awards, jury and approvals." />
+          <PageTitle title="Department" description="Your department's people, awards and approvals." />
           <div className="grid gap-6 md:grid-cols-2">
-            <ScopeList title="Departments you head" items={scopesOf(me, "DEPT_HEAD")} empty="None." />
-            <ComingNext step="Step 1.4 (13 Oct)">
-              Adding jury to an award&apos;s pool, recording conflicts of interest, and approving a round&apos;s results.
+            <Card>
+              <CardHeader>
+                <CardTitle>Departments you head</CardTitle>
+                <CardDescription>Add your staff and jury; they get a temporary password to start with.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="grid gap-2">
+                  {me.roles
+                    .filter((r) => r.role === "DEPT_HEAD" && r.department)
+                    .map((r) => (
+                      <li key={r.department?.id} className="flex items-center justify-between gap-3 text-sm">
+                        {r.department?.name}
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/department/${r.department?.id}`}>People</Link>
+                        </Button>
+                      </li>
+                    ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <ComingNext step="Step 1.4 (13–14 Oct)">
+              Recording conflicts of interest, and approving a round&apos;s results.
             </ComingNext>
           </div>
         </>
@@ -189,7 +208,7 @@ export function JuryHome() {
           <PageTitle title="Jury" description="The applications assigned to you." />
           <div className="grid gap-6 md:grid-cols-2">
             <ScopeList title="Departments you judge for" items={scopesOf(me, "JURY")} empty="None yet." />
-            <ComingNext step="Step 1.4 (13 Oct)">Your assignments and the scoring screen.</ComingNext>
+            <ComingNext step="Step 1.4 (13–14 Oct)">Your assignments and the scoring screen.</ComingNext>
           </div>
         </>
       )}
@@ -203,10 +222,23 @@ export function LeaderHome() {
       {() => (
         <>
           <PageTitle title="Leader" description="One view across every award and department." />
-          <ComingNext step="Step 1.4 (13 Oct)">
-            The dashboard: applications by status, judging progress, rounds waiting for approval and upcoming deadlines,
-            across every department. It is read-only: the leader never changes judging data.
-          </ComingNext>
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Departments</CardTitle>
+                <CardDescription>Create a department with its head, and see each one&apos;s people.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild size="sm">
+                  <Link href="/leader/departments">Open departments</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            <ComingNext step="Step 1.4 (13–14 Oct)">
+              The dashboard: applications by status, judging progress, rounds waiting for approval and upcoming deadlines,
+              across every department. It is read-only: the leader never changes judging data.
+            </ComingNext>
+          </div>
         </>
       )}
     </AreaPage>
