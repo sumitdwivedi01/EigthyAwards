@@ -10,7 +10,6 @@ export const meInclude = {
       role: true,
       department: { select: { id: true, name: true } },
       award: { select: { id: true, name: true } },
-      cycle: { select: { id: true, label: true, award: { select: { name: true } } } },
     },
   },
   memberships: {
@@ -28,7 +27,6 @@ export interface RoleView {
   role: Role;
   department: { id: string; name: string } | null;
   award: { id: string; name: string } | null;
-  cycle: { id: string; label: string; awardName: string } | null;
 }
 
 export interface MeView {
@@ -38,6 +36,8 @@ export interface MeView {
   name: string;
   phone: string | null;
   passwordChangedAt: string | null;
+  /** Signed in with a temporary password: the person must set their own first (ADR 0017). */
+  mustChangePassword: boolean;
   linkedinUrl: string | null;
   identityDocument: { fileName: string; uploadedAt: string } | null;
   roles: RoleView[];
@@ -45,7 +45,7 @@ export interface MeView {
   areas: Area[];
   /**
    * Where the user lands after logging in: null for a platform account with no role yet (a juror
-   * before staff add them to a cycle's pool).
+   * before a department head lists them).
    */
   home: Area | null;
 }
@@ -72,6 +72,7 @@ export function meView(user: MeRecord): MeView {
     name: user.name,
     phone: user.phone,
     passwordChangedAt: user.passwordChangedAt?.toISOString() ?? null,
+    mustChangePassword: user.mustChangePassword,
     linkedinUrl: user.linkedinUrl,
     identityDocument: user.identityFile
       ? { fileName: user.identityFile.fileName, uploadedAt: user.identityFile.createdAt.toISOString() }
@@ -80,7 +81,6 @@ export function meView(user: MeRecord): MeView {
       role: r.role,
       department: r.department,
       award: r.award,
-      cycle: r.cycle ? { id: r.cycle.id, label: r.cycle.label, awardName: r.cycle.award.name } : null,
     })),
     organisations: user.memberships.map((m) => m.organisation),
     areas,

@@ -12,7 +12,6 @@ export interface RoleView {
   role: Role;
   department: { id: string; name: string } | null;
   award: { id: string; name: string } | null;
-  cycle: { id: string; label: string; awardName: string } | null;
 }
 
 export interface Me {
@@ -22,6 +21,8 @@ export interface Me {
   name: string;
   phone: string | null;
   passwordChangedAt: string | null;
+  /** Signed in with a temporary password: they must set their own before anything else. */
+  mustChangePassword: boolean;
   linkedinUrl: string | null;
   identityDocument: { fileName: string; uploadedAt: string } | null;
   roles: RoleView[];

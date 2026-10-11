@@ -112,8 +112,9 @@ export async function actorFromSession(token: string): Promise<Actor | null> {
       accountType: true,
       name: true,
       sessionVersion: true,
+      mustChangePassword: true,
       deactivatedAt: true,
-      roles: { where: { revokedAt: null }, select: { role: true, departmentId: true, awardId: true, cycleId: true } },
+      roles: { where: { revokedAt: null }, select: { role: true, departmentId: true, awardId: true } },
       memberships: { select: { organisationId: true } },
     },
   });
@@ -123,6 +124,7 @@ export async function actorFromSession(token: string): Promise<Actor | null> {
     email: user.email,
     name: user.name,
     accountType: user.accountType,
+    mustChangePassword: user.mustChangePassword,
     roles: user.roles,
     organisationIds: user.memberships.map((m) => m.organisationId),
   };

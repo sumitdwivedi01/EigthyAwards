@@ -48,7 +48,7 @@ function NothingAssignedYet() {
 function scopesOf(me: Me, role: Role): string[] {
   return me.roles
     .filter((r) => r.role === role)
-    .map((r) => r.department?.name ?? r.award?.name ?? (r.cycle ? `${r.cycle.awardName} ${r.cycle.label}` : ""))
+    .map((r) => r.department?.name ?? r.award?.name ?? "")
     .filter(Boolean);
 }
 
@@ -188,7 +188,7 @@ export function JuryHome() {
         <>
           <PageTitle title="Jury" description="The applications assigned to you." />
           <div className="grid gap-6 md:grid-cols-2">
-            <ScopeList title="Awards you judge" items={scopesOf(me, "JURY")} empty="None yet." />
+            <ScopeList title="Departments you judge for" items={scopesOf(me, "JURY")} empty="None yet." />
             <ComingNext step="Step 1.4 (13 Oct)">Your assignments and the scoring screen.</ComingNext>
           </div>
         </>
