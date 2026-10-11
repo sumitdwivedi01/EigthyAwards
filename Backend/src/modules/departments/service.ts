@@ -131,7 +131,7 @@ export async function createDepartment(actor: Actor, input: CreateDepartmentInpu
   const existing = await db.department.findUnique({ where: { name }, select: { name: true } });
   if (existing) throw nameTaken(existing.name);
   try {
-    return await db.$transaction(async (tx) => {
+    const { departmentId, head } = await db.$transaction(async (tx) => {
       const head = await findOrCreatePlatformAccount(tx, input.head, "head.email");
       if (!head.temporaryPassword) await refuseConflictingRoles(tx, head.userId, null, "head", "head.email");
       const department = await tx.department.create({
@@ -160,16 +160,15 @@ export async function createDepartment(actor: Actor, input: CreateDepartmentInpu
         entityId: department.id,
         after: { name, externalOrganiser: input.externalOrganiser, headUserId: head.userId },
       });
-      const created = await tx.department.findUniqueOrThrow({
-        where: { id: department.id },
-        include: departmentSummaryInclude,
-      });
-      return {
-        department: departmentSummaryView(created),
-        head: asPersonView(head, head.temporaryPassword !== null),
-        temporaryPassword: head.temporaryPassword,
-      };
+      return { departmentId: department.id, head };
     });
+    // The view is read after the commit: transactions only write (GAPS G-K28).
+    const created = await db.department.findUniqueOrThrow({ where: { id: departmentId }, include: departmentSummaryInclude });
+    return {
+      department: departmentSummaryView(created),
+      head: asPersonView(head, head.temporaryPassword !== null),
+      temporaryPassword: head.temporaryPassword,
+    };
   } catch (error) {
     if (isUniqueViolation(error)) throw nameTaken(name);
     throw error;
