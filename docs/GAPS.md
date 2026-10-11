@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-11 (Day 9, Step 1.2: departments, people and award setup). Update this file at the end of every step.
+> Last updated: 2026-10-11 (Day 9, night: Step 1.3, applying and the proof check). Update this file at the end of every step.
 >
 > **Phase numbers** in the "Phase" columns use the old 15-phase list. [PHASES.md §7](PHASES.md#7-where-the-old-15-phase-list-went) maps them to the new steps (1.1–1.5) and packages (2.x, 3.x).
 
@@ -25,8 +25,8 @@
 | G | Repository and process gaps | 7 | 3 |
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 3 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 8 |
-| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
-| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores; Step 1.2 findings | 31 | 9 |
+| J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 7 |
+| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores; Step 1.2 and 1.3 findings | 33 | 9 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -231,10 +231,10 @@ From the owner on 7 Oct 2026. Full analysis and proposals: [proposals/0.4-new-is
 | G-J17 | Nobody outside a department can take down a wrong or abusive award site (no leader approval or editing, J05). | Accept for now: the leader asks the department head. Revisit if it happens. | 4 | Accepted risk |
 | G-J18 | Aadhaar: storing full Aadhaar numbers is restricted. | Accept only masked Aadhaar (last four digits) as an identity document; other IDs preferred | 2, 7 | Default adopted |
 | G-J19 | Deleting proof documents after 12 months needs a scheduled job; the platform has none yet. | A daily clean-up run from a cron route (Render cron or an external scheduler). From 9 Oct it must also count the applications using a profile's identity document before deleting it (G-K05) | 7 | Open |
-| G-J20 | The last place under the entry limit: two applicants submitting at the same moment could both get in. | Count and submit in one transaction that locks the cycle's row | 7 | Default adopted |
+| G-J20 | The last place under the entry limit: two applicants submitting at the same moment could both get in. | Count and submit in one transaction that locks the cycle's row | 7 | Fixed (Step 1.3: the cycle's row is locked; a test races two applicants for the last place) |
 | G-J21 | **Hard limit 15 October** (owner, 8 Oct). The full plan (15 build phases) can't fit. Option A (focused demo) or Option B (real product, 10–14 weeks)? | Option A by 15 Oct, with B as the roadmap ([proposals/0.5-replan-options.md](proposals/0.5-replan-options.md)). **Lead, 9 Oct:** build in **three phases**; Phase 1 is a fully working demo; agree the plan and the data model before coding. The re-plan itself is G-K12 | Plan | Answered (9 Oct) |
 | G-J22 | One application per organisation: flag duplicates afterwards, or stop them before filling? | **Blocked at the start**; colleagues see it read-only with the status only; staff can release (ADR 0011) | 7, 8 | Answered (8 Oct) |
-| G-J23 | With first-come blocking, a wrong or fake member who starts first blocks the real applicant. | Proof documents show staff who the person is; staff release the application with a reason; the real applicant contacts the award team | 7, 9 | Default adopted |
+| G-J23 | With first-come blocking, a wrong or fake member who starts first blocks the real applicant. | Proof documents show staff who the person is; staff release the application with a reason; the real applicant contacts the award team | 7, 9 | Default adopted (release built in Step 1.3, through the API; its screen is Phase 2) |
 | G-J24 | If the person who started the application leaves the organisation, nobody else can continue it. | Staff release it and a colleague starts again; a draft hand-over is later work (spec A26) | 7 | Accepted risk |
 | G-J16 | Sub-domains and own domains need a domain we own and Vercel domain setup, which can't be tested in the 10 days. | Store a slug and an empty `customDomain` field now; build sub-domains and own domains later | 4, later | Open |
 
@@ -247,7 +247,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K01 | Uploading the ID, the LinkedIn link and the employment proof with **every** application repeats work and stores many copies of an ID | The ID and LinkedIn once, on the profile; a proof of employment **dated within 3 months** with each application; the staff of **each award** check their own application | 2, 7, 9 | Answered (9 Oct) |
 | G-K02 | Users can't change their password or their details | **My profile** for every role: name, phone, change password (needs the current one; ends other sessions; email; audited without the password) | 2, 5 | Answered (9 Oct) |
 | G-K03 | One jury member per application lets one person's bias decide the result | Staff set the **jury per application** (minimum and maximum, at least 1, at most the department's jury list since 11 Oct) for each document round; every application needs the minimum; the final score is the **average** | 3, 9, 11 | Answered (9 Oct) |
-| G-K04 | If an applicant replaces their profile ID after staff verified it, what did staff check? | The application records the ID and LinkedIn it used; they follow the profile until verified or locked, then stay fixed (spec A30) | 7, 9 | Default adopted |
+| G-K04 | If an applicant replaces their profile ID after staff verified it, what did staff check? | The application records the ID and LinkedIn it used; they follow the profile until verified or locked, then stay fixed (spec A30) | 7, 9 | Fixed (Step 1.3: recorded at submit, followed until verification or the deadline; tested) |
 | G-K05 | A profile's ID belongs to no cycle, so "12 months after results" is unclear | 12 months after the results of the last cycle that used it; one replaced before any use is deleted at once | 7 | Default adopted |
 | G-K06 | Two staff assigning at the same moment could go above the maximum | Count and assign under a lock on the application; a partial unique index stops the same jury member twice | 9 | Default adopted |
 | G-K07 | A high minimum multiplies jury work; a small jury list may not cover it | The maximum is capped by the department's jury list; staff see "needs more jury"; the round can't be sent for approval until every application has its minimum | 9, 10 | Default adopted |
@@ -272,8 +272,10 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K26 | Can the department's own head or staff be on its jury list? | No: the head approves the department's written rounds, and staff assign applications, so they could assign themselves (spec A36) | 1.2 | Fixed (Step 1.2: refused when adding to either list, including award staff; tested) |
 | G-K27 | Removing a person who already has work (staff with an award, a juror with assignments) | Not in Phase 1: removal only while they have no work there; the rest with deactivation in 2.3 | 1.2, 2.3 | Accepted risk |
 | G-K28 | Prisma 7's pg adapter runs the nested reads of one query (`include`) at the same time on one connection; inside an interactive transaction, pg warns that this is deprecated and will fail in a future pg version | Found in Step 1.2 (`--trace-deprecation`). Writes stay in the transaction; the view with its includes is read after the commit (`createAward`, `createDepartment`). Check again whenever pg or Prisma is upgraded | 1.2 | Accepted risk |
-| G-K29 | The seed never changes an existing account's password, so a local database seeded before `DEMO_PASSWORD` changed keeps the old passwords and the demo logins fail | Reset the local database (`npx prisma migrate reset`, then `npm run db:seed`), or the leader issues a temporary password on screen. Production is seeded once, in Step 1.5 | 1.2 | Accepted risk |
+| G-K29 | The seed never changes an existing account's password, so a local database seeded before `DEMO_PASSWORD` changed keeps the old passwords | **Corrected the same night:** the failed demo logins of 11 Oct weren't caused by this. A local script read the `.env` line together with its inline comment; with the value as `dotenv` reads it (as the seed does), the seeded logins work (ai-notes #14). The seed's behaviour stays as described: after changing `DEMO_PASSWORD`, reset the local database (`npm run db:reset`, then `npm run db:seed`) | 1.2 | Accepted risk |
 | G-K30 | The plan shows the department's **logo** on award pages and cards, but Phase 1 has no image uploads | Phase 1 pages and cards use the department's name and colours; the logo comes with image uploads in package 2.2 (the brand kit already has `logoAssetId`) | 1.2, 2.2 | Default adopted |
+| G-K32 | Word and Excel files (.docx, .xlsx) are ZIP archives: the content check knows a ZIP, not which program made it, so any ZIP passes as either | Accepted for Phase 1: the file must still be declared as one of the question's kinds and be a real ZIP; reading the archive's content list comes with more file types in package 2.5 | 1.3, 2.5 | Accepted risk |
+| G-K33 | There is no scheduled job, so the deadline lock (drafts to Not submitted, the snapshot frozen) runs on the first use of the edition after its deadline | Every write checks the clock itself, and every view works the status out from the clock, so nothing changes or shows wrongly in between; Step 1.4's assignment runs the lock first. A scheduled job if a report ever needs the stored status before anyone opens the edition | 1.3, 1.4 | Default adopted |
 | G-K31 | The leader can still issue a new temporary password to a department head, and sees it once: a way into a department that otherwise runs itself (ADR 0020) | Kept by the owner (11 Oct) as the only way back in for a locked-out head until email reset (2.3): the head's sessions end, they must set a new password, and it is audited as the leader's action, so the head notices. Email reset removes the need | 1.2, 2.3 | Accepted risk |
 
 ---
@@ -296,6 +298,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-11 | Step 1.3 (applying and the proof check): J20 and K04 fixed (built and tested); J23 updated (release through the API); K29 corrected (the failed logins came from a script, ai-notes #14); K32 (Word and Excel files known only as ZIP) and K33 (the deadline lock runs on first use) added. |
 | 2026-10-11 | Departments run themselves (ADR 0020): E03 and J06 changed (only the head manages people and the theme); K31 added (the leader can still reset a locked-out head). |
 | 2026-10-11 | Step 1.2 (departments, people and award setup): K26 fixed (built and tested); K28 (pg adapter reads inside transactions), K29 (the seed keeps existing passwords) and K30 (no logo until image uploads) added. |
 | 2026-10-11 | README rewritten problem first (Phase 0.12): F10 added and done. |

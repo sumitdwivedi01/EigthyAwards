@@ -10,7 +10,8 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 |---|---|
 | **Built (Step 1.1)** | The foundation (database schema with its rules, shared libraries, audit, email outbox), the migration with the decisions of 7–9 Oct, logins and sessions, applicant and platform accounts (ADR 0016), scoped roles, My profile (change password; LinkedIn and identity document for applicants), organisations, master-data lists, the seed. 136 tests |
 | **Built (Step 1.2)** | Departments and people (ADR 0017): the leader creates departments and heads, heads keep the staff and jury lists, temporary passwords (shown once, 7 days, must be changed; every other endpoint answers 403 until then). Award setup: awards, editions with dates, fee, blind judging, categories, entry limit, jury per application and result names; the publish check; questions with immutable versions (R4); the scoring sheet and the exact score arithmetic (ADR 0019); one public page per award and Open awards. No masking (ADR 0018). Departments run themselves: the head keeps the people and chooses the theme, the leader only views (ADR 0020). 203 tests |
-| **Next** | **Step 1.3 (12–13 Oct):** applying (one per organisation, demo fee, autosaved answers and files, employment proof, entry limit, deadline lock) and the staff's proof check |
+| **Built (Step 1.3)** | Applying: starting (one per organisation, blocked at the start, ADR 0011), the demo fee, autosaved answers checked per question type, files through signed links, the recent employment proof (3 months), submitting with the entry limit under a lock and the organisation's snapshot, the deadline lock on first use, R4 pinning; staff's applications list, proof check (with the rejection email) and release (API); file downloads with access checks. 271 tests |
+| **Next** | **Step 1.4 (13–14 Oct):** conflicts (R2), assigning applications to jury by hand with the counts, the blind jury view (R1), scoring with the exact average, score changes with a reason (R3), approval, results, the leader dashboard |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds and tests) |
 
 ## What gets built when
@@ -27,7 +28,7 @@ Why it is built this way: [ADR 0001](../docs/decisions/0001-frontend-backend-spl
 | `forms` | Questionnaire drafts, immutable versions (R4) | Built (1.2) | Version diff, New/Updated markers, more question types (2.5) |
 | `scoring` | Scoring sheets, weight checks, the exact score arithmetic (whole-number points, one rounding, ties; ADR 0019) | Built (1.2; the arithmetic is used from 1.4) | — |
 | `sites` | One branded page per award (its address chosen by staff); Open awards and the public award page | Built (1.2) | Full section builder, versions, restore (2.2) |
-| `applications` | Start (one per organisation), demo fee, answers, files, employment proof, submit with the entry limit, deadline lock, proof check, release | 1.3 | Edit after submit, withdraw, deadline extension, "questions changed" alerts (2.5) |
+| `applications` | Start (one per organisation), demo fee, answers, files, employment proof, submit with the entry limit, deadline lock, proof check, release, file downloads | Built (1.3) | Edit after submit, withdraw, deadline extension, "questions changed" alerts (2.5) |
 | `judging` | The blind jury view (R1, no masking: ADR 0018), recorded conflicts (R2), assigning listed jury by hand with the assignment board, scoring, score changes with a reason (R3) | 1.4 | Disqualify and reinstate, reopen (2.5) |
 | `approval` | Send for approval and approve (written rounds) | 1.4 | Send back (2.5) |
 | `results` | Ranks, result labels, publishing | 1.4 | Medals for on-site rounds (2.1) |

@@ -2,7 +2,7 @@
 
 The contract between `Front-End/` and `Backend/` (GAPS G-B10). It's updated in every step that adds endpoints. Every endpoint lives under `/api`. The browser calls it through the frontend's own `/api/*` proxy, so the session cookie stays first-party (ADR 0003).
 
-Status: **Step 1.2** (identity, My profile, master data, organisations; departments and people; award setup: awards, editions, questions, scoring sheet; the award page and Open awards). Applying arrives in Step 1.3.
+Status: **Step 1.3** (identity, My profile, master data, organisations; departments and people; award setup; the award page and Open awards; **applying**: starting, the demo fee, autosaved answers, files, the employment proof, submitting, the deadline lock; the staff's applications list, proof check and release; reading files). Assignment and judging arrive in Step 1.4.
 
 ## Conventions
 
@@ -22,7 +22,7 @@ Status: **Step 1.2** (identity, My profile, master data, organisations; departme
   | 401 | `UNAUTHENTICATED` | Not logged in, or the session ended |
   | 403 | `FORBIDDEN` | Role or scope doesn't allow it, the account is of the wrong kind (ADR 0016), the write came from another site, or the account is still on a temporary password (`details.reason: "PASSWORD_CHANGE_REQUIRED"`, ADR 0017) |
   | 404 | `NOT_FOUND` | Missing, or exists but isn't yours to see |
-  | 409 | `STATE_CONFLICT` | Valid, but the current state forbids it. `details.reason` may name it, e.g. `PAN_REGISTERED`, `SETTINGS_FIXED`, or `PUBLISH_BLOCKED` with `details.issues` (a list of sentences) |
+  | 409 | `STATE_CONFLICT` | Valid, but the current state forbids it. `details.reason` may name it, e.g. `PAN_REGISTERED`, `SETTINGS_FIXED`, `PUBLISH_BLOCKED` with `details.issues` (a list of sentences), `ALREADY_STARTED`, `FEE_UNPAID`, `DEADLINE_PASSED`, `ENTRY_LIMIT` |
   | 413 | `PAYLOAD_TOO_LARGE` | Body over 1 MB |
   | 429 | `TOO_MANY_REQUESTS` | Too many failed logins (per visitor and per email, 15 minutes) |
   | 500 | `INTERNAL` | Unexpected; no details are ever sent |
@@ -241,7 +241,7 @@ Each award has one public page at `/awards/<slug>` in its department's colours. 
   "slug": "fpo-excellence", "name": "FPO Excellence Awards", "description": "…", "domain": "Agriculture and Farmer Producer Organisations",
   "department": { "name": "FPO Awards team", "externalOrganiser": true, "colours": { "primary": "#2E7D32", "accent": "#F9A825" }, "footerText": "…" },
   "cycle": {
-    "label": "2026", "opensAt": "…", "deadlineAt": "…", "state": "OPEN", "blindJudging": false,
+    "id": "…", "label": "2026", "opensAt": "…", "deadlineAt": "…", "state": "OPEN", "blindJudging": false,
     "categories": [{ "name": "Women-led FPO", "feePaise": 0 }],
     "fee": { "fromPaise": 0, "toPaise": 0 },
     "entries": { "submitted": 0, "limit": 500 }
@@ -250,3 +250,71 @@ Each award has one public page at `/awards/<slug>` in its department's colours. 
 ```
 
 Never in a public response: people, applications, or anything an applicant entered.
+
+## Applying (applicant accounts; spec §5.2, §5.6, §5.20)
+
+Only an applicant account applies, for an organisation it belongs to (ADR 0016). **One application per organisation per edition, blocked at the start** (ADR 0011): the service checks, and a partial unique index decides when two colleagues start at the same moment. Only the person who started an application opens and changes it; a colleague sees its status in My applications, never who started it, and anyone else gets `404`. Every write checks the deadline (`409 DEADLINE_PASSED` after it).
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/cycles/:id/apply` | — | `ApplyInfo`: the edition, its categories with their fees, the counter, and each of the user's organisations with its active application (status only, unless the user started it). `404` for a draft |
+| POST | `/api/cycles/:id/applications` | `{ categoryId, organisationId? }` (`organisationId` only when the user belongs to several) | `201 Application`. `409 ALREADY_STARTED` with `details.status` ("Your organisation already has an application for this award (Pending)."); `409 NO_ORGANISATION`; `409` before the opening or after the deadline; `400` on `categoryId` for another award's category |
+| GET | `/api/applications/mine` | — | `[MyApplicationRow]`: the user's own applications, and their colleagues' active ones (status only) |
+| GET | `/api/applications/:id` | — | `Application` (the starter only) |
+| PATCH | `/api/applications/:id` | `{ categoryId }` | `200 Application`: the category can change while it is a draft and the fee isn't paid (`409 FEE_PAID` after) |
+| POST | `/api/applications/:id/payment` | — | `200 Application`: the **demo payment** of the fee (the category's own fee, else the edition's) with a made-up reference `DEMO-…`; the form opens. `409` if free or already paid |
+| PUT | `/api/applications/:id/answers` | `{ answers: { [questionKey]: value \| null } }`: text, a number, a choice's option key, or `true`/`false`; `null` or empty text clears | `200 { application, problems: [{ questionKey, message }] }`. **Autosave:** each answer is checked against its question; a wrong one is reported in `problems` with its own message and not saved, while the others are. `409 FEE_UNPAID` until the fee is paid; `409 NOT_A_DRAFT` once submitted |
+| POST | `/api/applications/:id/files` | `{ questionKey, fileName, contentType, sizeBytes }` | `201 { fileId, upload }`: a file for a file question, within the kinds and the number of files it takes; up to 10 MB. `409 TOO_MANY_FILES` |
+| PUT | `/api/applications/:id/files/:fileId` | — | `200 Application`, after the upload: the content must match the declared type |
+| DELETE | `/api/applications/:id/files/:fileId` | — | `200 Application`: takes a file off a draft (kept, marked removed) |
+| POST | `/api/applications/:id/employment-proof/uploads` | `{ fileName, contentType, sizeBytes, documentDate: "YYYY-MM-DD", consent: true }` | `201 { fileId, upload }`. The date on the document must be within the 3 months before today (India time) and not in the future (`400` on `documentDate`). Allowed on a draft, or after staff reject the proof, until the deadline |
+| PUT | `/api/applications/:id/employment-proof` | `{ fileId }` | `200 Application`: the new proof becomes the current one (the old one is kept, marked replaced); after a rejection the check is pending again |
+| POST | `/api/applications/:id/submit` | — | `200 Application`. `400` with every missing item in `details` (`answers.<key>`, `fee`, `employmentProof`, `profile.identityDocument`, `profile.linkedinUrl`); `409 ENTRY_LIMIT` ("This award has reached its entry limit."). The limit is checked in the same transaction that locks the cycle, so two applicants never both take the last place. Records the version of the questions (R4), the organisation's snapshot, and the identity document and LinkedIn link it uses; queues the confirmation to the applicant and the organisation's official email |
+
+**Application** (the starter's view):
+
+```json
+{
+  "id": "…", "status": { "code": "PENDING", "label": "Pending", "message": "Your application is not submitted yet." },
+  "award": { "name": "Safety Excellence Award", "slug": "safety-excellence" },
+  "cycle": { "id": "…", "label": "2026", "opensAt": "…", "deadlineAt": "…", "blindJudging": true },
+  "organisation": { "id": "…", "legalName": "Acme Steel Ltd" }, "category": { "id": "…", "name": "Manufacturing sites" },
+  "categories": [], "canChangeCategory": false,
+  "fee": { "amountPaise": 1000000, "paid": true, "paidAt": "…", "reference": "DEMO-4F2A91C0D3" },
+  "form": { "version": 1, "sections": [] }, "answers": { "q_…": "Every shift starts with a safety talk." },
+  "files": { "q_…": [{ "id": "…", "fileName": "audit.pdf", "mimeType": "application/pdf", "sizeBytes": 20480, "uploadedAt": "…" }] },
+  "employmentProof": { "id": "…", "fileName": "id-card.pdf", "documentDate": "2026-10-05", "mimeType": "…", "sizeBytes": 1, "uploadedAt": "…" },
+  "profile": { "identityDocument": { "fileName": "passport.pdf", "uploadedAt": "…" }, "linkedinUrl": "https://www.linkedin.com/in/…" },
+  "proof": { "status": "PENDING", "note": null, "checkedAt": null },
+  "progress": { "answered": 4, "total": 6, "sections": [{ "key": "sec_…", "answered": 2, "total": 3 }] },
+  "missing": [{ "path": "answers.q_…", "message": "\"Employees\" needs an answer." }],
+  "entries": { "submitted": 41, "limit": null },
+  "editable": true, "canReplaceProof": true, "submittedAt": null, "lockedAt": null
+}
+```
+
+- `status` is what the applicant sees (spec §4): **Pending**, **Submitted**, **Under review** (submitted, past the deadline), **Not submitted** (a draft past the deadline), **Withdrawn**, **Closed** (released by staff, with the reason). Result labels arrive with Step 1.4.
+- `form` is the latest published version while the application is a draft, and its own pinned version from submitting on (rule R4).
+- `missing` lists what still stops submitting, only for an open draft.
+- **The deadline lock** runs on the first use of the edition after its deadline (no scheduled job): the edition becomes Closed, drafts become Not submitted, and submitted applications keep their final organisation snapshot and proof.
+
+**MyApplicationRow**: `{ id, mine, award: { name, slug }, cycle: { id, label, deadlineAt }, organisation: { id, legalName }, status, category, proof }`; `category` and `proof` only on the user's own rows.
+
+## Checking applications (staff of the award; spec §5.20, §5.2)
+
+The award's staff list the applications, check each one's proof and release a wrong one. The department's head and the leader may read the list and the applications, never change them; jury get `403`.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/cycles/:id/applications` | Query: `status`, `categoryId`, `proof` (`proof` looks at submitted applications) | `200 { cycle, entries, counts: { byStatus, byProof }, categories, applications: [StaffApplicationRow] }` |
+| GET | `/api/applications/:id/review` | — | `StaffApplication`: the organisation (the snapshot once submitted, frozen at the deadline), who started it, the fee, the answers and files, the employment proof with its date, the identity document and LinkedIn link it uses, the proof check, `canCheckProof`, `canRelease` |
+| POST | `/api/applications/:id/proof-check` | `{ decision: "VERIFIED" }` or `{ decision: "REJECTED", note }` (a rejection needs its reason) | `200 StaffApplication`. Only a submitted application; audited. A rejection emails the applicant, who can fix it until the deadline (on the profile, or with a new employment proof), after which the check is pending again. Once verified, the application keeps the identity document and link staff checked |
+| POST | `/api/applications/:id/release` | `{ reason }` | `200 StaffApplication`: the application is kept as Released with the reason, and the organisation can start a new one. One transaction with its audit event; refused once judging has started. API only in Phase 1 (the screen is Phase 2) |
+
+**StaffApplicationRow**: `{ id, organisation: { id, legalName }, startedBy: { name, email }, category, status, statusLabel, proofStatus, feeUnpaid, createdAt, submittedAt }`
+
+## Reading a file (GAPS G-B03)
+
+| Method | Path | Response |
+|---|---|---|
+| GET | `/api/files/:id` | `200 { url, fileName, contentType, expiresAt }`: a link valid for 2 minutes that downloads the file as an attachment. The applicant reads their application's files and their own identity document; the award's staff, its department's head and the leader read an application's files and the identity document it uses. Anyone else, and jury, get `404` (jury see evidence in non-blind awards from Step 1.4, never proof documents) |

@@ -11,6 +11,8 @@ export interface PublicDepartmentView {
 }
 
 export interface PublicCycleView {
+  /** Where the Apply button starts an application. */
+  id: string;
   label: string;
   opensAt: string;
   deadlineAt: string;
@@ -61,6 +63,7 @@ function cycleView(cycle: PublicCycleRecord, submitted: number, now: Date): Publ
   const categories = cycle.categories.map((c) => ({ name: c.name, feePaise: c.feePaise ?? cycle.feePaise }));
   const fees = categories.length > 0 ? categories.map((c) => c.feePaise) : [cycle.feePaise];
   return {
+    id: cycle.id,
     label: cycle.label,
     opensAt: cycle.opensAt.toISOString(),
     deadlineAt: cycle.deadlineAt.toISOString(),

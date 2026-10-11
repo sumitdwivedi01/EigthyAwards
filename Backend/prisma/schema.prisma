@@ -607,7 +607,7 @@ model Application {
 
   answers          Answer[]
   files            FileAsset[]             @relation("ApplicationFiles")
-  payments         Payment[]
+  payment          Payment?
   evaluations      Evaluation[]
   approvalRemarks  ApprovalRemark[]
   disqualification DisqualificationEvent[]
@@ -639,6 +639,9 @@ model Answer {
 /// constraint enforces it): IDENTITY_PROOF belongs to a user (their profile), every other kind
 /// to an application. In a blind award no file ever reaches the jury (ADR 0018).
 /// Proof files are deleted after the retention period; the row stays with purgedAt.
+/// An EVIDENCE file always answers a question (a CHECK constraint). A file the applicant takes off
+/// a draft answer, or an employment proof they replace, is kept with removedAt set (nothing an
+/// applicant produced is deleted).
 model FileAsset {
   id            String     @id @default(uuid()) @db.Uuid
   applicationId String?    @db.Uuid
@@ -655,6 +658,7 @@ model FileAsset {
   mimeType      String
   sizeBytes     Int
   uploadedById  String     @db.Uuid
+  removedAt     DateTime?
   purgedAt      DateTime?
   createdAt     DateTime   @default(now())
 
@@ -669,10 +673,11 @@ model FileAsset {
   @@map("file_assets")
 }
 
-/// Demo payments only: "Pay" writes a row with a fake reference.
+/// Demo payments only: "Pay" writes a row with a fake reference. One per application: the fee is
+/// paid once and never refunded (spec §5.6); a new application after a release pays again.
 model Payment {
   id            String        @id @default(uuid()) @db.Uuid
-  applicationId String        @db.Uuid
+  applicationId String        @unique @db.Uuid
   amountPaise   Int
   status        PaymentStatus
   reference     String        @unique
@@ -680,7 +685,6 @@ model Payment {
 
   application Application @relation(fields: [applicationId], references: [id])
 
-  @@index([applicationId])
   @@map("payments")
 }
 

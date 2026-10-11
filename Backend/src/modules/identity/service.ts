@@ -9,7 +9,9 @@ import { burnPasswordCheck, hashPassword, verifyPassword } from "../../lib/passw
 import { isUniqueViolation } from "../../lib/prisma-errors.js";
 import { signSession, verifySession } from "../../lib/session.js";
 import { storage } from "../../lib/storage/index.js";
+import { cleanFileName } from "../../lib/storage/file-names.js";
 import { detectType, readHead } from "../../lib/storage/sniff.js";
+import { followProfileProof } from "../applications/profile.js";
 import { recordAudit } from "../audit/service.js";
 import { queueEmail } from "../notifications/service.js";
 import type {
@@ -223,6 +225,8 @@ export async function setLinkedinUrl(actor: Actor, input: LinkedinInput): Promis
   await db.$transaction(async (tx) => {
     const before = await tx.user.findUniqueOrThrow({ where: { id: actor.userId }, select: { linkedinUrl: true } });
     await tx.user.update({ where: { id: actor.userId }, data: { linkedinUrl: url } });
+    // Submitted applications whose proof isn't verified yet use the new link (spec §5.20).
+    await followProfileProof(tx, actor, { linkedinUrl: url }, clock.now());
     await recordAudit(tx, {
       actorId: actor.userId,
       actorRole: primaryRole(actor),
@@ -234,11 +238,6 @@ export async function setLinkedinUrl(actor: Actor, input: LinkedinInput): Promis
     });
   });
   return loadMe(actor.userId);
-}
-
-/** Keeps a file name readable but harmless: no folders, no control characters. */
-function cleanFileName(name: string): string {
-  return name.replace(/[\\/\p{Cc}]/gu, "_").trim().slice(0, 200) || "document";
 }
 
 /**
@@ -299,6 +298,8 @@ export async function setIdentityDocument(actor: Actor, input: SetIdentityDocume
     const before = await tx.user.findUniqueOrThrow({ where: { id: actor.userId }, select: { identityFileId: true } });
     await tx.fileAsset.update({ where: { id: file.id }, data: { status: "READY", sizeBytes: stored.sizeBytes } });
     await tx.user.update({ where: { id: actor.userId }, data: { identityFileId: file.id } });
+    // Submitted applications whose proof isn't verified yet use the new document (spec §5.20).
+    await followProfileProof(tx, actor, { identityFileId: file.id }, clock.now());
     await recordAudit(tx, {
       actorId: actor.userId,
       actorRole: primaryRole(actor),

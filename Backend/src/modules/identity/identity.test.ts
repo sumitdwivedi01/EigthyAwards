@@ -3,6 +3,7 @@ import type { Express } from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
+import { env } from "../../config/env.js";
 import { setClock } from "../../lib/clock.js";
 import { db } from "../../lib/db.js";
 import { hashPassword } from "../../lib/password.js";
@@ -363,7 +364,8 @@ describe("request safety (GAPS G-B11, G-B16, G-C12)", () => {
     expect(foreign.status).toBe(403);
     const own = await request(app)
       .post("/api/auth/login")
-      .set("Origin", "http://localhost:3000")
+      // The frontend's own origin, wherever it runs (APP_URL).
+      .set("Origin", new URL(env.APP_URL).origin)
       .send({ email: "asha@example.test", password: PASSWORD });
     expect(own.status).toBe(200);
   });

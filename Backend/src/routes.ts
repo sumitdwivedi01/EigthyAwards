@@ -2,6 +2,7 @@ import { Router } from "express";
 import { env } from "./config/env.js";
 import { db } from "./lib/db.js";
 import { buildDiskStorageRouter } from "./lib/storage/disk-routes.js";
+import { buildApplicationsRouter, buildCycleApplicationsRouter, buildFilesRouter } from "./modules/applications/routes.js";
 import { buildAwardsRouter, buildCyclesRouter, buildRoundsRouter } from "./modules/awards/routes.js";
 import { buildDepartmentsRouter } from "./modules/departments/routes.js";
 import { buildFormsRouter } from "./modules/forms/routes.js";
@@ -15,7 +16,8 @@ export type ApiOptions = IdentityRouterOptions;
 
 /**
  * Mounts every module's router under /api. Module routers arrive step by step (PHASES.md §4):
- * identity, master data and organisations in Step 1.1; departments and award setup in 1.2; and so on.
+ * identity, master data and organisations in Step 1.1; departments and award setup in 1.2; applying
+ * and the proof check in 1.3; and so on.
  */
 export function buildApiRouter(options: ApiOptions): Router {
   const router = Router();
@@ -37,6 +39,9 @@ export function buildApiRouter(options: ApiOptions): Router {
   router.use("/awards", buildAwardsRouter());
   router.use("/cycles", buildCyclesRouter());
   router.use("/cycles", buildFormsRouter());
+  router.use("/cycles", buildCycleApplicationsRouter());
+  router.use("/applications", buildApplicationsRouter());
+  router.use("/files", buildFilesRouter());
   router.use("/rounds", buildRoundsRouter());
   router.use("/rounds", buildScoringRouter());
   // The award page's address, and the public Open awards list and award pages.

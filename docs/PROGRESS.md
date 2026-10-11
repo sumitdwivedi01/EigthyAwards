@@ -7,13 +7,13 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-11 · Day 9 |
-| **Current phase** | **Step 1.2: Departments, people and award setup** (🧪 built and checked by hand on its branch; pull request into `staging` next). Step 1.1, the re-plan (0.11) and the README (0.12) are on `main` (sumitdwivedi01/EigthyAwards#15) |
-| **Current branch** | `phase-1.2-setup`, cut from `staging` (`main` is production) |
-| **What runs today** | On the step branch, locally: the API (Step 1.1, plus departments and people with temporary passwords, award setup, questions with versions, scoring sheets with the exact arithmetic, award pages and Open awards, departments run by their heads (ADR 0020); 203 tests) and the web app (Step 1.1, plus Departments, People, Set your password, My awards, Create award, the edition setup with the question and scoring-sheet builders, Open awards and the award page), checked by hand in a browser. `main` holds Step 1.1 |
+| **Current phase** | **Step 1.3: Applying and proof check** (🧪 built and checked by hand on its branch; pull request into `staging` next). Step 1.2 is in `staging` (sumitdwivedi01/EigthyAwards#16), being checked there; Step 1.1 and the docs phases are on `main` |
+| **Current branch** | `phase-1.3-apply`, cut from `staging`, built in a second worktree (`../EightyAwards-1.3`, its own databases and ports 4100/3100) while `staging` is tested in the main folder |
+| **What runs today** | On the step branch, locally: the API (Step 1.1, plus departments and people with temporary passwords, award setup, questions with versions, scoring sheets with the exact arithmetic, award pages and Open awards, departments run by their heads (ADR 0020); then applying: starting (one per organisation), the demo fee, autosaved answers and files, the employment proof, submitting with the entry limit, the deadline lock, the proof check and release, file downloads; 271 tests) and the web app (all of that on screen: My applications, Apply, the application with autosave, the proof step, review and submit; staff Applications and the review with the proof check), checked by hand in a browser. `staging` holds Step 1.2, `main` Step 1.1 |
 | **The plan** | [PLAN.md](PLAN.md), **re-planned 11 Oct**: Step 1.2 departments, people and award setup (Sun 11 – Mon 12), 1.3 applying (Mon 12 – Tue 13), 1.4 assignment and judging (Tue 13 – Wed 14), 1.5 production online (Wed 14 – Thu 15 morning), **walkthrough Thu 15 afternoon**; about 71 hours, no buffer left. Then Phase 2 (~23 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner opens the pull request `phase-1.2-setup` → `staging` and merges it when CI is green. 2) Step 1.2's manual check again on `staging`; then `staging` → `main`; tags `phase-1.2-done` (and `phase-1.1-done`, not pushed yet). 3) **Step 1.3** (applying) on `phase-1.3-apply` cut from `staging` |
+| **Next action** | 1) The owner finishes checking Step 1.2 on `staging`, then `staging` → `main` and the tags `phase-1.1-done` and `phase-1.2-done`. 2) The pull request `phase-1.3-apply` → `staging`, merged when CI is green; Step 1.3's manual check on `staging`. 3) **Step 1.4** (assignment, judging and results) on `phase-1.4-judging` cut from `staging` |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
-| **Risk** | About 71 hours with Thursday morning now build time: **no buffer** (G-K13). Daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 ran into Sunday. Only production goes online, so there is one set-up to get right (G-K18). Step 1.2 was built on Sunday, inside its window (Sun 11 – Mon 12 morning) |
+| **Risk** | About 71 hours with Thursday morning now build time: **no buffer** (G-K13). Daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 ran into Sunday. Only production goes online, so there is one set-up to get right (G-K18). Step 1.2 was built on Sunday, inside its window (Sun 11 – Mon 12 morning), and Step 1.3 on Sunday night, ahead of its window (Mon 12 – Tue 13) |
 
 ## Phase status board
 
@@ -35,8 +35,8 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | ✅ Merged | sumitdwivedi01/EigthyAwards#13 → `staging`, sumitdwivedi01/EigthyAwards#15 → `main` | 2026-10-11 | n/a |
 | 0.12 | README problem first | `phase-0.12-readme` | ✅ Merged | sumitdwivedi01/EigthyAwards#14 → `staging`, sumitdwivedi01/EigthyAwards#15 → `main` | 2026-10-11 | n/a |
 | **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | ✅ Merged | sumitdwivedi01/EigthyAwards#12 → `staging`, sumitdwivedi01/EigthyAwards#15 → `main` | 2026-10-11 · `phase-1.1-done` (tag to push) | 136 backend (were 62); frontend: lint, type check, build |
-| **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | 🧪 Built and checked; pull request next | — | — | 203 backend (were 136); frontend: lint, type check, build |
-| **1.3** | Applying and proof check · **Mon 12 – Tue 13 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
+| **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | ✅ In `staging`; checked there, then `main` | sumitdwivedi01/EigthyAwards#16 → `staging` | — | 203 backend (were 136); frontend: lint, type check, build |
+| **1.3** | Applying and proof check · **Mon 12 – Tue 13 Oct** | `phase-1.3-apply` | 🧪 Built and checked; pull request next | — | — | 271 backend (were 203); frontend: lint, type check, build |
 | **1.4** | Assignment, judging and results · **Tue 13 – Wed 14 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
 | **1.5** | Online (production) and documents · **Wed 14 – Thu 15 Oct** (morning) | `phase-1.5-deploy` | ⬜ | — | — | — |
 | — | Walkthrough with the lead · **Thu 15 Oct** (afternoon) | — | ⬜ | — | `phase-1-done` | — |
@@ -56,8 +56,8 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 | The leader creates departments and their heads; heads create staff and jury (temporary passwords, changed at first login) and choose the theme; the leader only views (ADR 0020) | 1.2 | 🧪 Built and tested; in review |
 | Staff set up an award on screen: settings, questions with versions (R4), scoring sheet with exact arithmetic, jury per application | 1.2 | 🧪 Built and tested; both demo awards built on screen |
 | A simple award page (department colours; the logo in 2.2, G-K30) and Open awards, with the live "499 / 500" counter | 1.2 | 🧪 Built and tested; in review |
-| Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ⬜ |
-| Staff: proof check, release | 1.3 | ⬜ |
+| Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | 🧪 Built and tested; in review |
+| Staff: proof check, release | 1.3 | 🧪 Built and tested (release through the API; its screen is Phase 2) |
 | Blind view without masking (R1), conflicts (R2), assignment by hand with the counts, several jury with the exact average, score changes with reasons (R3) | 1.4 | ⬜ |
 | Approval by the head (send back: Phase 2), results published, the leader dashboard screen | 1.4 | ⬜ |
 | Production online on Supabase, Render and Vercel, with demo data and logins | 1.5 | ⬜ |
@@ -70,7 +70,7 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 | R1 Blind judging hides who applied | Step 1.4 | — | ⬜ |
 | R2 No assignment with a recorded conflict | Step 1.4 (on-site panels: Phase 2) | — | ⬜ |
 | R3 Who changed a score, and why | Step 1.1 (audit trigger, built), 1.4 | — | ⬜ |
-| R4 Last year's applications still read correctly | Step 1.1 (FormVersion trigger, built), 1.2 (versions, built), 1.3 (each application pinned to its version) | Database trigger (1.1); a version unchanged after the next one, nothing published removed or retyped, keys never reused (1.2) | 🚧 Setup side done; pinning in 1.3 |
+| R4 Last year's applications still read correctly | Step 1.1 (FormVersion trigger, built), 1.2 (versions, built), 1.3 (each application pinned to its version) | Database trigger (1.1); a version unchanged after the next one, nothing published removed or retyped, keys never reused (1.2); a submitted application opens with its own version after the next one is published, while a draft follows the latest (1.3) | 🧪 Built and tested; in review |
 
 ## Decisions: where they land
 
@@ -96,7 +96,34 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
-### Step 1.2: Departments, people and award setup · 🧪 · 2026-10-11 (Day 9)
+### Step 1.3: Applying and proof check · 🧪 · 2026-10-11 (Day 9, night)
+
+On `phase-1.3-apply` (cut from `staging` after Step 1.2 merged), built in a second worktree with its own databases (`awards13`, `awards_test13`, `awards_shadow13`) and ports (API 4100, screens 3100), so the owner could test `staging` in the main folder at the same time. Decided first with the owner: keep the plan (Save changes after submitting and Withdraw stay in Phase 2; release is API-only).
+
+**Backend** (271 tests, were 203; lint, type check and the drift check clean)
+- [x] **One migration:** one payment per application (a unique index); `removedAt` on files (a file taken off a draft, or a replaced proof, is kept); a CHECK that evidence always answers a question.
+- [x] **applications** (a new module): start for one of the user's organisations, in a category of an open edition; **one per organisation, blocked at the start** (the service checks; the partial unique index decides when two colleagues start at once); the colleague's row shows the status only. Change the category until the fee is paid. The **demo payment** (the category's fee, else the edition's) opens the form.
+- [x] **Autosave:** each answer checked against its question type, with a message per question; a wrong one is reported and not saved while the others are. Drafts follow the latest questions; a submitted application keeps its own version (**R4**).
+- [x] **Files** through signed links, checked against the question's kinds and count and by their content (Word and Excel as ZIP, G-K32); removed files kept.
+- [x] **Employment proof** dated within the 3 months before today (India time), not in the future, with consent; it can be replaced on a draft, or after a rejection until the deadline.
+- [x] **Submit** checks every required answer and file, the employment proof, and the identity document and LinkedIn link on the profile, then checks the **entry limit** in the transaction that locks the cycle; takes the organisation's snapshot and records the profile proof it uses; emails the applicant and the organisation's official email (outbox).
+- [x] **The deadline lock** on the first use after the deadline (G-K33): the edition becomes Closed, drafts Not submitted, submitted applications get their final snapshot; every write refuses with 409 after the deadline.
+- [x] **Staff:** the applications list with counts and filters (status, category, proof); the review view (the snapshot, the proof documents, the answers); the **proof check** (Verified, or Rejected with a reason that is emailed to the applicant; audited); a fix on the profile or a new employment proof puts the check back to pending until it is verified (G-K04); **release** with a reason (API). The department's head and the leader may read, never act.
+- [x] **Files:** `GET /files/:id` gives a short-lived download link to the applicant and the award's people, never to anyone else (jury from Step 1.4, never proof documents).
+- [x] Tests from the plan's list: a second start refused, also when two colleagues start at once; release frees the place; the colleague's view hides the starter; the form locked until the fee is paid; a partial draft saves; each question type refuses a wrong answer with its own message; submit refused without an answer, the proof, the ID or the LinkedIn link; a proof older than 3 months refused; a second award reuses the profile's ID; the limit refused, also when two race for the last place; every write after the deadline gives 409; R4 pinning; the snapshot kept after the organisation's name changes; 404 for another organisation's application; the status table. Also the database rules (one payment, evidence answers a question) and the identity origin test now reading `APP_URL`.
+
+**Frontend** (lint, type check and build clean)
+- [x] The applicant's home: **My applications** (a colleague's row: status only) and **Open awards** with Apply; the public award page's **Apply** goes to the start page.
+- [x] **Apply**: the edition, its categories and fees, the counter, and the organisation's position (already started by a colleague, with its status only).
+- [x] **The application**: the header (status and message, deadline, counter, category until paid, the fee and its reference), the **demo payment**, the form in **steps** with progress per section, **autosave** (saved, saving, unsaved, retrying, and "saved except the answers marked below"; leaving with unsaved answers asks first; queued answers survive a failed save), the blind award's notice, file questions with upload, download and remove, the **proof** step (the profile's ID and LinkedIn link, the employment proof with its date and consent, the rejection reason), **review and submit** (what is still needed, with a link to where it is fixed), and the read-only summary after submitting.
+- [x] Staff: **Applications** (counts, filters, rows) and the **review** with the proof documents and Verify / Reject with a reason; links from the award and the edition setup.
+
+**Checked by hand** (browser, against the 1.3 API): as Kiran (Acme Steel), applied to a blind award with a ₹2,500 fee: changed the category and back, paid, filled both sections (a member count below the minimum got its message next to the question while the rest saved), uploaded a PDF to the file question, reloaded and found every answer, was refused a proof dated 1 May ("on or after 11 Jul 2026"), added today's proof, saw the profile items missing at review, added them, and submitted (1 / 50). As Deepa, Kiran's colleague: the start page says Acme already has an application (Submitted), started by a colleague; a direct start gets 409 with the status only. As Ravi (staff): the list with counts and filters, the review with the ID, LinkedIn and proof side by side, the download link (an attachment), a rejection with a reason (emailed), Kiran's new proof putting it back to pending, then Verified. Phone width: no sideways scrolling on any of these pages. Found and fixed: "all changes saved" while an answer was refused, and no fee line after paying.
+
+- [x] Docs: API.md (applying, checking applications, reading a file), GAPS (J20, K04 fixed; J23, K29 corrected; K32, K33 added), ai-notes #14, both READMEs, TECHNICAL-DESIGN, PHASES §2, Daily.
+- [ ] The owner opens the pull request into `staging` and merges it; the manual check again on `staging`; then `main` and the tag `phase-1.3-done`.
+
+### Step 1.2: Departments, people and award setup · ✅ in `staging` · 2026-10-11 (Day 9)
 
 On `phase-1.2-setup` (cut from `staging`). The organisers' hierarchy works on screen (ADR 0017), and staff set up and publish an award entirely on screen: "an award is data, not code" (rule R4).
 
@@ -122,7 +149,8 @@ On `phase-1.2-setup` (cut from `staging`). The organisers' hierarchy works on sc
 - [x] **Checked by hand after ADR 0020** (browser): as the leader, the Departments page has no colour fields, and a department's page shows its people, theme and award pages with no add, remove or theme controls, and a new-password button only for people who head a department; as the FPO head (given a new temporary password by the leader, then their own), the page has add, remove and reset for their staff and jury, refuses a colour like "purple", saves a new theme that the public award page shows at once (white text on purple; dark text on a light yellow in the preview), and changes an award page's address (then back). The FPO theme was restored afterwards.
 - [x] Docs: ADR 0020 (and 0017 marked), the spec (§3 roles, matrix and rules, §5.1, §5.3, §5.19, §7, §15), CLAUDE.md, PLAN, PHASES, the Phase 1 roadmap, TECHNICAL-DESIGN, the overview and UI overview, GAPS (E03, J06; K31), API.md, Daily.
 - [x] Docs: `docs/API.md` (departments, award setup, questions, scoring sheet, public pages), both READMEs, ai-notes #11–#13, GAPS (K26 fixed; K28–K30 added), PLAN and PHASES (no logo until image uploads), PHASES §2, Daily.
-- [ ] The owner opens the pull request into `staging` and merges it; the manual check again on `staging`; then `main` and the tag `phase-1.2-done`.
+- [x] Merged into `staging` (sumitdwivedi01/EigthyAwards#16).
+- [ ] The manual check again on `staging`; then `main` and the tag `phase-1.2-done`.
 
 ### Phase 0.12: README problem first · ✅ · 2026-10-11 (Day 9)
 
@@ -344,7 +372,7 @@ Created by `npm run db:seed` (Step 1.1). The leader signs in with `LEADER_PASSWO
 | `applicant.deepa@demo.test` | Applicant, a colleague who joins Acme Steel on screen |
 | `applicant.rahul@demo.test` | Applicant with no organisation yet (registers one on screen) |
 
-The seed creates no awards: staff build them on screen. It never changes the password of an account that already exists, so a local database seeded before `DEMO_PASSWORD` changed keeps the old passwords (G-K29): reset the local database, or have the leader issue a temporary password on screen.
+The seed creates no awards: staff build them on screen. It never changes the password of an account that already exists (G-K29): after changing `DEMO_PASSWORD`, reset the local database (`npm run db:reset`, then `npm run db:seed`). Scripts that sign in as these accounts must read `.env` with `dotenv`, as the seed does: the lines may carry inline comments (ai-notes #14).
 
 ## Deviations from the spec
 
