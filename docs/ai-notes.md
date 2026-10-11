@@ -96,3 +96,11 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **How it was caught.** In the browser check of the edition setup, a script listed the element ids on the page and found duplicates: both tabs stay mounted (so unsaved work survives switching tabs), and both had a `sections.0-title`. Clicking a label in one tab could focus an input in the hidden other tab.
 - **Fix.** Each builder prefixes its ids (`form-…`, `sheet-…`). The page check now finds no duplicate ids.
 - **Lesson.** Components that are fine alone can clash once composed; check the whole page, not each part.
+
+## 14. Stale seed passwords that weren't stale (Step 1.2, found in Step 1.3, 11 Oct)
+
+- **What looked right.** In the Step 1.2 browser check, logging in a seeded staff member with `DEMO_PASSWORD` failed. The seed never changes an existing account's password, and the local database had been seeded days before, so the AI concluded the password in `.env` had changed since. It wrote that down as G-K29 and suggested resetting the local database.
+- **How it was caught.** In Step 1.3 the same login failed on a database seeded minutes earlier from the same `.env`. Comparing the password as the helper script read it with `dotenv`'s own parse showed 39 characters against 17: the line has an inline comment, which `dotenv` (and so the seed) drops, and the script kept.
+- **Why.** The helper read `.env` by hand (split on the first "=", strip quotes) instead of with the library the app uses. The diagnosis then built on a fact nobody had checked.
+- **Fix.** The scripts read `.env` with `dotenv.parse`; the seeded hashes match `DEMO_PASSWORD` as `dotenv` reads it; G-K29 corrected.
+- **Lesson.** Parse configuration with the same library the application uses, and test a diagnosis (here: compare the stored hash) before writing it down as a cause.
