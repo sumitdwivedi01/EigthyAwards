@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-11 (Day 9, Phase 0.11: the re-plan). Update this file at the end of every step.
+> Last updated: 2026-10-11 (Day 9, Step 1.2: departments, people and award setup). Update this file at the end of every step.
 >
 > **Phase numbers** in the "Phase" columns use the old 15-phase list. [PHASES.md §7](PHASES.md#7-where-the-old-15-phase-list-went) maps them to the new steps (1.1–1.5) and packages (2.x, 3.x).
 
@@ -26,7 +26,7 @@
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 3 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 8 |
 | J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 8 |
-| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores | 27 | 9 |
+| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores; Step 1.2 findings | 30 | 9 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -269,8 +269,11 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K23 | A **temporary password** is passed on by hand (phone, chat), so it can leak on the way | Shown once, stored only as a hash, works once, valid 7 days, and must be changed at first login; issuing a new one ends the old sessions and is audited; invites by email replace it in 2.3 (ADR 0017) | 1.2 | Accepted risk |
 | G-K24 | A head can issue a new temporary password for anyone on their lists, including someone who also works in another department | Audited with the head and the department; the person's sessions end, so they notice. Per-department accounts are not worth it for Phase 1 | 1.2 | Accepted risk |
 | G-K25 | Score arithmetic and ties weren't specified (floating point, rounding each score, equal scores) | Whole-number points, one half-up rounding to 2 decimals at the end, equal final scores share a rank; weights in whole percentages (ADR 0019) | 1.2, 1.4 | Default adopted |
-| G-K26 | Can the department's own head or staff be on its jury list? | No: the head approves the department's written rounds, and staff assign applications, so they could assign themselves (spec A36) | 1.2 | Default adopted |
+| G-K26 | Can the department's own head or staff be on its jury list? | No: the head approves the department's written rounds, and staff assign applications, so they could assign themselves (spec A36) | 1.2 | Fixed (Step 1.2: refused when adding to either list, including award staff; tested) |
 | G-K27 | Removing a person who already has work (staff with an award, a juror with assignments) | Not in Phase 1: removal only while they have no work there; the rest with deactivation in 2.3 | 1.2, 2.3 | Accepted risk |
+| G-K28 | Prisma 7's pg adapter runs the nested reads of one query (`include`) at the same time on one connection; inside an interactive transaction, pg warns that this is deprecated and will fail in a future pg version | Found in Step 1.2 (`--trace-deprecation`). Writes stay in the transaction; the view with its includes is read after the commit (`createAward`, `createDepartment`). Check again whenever pg or Prisma is upgraded | 1.2 | Accepted risk |
+| G-K29 | The seed never changes an existing account's password, so a local database seeded before `DEMO_PASSWORD` changed keeps the old passwords and the demo logins fail | Reset the local database (`npx prisma migrate reset`, then `npm run db:seed`), or the leader issues a temporary password on screen. Production is seeded once, in Step 1.5 | 1.2 | Accepted risk |
+| G-K30 | The plan shows the department's **logo** on award pages and cards, but Phase 1 has no image uploads | Phase 1 pages and cards use the department's name and colours; the logo comes with image uploads in package 2.2 (the brand kit already has `logoAssetId`) | 1.2, 2.2 | Default adopted |
 
 ---
 
@@ -292,6 +295,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-11 | Step 1.2 (departments, people and award setup): K26 fixed (built and tested); K28 (pg adapter reads inside transactions), K29 (the seed keeps existing passwords) and K30 (no logo until image uploads) added. |
 | 2026-10-11 | README rewritten problem first (Phase 0.12): F10 added and done. |
 | 2026-10-11 | Re-plan (Phase 0.11; ADRs 0017–0019): K13 updated (still ~71 h, no buffer); K14 removed (people on screen in Phase 1); K17 superseded and C13, D11 removed (no masking); K18 decided (one online site in Phase 1); K19 changed (jury listed per department, no pool); K03 and K07 reworded; A10 updated (16 module folders); K22–K27 added (no-masking limits, temporary passwords, a head reissuing passwords, score arithmetic, the department's own people off its jury list, removing people with work). |
 | 2026-10-10 | Applicant and platform accounts (owner, ADR 0016): K19 updated (jury are platform accounts; an applicant account is refused from a pool); K21 added (two emails for someone who does both); the K18–K20 rows fixed to the table's five columns and put in order. |

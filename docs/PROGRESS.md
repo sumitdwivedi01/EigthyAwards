@@ -7,13 +7,13 @@
 | | |
 |---|---|
 | **Last updated** | 2026-10-11 · Day 9 |
-| **Current phase** | **Phase 0.12: README problem first** (🧪 written; pull request into `staging` next). Step 1.1 and the re-plan (0.11) are merged into `staging` |
-| **Current branch** | `phase-0.12-readme` (docs), cut from `staging` (`main` is production) |
-| **What runs today** | On the step branch, locally: the API (logins, applicant and platform accounts, scoped roles, My profile, organisations, master lists, the seed; 136 tests) and the web app (login, register, My profile, My organisation, a home per role), checked by hand in a browser. `staging` and `main` hold the docs until this step merges |
+| **Current phase** | **Step 1.2: Departments, people and award setup** (🧪 built and checked by hand on its branch; pull request into `staging` next). Step 1.1, the re-plan (0.11) and the README (0.12) are on `main` (sumitdwivedi01/EigthyAwards#15) |
+| **Current branch** | `phase-1.2-setup`, cut from `staging` (`main` is production) |
+| **What runs today** | On the step branch, locally: the API (Step 1.1, plus departments and people with temporary passwords, award setup, questions with versions, scoring sheets with the exact arithmetic, award pages and Open awards; 193 tests) and the web app (Step 1.1, plus Departments, People, Set your password, My awards, Create award, the edition setup with the question and scoring-sheet builders, Open awards and the award page), checked by hand in a browser. `main` holds Step 1.1 |
 | **The plan** | [PLAN.md](PLAN.md), **re-planned 11 Oct**: Step 1.2 departments, people and award setup (Sun 11 – Mon 12), 1.3 applying (Mon 12 – Tue 13), 1.4 assignment and judging (Tue 13 – Wed 14), 1.5 production online (Wed 14 – Thu 15 morning), **walkthrough Thu 15 afternoon**; about 71 hours, no buffer left. Then Phase 2 (~23 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) Pull request `phase-0.12-readme` → `staging`, merge. 2) The manual check of Step 1.1 on `staging`; then `staging` → `main` (Step 1.1, the re-plan and the README together); tag `phase-1.1-done`. 3) **Step 1.2** on `phase-1.2-setup` cut from `staging` |
+| **Next action** | 1) The owner opens the pull request `phase-1.2-setup` → `staging` and merges it when CI is green. 2) Step 1.2's manual check again on `staging`; then `staging` → `main`; tags `phase-1.2-done` (and `phase-1.1-done`, not pushed yet). 3) **Step 1.3** (applying) on `phase-1.3-apply` cut from `staging` |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
-| **Risk** | About 71 hours with Thursday morning now build time: **no buffer** (G-K13). Daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 ran into Sunday. Only production goes online, so there is one set-up to get right (G-K18) |
+| **Risk** | About 71 hours with Thursday morning now build time: **no buffer** (G-K13). Daily finish lines and the cut order in [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order). Step 1.1 ran into Sunday. Only production goes online, so there is one set-up to get right (G-K18). Step 1.2 was built on Sunday, inside its window (Sun 11 – Mon 12 morning) |
 
 ## Phase status board
 
@@ -32,10 +32,10 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | 0.8 | Three-phase plan and technical design; PA role removed | `phase-0.8-plan` | ✅ Merged | sumitdwivedi01/EigthyAwards#8 | 2026-10-09 · `phase-0.8-done` | n/a |
 | 0.9 | Docs refined | `phase-0.9-docs` | ✅ Merged | sumitdwivedi01/EigthyAwards#9 | 2026-10-10 · `phase-0.9-done` (tag to push) | n/a |
 | 0.10 | A `staging` branch (ADR 0015) | `phase-0.10-staging` | ✅ Merged | sumitdwivedi01/EigthyAwards#10 → `staging`, sumitdwivedi01/EigthyAwards#11 → `main` | 2026-10-10 · `phase-0.10-done` | n/a |
-| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | ✅ In `staging` | sumitdwivedi01/EigthyAwards#13 → `staging` | — | n/a |
-| 0.12 | README problem first | `phase-0.12-readme` | 🧪 Written; pull request next | — | — | n/a |
-| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | 🧪 In `staging`; check, then `main` | sumitdwivedi01/EigthyAwards#12 → `staging` | — | 136 backend (were 62); frontend: lint, type check, build |
-| **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | ⬜ | — | — | — |
+| 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | ✅ Merged | sumitdwivedi01/EigthyAwards#13 → `staging`, sumitdwivedi01/EigthyAwards#15 → `main` | 2026-10-11 | n/a |
+| 0.12 | README problem first | `phase-0.12-readme` | ✅ Merged | sumitdwivedi01/EigthyAwards#14 → `staging`, sumitdwivedi01/EigthyAwards#15 → `main` | 2026-10-11 | n/a |
+| **1.1** | Foundation and people · **Sat 10 Oct** | `phase-1.1-foundation` | ✅ Merged | sumitdwivedi01/EigthyAwards#12 → `staging`, sumitdwivedi01/EigthyAwards#15 → `main` | 2026-10-11 · `phase-1.1-done` (tag to push) | 136 backend (were 62); frontend: lint, type check, build |
+| **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | 🧪 Built and checked; pull request next | — | — | 193 backend (were 136); frontend: lint, type check, build |
 | **1.3** | Applying and proof check · **Mon 12 – Tue 13 Oct** | `phase-1.3-apply` | ⬜ | — | — | — |
 | **1.4** | Assignment, judging and results · **Tue 13 – Wed 14 Oct** | `phase-1.4-judging` | ⬜ | — | — | — |
 | **1.5** | Online (production) and documents · **Wed 14 – Thu 15 Oct** (morning) | `phase-1.5-deploy` | ⬜ | — | — | — |
@@ -53,9 +53,9 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 |---|---|---|
 | Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | 🧪 Built and tested; in review |
 | Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | 🧪 Built and tested; in review |
-| The leader creates departments and their heads; heads create staff and jury (temporary passwords, changed at first login) | 1.2 | ⬜ |
-| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet with exact arithmetic, jury per application | 1.2 | ⬜ |
-| A simple award page (department logo and colours) and Open awards, with the live "499 / 500" counter | 1.2 | ⬜ |
+| The leader creates departments and their heads; heads create staff and jury (temporary passwords, changed at first login) | 1.2 | 🧪 Built and tested; in review |
+| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet with exact arithmetic, jury per application | 1.2 | 🧪 Built and tested; both demo awards built on screen |
+| A simple award page (department colours; the logo in 2.2, G-K30) and Open awards, with the live "499 / 500" counter | 1.2 | 🧪 Built and tested; in review |
 | Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ⬜ |
 | Staff: proof check, release | 1.3 | ⬜ |
 | Blind view without masking (R1), conflicts (R2), assignment by hand with the counts, several jury with the exact average, score changes with reasons (R3) | 1.4 | ⬜ |
@@ -70,7 +70,7 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 | R1 Blind judging hides who applied | Step 1.4 | — | ⬜ |
 | R2 No assignment with a recorded conflict | Step 1.4 (on-site panels: Phase 2) | — | ⬜ |
 | R3 Who changed a score, and why | Step 1.1 (audit trigger, built), 1.4 | — | ⬜ |
-| R4 Last year's applications still read correctly | Step 1.1 (FormVersion trigger, built), 1.2, 1.3 | — | ⬜ |
+| R4 Last year's applications still read correctly | Step 1.1 (FormVersion trigger, built), 1.2 (versions, built), 1.3 (each application pinned to its version) | Database trigger (1.1); a version unchanged after the next one, nothing published removed or retyped, keys never reused (1.2) | 🚧 Setup side done; pinning in 1.3 |
 
 ## Decisions: where they land
 
@@ -95,15 +95,39 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 
 Each phase gets an entry when it starts. Tick items off as they land and keep the entry once the phase is merged. That way this section is the full history of what exists and why.
 
-### Phase 0.12: README problem first · 🧪 · 2026-10-11 (Day 9)
+### Step 1.2: Departments, people and award setup · 🧪 · 2026-10-11 (Day 9)
+
+On `phase-1.2-setup` (cut from `staging`). The organisers' hierarchy works on screen (ADR 0017), and staff set up and publish an award entirely on screen: "an award is data, not code" (rule R4).
+
+**Backend** (193 tests, were 136; lint, type check, the drift check, and seeding a fresh database twice, all clean)
+- [x] **One migration:** the JURY role belongs to a department's jury list (no cycle pool; the role scope CHECK rewritten); temporary-password columns with a CHECK that sets and clears them together; `externalOrganiser` on departments; the masking table, status and file fields removed (ADR 0018), with the file-kind enum swapped around its CHECKs (ai-notes #11). The seed puts its jury on the demo departments' lists; CI seeds a fresh database twice (ai-notes #12).
+- [x] **identity:** temporary passwords (16 characters without look-alikes, about 79 bits; only the hash is stored; valid 7 days); login refuses an expired one; until the person sets their own, every request except `/me`, the password change and logging out answers `403 PASSWORD_CHANGE_REQUIRED`; setting it clears the flags and is audited.
+- [x] **departments:** the leader creates a department with its head (a new account, or an existing platform account by email) in one transaction; the leader sees every department and a head their own; heads (and the leader) add staff and jury, refusing applicant accounts, the leader, doubles, and the department's own head or staff on its jury list (G-K26); removal only while the person has no work there; a new temporary password ends the old one and every session (only the leader for heads; never oneself).
+- [x] **awards:** create in your own department (the domain from the master list; the name unique in the department, ignoring case); the creator runs it; My awards; editions start as a draft with one written round (1 juror per application, Shortlisted / Rejected), no categories, empty questions and sheet; basics, categories with their own fee, the jury per application and result names; the publish check as sentences, and a `409 PUBLISH_BLOCKED` listing every issue at once; after publishing, fee, blind judging, dates and categories are fixed and the entry limit can still change.
+- [x] **forms:** six question types, stored with only the fields each type uses; keys made by the server and never reused; a draft, and immutable versions with a change summary; inside an edition nothing published is removed or changes type (R4); fixed after the deadline.
+- [x] **scoring:** one sheet per round, saved in any state while it is built; the publish check needs 100% at each level and every indicator on a published question; locked once scoring starts; the arithmetic of ADR 0019 as pure functions, tested against the worked examples (27.2 for one section, 69.27 for three jurors, half-up rounding once at the end, ranks 1, 2, 2, 4).
+- [x] **sites:** one page per award, its address made from the name (`-2`, `-3` if taken) and changeable by staff; Open awards (published and open today, with the live counter) and the page by address; drafts never public.
+- [x] Tests written from the rules, including the one Step 1.1 left open: a juror gets `403` on a staff endpoint, and so does another award's staff.
+
+**Frontend** (lint, type check and build clean)
+- [x] The leader's **Departments**, the head's **People** (the temporary password shown once), **Set your password** at the first login; homes that list each person's departments.
+- [x] Staff: **My awards**, **Create award**, the award's editions and page address, and the **edition setup** tabs: basics; categories; judging (jurors per application against the department's jury list, result names); the **question builder** (sections, six types, published items locked, save the draft, publish a version with a summary, view earlier versions); the **scoring-sheet builder** (sections and indicators, running totals, split evenly); publish (what is still missing, a confirmation, then the fixed settings read-only). In a blind award both builders say that jurors won't see files (ADR 0018).
+- [x] Public: **Open awards** on the front page and each **award page** in its department's colours.
+
+**Checked by hand** (browser, against the running API): the people flow: the leader creates a department with a new head (and another with an existing account as head); the head logs in with the temporary password and must set their own; an applicant's email is refused on the jury list; a new juror logs in, sets a password and sees their department. Then, as a staff member the leader added, three awards built on screen from nothing: a trial award, where a bad page address, a deadline before the opening, a bad fee, a duplicate category (other letter case), a minimum above the maximum and an empty section and question were each refused with the API's message next to the field; and the plan's two demo awards, **Safety Excellence Award 2026** (blind, ₹10,000, 1 category, 2–3 jurors, no limit, 3 sections of text answers) and **FPO Excellence Awards 2026** (not blind, free, 4 categories, 1 juror, limit 500, 2 sections with evidence uploads). A second form version published with version 1 still showing its own questions; published questions can't be removed or change type; after publishing, the fixed settings are read-only and the entry limit still saves; all three appear on Open awards with their counters and pages, and a draft's page is `404`. Found and fixed during the check: duplicate element ids between the two builders (ai-notes #13), a stale notice, and ".00" on whole-rupee amounts.
+
+- [x] Docs: `docs/API.md` (departments, award setup, questions, scoring sheet, public pages), both READMEs, ai-notes #11–#13, GAPS (K26 fixed; K28–K30 added), PLAN and PHASES (no logo until image uploads), PHASES §2, Daily.
+- [ ] The owner opens the pull request into `staging` and merges it; the manual check again on `staging`; then `main` and the tag `phase-1.2-done`.
+
+### Phase 0.12: README problem first · ✅ · 2026-10-11 (Day 9)
 
 A first-time reader couldn't picture the problem from the README: it went straight to the platform, and assumed the reader knew what these awards are, what "different systems" means in practice, and terms like "250 indicators in 15 areas" or "38 categories". The README now explains the problem first and the solution after.
 
 - [x] README.md: §1 the organisation and its awards (what an award programme is, who applies and why, the scale and the differences); §2 one award from start to finish, with a sample scoring sheet; §3 how the awards are run today and where it hurts for each user, with the inconsistent-data example; §4 the terms; §5 what must be the same and what may differ; §6 what we know, assumed and still have open; then §7 the solution in short, §8 status, §9 where to look, §10 running it. Brought up to date (16 modules, the re-plan, the status).
 - [x] The overview's problem section points to the README; three overview lines from before 11 Oct updated (people, rule 1). GAPS F10; PHASES and Daily.
-- [ ] Merged into `staging`, then into `main`.
+- [x] Merged into `staging` (sumitdwivedi01/EigthyAwards#14), then into `main` (sumitdwivedi01/EigthyAwards#15).
 
-### Phase 0.11: Re-plan around the lead's focus · ✅ in `staging` · 2026-10-11 (Day 9)
+### Phase 0.11: Re-plan around the lead's focus · ✅ · 2026-10-11 (Day 9)
 
 The lead wants the focus on the form builder, filling the form and judging, and doesn't want masking. The owner wants departments, heads, staff and jury created on screen in Phase 1, staff assigning applications to jury by hand with the counts in view, and an exact average. Four points were agreed first (recommended options): blind awards hide identity, names and files automatically and masking leaves the plan; new accounts get a temporary password changed at first login; jury are listed per department with no cycle pool, and staff assign by hand; room comes from a simpler award page, one online site and Thursday morning.
 
@@ -112,10 +136,10 @@ The lead wants the focus on the form builder, filling the form and judging, and 
 - [x] The spec: revision log and every section the decisions touch (§1–4, §5.1, §5.3–5.9, §5.12, §5.14, §5.15, §5.17, §6–8, §10–12, §14, §15, §18); TECHNICAL-DESIGN (modules, data model, flows, API, environments, testing).
 - [x] GAPS (K13, K14, K17, K18, K19, C13, D11, K03, K07, A10; K22–K27 added); CLAUDE.md; creating.md; the UI overview; the overview; both READMEs; Daily.
 - [x] Reviewed and merged into `staging` (sumitdwivedi01/EigthyAwards#13), after Step 1.1 (sumitdwivedi01/EigthyAwards#12).
-- [ ] Merged into `main`.
+- [x] Merged into `main` (sumitdwivedi01/EigthyAwards#15).
 
 
-### Step 1.1: Foundation and people · 🧪 · 2026-10-10 (Day 8, evening and night)
+### Step 1.1: Foundation and people · ✅ · 2026-10-10 (Day 8, evening and night)
 
 The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided first with the owner: copy the parked code (not merge it) with one new migration; jury accounts only from the seed until staff add them to a pool (G-K19); uploads through signed links (G-B03).
 
@@ -138,8 +162,8 @@ The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided fi
 **Checked by hand** (browser, against the running API): register with messy input (cleaned); register a PAN that exists (moved to Join); join with a wrong GSTIN (the state named) and the right one in lower case (one Acme record); phone and LinkedIn on My profile; the identity document upload; a role granted and revoked in the database showing and disappearing at once; a password changed on screen ending the session of a second device at once, with the "password changed" email in Mailpit; logout; the login gate. Every seeded role logs in to its own area through the API: the leader, a head and staff see only their area and get `403` on the profile proof and organisations; a juror has no area until added to a pool; an applicant has Applying. In the browser, a platform account sees no Applying link and no proof tab, and "Not available" on the applicant pages.
 
 - [x] Docs: `docs/API.md`, both READMEs, CLAUDE.md commands, TECHNICAL-DESIGN, ai-notes #7–#10, GAPS (13 gaps closed, K20 and K21 added, K19 updated), the 0.7 change list ticked, Daily; for the accounts decision, ADR 0016, the spec (§2, §3, §5.1, §5.2, §5.8, §5.21, §10, §12, §18), PLAN and PHASES (Steps 1.1, 1.3, 1.4).
-- [ ] Not yet: "a jury user gets 403 on a staff endpoint" through HTTP: there is no staff endpoint until Step 1.2; the access checks have unit tests now, and the HTTP test comes with the first staff endpoint.
-- [ ] The owner merges into `staging`, checks it there, then into `main`; tag `phase-1.1-done`.
+- [x] "A jury user gets 403 on a staff endpoint" through HTTP: tested in Step 1.2, with the first staff endpoint.
+- [x] Merged into `staging` (sumitdwivedi01/EigthyAwards#12) and `main` (sumitdwivedi01/EigthyAwards#15). The tag `phase-1.1-done` is still to push.
 
 ### Phase 0.10: A staging branch · ✅ · 2026-10-10 (Day 8, evening)
 
@@ -309,10 +333,13 @@ Created by `npm run db:seed` (Step 1.1). The leader signs in with `LEADER_PASSWO
 | `staff.asha@demo.test` | Staff, Safety, Health and Environment |
 | `staff.ravi@demo.test` | Staff, FPO Awards team |
 | `staff.neha@demo.test` | Staff in both departments |
-| `jury.anil@`, `jury.priya@`, `jury.vikram@`, `jury.sunita@`, `jury.farhan@`, `jury.lakshmi@demo.test` | Jury accounts: no role yet; from Step 1.2 the seed puts them on the demo departments' jury lists, and heads add more on screen (ADR 0017, G-K19) |
+| `jury.anil@`, `jury.priya@`, `jury.vikram@demo.test` | Jury of Safety, Health and Environment (Vikram is on both lists) |
+| `jury.sunita@`, `jury.farhan@`, `jury.lakshmi@demo.test` | Jury of the FPO Awards team; heads add more on screen (ADR 0017) |
 | `applicant.kiran@demo.test` | Applicant, member of Acme Steel Ltd |
 | `applicant.deepa@demo.test` | Applicant, a colleague who joins Acme Steel on screen |
 | `applicant.rahul@demo.test` | Applicant with no organisation yet (registers one on screen) |
+
+The seed creates no awards: staff build them on screen. It never changes the password of an account that already exists, so a local database seeded before `DEMO_PASSWORD` changed keeps the old passwords (G-K29): reset the local database, or have the leader issue a temporary password on screen.
 
 ## Deviations from the spec
 

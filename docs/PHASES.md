@@ -74,14 +74,14 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 | 0.9 | Docs refined: app READMEs, wording, status; Phase 1 fitted to the dates | `phase-0.9-docs` | 7–8 | ✅ Merged (sumitdwivedi01/EigthyAwards#9) |
 | 0.10 | A `staging` branch between the step branches and `main` (ADR 0015) | `phase-0.10-staging` | 8 | ✅ Merged (`phase-0.10-done`) |
 | 0.11 | Re-plan: people on screen, no masking, exact scoring (ADRs 0017–0019) | `phase-0.11-replan` | 9 | ✅ Merged into `staging` (sumitdwivedi01/EigthyAwards#13) |
-| 0.12 | README problem first: the awards, one award walked through, today's pain, terms, same vs different | `phase-0.12-readme` | 9 | 🧪 Written; pull request into `staging` next |
+| 0.12 | README problem first: the awards, one award walked through, today's pain, terms, same vs different | `phase-0.12-readme` | 9 | ✅ Merged (sumitdwivedi01/EigthyAwards#14, sumitdwivedi01/EigthyAwards#15) |
 
 **Phase 1: working platform** (the dates are fixed: build 10–14 Oct, production online 14–15 Oct, walkthrough Thu 15 Oct afternoon; re-planned 11 Oct)
 
 | Step | Dates | Work | Hours | Branch | Status |
 |---|---|---|---|---|---|
-| 1.1 | **Sat 10 Oct** | Foundation and people (logins, accounts, My profile, companies) | ~15 | `phase-1.1-foundation` | 🧪 Built; pull request next |
-| 1.2 | **Sun 11 – Mon 12 Oct** (morning) | Departments, people and award setup | ~19 | `phase-1.2-setup` | ⬜ |
+| 1.1 | **Sat 10 Oct** | Foundation and people (logins, accounts, My profile, companies) | ~15 | `phase-1.1-foundation` | ✅ Merged (sumitdwivedi01/EigthyAwards#12, sumitdwivedi01/EigthyAwards#15) |
+| 1.2 | **Sun 11 – Mon 12 Oct** (morning) | Departments, people and award setup | ~19 | `phase-1.2-setup` | 🧪 Built and checked; pull request into `staging` next |
 | 1.3 | **Mon 12 – Tue 13 Oct** (morning) | Applying and proof check | ~14 | `phase-1.3-apply` | ⬜ |
 | 1.4 | **Tue 13 – Wed 14 Oct** (midday) | Assignment, judging and results | ~14 | `phase-1.4-judging` | ⬜ |
 | 1.5 | **Wed 14 – Thu 15 Oct** (morning) | Online (production) and documents | ~9 | `phase-1.5-deploy` | ⬜ |
@@ -205,7 +205,7 @@ Both use one written (document review) round. On-site rounds wait for Phase 2, b
 - **cycles:** dates, fee, category fees, blind judging, entry categories, an optional entry limit, one written round with its **jury per application** (`juryMin`–`juryMax`) and result labels (Shortlisted / Rejected, renamable); the publish gate; fee and blind frozen after publishing; status worked out from the clock.
 - **forms:** a draft editor (the server makes the keys); question types short text, long text, number, single choice, yes/no and file upload; publishing inserts an immutable version with a change summary; inside a cycle nothing can be removed and no type can change. In a blind award the builder says that jury won't see file answers. (Version comparison and New/Updated markers: Phase 2.)
 - **scoring:** the scoring sheet per round: sections and indicators with whole-percent weights and "split evenly". `validateWeights` checks 100 at each level and that every indicator points to a real question. The exact arithmetic of [ADR 0019](decisions/0019-exact-score-arithmetic.md) is pure functions: `evaluationPoints`, `finalScore` (one half-up rounding to 2 decimals) and `rankResults` (ties share a rank).
-- **sites (simple):** each award gets one public page in its department's colours and logo, with the name, description, dates, categories, fees and the "499 / 500" counter filled in **automatically**; staff only choose its address (slug). (Banner, about text, contacts, the brand-kit screen and image uploads: Phase 2.)
+- **sites (simple):** each award gets one public page in its department's colours (the logo comes with image uploads in 2.2, G-K30), with the name, description, dates, categories, fees and the "499 / 500" counter filled in **automatically**; staff only choose its address (slug). (Banner, about text, contacts, the brand-kit screen and image uploads: Phase 2.)
 - **public:** the Open awards list (published, and open now) and the award page by slug.
 
 **Frontend:**

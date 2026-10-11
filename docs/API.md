@@ -2,7 +2,7 @@
 
 The contract between `Front-End/` and `Backend/` (GAPS G-B10). It's updated in every step that adds endpoints. Every endpoint lives under `/api`. The browser calls it through the frontend's own `/api/*` proxy, so the session cookie stays first-party (ADR 0003).
 
-Status: **Step 1.1** (identity, My profile, master data, organisations). Award setup arrives in Step 1.2.
+Status: **Step 1.2** (identity, My profile, master data, organisations; departments and people; award setup: awards, editions, questions, scoring sheet; the award page and Open awards). Applying arrives in Step 1.3.
 
 ## Conventions
 
@@ -20,9 +20,9 @@ Status: **Step 1.1** (identity, My profile, master data, organisations). Award s
   |---|---|---|
   | 400 | `VALIDATION_ERROR`, `MALFORMED_JSON` | Input failed its checks (`details` lists each field), or the body isn't JSON |
   | 401 | `UNAUTHENTICATED` | Not logged in, or the session ended |
-  | 403 | `FORBIDDEN` | Role or scope doesn't allow it, the account is of the wrong kind (ADR 0016), or the write came from another site |
+  | 403 | `FORBIDDEN` | Role or scope doesn't allow it, the account is of the wrong kind (ADR 0016), the write came from another site, or the account is still on a temporary password (`details.reason: "PASSWORD_CHANGE_REQUIRED"`, ADR 0017) |
   | 404 | `NOT_FOUND` | Missing, or exists but isn't yours to see |
-  | 409 | `STATE_CONFLICT` | Valid, but the current state forbids it. `details.reason` may name it, e.g. `PAN_REGISTERED` |
+  | 409 | `STATE_CONFLICT` | Valid, but the current state forbids it. `details.reason` may name it, e.g. `PAN_REGISTERED`, `SETTINGS_FIXED`, or `PUBLISH_BLOCKED` with `details.issues` (a list of sentences) |
   | 413 | `PAYLOAD_TOO_LARGE` | Body over 1 MB |
   | 429 | `TOO_MANY_REQUESTS` | Too many failed logins (per visitor and per email, 15 minutes) |
   | 500 | `INTERNAL` | Unexpected; no details are ever sent |
@@ -72,8 +72,11 @@ A staff member:
 ```json
 {
   "id": "…", "email": "asha@example.test", "accountType": "PLATFORM", "name": "Asha Rao", "phone": null,
-  "passwordChangedAt": null, "linkedinUrl": null, "identityDocument": null,
-  "roles": [{ "role": "DEPT_STAFF", "department": { "id": "…", "name": "FPO Awards team" }, "award": null, "cycle": null }],
+  "passwordChangedAt": null, "mustChangePassword": false, "linkedinUrl": null, "identityDocument": null,
+  "roles": [
+    { "role": "DEPT_STAFF", "department": { "id": "…", "name": "FPO Awards team" }, "award": null },
+    { "role": "AWARD_STAFF", "department": null, "award": { "id": "…", "name": "FPO Excellence Awards" } }
+  ],
   "organisations": [],
   "areas": ["staff"],
   "home": "staff"
@@ -82,6 +85,8 @@ A staff member:
 
 - `accountType` (ADR 0016): `APPLICANT` (made by registering; applies for its organisation, keeps the LinkedIn link and identity document, never holds a role) or `PLATFORM` (the leader, department heads, staff and jury; holds roles, never applies). Someone who does both has two accounts, with two emails.
 - `areas` are the parts of the app the user may open (`leader`, `department`, `staff`, `jury`, `applicant`). An applicant account has exactly `["applicant"]`; a platform account has one area per kind of role it holds.
+- `mustChangePassword` (ADR 0017) is `true` while the account is on a temporary password. Until the person sets their own (`POST /api/me/password`, with the temporary one as `currentPassword`), every other request except `GET /api/health`, `GET /api/me` and logging out answers `403` with `details.reason: "PASSWORD_CHANGE_REQUIRED"`. A temporary password expires after 7 days; logging in with an expired one gets `401` ("ask the person who added you for a new one").
+- `roles` name the department or award behind each role; a juror's role names the department whose jury list they are on (ADR 0017).
 - `home` is where they land after logging in. A platform account with no role yet (for example a seeded juror before a head lists them) has no area, and `home` is `null`.
 
 ## Uploading a file (signed links, GAPS G-B03)
@@ -126,3 +131,118 @@ The award goes to the organisation, one record per PAN (spec §5.2). Only applic
   "organisationType": { "id": "…", "name": "Public Limited Company" }, "cin": null, "website": null
 }
 ```
+
+## Departments and people (ADR 0017)
+
+The leader creates departments, each with its head; a head keeps the department's two lists, its **staff** and its **jury**. Someone new gets a platform account with a **temporary password**, returned once in the response that creates it (never stored in plain text, never logged), valid 7 days and changed at the first login. Someone who already has a platform account is found by email and gets no new password. Applicant accounts are refused everywhere here (ADR 0016).
+
+| Method | Path | Who | Body | Response |
+|---|---|---|---|---|
+| GET | `/api/departments` | The leader (all), a head (their own) | — | `[DepartmentSummary]` |
+| POST | `/api/departments` | The leader | `{ name, externalOrganiser?, primaryColour?, accentColour?, head: { name, email } }`; colours as `#RRGGBB` | `201 { department: DepartmentSummary, head: Person, temporaryPassword }`. `400` on `name` if the name is taken (letter case ignored), on `head.email` for an applicant or deactivated account. The department, its brand colours, the head's role and the audit event share one transaction |
+| GET | `/api/departments/:id/people` | The leader, the department's head | — | `People` |
+| POST | `/api/departments/:id/staff` | The leader, the department's head | `{ name, email }` | `201 { person: Person, temporaryPassword }`. `400` on `email` for an applicant account, the leader, someone already on the list, the department's head, or someone on its jury list |
+| POST | `/api/departments/:id/jury` | The leader, the department's head | `{ name, email }` | As above; also refused for the department's staff, including the staff of its awards (spec A36, G-K26) |
+| DELETE | `/api/departments/:id/staff/:userId` and `/jury/:userId` | The leader, the department's head | — | `204`. `409` while the person has work there (awards they run; applications assigned to them) (G-K27) |
+| POST | `/api/departments/:id/people/:userId/temporary-password` | The leader; the head for their staff and jury (only the leader for anyone who heads a department) | — | `200 { person, temporaryPassword }`: the old password stops working and every session ends; audited without the password. `409` for your own account (use My profile) |
+
+**DepartmentSummary**: `{ id, name, externalOrganiser, colours: { primary, accent } | null, heads: [Person], counts: { staff, jury, awards } }`
+
+**Person**: `{ id, name, email, waitingForFirstLogin }` (`waitingForFirstLogin`: still on the temporary password)
+
+**People**: `{ department: { id, name, externalOrganiser }, heads: [Person], staff: [ListedPerson], jury: [ListedPerson] }`, where a ListedPerson adds `workCount` (staff: awards in the department; jury: assignments there) and `canRemove`.
+
+## Award setup (staff of the award)
+
+Staff create an award in a department where they are staff, and become its award staff; only an award's own staff see or change it (others get `403`). Each year's run of an award is an **edition** (a cycle). A new edition starts as a draft with one written round (document review, 1 juror per application, results Shortlisted / Rejected), no categories, an empty questionnaire and an empty scoring sheet. Times are sent as ISO 8601 with their offset (the screens send India time, `+05:30`); money is whole paise.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/awards/mine` | — | `[Award]`: every award the caller runs, across departments |
+| POST | `/api/awards` | `{ departmentId, name, domainId, description }` (the domain from `/api/master-data/award-domains`) | `201 Award`; its page address is made from the name (`-2`, `-3` if taken). `400` on `name` if the department has an award with that name (letter case ignored); `403` if the caller isn't the department's staff |
+| GET | `/api/awards/:id` | — | `Award` |
+| PUT | `/api/awards/:id/site` | `{ slug }`: 2 to 60 lower-case letters, digits and single hyphens | `200 { slug }`. `400` on `slug` if another award uses it; audited |
+| POST | `/api/awards/:id/cycles` | `{ label, opensAt, deadlineAt }` | `201 CycleSetup` (draft). `400` if the deadline isn't after the opening, or the label is taken in this award |
+| GET | `/api/cycles/:id` | — | `CycleSetup` |
+| PATCH | `/api/cycles/:id` | Any of `{ label, opensAt, deadlineAt, feePaise, blindJudging, maxEntries }`; `maxEntries: null` means no limit | `200 CycleSetup`. Once published, only `maxEntries` may change (`409 SETTINGS_FIXED` otherwise); `400` on `maxEntries` below the number already submitted; audited |
+| POST | `/api/cycles/:id/categories` | `{ name, feePaise? }`; `feePaise: null` uses the edition's fee | `201 CycleSetup`. `400` on `name` for a duplicate (letter case ignored); `409 SETTINGS_FIXED` once published |
+| PATCH / DELETE | `/api/cycles/:id/categories/:categoryId` | `{ name?, feePaise? }` | `200 CycleSetup`; only in a draft |
+| PATCH | `/api/rounds/:id` | Any of `{ juryMin, juryMax, resultLabels: [{ label, advances }] }` (at least 1 juror; 2 to 6 results with different names) | `200 CycleSetup`. `400` if the minimum is above the maximum; `409` once judging has started in the round; audited |
+| POST | `/api/cycles/:id/publish` | — | `200 CycleSetup`. `409` with `details.reason: "PUBLISH_BLOCKED"` and `details.issues` listing everything still missing, or if already published; the award page goes live with it |
+
+**Award**: `{ id, name, description, department: { id, name }, domain: { id, name }, siteSlug, cycles: [{ id, label, status, state, opensAt, deadlineAt }] }`
+
+**CycleSetup**:
+
+```json
+{
+  "id": "…", "label": "2026", "status": "DRAFT", "state": "DRAFT",
+  "opensAt": "2026-10-11T03:30:00.000Z", "deadlineAt": "2026-11-15T18:29:00.000Z", "publishedAt": null,
+  "feePaise": 1000000, "blindJudging": true, "maxEntries": null,
+  "award": { "id": "…", "name": "Safety Excellence Award", "department": { "id": "…", "name": "Safety, Health and Environment" }, "siteSlug": "safety-excellence" },
+  "categories": [{ "id": "…", "name": "Manufacturing sites", "feePaise": null }],
+  "round": { "id": "…", "number": 1, "type": "DOCUMENT_REVIEW", "juryMin": 2, "juryMax": 3,
+             "resultLabels": [{ "label": "Shortlisted", "advances": true }, { "label": "Rejected", "advances": false }],
+             "juryAvailable": 3 },
+  "publishIssues": ["Publish the questions first: there is no published version yet.", "Scoring sheet: The scoring sheet needs at least one section with an indicator."],
+  "settingsFixed": false
+}
+```
+
+- `state` is worked out from the status and the clock: `DRAFT`, `SCHEDULED` (published, not open yet), `OPEN`, `CLOSED` (past the deadline).
+- `publishIssues` is what still stops publishing, as sentences staff can act on: at least one category, a future deadline, a published question version, a complete scoring sheet, at least two results, and a jury list at least as long as `juryMax`. `juryAvailable` is the number of people on the department's jury list.
+- `settingsFixed`: published, so the name, dates, fee, blind judging and categories can't change.
+
+## Questions (form versions, rule R4)
+
+Staff edit a draft and publish it as numbered versions. A published version never changes (the database refuses it too), and an application keeps the version it started with. Inside an edition a published section, question or choice can't be removed and a published question can't change its type. Keys (`sec_…`, `q_…`, `opt_…`) are made by the server and never reused; the builder sends `key` only for items that already exist. After the deadline the questions can't change (`409`).
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/cycles/:id/form` | — | `FormBuilder` |
+| PUT | `/api/cycles/:id/form-draft` | `{ sections: [{ key?, title, description?, questions: [Question] }] }` | `200 FormBuilder`. `400` with a `details` entry per problem, by path (`sections.0.questions.2.label`) |
+| POST | `/api/cycles/:id/form-versions` | `{ changeSummary }` | `201 FormBuilder`: the saved draft becomes the next version. `400` if a section has no questions or the form is empty; `409` if nothing changed since the last version |
+| GET | `/api/cycles/:id/form-versions/:version` | — | `{ version, changeSummary, publishedAt, publishedBy, definition: { sections } }` |
+
+**Question**: `{ key?, type, label, help, required }` plus, by type: `SHORT_TEXT` and `LONG_TEXT` `maxLength` (empty: 300 and 5,000; at most 1,000 and 20,000) · `NUMBER` `min`, `max` · `SINGLE_CHOICE` `options: [{ key?, label }]` (at least two, different wording) · `YES_NO` nothing more · `FILE_UPLOAD` `maxFiles` (1–10), `fileTypes` (`pdf`, `jpg`, `png`, `docx`, `xlsx`). Only the fields a type uses are stored.
+
+**FormBuilder**: `{ cycleId, draft: { sections }, versions: [{ version, changeSummary, publishedAt, publishedBy }], latestVersion, hasUnpublishedChanges, publishedKeys, locked }`
+
+## Scoring sheet (ADR 0019)
+
+One sheet per round: sections with whole-percent weights, each holding indicators with their own whole-percent weights; each indicator scores one question and is marked 0 to 10 (`SCORE`) or Yes/No (`YES_NO`, counted as 10 or 0). Applicants never see it. Staff can save it in any state while building it; the publish check needs every total at 100% and every indicator pointing at a published question. It locks when the first score is saved (Step 1.4).
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/rounds/:id/scoring-sheet` | — | `ScoringSheet` |
+| PUT | `/api/rounds/:id/scoring-sheet` | `{ sections: [{ key?, title, weight, indicators: [{ key?, label, type, weight, questionKey }] }] }`; weights whole numbers 1–100 | `200 ScoringSheet`. `400` by path for a missing name or weight, or a question that isn't in the form; `409` once locked |
+
+**ScoringSheet**: `{ roundId, sections, locked, totals: { sections, bySection: { [sectionKey]: total } }, issues: [string], questions: [{ key, label, type, published }] }`
+
+The arithmetic, used from Step 1.4: one juror's points `P = Σ W × w × v` (a whole number from 0 to 100,000); the final score over `n` submitted evaluations `F = ⌊(ΣP + 5n) ÷ (10n)⌋ ÷ 100`, rounded once, half up, to two decimals; equal scores share a rank (1, 2, 2, 4).
+
+## Award pages and Open awards (public, no login)
+
+Each award has one public page at `/awards/<slug>` in its department's colours. The dates, categories, fees and the entry counter are read live from the edition, never copied (spec §5.19). Drafts are never public. Staff choose only the address (`PUT /api/awards/:id/site`); the full site builder is package 2.2.
+
+| Method | Path | Response |
+|---|---|---|
+| GET | `/api/public/awards` | `[PublicAward]`: published editions between their opening date and their deadline, nearest deadline first |
+| GET | `/api/public/awards/:slug` | `PublicAward`: the open edition, or else the latest published one. `404` for an unknown address or an award with only drafts |
+
+**PublicAward**:
+
+```json
+{
+  "slug": "fpo-excellence", "name": "FPO Excellence Awards", "description": "…", "domain": "Agriculture and Farmer Producer Organisations",
+  "department": { "name": "FPO Awards team", "externalOrganiser": true, "colours": { "primary": "#2E7D32", "accent": "#F9A825" }, "footerText": "…" },
+  "cycle": {
+    "label": "2026", "opensAt": "…", "deadlineAt": "…", "state": "OPEN", "blindJudging": false,
+    "categories": [{ "name": "Women-led FPO", "feePaise": 0 }],
+    "fee": { "fromPaise": 0, "toPaise": 0 },
+    "entries": { "submitted": 0, "limit": 500 }
+  }
+}
+```
+
+Never in a public response: people, applications, or anything an applicant entered.

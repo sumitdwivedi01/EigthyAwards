@@ -73,3 +73,26 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **How it was caught.** The owner logged in as the leader and found "Proof for applying" on My profile and an Applying link. The permission matrix in the same §3 gives applying and the profile proof to the Applicant column only, and PHASES Step 1.1 says "the proof tab for applicants": the code followed one sentence and missed the table.
 - **Fix.** The owner decided that applicants and the people who run and judge awards use separate accounts (ADR 0016): `User.accountType`, `requireApplicantAccount` in the services, triggers and a CHECK in the database, the applying screens shown only to applicant accounts, and tests for each kind of account.
 - **Lesson.** When a sentence and a table disagree, ask instead of picking the reading that is easiest to build; and look at every screen as each role, not only as the role the feature is for.
+
+## 11. An enum change that PostgreSQL refused because of CHECK constraints (Step 1.2, 11 Oct)
+
+- **What looked right.** Removing the masked-file kind from the `FileKind` enum the usual way: create `FileKind_new`, `ALTER COLUMN kind TYPE "FileKind_new" USING kind::text::"FileKind_new"`, drop the old type, rename. It is the pattern every guide shows, and the SQL is valid.
+- **How it was caught.** Running the migration locally failed with `operator does not exist: "FileKind_new" = "FileKind"`, and left both local databases half migrated.
+- **Why.** Three CHECK constraints on `file_assets` (the file's owner, the proof's document date, the consent) compare `kind` with literals typed as the **old** enum. While the column changes type, PostgreSQL re-checks them and can't compare the new type with the old one.
+- **Fix.** Inside one `BEGIN … COMMIT`, drop the three CHECKs, swap the enum, and create them again with the same rules. The half-applied local databases were finished by hand and marked applied (`prisma migrate resolve`); the drift check proves that the migrations still build the schema from nothing.
+- **Lesson.** A pattern that is right in general can still meet this database's own rules; run every migration against a database that has all its constraints before pushing.
+
+## 12. A seed that type-checked but no longer ran (Step 1.2, 11 Oct)
+
+- **What looked right.** After the jury role moved from a cycle to a department (ADR 0017), `tsc` was clean on the whole backend, the seed included.
+- **How it was caught.** Running `npm run db:seed` stopped with Prisma's "Unknown argument `cycleId`": the seed's `grant()` still looked roles up with `cycleId: null`, a column the migration had removed.
+- **Why.** Prisma's query methods are generic: the argument's type is inferred from the object and then compared with the allowed shape, and TypeScript's check for unknown properties only applies at the top level of that object. An unknown field inside `where` slips through; only Prisma's run-time validation sees it.
+- **Fix.** The field removed from the seed, and CI now seeds a fresh database **twice** (it must work, and be safe to repeat), so this kind of mistake fails the pull request.
+- **Lesson.** A clean type check doesn't prove a query is right; code that only runs by hand (seeds, scripts) needs to run in CI too.
+
+## 13. Two builders that each worked, but not on the same page (Step 1.2, 11 Oct)
+
+- **What looked right.** The question builder and the scoring-sheet builder each gave their inputs ids made from the item's path (`sections.0-title`), so every label was tied to its input. Each builder worked and passed lint and the type check.
+- **How it was caught.** In the browser check of the edition setup, a script listed the element ids on the page and found duplicates: both tabs stay mounted (so unsaved work survives switching tabs), and both had a `sections.0-title`. Clicking a label in one tab could focus an input in the hidden other tab.
+- **Fix.** Each builder prefixes its ids (`form-…`, `sheet-…`). The page check now finds no duplicate ids.
+- **Lesson.** Components that are fine alone can clash once composed; check the whole page, not each part.

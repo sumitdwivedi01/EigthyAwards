@@ -46,7 +46,7 @@ Both are set up **on screen by staff**. In the walkthrough, staff also set up a 
 
 | Who | What they can do |
 |---|---|
-| **Visitor** | See open awards as branded cards, and each award's page in its department's logo and colours (dates, categories, fee, places left) |
+| **Visitor** | See open awards as branded cards, and each award's page in its department's colours (dates, categories, fee, places left; the logo comes with image uploads in Phase 2, G-K30) |
 | **Applicant** | Register, then create or join their company (PAN and GSTIN checked and cleaned). Add a photo ID and LinkedIn link once, on **My profile**. Start an application (blocked if a colleague already did), pay the demo fee, fill the form with autosave, upload evidence and a recent proof of employment, then submit, and see their status and result. Change their password |
 | **Staff** | Create an award and set it up: dates, fee, blind, categories, entry limit, jury per application, questions (with versions) and the scoring sheet (weights must total 100%). Choose the award page's address. Check proof and record conflicts. After the deadline, **assign each application by hand** to jury from the department's list, with the counts in view: per application (assigned, against the minimum) and per juror (assigned, submitted). Follow progress, correct a score with a reason, send for approval, then shortlist and publish results |
 | **Jury** | Log in with the temporary password from their head, set their own, and see the departments they judge for. See their applications, score them (whole numbers 0–10 or Yes/No) with an overall note, and submit. In a blind award they never see the company, the applicant or any file |
