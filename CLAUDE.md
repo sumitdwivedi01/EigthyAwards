@@ -8,13 +8,13 @@ One configurable platform that runs about 80 award programmes for an Indian indu
 2. [docs/PLAN.md](docs/PLAN.md) (the three phases, simple) and [docs/PHASES.md](docs/PHASES.md) (the detailed steps). Work **only** on the current step.
 3. [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md): architecture, data model, flows, Phase 1 API.
 4. [docs/GAPS.md](docs/GAPS.md) §A: open decisions. The defaults apply until they're answered.
-5. [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md): how the 7 Oct decisions were reached (branded award sites, organisers, proof documents, entry limit, domains). Decided; see the spec §5.19–§5.20.
+5. The 7 Oct decisions (branded award sites, organisers, proof documents, entry limit, domains) are ADRs 0009–0010 and the spec §5.19–§5.20. The proposal that led to them was removed on 12 Oct (git history).
 6. [docs/ui/](docs/ui/README.md): the UI overview (clickable prototype, flows per role).
 7. [docs/requirements.md](docs/requirements.md): the spec, which is the source of truth for behaviour. [docs/decisions/](docs/decisions/): ADRs that override parts of it (especially 0001 and 0003).
 
 ## Repo map
 
-- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 16 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data`, `departments` (with the people and jury lists), `onsite` and `sites`; there is no `masking` module (ADR 0018).
+- `Backend/`: Express 5 + TypeScript + Prisma + PostgreSQL API, deployed to Render. 15 modules live in `src/modules/<name>/` (routes, service, access, schemas, views, tests), including `master-data`, `departments` (with the people and jury lists) and `sites`; there is no `masking` module (ADR 0018) and no `onsite` module yet (its tables exist; the module comes in Phase 2, package 2.1).
 - `Front-End/`: Next.js (App Router) + TypeScript + Tailwind + shadcn/ui, deployed to Vercel. It proxies `/api/*` to the backend.
 - `docs/`: brief, spec, plan, progress, gaps, ADRs, and `overview/` (the plain-language plan with diagrams: README.md for GitHub, platform-flow.html for screen sharing). The old architecture PDF was removed on 7 Oct 2026 as out of date; it is still in git history (tag `phase-00-done`).
 - `Daily.md`: the daily log for the reviewer (Done · Next · Stuck · Plan changed).

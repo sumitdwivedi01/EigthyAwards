@@ -989,74 +989,9 @@ The load is small for a single PostgreSQL database, so the design favours correc
 | Browsers | Current Chrome, Edge, Firefox and Safari |
 | Backups | Managed database backups in production |
 
-## 14. Scope for the 10-day build
+## 14. Scope
 
-> **Changed 9 Oct 2026:** the build is delivered in three phases. **Phase 1 (10–15 Oct)** builds the part listed in [PLAN.md](PLAN.md#what-works-in-phase-1); on-site rounds, the full site builder, the leader's admin screens and all emails move to **Phase 2**; security, privacy, load, payments and domains to **Phase 3**. The lists below stay as the full product scope.
-
-> **Changed 11 Oct 2026:** departments, heads, staff and jury are created on screen in Phase 1 (ADR 0017); the masking workspace is dropped (ADR 0018).
-
-With about 40 working hours, the build covers the full cycle at its core and cuts depth, not steps. The priorities below decide what drops first if time runs short.
-
-### Must have
-
-- Branded award sites with the page builder (§5.19), the brand kit, and branded cards on Open awards.
-- Proof: the identity document and LinkedIn link once on the profile, a recent proof of employment with every application, and the staff check; the entry limit with its public counter (§5.20).
-- My profile for every user: name, phone, change password (§5.21).
-- The department head's dashboard (external organisers run their awards from it).
-- Login and roles with scopes; a seeded leader, with departments, department heads, staff and jury created through the hierarchy.
-- Data consistency rules: normalisation, case-insensitive uniqueness, controlled lists for award domains, organisation types and states, identity snapshots (§5.18).
-- Organisation profile with PAN and GSTIN checks.
-- Departments and department heads (leader), staff assignment to many awards (department head or leader), award and cycle setup (staff), all in the UI.
-- Questionnaire builder and immutable form versions (rule 4).
-- Scoring sheet builder with weight validation and the score formula.
-- Applicant flow: one application per organisation (blocked at start; colleagues read-only), demo fee, dynamic form, autosave, submit, edit until deadline, withdraw.
-- Deadline locking and blind judging without a masking step (rule 1; ADR 0018).
-- The department's jury list, conflicts and assignment by hand (rule 2), with several jury per application in document review rounds (a minimum and maximum per round) and the average as the final score.
-- Scoring, overall note, submit, staff edits with reason, audit history (rule 3).
-- Approval by the department head: send for approval, approve, send back with remarks, resubmit.
-- Shortlist and publish results.
-- On-site rounds (§5.16): slots, panels of 2 to 5, independent panel scoring, staff backup entry, averages, closing, and Gold, Silver and Bronze results.
-- Three seeded cycles with clearly different settings (blind document review with a fee; document review then on-site with medals; shop-floor on-site only), plus one more configured live in the UI during the walkthrough.
-
-### Should have
-
-- Releasing an application with a reason (staff).
-- Disqualify and reinstate.
-- Emails for: questionnaire updated, jury assigned, results published (others if time allows).
-- Leader dashboard with basic counts.
-- Master data screens (until built, the lists come from the seed).
-- Organisation record correction and account deactivation screens.
-
-### Could have
-
-- Leader drill-down screens beyond the dashboard.
-- A flag when the jury of one application disagree widely (for example more than 20 points between the highest and lowest score).
-- Remaining email templates.
-- Reminders the leader can send: to department heads with rounds waiting for approval, and to jury with unfinished evaluations.
-- Export of cross-award reports as CSV for the leader.
-- A "possible duplicate organisations" list for the leader (same name, different PAN) to clean up.
-
-### Designed for, not built (room kept)
-
-- A live scoreboard for on-site rounds.
-- Changing one's own email address (with a confirmation link to the new address).
-- Copying last year's cycle setup.
-- Transferring an application to another member of the organisation.
-- More organisation fields.
-- Own domains for award sites: a sub-domain first, then the organiser's own domain (slug and customDomain field already stored).
-- Drag-and-drop free layout, uploaded custom fonts, and page-visit analytics for award sites.
-- Named accounts for each member of the leader's team (ADR 0014).
-
-### Out of scope
-
-- Real payment gateway and refunds.
-- Automatic removal of names from documents.
-- Integration with the client's member portal or single sign-on.
-- Importing past cycles' data.
-- Multiple languages, a mobile app, feedback reports for applicants.
-- Virus scanning of uploads.
-- Offline scoring at venues without internet.
-- Booking of presentation slots by applicants.
+> Superseded on 9 Oct 2026 by the three-phase plan: what Phase 1 builds is in [PLAN.md](PLAN.md#what-works-in-phase-1), and Phases 2 and 3 carry the rest of this specification. The old 10-day scope lists were removed on 12 Oct 2026 (git history).
 
 ## 15. Testing strategy
 
@@ -1181,24 +1116,7 @@ Three lines: Done · Next · Stuck. Add Plan changed when the plan was updated, 
 
 ## 17. Build plan
 
-> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). Kept for history.
-
-Days 1 and 2 went to understanding, questions and design. Days 3 to 8 build one vertical slice per day, each ending with its rule tests green; days 9 and 10 finish. If the actual day count differs, shift the rows and note the change in plan.md.
-
-| Day | Focus | Done when |
-|---|---|---|
-| 3 | Project skeleton, CI, Prisma schema, seed, login, roles and scopes, departments and department heads, organisation profile | Seeded users log in and land on their role's area; PAN and GSTIN checks tested |
-| 4 | Award creation, staff assignment, cycle setup, questionnaire builder, form versions, scoring sheet builder | Staff publish a complete cycle in the UI; rule 4 and weight tests green |
-| 5 | Open awards, demo fee, form renderer with autosave, submit, edit, withdraw, duplicate flag | An applicant submits end to end; deadline and fee tests green |
-| 6 | Deadline lock, masking workspace, jury pool, conflicts, assignment | A blind application reaches its jury masked; rule 1 and 2 tests green |
-| 7 | Scoring screen, submit evaluation, staff edits with reason, disqualify and reinstate, audit history | A jury submits; staff corrections are audited; rule 3 tests green |
-| 8 | Approval and send back, shortlist, publish results, key emails, leader dashboard; configure a second award in the UI only | One full cycle runs for both awards with no code change |
-| 9 | README from a fresh clone, user journeys page, architecture drawing, testing.md, ai-notes.md, deploy | A stranger can run it; every brief deliverable is in the repo |
-| 10 | Self-review of every module, fixes, walkthrough rehearsal | The 20-minute walkthrough runs without surprises |
-
-Cut order if behind: remaining email templates → department head dashboard → duplicate resolution screen (keep the flag) → jury-side disqualification (keep staff-side). The four rules and the end-to-end cycle are never cut.
-
-Each day: open the issues for that day's slice, merge through pull requests into develop, merge develop into main when CI is green, write the daily update.
+> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). The original day-by-day table was removed on 12 Oct 2026 (git history).
 
 ## 18. Open questions and assumptions
 

@@ -43,7 +43,7 @@ flowchart LR
 | judging (conflicts, assignment by hand with the board, several jury, scores, audit) | ✅ | disqualify and reinstate, reopen |
 | approval (approve), results | ✅ | send back |
 | reporting | leader dashboard | department dashboard |
-| onsite | tables only | ✅ slots, panels, close, medals |
+| onsite (no module folder yet) | tables only | ✅ the module: slots, panels, close, medals |
 | audit, notifications | ✅ (outbox, log) | real email provider |
 
 There is no masking module: blind awards leave identity and files out of the jury view, and the masking step is dropped (ADR 0018).

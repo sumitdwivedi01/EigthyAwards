@@ -38,7 +38,7 @@ On 5 Oct we added a **Leader's PA** role (ADR 0005). It let the leader invite te
 
 - **Traceability:** the audit history can't tell which team member did something; it shows the leader's account (spec A33, GAPS K16).
 - **Shared password:** several people know one password. When a team member leaves, the leader changes the password, which signs out every device (spec §5.21).
-- **Code (parked branch):** remove `LEADER_PA` from the `Role` enum and from the role-scope CHECK, and update two tests (the audit test that used `LEADER_PA` as the actor's role, and the scope test). Listed in [proposals/0.7-backend-changes.md](../proposals/0.7-backend-changes.md).
+- **Code (parked branch):** remove `LEADER_PA` from the `Role` enum and from the role-scope CHECK, and update two tests (the audit test that used `LEADER_PA` as the actor's role, and the scope test). Listed in proposals/0.7-backend-changes.md (proposal removed 12 Oct 2026; git history).
 
 ## What would change our mind
 

@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-11 · Day 9 |
+| **Last updated** | 2026-10-12 · Day 10 (docs cleanup on the Step 1.4 branch) |
 | **Current phase** | **Step 1.4: Assignment, judging and results** (🧪 built and checked by hand on its branch; pull request into `staging` next). Steps 1.2 and 1.3 are in `staging` (sumitdwivedi01/EigthyAwards#16, sumitdwivedi01/EigthyAwards#18), being checked there; Step 1.1 and the docs phases are on `main` |
 | **Current branch** | `phase-1.4-judging`, cut from `staging` after Step 1.3 merged, built in a third worktree (`../EightyAwards-1.4`, its own databases `awards14`, and ports 4200/3200) while the owner checks `staging` and Step 1.3 |
 | **What runs today** | On the step branch, locally: the API (Step 1.1, plus departments and people with temporary passwords, award setup, questions with versions, scoring sheets with the exact arithmetic, award pages and Open awards, departments run by their heads (ADR 0020); then applying: starting (one per organisation), the demo fee, autosaved answers and files, the employment proof, submitting with the entry limit, the deadline lock, the proof check and release, file downloads; then judging: conflicts (R2), assigning by hand with the counts, the blind jury view (R1), scoring with autosave, the exact average, corrections with a reason (R3), approval, results and the dashboard; 332 tests) and the web app (all of that on screen, including the round page for staff, the head and the leader, My assignments and the scoring screen, the approval queue and the dashboard), checked by hand in a browser. `staging` holds Steps 1.2 and 1.3, `main` Step 1.1 |
@@ -51,13 +51,13 @@ From 0.10 on, the PR column lists both pull requests (into `staging`, then `stag
 
 | Goal | Step | Status |
 |---|---|---|
-| Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | 🧪 Built and tested; in review |
-| Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | 🧪 Built and tested; in review |
-| The leader creates departments and their heads; heads create staff and jury (temporary passwords, changed at first login) and choose the theme; the leader only views (ADR 0020) | 1.2 | 🧪 Built and tested; in review |
-| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet with exact arithmetic, jury per application | 1.2 | 🧪 Built and tested; both demo awards built on screen |
-| A simple award page (department colours; the logo in 2.2, G-K30) and Open awards, with the live "499 / 500" counter | 1.2 | 🧪 Built and tested; in review |
-| Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | 🧪 Built and tested; in review |
-| Staff: proof check, release | 1.3 | 🧪 Built and tested (release through the API; its screen is Phase 2) |
+| Logins, scoped roles, My profile (change password, ID and LinkedIn once) | 1.1 | ✅ Merged into `main` |
+| Companies created or joined, data cleaned on save (one PAN, one spelling) | 1.1 | ✅ Merged into `main` |
+| The leader creates departments and their heads; heads create staff and jury (temporary passwords, changed at first login) and choose the theme; the leader only views (ADR 0020) | 1.2 | ✅ In `staging` |
+| Staff set up an award on screen: settings, questions with versions (R4), scoring sheet with exact arithmetic, jury per application | 1.2 | ✅ In `staging`; both demo awards built on screen |
+| A simple award page (department colours; the logo in 2.2, G-K30) and Open awards, with the live "499 / 500" counter | 1.2 | ✅ In `staging` |
+| Apply: one per company (blocked at the start), demo fee, autosave form, recent employment proof, entry limit, deadline lock | 1.3 | ✅ In `staging` |
+| Staff: proof check, release | 1.3 | ✅ In `staging` (release through the API; its screen is Phase 2) |
 | Blind view without masking (R1), conflicts (R2), assignment by hand with the counts, several jury with the exact average, score changes with reasons (R3) | 1.4 | 🧪 Built and tested; in review |
 | Approval by the head (send back: Phase 2), results published, the leader dashboard screen | 1.4 | 🧪 Built and tested; in review (the head gets the same dashboard for their departments) |
 | Production online on Supabase, Render and Vercel, with demo data and logins | 1.5 | ⬜ |
@@ -176,26 +176,6 @@ On `phase-1.2-setup` (cut from `staging`). The organisers' hierarchy works on sc
 - [x] Merged into `staging` (sumitdwivedi01/EigthyAwards#16).
 - [ ] The manual check again on `staging`; then `main` and the tag `phase-1.2-done`.
 
-### Phase 0.12: README problem first · ✅ · 2026-10-11 (Day 9)
-
-A first-time reader couldn't picture the problem from the README: it went straight to the platform, and assumed the reader knew what these awards are, what "different systems" means in practice, and terms like "250 indicators in 15 areas" or "38 categories". The README now explains the problem first and the solution after.
-
-- [x] README.md: §1 the organisation and its awards (what an award programme is, who applies and why, the scale and the differences); §2 one award from start to finish, with a sample scoring sheet; §3 how the awards are run today and where it hurts for each user, with the inconsistent-data example; §4 the terms; §5 what must be the same and what may differ; §6 what we know, assumed and still have open; then §7 the solution in short, §8 status, §9 where to look, §10 running it. Brought up to date (16 modules, the re-plan, the status).
-- [x] The overview's problem section points to the README; three overview lines from before 11 Oct updated (people, rule 1). GAPS F10; PHASES and Daily.
-- [x] Merged into `staging` (sumitdwivedi01/EigthyAwards#14), then into `main` (sumitdwivedi01/EigthyAwards#15).
-
-### Phase 0.11: Re-plan around the lead's focus · ✅ · 2026-10-11 (Day 9)
-
-The lead wants the focus on the form builder, filling the form and judging, and doesn't want masking. The owner wants departments, heads, staff and jury created on screen in Phase 1, staff assigning applications to jury by hand with the counts in view, and an exact average. Four points were agreed first (recommended options): blind awards hide identity, names and files automatically and masking leaves the plan; new accounts get a temporary password changed at first login; jury are listed per department with no cycle pool, and staff assign by hand; room comes from a simpler award page, one online site and Thursday morning.
-
-- [x] [ADR 0017](decisions/0017-people-created-on-screen.md) (people on screen, temporary passwords, the department's jury list), [ADR 0018](decisions/0018-blind-judging-without-masking.md) (blind judging without masking), [ADR 0019](decisions/0019-exact-score-arithmetic.md) (exact score arithmetic, with a worked example); ADRs 0013, 0015 and 0016 marked; the ADR index.
-- [x] PLAN and the Phase 1 roadmap (who does what, the two awards, rule 1, day by day, moved and dropped, cut order, walkthrough, risks); PHASES (change log, routine, timeline, Steps 1.2–1.5 rewritten, Phase 2 packages, cut order, history).
-- [x] The spec: revision log and every section the decisions touch (§1–4, §5.1, §5.3–5.9, §5.12, §5.14, §5.15, §5.17, §6–8, §10–12, §14, §15, §18); TECHNICAL-DESIGN (modules, data model, flows, API, environments, testing).
-- [x] GAPS (K13, K14, K17, K18, K19, C13, D11, K03, K07, A10; K22–K27 added); CLAUDE.md; creating.md; the UI overview; the overview; both READMEs; Daily.
-- [x] Reviewed and merged into `staging` (sumitdwivedi01/EigthyAwards#13), after Step 1.1 (sumitdwivedi01/EigthyAwards#12).
-- [x] Merged into `main` (sumitdwivedi01/EigthyAwards#15).
-
-
 ### Step 1.1: Foundation and people · ✅ · 2026-10-10 (Day 8, evening and night)
 
 The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided first with the owner: copy the parked code (not merge it) with one new migration; jury accounts only from the seed until staff add them to a pool (G-K19); uploads through signed links (G-B03).
@@ -222,145 +202,9 @@ The first build step, on `phase-1.1-foundation` (cut from `staging`). Decided fi
 - [x] "A jury user gets 403 on a staff endpoint" through HTTP: tested in Step 1.2, with the first staff endpoint.
 - [x] Merged into `staging` (sumitdwivedi01/EigthyAwards#12) and `main` (sumitdwivedi01/EigthyAwards#15). The tag `phase-1.1-done` is still to push.
 
-### Phase 0.10: A staging branch · ✅ · 2026-10-10 (Day 8, evening)
+### Docs phases 0 to 0.12 · ✅ · 4–11 Oct 2026
 
-The owner met the lead (nothing changed) and asked for a staging branch: each step is merged into `staging` and tested there, then merged into `main` (production). Four details were agreed first (all recommended options): `main` is production; step branches go into `staging`; until 14 Oct, testing on `staging` means CI plus the step's manual check run locally, with two online environments from then; `staging` goes into `main` after each step.
-
-- [x] [ADR 0015](decisions/0015-staging-branch.md) (supersedes 0004's flow); 0004 and the ADR index marked.
-- [x] The workflow everywhere it is written: CLAUDE.md, PHASES (§1 routine and checklist, §2, Steps 1.1, 1.3 and 1.5, change log), PLAN, the Phase 1 roadmap, TECHNICAL-DESIGN, creating.md, the app READMEs, the spec's revision log and §16 note, the PR template (with a short `staging` → `main` checklist).
-- [x] Also decided today: the paused backend is copied into Step 1.1 with one new migration; Phase 1 jury accounts come only from the seed (G-K19); uploads use signed links, as ADR 0003 says (G-B03). Found: Vercel caches proxied responses that carry caching headers, so the API sends `Cache-Control: no-store` (G-B16).
-- [x] Small fixes: `requireLeaderOrPA` → `requireLeader`; the 0.7 change list (branch from `staging`, the extra files to copy, change password now in Step 1.1, partial indexes in the schema, the enum switch); 0.9 marked merged.
-- [x] Merged through sumitdwivedi01/EigthyAwards#10 (→ `staging`) and sumitdwivedi01/EigthyAwards#11 (→ `main`); tagged `phase-0.10-done`.
-- [ ] `staging` protected on GitHub like `main` (the owner's setting; G-G03).
-
-### Phase 0.9: Docs refined · ✅ · 2026-10-09 (Day 7, late)
-
-The owner asked for the Backend README to match the new plan, and for every document to be clear, current and free of filler words.
-
-- [x] `Backend/README.md` rewritten: status (what's built, where, what Step 1.1 brings), which module is built in which step, structure, the file contract of each module, how to run, scripts, environment variables, tests, deployment.
-- [x] `Front-End/README.md` rewritten the same way: status, which screens come in which step, structure, how to run, deployment.
-- [x] Wording: decorative emojis and marketing phrases removed from the overview; "How Phase 1 stands out" became "What the walkthrough will show" in PLAN; filler words removed from creating.md, the UI README and ADRs 0001, 0003 and 0008. The overview now points to PLAN.md and TECHNICAL-DESIGN.md and says which awards Phase 1 shows.
-- [x] Status of 0.7 and 0.8 set to merged in PROGRESS and PHASES.
-- [x] [PHASE-1-ROADMAP.md](PHASE-1-ROADMAP.md): Phase 1 for presenting to the lead: the goal, what's delivered, the two awards, the timeline, the daily routine, each day's work and checks, how the rules are proven, what's left out, the walkthrough plan, done-when, risks, and what we need from the lead.
-- [x] **Phase 1 fitted to the dates (10 Oct).** The full list came to about 100 hours against about 64 available. Moved to Phase 2: send back and reopen, file masking, version comparison and markers, editing after submit and withdraw, the release screen, the full scoring-sheet builder and three question types, the brand-kit screen and image uploads, jury invites by email, the status timeline, edge-case tests. Kept: the leader dashboard screen and masking of answers. Phase 1 ≈ 71 h; Thursday morning is a buffer. PLAN, PHASES, TECHNICAL-DESIGN, GAPS (K13, K17), the overview, the app READMEs, creating.md and Daily updated.
-- [x] Merged through sumitdwivedi01/EigthyAwards#9 on 10 Oct (the tag `phase-0.9-done` is still to push).
-
-### Phase 0.8: Three-phase plan and technical design · ✅ · 2026-10-09 (Day 7, evening)
-
-The lead asked for the whole platform in **three phases**, Phase 1 a fully working platform (what we are judged on), and the technical design agreed before coding. The owner set Phase 1 to start on 10 Oct and wrap up by 13 Oct, including Sunday. Four choices were agreed first (all recommended): build 10–13, deploy 14, demo 15; two written-review awards; a simple branded page in Phase 1; a new simple PLAN.md.
-
-- [x] [PLAN.md](PLAN.md): the three phases in plain words for the lead: Phase 1 by date with the two demo awards, what works for each user, how the rules are proven, day by day, kept simple on purpose, cut order, done-when; Phase 2 and Phase 3 in days; why this order; how Phase 1 stands out; risks.
-- [x] [PHASES.md](PHASES.md) rewritten as the detailed steps: the five Phase 1 steps (backend, frontend, tests, done when, manual check), the Phase 2 and 3 packages, the map from the old 15-phase list, the cut order.
-- [x] [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md): architecture, modules per phase, the data model (diagram and database guarantees), key flows, the Phase 1 API, scaling, security, environments, testing.
-- [x] PROGRESS rebuilt for the steps; GAPS (K12 answered, K13–K15 added, A2 and A4 updated); spec §1, §14, §15 and §17 notes; CLAUDE.md, README, the overview, the 0.5 and 0.7 proposals, the UI README, creating.md (rewritten short) and Daily.
-- [x] **The PA role removed** (owner, later on 9 Oct): the leader's team works from the leader's account. ADR 0014 (supersedes 0005); the spec (five roles, matrix, §5.17 now "the leader's team", journeys, operations, screens, data model, tests, A14 removed, A33 added); GAPS (A11, A12, H02, H03, H11 removed; K16 added); the prototype (the PA screen became "People and awards"; the role is now "Leader"); PLAN, PHASES, TECHNICAL-DESIGN, the overview, the READMEs, the PR template, the backend change list (B6), creating.md.
-- [x] Merged through sumitdwivedi01/EigthyAwards#8 and tagged `phase-0.8-done`.
-
-### Phase 0.7: Lead call: proof once, My profile, several jury · ✅ · 2026-10-09 (Day 7)
-
-The owner met the lead. The lead agreed with most of the plan and asked for: the identity document and LinkedIn link given **once**, not with every application; only a **recent** proof of employment per application; a way for users to **change their password**; and **several jury per application** in round 1, with the average as the final score so no single person's bias decides. Four details were agreed first (all recommended options): each award checks its own application; the proof is dated within 3 months; one min–max per round; commit locally only.
-
-- [x] Spec: new §5.21 (My profile and account); §5.20 rewritten (proof once on the profile, recent employment proof); §5.8 (jury per application), §5.5 (final score = average, rounded once); and every related section (§2, §3, §4, §5.1–5.3, §5.6–5.13, §5.15, §5.16, §6–8, §10–15, §18 with A27–A32).
-- [x] ADR 0012 (proof once, My profile) and ADR 0013 (several jury per application); 0008 and 0010 marked as changed.
-- [x] [proposals/0.7-backend-changes.md](proposals/0.7-backend-changes.md): what the parked backend has, what's planned, and every change it needs (B0–B5). Not done in code, as asked.
-- [x] GAPS: new section K (12 items); J08, J09, J13, J19, D11 and E07 updated; J21 answered (three phases).
-- [x] PHASES: the points changed inside Phases 1, 2, 3, 5, 7, 8, 9, 10, 11 and 13 only; the phase list and days are **not** re-planned yet (owner's instruction).
-- [x] Prototype: a new **My profile** screen (proof once, change password); the proof step now asks only for the dated employment proof; proof check, assignment (min–max, several jury), judging progress, results and the head's review show each jury member's score and the average. 32 screens. Tested at phone, tablet and laptop widths: no errors, every link valid, nothing cut off (also fixed older screens whose tables were clipped on phones).
-- [x] Also fixed: the overview still said "two entries from one company are flagged" (missed in 0.6).
-- [x] UI README, overview, README, CLAUDE.md, creating.md, Daily.md.
-- [x] Merged through sumitdwivedi01/EigthyAwards#7 and tagged `phase-0.7-done`; the three-phase re-plan followed in 0.8.
-
-### Phase 0.6: One application per organisation · ✅ · 2026-10-08 (Day 6)
-
-The owner asked two questions about the prototype: can a colleague see an application someone else is filling, and can we stop a second one **before** it's filled, not after submission? Four details were agreed first (all recommended options, except "status only, no name").
-
-- [x] Spec §5.2 rewritten: blocked at the start; status-only message; colleagues read-only ("Started by a colleague"); withdrawn and released don't count; staff release with a reason; a partial unique index for simultaneous starts. Related sections updated (§3, §4, §5.15, §5.16, §5.20, §7, §10–§15, §18).
-- [x] ADR 0011; ADR 0007 note updated.
-- [x] GAPS: A14, D08, E08 updated; J22 (answered), J23 (fake starter blocks the real one: staff release), J24 (no hand-over yet).
-- [x] PHASES (Phase 0.6; Phases 1, 7, 10 and cut order), the prototype (start, My applications, staff list), the UI README, CLAUDE.md, Backend README, the overview, creating.md, Daily.md.
-- [x] Merged through sumitdwivedi01/EigthyAwards#6 and tagged `phase-0.6-done`.
-
-### Phase 0.5: UI overview and re-plan options · ✅ · 2026-10-08 (Day 6)
-
-Goal: show the client how the platform looks and flows **before** building, and re-plan for the owner's hard limit of 15 October.
-
-- [x] Asked the owner four questions first (format, look, re-plan, branding deck); all answered with the recommended options.
-- [x] [docs/ui/prototype.html](ui/prototype.html): a clickable prototype of **31 screens across 6 roles** (visitor 3, applicant 7, staff 10, jury 3, department head 4, leader and PA 4), with notes tying each screen to the rules (R1–R4) and decisions. Tested in the browser: no errors, every link valid, every role walkable, no sideways scrolling at laptop, tablet and phone widths.
-- [x] [docs/ui/README.md](ui/README.md): the whole journey plus one Mermaid flow diagram per role, and the screen list with prototype links. GitHub shows it directly.
-- [x] [docs/ui/brand-value.html](ui/brand-value.html): the branding presentation (3 pages, live builder demo).
-- [x] [proposals/0.5-replan-options.md](proposals/0.5-replan-options.md): **Option A** (focused demo by 15 Oct, built on the real architecture) vs **Option B** (the real product, about 50–70 working days), with a recommendation. Not decided.
-- [x] PHASES (build plan on hold), PROGRESS, GAPS (J21), CLAUDE.md, README, creating.md, Daily.md updated.
-- [x] Merged through sumitdwivedi01/EigthyAwards#5 and tagged `phase-0.5-done`. Before merging, the Join tab on "My organisation" was made clickable at the owner's request.
-
-### Phase 0.4: New issues and the owner's answers · ✅ · 2026-10-07 (Day 5)
-
-- [x] Studied the FPO Awards site and wrote [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md) with 12 questions.
-- [x] Owner's answers recorded (GAPS §J): plan extended, not cut; sites for all awards; staff-only award creation; several departments per head; no site approval; public entry count; proof documents with every application; staff control what shows where and can redesign after publishing; simple branch names; 6 Oct decisions brought over.
-- [x] Spec: new §5.19 and §5.20 plus all related sections. ADRs 0009 and 0010; 0004 and 0007 updated; 6 Oct changes to ADRs 0002, 0003, 0004 and 0008.
-- [x] PHASES.md rewritten in the new numbering (new Phase 4 for sites; old 8 and 9 merged), target days to Day 21.
-- [x] GAPS §J answered (J17–J20 added); the overview, CLAUDE.md, creating.md, Daily.md and README updated.
-- [x] Tagged `phase-0.4-done` (its commits went to `main` directly by mistake; the owner chose to accept them as merged).
-### Phase 0.2: On-site rounds and answers · 🚧 · 2026-10-06 (Day 4)
-
-Goal: record the answers to the 15 open questions and design on-site rounds before writing code.
-
-What was decided:
-- Only one real application per organisation per award. Every application is accepted; extras are flagged and staff keep one. *(Changed on 8 Oct: a second one is blocked at the start, ADR 0011.)*
-- **Shop-floor competitions** register as usual (small or empty form) and are judged **on site**. The same round type serves the large award's live round 2.
-- On site: jury score on their own devices (internet assumed), with staff backup entry. A panel of 2–5 jury, each scoring separately; the average counts. **No approval**: staff close the round. The department head may sit on a panel.
-- Results: document rounds give Shortlisted / Rejected; on-site rounds give **Gold / Silver / Bronze** (others: Participated).
-- Defaults accepted: team members list, staff-set slots with an email, uploads only if staff add a file question, same powers for all PAs, PAs create awards, no proof-of-authority check for now, fee per category, GSTIN optional, the department head's approval is final, volume as before.
-
-- [x] Spec: revision log; glossary (round types, panel, slot, result label, shop-floor); matrix; statuses (two round tables, new applicant statuses); §5.2–5.6; §5.12 results by round; **§5.16 rewritten as On-site rounds**; rules, journeys, model limits, data model (PresentationSlot, RoundResult, round type and labels, evaluation backup entry, category fee, optional GSTIN); operations, screens, scope, tests, §18 answers and assumptions A18–A22.
-- [x] ADR 0008 On-site rounds; ADRs 0001, 0003, 0004 and 0006 renumbered.
-- [x] GAPS.md: A11–A14 closed; E02, E07, E08, E14 and E15 answered; C15 removed; new section I (13 gaps); summary recounted from the tables.
-- [x] PHASES.md: Phase 0.2 and a new **Phase 12 (on-site rounds, backend)**; old 12, 13 and 14 renumbered to 13, 14 and 15; Phases 1, 2, 3, 6, 8, 11, 13 and 14 updated; days re-planned; cut order extended.
-- [x] CLAUDE.md, the READMEs and Daily.md updated.
-- [ ] Commit, push, PR, merge, and tag `phase-00.2-done`.
-
-### Phase 0.1: Leader-call changes · ✅ · 2026-10-05 (Day 3)
-
-Goal: bring every document in line with the leader call before writing code.
-
-What the leader said:
-1. One staff member can work on many awards.
-2. The award goes to the organisation, not to its units or plants.
-3. No signed authorisation letter. For now, every application from a member of the organisation is accepted.
-4. The leader has a personal team (PAs) who do the leader's work: creating departments and awards, appointing heads, assigning staff. The leader creates the PAs.
-5. Data inconsistency was the main problem before this platform.
-
-- [x] Spec ([requirements.md](requirements.md)): revision log; roles grow to six (Leader's PA); new permission matrix; new §5.17 Leader's PA team and §5.18 Data consistency; letter removed from §2, §5.2, §5.3, §5.6, §7, §10, §12, §14, §17; data model (LEADER_PA, master data tables, identity snapshot, actorRole, deactivation); screens, scope, tests and §18 answers updated; glossary "Evaluation" fixed (G-D01).
-- [x] ADRs: 0005 Leader's PA role, 0006 Data consistency by design, 0007 Drop the authorisation letter.
-- [x] [GAPS.md](GAPS.md): A5, A6, C08 and C09 removed (letter); A7 and C07 decided; E01 and E03 answered; new decisions A11–A14; new section H (12 gaps).
-- [x] [PHASES.md](PHASES.md): Phase 0.1 added; Phases 1, 2, 3, 5, 6, 7, 10, 11 and 12 updated; days shifted; cut order extended.
-- [x] CLAUDE.md, the READMEs and Daily.md (shortened) updated.
-- [x] A11–A14 answered on 6 Oct (see Phase 0.2).
-- [x] Merged through sumitdwivedi01/EigthyAwards#2 and tagged `phase-00.1-done`.
-
-Found: proof of authority is now weak, because the PAN is inside the GSTIN, which is printed on every invoice (G-H01). Recommended fix: confirm joining through the organisation's official email (A13).
-
-### Phase 0: Planning and tracking setup · ✅ · 2026-10-04 (Day 2)
-
-Goal: put everything a new person (or a new AI session) needs into the repo, and fix the plan before writing code.
-
-- [x] Read the three source documents: the brief, the product and technical spec (2 Oct 2026), and the high-level architecture PDF (11 pages).
-- [x] `docs/brief.md`: the brief converted to Markdown, wording unchanged.
-- [x] `docs/requirements.md`: the full spec converted to Markdown (sections 1–18, tables, JSON schemas). The diagrams are not reproduced; they point to the PDF.
-- [x] `docs/architecture/Awards_Platform_High_Level_Architecture.pdf`: the architecture drawing, kept as is. (Removed on 7 Oct 2026 in Phase 0.3 as out of date; replaced by docs/overview/.)
-- [x] `docs/PHASES.md`: the plan. 15 phases (0–14), backend first and alternating with frontend, each with goal, scope, tests, "done when" and a manual check. Exit checklist, workflow and cut order.
-- [x] `docs/GAPS.md`: 83 tracked items across 7 sections. 10 of them are the decisions in §A, which are waiting for an answer.
-- [x] `docs/decisions/`: an ADR index plus 0001 (split and hosting), 0002 (tech stack), 0003 (auth and sessions) and 0004 (git workflow).
-- [x] `CLAUDE.md`: working rules and file map for AI coding sessions, so a new chat picks up the context automatically.
-- [x] `.github/pull_request_template.md`: the phase exit checklist as a PR template.
-- [x] `.gitignore` for Node, Next.js, env files, uploads and coverage.
-- [x] README updates: root `README.md`, `Backend/README.md`, and `Front-End/README.md` (renamed from `Frontend.md`).
-- [x] `Daily.md`: today's entry.
-- [x] Reviewed by you; merged into `main` through sumitdwivedi01/EigthyAwards#1 and tagged `phase-00-done`.
-
-Decisions made: ADR 0001 (accepted), 0002 (proposed), 0003 (proposed), 0004 (accepted).
-Things found: the spec contradicts itself in 11 places (GAPS §D), and the deployment split adds 15 gaps (GAPS §B). The most serious is **G-B04** (Supabase's Data API could expose our tables).
-
----
+The planning phases (brief, spec, plan, ADRs 0001–0020, overview, UI flows, re-plans) are on the status board above; their detailed entries were removed on 12 Oct 2026 to keep this file short. Git tags `phase-00-done` to `phase-0.10-done` and [Daily.md](../Daily.md) keep the record.
 
 ## Environment facts
 

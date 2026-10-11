@@ -30,7 +30,7 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Next:** A new problem has been added to the brief. Update the spec, plan and gaps for it, then restart building.
 - **Stuck:** Nothing.
 - **Plan changed:** Building is on hold until the plan is updated for the new problem.
-- **Later on Day 5:** New issues from the owner: organisers want to keep their **brand** (e.g. FPO Awards), run their award on their own, show the UI before building, verify applicants, and limit entries. Studied the FPO Awards site, wrote proposals (branded award sites built from ready-made sections, organiser = department, membership verification, entry limit, own domains in steps) and 12 questions. See [docs/proposals/0.4-new-issues.md](docs/proposals/0.4-new-issues.md).
+- **Later on Day 5:** New issues from the owner: organisers want to keep their **brand** (e.g. FPO Awards), run their award on their own, show the UI before building, verify applicants, and limit entries. Studied the FPO Awards site, wrote proposals (branded award sites built from ready-made sections, organiser = department, membership verification, entry limit, own domains in steps) and 12 questions. See `docs/proposals/0.4-new-issues.md` (removed 12 Oct; git history).
 - **Next:** Answers to the questions, then UI flow diagrams and wireframes for the lead call on 9 Oct.
 - **Stuck:** The first release has to be smaller; to agree on the call.
 - **Plan changed:** Added Phases 0.4 and 0.5, a new build phase for award sites, and simpler branch names. Target days on hold until 9 Oct.
@@ -38,7 +38,7 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Plan changed:** A new Phase 4 (award sites); old Phases 8 and 9 merged; simple branch names; target days now run to Day 21, to agree with the reviewer on 9 Oct.
 
 # DAY 6 (8 Oct)
-- **Done:** Made the **UI overview** the client asked for before building: a clickable prototype of 31 screens for all 6 roles, a flow diagram per role on GitHub, and the branding presentation ([docs/ui/](docs/ui/README.md)). Wrote two re-plan options for my lead: **A** a focused demo by 15 Oct, **B** the real product (about 10–14 weeks) ([proposals/0.5-replan-options.md](docs/proposals/0.5-replan-options.md)).
+- **Done:** Made the **UI overview** the client asked for before building: a clickable prototype of 31 screens for all 6 roles, a flow diagram per role on GitHub, and the branding presentation ([docs/ui/](docs/ui/README.md)). Wrote two re-plan options for my lead: **A** a focused demo by 15 Oct, **B** the real product (about 10–14 weeks) (`proposals/0.5-replan-options.md` (removed 12 Oct; git history)).
 - **Next:** 9 Oct call with my lead: show the UI and choose A or B; then re-plan and restart building.
 - **Stuck:** Waiting for the lead's choice. The full plan can't fit by 15 Oct.
 - **Plan changed:** Hard limit 15 Oct. The build plan is on hold until the lead decides; the 15-phase list stays as the full-product breakdown.
@@ -51,7 +51,7 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
   - every user can **change their password** on My profile;
   - in round 1, **several jury can score one application** (staff set a minimum and a maximum), and the **average** decides.
 
-  Decision records: [ADR 0012](docs/decisions/0012-proof-once-on-profile-and-account-settings.md) and [ADR 0013](docs/decisions/0013-several-jury-per-application.md). What the already-built backend must change is listed in [proposals/0.7-backend-changes.md](docs/proposals/0.7-backend-changes.md).
+  Decision records: [ADR 0012](docs/decisions/0012-proof-once-on-profile-and-account-settings.md) and [ADR 0013](docs/decisions/0013-several-jury-per-application.md). What the already-built backend must change is listed in `proposals/0.7-backend-changes.md` (removed 12 Oct; git history).
 - **Next:** Re-plan in **three phases**, as the lead asked: Phase 1 a fully working demo, with time limits for Phases 2 and 3. Agree the data model before any code.
 - **Stuck:** Nothing. Waiting for the re-plan before building.
 - **Plan changed:** The lead chose three phases instead of Option A or B. Only the points inside the phase descriptions changed today; the phase list itself is redone next.
@@ -94,3 +94,9 @@ Each day: **Done** · **Next** · **Stuck** (and **Plan changed** when the plan 
 - **Done (late night):** Step 1.3 merged into `staging`. Step 1.4 built on its own branch, in a third copy of the repo: after the deadline, staff assign each application to jury from the department's list (a recorded conflict, a juror off the list, an unverified application or going above the maximum refuses the whole action, also when two staff click at once); jury score on their own, blind awards showing no company, applicant or file; the final score is the exact average (three jury gave 69.27, as by hand); staff correct a score only with a reason, kept in the history; the department head approves, which locks the scores for good; staff give and publish the results, and applicants see them. Six open points decided with the owner first (corrections until approval, sending waits for every proof check, ranks per category, late conflicts flagged, what the jury see in a non-blind award, conflicts removable with a reason). 332 backend tests. Checked in the browser from assignment to the applicant's result, as staff, two jury, the head and the leader.
 - **Next:** Pull request for Step 1.4 into `staging`. Then Step 1.5: production online (the owner creates the Supabase, Render and Vercel accounts) and the documents.
 - **Stuck:** Nothing. Two AI mistakes caught and fixed (ai-notes #15 and #16): a database error code the repo had already fixed once, and a check script that wrote into the Step 1.3 test database because two copies of the app shared a port.
+
+# DAY 10 (12 Oct)
+- **Done:** Checked Steps 1.1 to 1.4 against the plan and the technical design on the Step 1.4 branch: every endpoint and screen planned for them exists, 332 backend tests, lint, type check, build and the migration drift check all pass, and no code names an award. Found and fixed what was stale: the module count said 16 with `onsite` (there are 15; `onsite` comes in Phase 2), the README still said Step 1.1 was the latest, PROGRESS called merged steps "in review", and the spec still carried the old 10-day plan. Trimmed the docs to what a session needs: the closed proposals, the Phase 1 roadmap (a copy of PLAN.md's Phase 1) and the clickable prototypes are gone (git history), the planning-phase diaries in PROGRESS and PHASES are one note each, closed gaps are folded away per section, and every link was checked. docs/ is 525 KB instead of 772 KB.
+- **Next:** The owner opens the Step 1.4 pull request into `staging`; then Step 1.5: production online and the brief's documents.
+- **Stuck:** Nothing.
+
