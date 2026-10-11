@@ -37,4 +37,53 @@ export const templates: TemplateRegistry = {
       ].join("\n"),
     }),
   }),
+
+  // Step 1.3: to the applicant, and to the organisation's official email (name: null).
+  "application-submitted": template({
+    payload: z.object({
+      name: z.string().nullable(),
+      awardName: z.string(),
+      cycleLabel: z.string(),
+      organisationName: z.string(),
+      categoryName: z.string(),
+      submittedAt: z.string(),
+    }),
+    render: ({ name, awardName, cycleLabel, organisationName, categoryName, submittedAt }) => ({
+      subject: `We received your application for ${awardName} ${cycleLabel}`,
+      text: [
+        name ? `Hello ${name},` : "Hello,",
+        "",
+        `${organisationName}'s application for ${awardName} ${cycleLabel} (category: ${categoryName}) was submitted on ${submittedAt}.`,
+        "",
+        "The award team will check the proof documents, and the jury will review the application after the deadline.",
+        "You can follow its status under My applications.",
+      ].join("\n"),
+    }),
+  }),
+
+  // Step 1.3: to the applicant only, since it is about their own documents.
+  "proof-rejected": template({
+    payload: z.object({
+      name: z.string(),
+      awardName: z.string(),
+      cycleLabel: z.string(),
+      reason: z.string(),
+      deadline: z.string(),
+      canFix: z.boolean(),
+    }),
+    render: ({ name, awardName, cycleLabel, reason, deadline, canFix }) => ({
+      subject: `Your proof for ${awardName} ${cycleLabel} needs attention`,
+      text: [
+        `Hello ${name},`,
+        "",
+        `The award team couldn't verify the proof on your application for ${awardName} ${cycleLabel}:`,
+        "",
+        reason,
+        "",
+        canFix
+          ? `You can fix it until the deadline, ${deadline}: replace the identity document or LinkedIn link on My profile, or upload a new proof of employment on the application.`
+          : "The deadline has passed. Contact the award team if you have questions.",
+      ].join("\n"),
+    }),
+  }),
 };

@@ -394,7 +394,13 @@ describe("proof documents (ADR 0010, 0012)", () => {
       createFile("EMPLOYMENT_PROOF", { applicationId: application.id, documentDate: new Date("2026-09-15") }),
     ).rejects.toThrow(/file_assets_consent_check/);
     // Ordinary evidence needs no proof consent.
-    await expect(createFile("EVIDENCE", { applicationId: application.id })).resolves.toBeTruthy();
+    await expect(createFile("EVIDENCE", { applicationId: application.id, questionKey: "q_a1b2c3d4e5" })).resolves.toBeTruthy();
+  });
+
+  it("refuses an evidence file that answers no question (Step 1.3)", async () => {
+    const { cycle, category } = await createCycle();
+    const application = await createApplication(cycle.id, category.id);
+    await expect(createFile("EVIDENCE", { applicationId: application.id })).rejects.toThrow(/file_assets_question_check/);
   });
 
   it("records who checked the proof and when, and why a rejection was made", async () => {
@@ -528,5 +534,20 @@ describe("judging guards", () => {
     await expect(round(3, "ON_SITE", 2, 5)).resolves.toBeTruthy();
     await expect(round(4, "ON_SITE", 1, 3)).rejects.toThrow(/rounds_jury_check/);
     await expect(round(4, "ON_SITE", 2, 6)).rejects.toThrow(/rounds_jury_check/);
+  });
+});
+
+describe("payments (spec §5.6)", () => {
+  it("records one payment per application, never zero or less", async () => {
+    const { cycle, category } = await createCycle();
+    const application = await createApplication(cycle.id, category.id);
+    await db.payment.create({ data: { applicationId: application.id, amountPaise: 100_000, status: "PAID", reference: "DEMO-1" } });
+    await expect(
+      db.payment.create({ data: { applicationId: application.id, amountPaise: 100_000, status: "PAID", reference: "DEMO-2" } }),
+    ).rejects.toThrow();
+    const other = await createApplication(cycle.id, category.id);
+    await expect(
+      db.payment.create({ data: { applicationId: other.id, amountPaise: 0, status: "PAID", reference: "DEMO-3" } }),
+    ).rejects.toThrow(/payments_amount_check/);
   });
 });

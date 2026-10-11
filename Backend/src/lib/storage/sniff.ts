@@ -1,7 +1,21 @@
 import type { Readable } from "node:stream";
 
-/** The file types the platform accepts for proof documents, recognised by their first bytes. */
-export type SniffedType = "application/pdf" | "image/jpeg" | "image/png" | "image/webp";
+/**
+ * The file types the platform recognises by their first bytes. Word and Excel files (.docx,
+ * .xlsx) are ZIP archives, so they show as "application/zip" (GAPS G-K32).
+ */
+export type SniffedType = "application/pdf" | "image/jpeg" | "image/png" | "image/webp" | "application/zip";
+
+const ZIP_TYPES = new Set([
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+]);
+
+/** Whether a file's content fits the type it was uploaded as. */
+export function contentMatches(declared: string, actual: SniffedType | null): boolean {
+  if (actual === null) return false;
+  return actual === "application/zip" ? ZIP_TYPES.has(declared) : declared === actual;
+}
 
 /** Reads the first bytes of a stream, then stops reading. */
 export async function readHead(stream: Readable, bytes = 16): Promise<Buffer> {
@@ -30,5 +44,6 @@ export function detectType(head: Buffer): SniffedType | null {
   if (head.subarray(0, 4).toString("latin1") === "RIFF" && head.subarray(8, 12).toString("latin1") === "WEBP") {
     return "image/webp";
   }
+  if (head[0] === 0x50 && head[1] === 0x4b && head[2] === 0x03 && head[3] === 0x04) return "application/zip";
   return null;
 }
