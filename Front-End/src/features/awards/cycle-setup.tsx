@@ -67,6 +67,11 @@ function CycleSetupScreen({ cycleId }: { cycleId: string }) {
             {c.award.name}: {c.label}
           </h1>
           <StateBadge state={c.state} />
+          {c.status !== "DRAFT" && (
+            <Button asChild size="sm" className="ml-auto">
+              <Link href={`/staff/cycles/${c.id}/applications`}>Applications</Link>
+            </Button>
+          )}
         </div>
         <p className="text-muted-foreground">
           {c.award.department.name} · applications {istDateTime(c.opensAt)} to {istDateTime(c.deadlineAt)}

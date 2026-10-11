@@ -55,9 +55,16 @@ function AwardDetailView({ awardId }: { awardId: string }) {
                     <span className="text-muted-foreground">
                       {istDateTime(cycle.opensAt)} to {istDateTime(cycle.deadlineAt)}
                     </span>
-                    <Button asChild size="sm" variant="outline" className="ml-auto">
-                      <Link href={`/staff/cycles/${cycle.id}`}>Set up</Link>
-                    </Button>
+                    <span className="ml-auto flex gap-2">
+                      {cycle.status !== "DRAFT" && (
+                        <Button asChild size="sm">
+                          <Link href={`/staff/cycles/${cycle.id}/applications`}>Applications</Link>
+                        </Button>
+                      )}
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={`/staff/cycles/${cycle.id}`}>Set up</Link>
+                      </Button>
+                    </span>
                   </li>
                 ))}
               </ul>

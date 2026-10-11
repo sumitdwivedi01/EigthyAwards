@@ -99,13 +99,13 @@ export function PublicAwardPage({ slug }: { slug: string }) {
         </section>
         {open && (
           <div className="grid gap-3 rounded-xl border p-4" style={{ borderColor: primary }}>
-            <p className="text-sm">One application per organisation. Apply with an applicant account.</p>
+            <p className="text-sm">One application per organisation, from an applicant account.</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild style={{ backgroundColor: primary, color: onPrimary }} className="hover:opacity-90">
-                <Link href="/register">Create an account to apply</Link>
+                <Link href={`/applicant/apply/${a.cycle.id}`}>Apply</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/login?next=/applicant">Log in to apply</Link>
+                <Link href="/register">New here? Create an account</Link>
               </Button>
             </div>
           </div>

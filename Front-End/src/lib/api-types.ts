@@ -224,6 +224,8 @@ export interface PublicAward {
   domain: string;
   department: { name: string; externalOrganiser: boolean; colours: { primary: string; accent: string }; footerText: string };
   cycle: {
+    /** Where Apply starts an application. */
+    id: string;
     label: string;
     opensAt: string;
     deadlineAt: string;
@@ -233,6 +235,166 @@ export interface PublicAward {
     fee: { fromPaise: number; toPaise: number };
     entries: { submitted: number; limit: number | null };
   };
+}
+
+// ── Applying (Step 1.3) ──
+
+/** What an applicant sees of an application's state (spec §4). */
+export interface ApplicantStatus {
+  code: "PENDING" | "SUBMITTED" | "UNDER_REVIEW" | "NOT_SUBMITTED" | "WITHDRAWN" | "CLOSED";
+  label: string;
+  message: string;
+}
+
+export type ProofStatus = "PENDING" | "VERIFIED" | "REJECTED";
+export type ApplicationStatus = "DRAFT" | "SUBMITTED" | "WITHDRAWN" | "NOT_SUBMITTED" | "RELEASED";
+
+/** An answer as stored: text, a number, a choice's option key, or yes/no. */
+export type AnswerValue = string | number | boolean;
+
+export interface FileView {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+}
+
+export interface EmploymentProof extends FileView {
+  documentDate: string;
+}
+
+/** Something that stops submitting, with where it belongs ("answers.<key>", "fee", "employmentProof", "profile.…"). */
+export interface Missing {
+  path: string;
+  message: string;
+}
+
+export interface Application {
+  id: string;
+  status: ApplicantStatus;
+  award: { name: string; slug: string | null };
+  cycle: { id: string; label: string; opensAt: string; deadlineAt: string; blindJudging: boolean };
+  organisation: { id: string; legalName: string };
+  category: { id: string; name: string };
+  categories: { id: string; name: string; feePaise: number }[];
+  canChangeCategory: boolean;
+  fee: { amountPaise: number; paid: boolean; paidAt: string | null; reference: string | null };
+  form: { version: number; sections: FormSection[] };
+  answers: Record<string, AnswerValue>;
+  files: Record<string, FileView[]>;
+  employmentProof: EmploymentProof | null;
+  profile: { identityDocument: { fileName: string; uploadedAt: string } | null; linkedinUrl: string | null };
+  proof: { status: ProofStatus; note: string | null; checkedAt: string | null };
+  progress: { answered: number; total: number; sections: { key: string; answered: number; total: number }[] };
+  missing: Missing[];
+  entries: { submitted: number; limit: number | null };
+  editable: boolean;
+  canReplaceProof: boolean;
+  submittedAt: string | null;
+  lockedAt: string | null;
+}
+
+export interface SaveAnswersResult {
+  application: Application;
+  problems: { questionKey: string; message: string }[];
+}
+
+export interface MyApplicationRow {
+  id: string;
+  mine: boolean;
+  award: { name: string; slug: string | null };
+  cycle: { id: string; label: string; deadlineAt: string };
+  organisation: { id: string; legalName: string };
+  status: ApplicantStatus;
+  category: string | null;
+  proof: ProofStatus | null;
+}
+
+export interface ApplyInfo {
+  award: { name: string; description: string; slug: string | null; department: string };
+  cycle: { id: string; label: string; opensAt: string; deadlineAt: string; open: boolean; blindJudging: boolean };
+  categories: { id: string; name: string; feePaise: number }[];
+  entries: { submitted: number; limit: number | null };
+  organisations: {
+    id: string;
+    legalName: string;
+    existing: { status: ApplicantStatus; mine: boolean; applicationId: string | null } | null;
+  }[];
+}
+
+export interface UploadStart {
+  fileId: string;
+  upload: { url: string; method: "PUT"; headers: Record<string, string>; expiresAt: string };
+}
+
+export interface DownloadLink {
+  url: string;
+  fileName: string;
+  contentType: string;
+  expiresAt: string;
+}
+
+export interface StaffApplicationRow {
+  id: string;
+  organisation: { id: string; legalName: string };
+  startedBy: { name: string; email: string };
+  category: { id: string; name: string };
+  status: ApplicationStatus;
+  statusLabel: string;
+  proofStatus: ProofStatus;
+  feeUnpaid: boolean;
+  createdAt: string;
+  submittedAt: string | null;
+}
+
+export interface StaffApplicationList {
+  cycle: { id: string; label: string; deadlineAt: string; award: { id: string; name: string } };
+  entries: { submitted: number; limit: number | null };
+  counts: { byStatus: Record<ApplicationStatus, number>; byProof: Record<ProofStatus, number> };
+  categories: { id: string; name: string }[];
+  applications: StaffApplicationRow[];
+}
+
+export interface OrganisationSnapshot {
+  id: string;
+  fromSnapshot: boolean;
+  legalName: string;
+  pan: string;
+  gstin: string | null;
+  addressLine: string;
+  city: string;
+  state: { code: string; name: string };
+  pincode: string;
+  officialEmail: string;
+  phone: string;
+  organisationType: string | null;
+  cin: string | null;
+  website: string | null;
+}
+
+export interface StaffApplication {
+  id: string;
+  status: ApplicationStatus;
+  statusLabel: string;
+  award: { id: string; name: string };
+  cycle: { id: string; label: string; deadlineAt: string; blindJudging: boolean };
+  organisation: OrganisationSnapshot;
+  startedBy: { name: string; email: string };
+  category: { id: string; name: string };
+  fee: { amountPaise: number; paid: boolean; paidAt: string | null; reference: string | null };
+  form: { version: number; sections: FormSection[] };
+  answers: Record<string, AnswerValue>;
+  files: Record<string, FileView[]>;
+  employmentProof: EmploymentProof | null;
+  identityDocument: FileView | null;
+  linkedinUrl: string | null;
+  proof: { status: ProofStatus; note: string | null; checkedAt: string | null; checkedBy: string | null };
+  submittedAt: string | null;
+  lockedAt: string | null;
+  release: { releasedAt: string; reason: string } | null;
+  canCheckProof: boolean;
+  canRelease: boolean;
 }
 
 export interface Organisation {

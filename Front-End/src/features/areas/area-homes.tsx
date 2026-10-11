@@ -7,6 +7,7 @@ import { CheckCircle2Icon, CircleIcon } from "lucide-react";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MyApplications, OpenAwardsToApply } from "@/features/applying/my-applications";
 import { MyAwards } from "@/features/awards/my-awards";
 import { useMe } from "@/features/auth/use-me";
 import type { Me, Role } from "@/lib/api-types";
@@ -129,10 +130,8 @@ export function ApplicantHome() {
                 </div>
               </CardContent>
             </Card>
-            <ComingNext step="Step 1.3 (12 Oct)">
-              Open awards, starting an application (one per organisation), the form with autosave, a recent proof of
-              employment, and submitting.
-            </ComingNext>
+            <MyApplications />
+            <OpenAwardsToApply />
           </div>
         </>
       )}
@@ -154,7 +153,7 @@ export function StaffHome() {
               empty="You aren't on a department's staff yet."
             />
             <ComingNext step="Step 1.4 (13–14 Oct)">
-              After the deadline: checking applications, assigning them to jurors, following the judging, and the results.
+              After the deadline: assigning applications to jurors, following the judging, and the results.
             </ComingNext>
           </div>
         </>
