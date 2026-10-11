@@ -5,6 +5,7 @@ import type { FormDefinition } from "../forms/schemas.js";
 import { readDefinition } from "../forms/service.js";
 import { missingAnswers, type AnswerValue } from "./answers.js";
 import { closeCycleIfDue } from "./lock.js";
+import type { PublishedResult } from "./status.js";
 import type { EmploymentProofView, FileView, Missing } from "./views.js";
 
 /**
@@ -226,6 +227,29 @@ export async function missingForSubmit(
     missing.push({ path: "profile.linkedinUrl", message: "Add your LinkedIn profile link on My profile." });
   }
   return missing;
+}
+
+/**
+ * Each application's published result, from its latest round with published results (spec
+ * §5.12); nothing until staff publish, so a judged application shows Under review until then.
+ */
+export async function publishedResultsOf(client: Tx, applicationIds: string[]): Promise<Map<string, PublishedResult>> {
+  if (applicationIds.length === 0) return new Map();
+  const rows = await client.roundResult.findMany({
+    where: { applicationId: { in: applicationIds }, publishedAt: { not: null }, resultLabel: { not: null } },
+    select: { applicationId: true, resultLabel: true, round: { select: { number: true, resultLabels: true } } },
+    orderBy: { round: { number: "asc" } },
+  });
+  const results = new Map<string, PublishedResult>();
+  for (const row of rows) {
+    if (!row.resultLabel) continue;
+    const labels = Array.isArray(row.round.resultLabels) ? row.round.resultLabels : [];
+    const advances = labels.some(
+      (l) => l !== null && typeof l === "object" && !Array.isArray(l) && l["label"] === row.resultLabel && l["advances"] === true,
+    );
+    results.set(row.applicationId, { label: row.resultLabel, advances });
+  }
+  return results;
 }
 
 export function toRecord<T>(map: Map<string, T>): Record<string, T> {

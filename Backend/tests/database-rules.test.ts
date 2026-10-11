@@ -551,3 +551,52 @@ describe("payments (spec §5.6)", () => {
     ).rejects.toThrow(/payments_amount_check/);
   });
 });
+
+describe("judging (Step 1.4: rule R2, rule R3, ADR 0019)", () => {
+  it("keeps one active conflict per juror and organisation; a removed one says when, by whom and why", async () => {
+    const juror = await createPlatformAccount();
+    const staff = await createPlatformAccount();
+    const organisation = await createOrganisation();
+    const data = { juryUserId: juror.id, organisationId: organisation.id, recordedById: staff.id };
+    const first = await db.conflict.create({ data });
+    await expect(db.conflict.create({ data })).rejects.toThrow();
+    await expect(db.conflict.update({ where: { id: first.id }, data: { removedAt: new Date() } })).rejects.toThrow(/conflicts_removed_check/);
+    await db.conflict.update({ where: { id: first.id }, data: { removedAt: new Date(), removedById: staff.id, removeReason: "Recorded by mistake" } });
+    // Removed: the pair can be recorded again.
+    await expect(db.conflict.create({ data })).resolves.toBeTruthy();
+  });
+
+  it("holds a stored final score to F₂ = ⌊(ΣP + 5n) ÷ (10n)⌋ ÷ 100 of its stored ΣP and n", async () => {
+    const { cycle, category } = await createCycle();
+    const round = await createRound(cycle.id);
+    const result = async (finalScore: string | null, totalPoints: number | null, evaluationCount: number | null) =>
+      db.roundResult.create({
+        data: { cycleId: cycle.id, roundId: round.id, applicationId: (await createApplication(cycle.id, category.id)).id, finalScore, totalPoints, evaluationCount },
+      });
+    await expect(result("69.27", 207_800, 3)).resolves.toBeTruthy();
+    await expect(result("100.00", 100_000, 1)).resolves.toBeTruthy();
+    await expect(result(null, null, null)).resolves.toBeTruthy();
+    // Rounded the other way, or a score that doesn't match its points.
+    await expect(result("69.26", 207_800, 3)).rejects.toThrow(/round_results_score_check/);
+    await expect(result("70.00", 207_800, 3)).rejects.toThrow(/round_results_score_check/);
+    // All three or none, n at least 1, ΣP within 100,000 per evaluation.
+    await expect(result("69.27", null, null)).rejects.toThrow(/round_results_score_check/);
+    await expect(result("0.00", 0, 0)).rejects.toThrow();
+    await expect(result("100.01", 100_010, 1)).rejects.toThrow();
+  });
+
+  it("refuses a new evaluation in an approved round, and never deletes a result", async () => {
+    const { cycle, category } = await createCycle();
+    const round = await createRound(cycle.id);
+    const application = await createApplication(cycle.id, category.id, { status: "SUBMITTED" });
+    const juror = await createPlatformAccount();
+    await db.round.update({ where: { id: round.id }, data: { status: "APPROVED" } });
+    await expect(
+      db.evaluation.create({ data: { cycleId: cycle.id, roundId: round.id, applicationId: application.id, juryUserId: juror.id } }),
+    ).rejects.toThrow(/locked/);
+    const stored = await db.roundResult.create({ data: { cycleId: cycle.id, roundId: round.id, applicationId: application.id } });
+    await expect(db.roundResult.delete({ where: { id: stored.id } })).rejects.toThrow(/kept/);
+    // Labels and publishing still change.
+    await expect(db.roundResult.update({ where: { id: stored.id }, data: { resultLabel: "Rejected" } })).resolves.toBeTruthy();
+  });
+});

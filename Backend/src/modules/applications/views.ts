@@ -1,4 +1,4 @@
-import type { ApplicationStatus, ProofStatus } from "../../generated/prisma/client.js";
+import type { ApplicationStatus, ProofStatus, Role } from "../../generated/prisma/client.js";
 import type { UploadLink } from "../../lib/storage/index.js";
 import type { FormDefinition } from "../forms/schemas.js";
 import type { AnswerValue, SectionProgress } from "./answers.js";
@@ -121,7 +121,7 @@ export interface StaffApplicationRow {
 }
 
 export interface StaffApplicationListView {
-  cycle: { id: string; label: string; deadlineAt: string; award: { id: string; name: string } };
+  cycle: { id: string; label: string; deadlineAt: string; award: { id: string; name: string }; roundId: string | null };
   entries: { submitted: number; limit: number | null };
   counts: {
     byStatus: Record<ApplicationStatus, number>;
@@ -164,4 +164,18 @@ export interface DownloadView {
   fileName: string;
   contentType: string;
   expiresAt: string;
+}
+
+/** One entry of an application's history (spec §5.15): staff, the head and the leader read it. */
+export interface HistoryEventView {
+  id: string;
+  at: string;
+  action: string;
+  /** A short sentence, such as "Training for Anil Mehta: 6 → 7". */
+  summary: string;
+  actor: string | null;
+  actorRole: Role | null;
+  reason: string | null;
+  before: unknown;
+  after: unknown;
 }

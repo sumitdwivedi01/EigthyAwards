@@ -270,7 +270,9 @@ export async function fileDownloadLink(actor: Actor, fileId: string): Promise<Do
       storageKey: true,
       fileName: true,
       mimeType: true,
-      application: { select: { createdById: true, cycle: { select: { award: { select: { id: true, departmentId: true } } } } } },
+      application: {
+        select: { id: true, createdById: true, cycle: { select: { blindJudging: true, award: { select: { id: true, departmentId: true } } } } },
+      },
     },
   });
   const notFound = new NotFoundError("File not found.");
@@ -289,6 +291,12 @@ export async function fileDownloadLink(actor: Actor, fileId: string): Promise<Do
     }
   } else if (file.application && !file.removedAt) {
     allowed = isStarter(actor, file.application) || canReadAsOrganiser(actor, file.application.cycle.award);
+    // A jury member reads the evidence of an application assigned to them, never in a blind award
+    // and never a proof document (rule R1, ADR 0018).
+    if (!allowed && file.kind === "EVIDENCE" && !file.application.cycle.blindJudging) {
+      allowed =
+        (await db.evaluation.count({ where: { applicationId: file.application.id, juryUserId: actor.userId, status: { not: "REVOKED" } } })) > 0;
+    }
   }
   if (!allowed) throw notFound;
 

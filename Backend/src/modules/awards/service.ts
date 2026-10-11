@@ -49,7 +49,7 @@ function definedOnly(values: Record<string, Scalar | undefined>): Record<string,
   return Object.fromEntries(Object.entries(values).filter((entry): entry is [string, Scalar] => entry[1] !== undefined));
 }
 
-function readLabels(json: Prisma.JsonValue): ResultLabelView[] {
+export function readLabels(json: Prisma.JsonValue): ResultLabelView[] {
   return Array.isArray(json)
     ? json.flatMap((item) =>
         item && typeof item === "object" && !Array.isArray(item) && typeof item["label"] === "string"
@@ -344,7 +344,10 @@ export async function removeCategory(actor: Actor, cycleId: string, categoryId: 
 
 /**
  * The round's jury per application (ADR 0013) and its result names. The minimum is at least 1 and
- * never above the maximum; the publish check compares the maximum with the department's jury list.
+ * never above the maximum. While the edition is a draft, the publish check compares the maximum
+ * with the department's jury list; once published, a maximum above the list is refused. The jury
+ * per application can change until the round is first sent for approval (spec §5.8), never below
+ * the jury an application already has; the result names only before judging starts.
  */
 export async function updateRound(actor: Actor, roundId: string, input: UpdateRoundInput): Promise<CycleSetupView> {
   const context = await requireRoundStaff(actor, roundId);
@@ -352,10 +355,34 @@ export async function updateRound(actor: Actor, roundId: string, input: UpdateRo
     where: { id: roundId },
     select: { status: true, juryMin: true, juryMax: true, resultLabels: true },
   });
-  if (round.status !== "NOT_STARTED") throw new StateError("Judging has started in this round, so its settings are fixed.");
+  const changesJury = input.juryMin !== undefined || input.juryMax !== undefined;
+  if (input.resultLabels && round.status !== "NOT_STARTED") {
+    throw new StateError("Judging has started in this round, so its result names are fixed.");
+  }
+  if (changesJury) {
+    const sent = (await db.approvalRequest.count({ where: { roundId } })) > 0;
+    if (sent || (round.status !== "NOT_STARTED" && round.status !== "JUDGING")) {
+      throw new StateError("The round has been sent for approval, so its jury per application is fixed.");
+    }
+  }
   const juryMin = input.juryMin ?? round.juryMin;
   const juryMax = input.juryMax ?? round.juryMax;
   if (juryMin > juryMax) throw fieldIssue("juryMin", "The minimum can't be above the maximum.");
+  if (changesJury && context.status !== "DRAFT") {
+    const jury = await juryAvailable(context.departmentId);
+    if (juryMax > jury) {
+      throw fieldIssue("juryMax", `The department's jury list has ${jury}, so the maximum can be at most ${jury}. Ask its head to add more jury.`);
+    }
+    const busiest = await db.evaluation.groupBy({
+      by: ["applicationId"],
+      where: { roundId, status: { not: "REVOKED" } },
+      _count: { _all: true },
+    });
+    const most = busiest.reduce((max, row) => Math.max(max, row._count._all), 0);
+    if (juryMax < most) {
+      throw fieldIssue("juryMax", `An application already has ${most} jury, so the maximum can't go below ${most}.`);
+    }
+  }
   await db.$transaction(async (tx) => {
     await tx.round.update({
       where: { id: roundId },
