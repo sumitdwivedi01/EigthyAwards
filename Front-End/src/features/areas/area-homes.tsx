@@ -7,6 +7,7 @@ import { CheckCircle2Icon, CircleIcon } from "lucide-react";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MyAwards } from "@/features/awards/my-awards";
 import { useMe } from "@/features/auth/use-me";
 import type { Me, Role } from "@/lib/api-types";
 import { AREA_ROUTES } from "@/lib/areas";
@@ -146,15 +147,14 @@ export function StaffHome() {
         <>
           <PageTitle title="Staff" description="Set up and run your awards." />
           <div className="grid gap-6 md:grid-cols-2">
+            <MyAwards canCreate={scopesOf(me, "DEPT_STAFF").length > 0} />
             <ScopeList
               title="Your departments"
               items={scopesOf(me, "DEPT_STAFF")}
               empty="You aren't on a department's staff yet."
             />
-            <ScopeList title="Your awards" items={scopesOf(me, "AWARD_STAFF")} empty="No awards yet: you create them here in Step 1.2." />
-            <ComingNext step="Step 1.2 (11 Oct)">
-              Create an award, set its dates, fee, categories and entry limit, build its questions and scoring sheet, fill in
-              its branded page, and publish it.
+            <ComingNext step="Step 1.4 (13–14 Oct)">
+              After the deadline: checking applications, assigning them to jurors, following the judging, and the results.
             </ComingNext>
           </div>
         </>

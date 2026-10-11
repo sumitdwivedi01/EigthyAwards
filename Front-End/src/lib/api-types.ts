@@ -75,6 +75,149 @@ export interface CreatedDepartment {
   temporaryPassword: string | null;
 }
 
+// ── Award setup (Step 1.2) ──
+
+export type CycleStatus = "DRAFT" | "PUBLISHED" | "CLOSED" | "RESULTS_PUBLISHED";
+/** Worked out by the API from the status and the clock. */
+export type CycleState = "DRAFT" | "SCHEDULED" | "OPEN" | "CLOSED";
+
+export interface CycleSummary {
+  id: string;
+  label: string;
+  status: CycleStatus;
+  state: CycleState;
+  opensAt: string;
+  deadlineAt: string;
+}
+
+export interface AwardDetail {
+  id: string;
+  name: string;
+  description: string;
+  department: { id: string; name: string };
+  domain: { id: string; name: string };
+  siteSlug: string | null;
+  cycles: CycleSummary[];
+}
+
+export interface ResultLabel {
+  label: string;
+  advances: boolean;
+}
+
+export interface CycleSetup {
+  id: string;
+  label: string;
+  status: CycleStatus;
+  state: CycleState;
+  opensAt: string;
+  deadlineAt: string;
+  publishedAt: string | null;
+  feePaise: number;
+  blindJudging: boolean;
+  maxEntries: number | null;
+  award: { id: string; name: string; department: { id: string; name: string }; siteSlug: string | null };
+  categories: { id: string; name: string; feePaise: number | null }[];
+  round: {
+    id: string;
+    number: number;
+    type: "DOCUMENT_REVIEW" | "ON_SITE";
+    juryMin: number;
+    juryMax: number;
+    resultLabels: ResultLabel[];
+    juryAvailable: number;
+  };
+  publishIssues: string[];
+  settingsFixed: boolean;
+}
+
+export type QuestionType = "SHORT_TEXT" | "LONG_TEXT" | "NUMBER" | "SINGLE_CHOICE" | "YES_NO" | "FILE_UPLOAD";
+export type FileType = "pdf" | "jpg" | "png" | "docx" | "xlsx";
+
+/** A question as the API stores it; `key` is absent only for a new one not yet saved. */
+export interface Question {
+  key?: string;
+  type: QuestionType;
+  label: string;
+  help: string;
+  required: boolean;
+  maxLength?: number | null;
+  min?: number | null;
+  max?: number | null;
+  options?: { key?: string; label: string }[];
+  maxFiles?: number;
+  fileTypes?: FileType[];
+}
+
+export interface FormSection {
+  key?: string;
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+export interface FormVersionSummary {
+  version: number;
+  changeSummary: string;
+  publishedAt: string;
+  publishedBy: string | null;
+}
+
+export interface FormBuilder {
+  cycleId: string;
+  draft: { sections: FormSection[] };
+  versions: FormVersionSummary[];
+  latestVersion: number | null;
+  hasUnpublishedChanges: boolean;
+  publishedKeys: string[];
+  locked: boolean;
+}
+
+export type IndicatorType = "SCORE" | "YES_NO";
+
+export interface Indicator {
+  key?: string;
+  label: string;
+  type: IndicatorType;
+  weight: number;
+  questionKey: string;
+}
+
+export interface ScoringSection {
+  key?: string;
+  title: string;
+  weight: number;
+  indicators: Indicator[];
+}
+
+export interface ScoringSheet {
+  roundId: string;
+  sections: ScoringSection[];
+  locked: boolean;
+  totals: { sections: number; bySection: Record<string, number> };
+  issues: string[];
+  questions: { key: string; label: string; type: string; published: boolean }[];
+}
+
+/** An award as visitors see it: on Open awards and on its page. */
+export interface PublicAward {
+  slug: string;
+  name: string;
+  description: string;
+  domain: string;
+  department: { name: string; externalOrganiser: boolean; colours: { primary: string; accent: string }; footerText: string };
+  cycle: {
+    label: string;
+    opensAt: string;
+    deadlineAt: string;
+    state: CycleState;
+    blindJudging: boolean;
+    categories: { name: string; feePaise: number }[];
+    fee: { fromPaise: number; toPaise: number };
+    entries: { submitted: number; limit: number | null };
+  };
+}
+
 export interface Organisation {
   id: string;
   legalName: string;

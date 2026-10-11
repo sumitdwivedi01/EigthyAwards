@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { AwardIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OpenAwards } from "@/features/public/open-awards";
 
-/** The public front door. Open awards, as branded cards, arrive in Step 1.2. */
+/** The public front door: what the platform is, and the awards open right now. */
 export default function HomePage() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-8 px-4 py-16">
@@ -21,7 +22,7 @@ export default function HomePage() {
           <Link href="/register">Create an account to apply</Link>
         </Button>
       </div>
-      <p className="text-sm text-muted-foreground">Open awards will be listed here soon.</p>
+      <OpenAwards />
     </main>
   );
 }
