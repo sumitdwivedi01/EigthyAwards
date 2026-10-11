@@ -15,6 +15,7 @@ import type { FileView, StaffApplication } from "@/lib/api-types";
 import { istDate, istDateTime, rupees } from "@/lib/format";
 import { answerText } from "@/features/applying/question-field";
 import { downloadFile, fileSize, reviewKey, useReview } from "@/features/applying/use-applying";
+import { HistoryPanel } from "@/features/judging/history-panel";
 import { PROOF_LABELS } from "./applications-list";
 
 /**
@@ -59,6 +60,15 @@ function Review({ applicationId }: { applicationId: string }) {
         <ProofCard application={a} />
         <OrganisationCard application={a} />
         <AnswersCard application={a} />
+        <Card>
+          <CardHeader>
+            <CardTitle>History</CardTitle>
+            <CardDescription>Every recorded decision about this application: who, in which role, when, and why.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HistoryPanel applicationId={a.id} />
+          </CardContent>
+        </Card>
       </div>
     </>
   );

@@ -68,9 +68,14 @@ function CycleSetupScreen({ cycleId }: { cycleId: string }) {
           </h1>
           <StateBadge state={c.state} />
           {c.status !== "DRAFT" && (
-            <Button asChild size="sm" className="ml-auto">
-              <Link href={`/staff/cycles/${c.id}/applications`}>Applications</Link>
-            </Button>
+            <span className="ml-auto flex gap-2">
+              <Button asChild size="sm">
+                <Link href={`/staff/cycles/${c.id}/applications`}>Applications</Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link href={`/staff/rounds/${c.round.id}`}>Judging</Link>
+              </Button>
+            </span>
           )}
         </div>
         <p className="text-muted-foreground">

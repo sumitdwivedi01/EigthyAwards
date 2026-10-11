@@ -44,6 +44,13 @@ function ApplicationsList({ cycleId }: { cycleId: string }) {
           entries.limit === null ? `${entries.submitted} submitted` : `${entries.submitted} / ${entries.limit} submitted`
         }`}
       />
+      {data.cycle.roundId && (
+        <p className="-mt-3 mb-4 text-sm">
+          <Link href={`/staff/rounds/${data.cycle.roundId}`} className="underline underline-offset-4">
+            Judging: assignment, scores and results
+          </Link>
+        </p>
+      )}
       <div className="mb-4 flex flex-wrap gap-2 text-sm">
         <Badge variant="outline">{counts.byStatus.DRAFT} drafts</Badge>
         <Badge>{counts.byStatus.SUBMITTED} submitted</Badge>

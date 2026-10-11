@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MyApplications, OpenAwardsToApply } from "@/features/applying/my-applications";
 import { MyAwards } from "@/features/awards/my-awards";
 import { useMe } from "@/features/auth/use-me";
+import { ApprovalQueueCard, Dashboard } from "@/features/judging/dashboard";
+import { JuryAssignments } from "@/features/judging/jury-assignments";
 import type { Me, Role } from "@/lib/api-types";
 import { AREA_ROUTES } from "@/lib/areas";
 
@@ -52,18 +54,6 @@ function scopesOf(me: Me, role: Role): string[] {
     .filter((r) => r.role === role)
     .map((r) => r.department?.name ?? r.award?.name ?? "")
     .filter(Boolean);
-}
-
-function ComingNext({ step, children }: { step: string; children: ReactNode }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Coming next</CardTitle>
-        <CardDescription>{step}</CardDescription>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">{children}</CardContent>
-    </Card>
-  );
 }
 
 function ScopeList({ title, items, empty }: { title: string; items: string[]; empty: string }) {
@@ -152,9 +142,16 @@ export function StaffHome() {
               items={scopesOf(me, "DEPT_STAFF")}
               empty="You aren't on a department's staff yet."
             />
-            <ComingNext step="Step 1.4 (13–14 Oct)">
-              After the deadline: assigning applications to jurors, following the judging, and the results.
-            </ComingNext>
+            <Card>
+              <CardHeader>
+                <CardTitle>Judging</CardTitle>
+                <CardDescription>
+                  After an edition&apos;s deadline, open the award and choose Judging on the edition: assign each application to
+                  jury from the department&apos;s list, follow the scores, send the round for approval, then give and publish the
+                  results.
+                </CardDescription>
+              </CardHeader>
+            </Card>
           </div>
         </>
       )}
@@ -192,9 +189,8 @@ export function DepartmentHome() {
                 </ul>
               </CardContent>
             </Card>
-            <ComingNext step="Step 1.4 (13–14 Oct)">
-              Recording conflicts of interest, and approving a round&apos;s results.
-            </ComingNext>
+            <ApprovalQueueCard />
+            <Dashboard roundHref={(roundId) => `/department/rounds/${roundId}`} />
           </div>
         </>
       )}
@@ -210,7 +206,7 @@ export function JuryHome() {
           <PageTitle title="Jury" description="The applications assigned to you." />
           <div className="grid gap-6 md:grid-cols-2">
             <ScopeList title="Departments you judge for" items={scopesOf(me, "JURY")} empty="None yet." />
-            <ComingNext step="Step 1.4 (13–14 Oct)">Your assignments and the scoring screen.</ComingNext>
+            <JuryAssignments />
           </div>
         </>
       )}
@@ -239,10 +235,7 @@ export function LeaderHome() {
                 </Button>
               </CardContent>
             </Card>
-            <ComingNext step="Step 1.4 (13–14 Oct)">
-              The dashboard: applications by status, judging progress, rounds waiting for approval and upcoming deadlines,
-              across every department. It is read-only: the leader never changes judging data.
-            </ComingNext>
+            <Dashboard roundHref={(roundId) => `/leader/rounds/${roundId}`} />
           </div>
         </>
       )}

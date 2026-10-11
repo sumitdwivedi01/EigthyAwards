@@ -61,6 +61,11 @@ function AwardDetailView({ awardId }: { awardId: string }) {
                           <Link href={`/staff/cycles/${cycle.id}/applications`}>Applications</Link>
                         </Button>
                       )}
+                      {cycle.status !== "DRAFT" && cycle.roundId && (
+                        <Button asChild size="sm" variant="secondary">
+                          <Link href={`/staff/rounds/${cycle.roundId}`}>Judging</Link>
+                        </Button>
+                      )}
                       <Button asChild size="sm" variant="outline">
                         <Link href={`/staff/cycles/${cycle.id}`}>Set up</Link>
                       </Button>

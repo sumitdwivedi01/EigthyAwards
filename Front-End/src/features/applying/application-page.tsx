@@ -36,7 +36,8 @@ function ApplicationScreen({ applicationId }: { applicationId: string }) {
 }
 
 export function StatusBadge({ status }: { status: ApplicantStatus }) {
-  const variant = status.code === "SUBMITTED" || status.code === "UNDER_REVIEW" ? "default" : status.code === "PENDING" ? "outline" : "secondary";
+  const variant =
+    status.code === "SUBMITTED" || status.code === "UNDER_REVIEW" || status.code === "RESULT" ? "default" : status.code === "PENDING" ? "outline" : "secondary";
   return <Badge variant={variant}>{status.label}</Badge>;
 }
 
