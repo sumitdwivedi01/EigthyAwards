@@ -84,7 +84,8 @@ export function publicAwardCardView(cycle: PublicCycleRecord, submitted: number,
       name: award.department.name,
       externalOrganiser: award.department.externalOrganiser,
       colours: kit ? { primary: kit.primaryColour, accent: kit.accentColour } : DEFAULT_COLOURS,
-      footerText: kit?.footerText ?? award.department.name,
+      // An empty footer shows the department's name.
+      footerText: kit?.footerText || award.department.name,
     },
     cycle: cycleView(cycle, submitted, now),
   };

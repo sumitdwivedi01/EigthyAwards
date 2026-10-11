@@ -9,10 +9,15 @@ export interface PersonView {
   waitingForFirstLogin: boolean;
 }
 
-export interface ListedPersonView extends PersonView {
+export interface HeadView extends PersonView {
+  /** The caller may issue them a new temporary password: only the leader, for a head (ADR 0020). */
+  canIssuePassword: boolean;
+}
+
+export interface ListedPersonView extends HeadView {
   /** Staff: awards they work on in this department. Jury: applications assigned to them here. */
   workCount: number;
-  /** Removing someone is allowed while they have no work in the department (ADR 0017). */
+  /** The caller manages the lists and the person has no work in the department yet (ADR 0017). */
   canRemove: boolean;
 }
 
@@ -27,9 +32,24 @@ export interface DepartmentSummaryView {
 
 export interface PeopleView {
   department: { id: string; name: string; externalOrganiser: boolean };
-  heads: PersonView[];
+  /** The caller keeps the staff and jury lists: the department's head, never the leader (ADR 0020). */
+  canManage: boolean;
+  heads: HeadView[];
   staff: ListedPersonView[];
   jury: ListedPersonView[];
+}
+
+/** The department's theme on its award pages, and the pages it applies to (ADR 0020). */
+export interface ThemeView {
+  department: { id: string; name: string };
+  primaryColour: string;
+  accentColour: string;
+  /** As entered; empty means the award pages show the department's name. */
+  footerText: string;
+  /** The caller chooses the theme and the pages' addresses: the department's head. */
+  canEdit: boolean;
+  /** `live`: an edition has been published, so the page is public. */
+  awards: { id: string; name: string; slug: string | null; live: boolean }[];
 }
 
 /**

@@ -7,6 +7,7 @@ import { AwardIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ApiError, api, messageOf } from "@/lib/api-client";
 import type { CycleState, PublicAward } from "@/lib/api-types";
+import { readableTextOn } from "@/lib/colour";
 import { istDateTime, rupees } from "@/lib/format";
 import { entriesText, feeText } from "./public-text";
 
@@ -41,21 +42,23 @@ export function PublicAwardPage({ slug }: { slug: string }) {
 
   const a = award.data;
   const { primary, accent } = a.department.colours;
+  // The department's head picks the colours (ADR 0020); text stays readable on any of them.
+  const onPrimary = readableTextOn(primary);
   const open = a.cycle.state === "OPEN";
   return (
     <div className="flex flex-1 flex-col">
-      <header style={{ backgroundColor: primary }} className="text-white">
+      <header style={{ backgroundColor: primary, color: onPrimary }}>
         <div className="mx-auto grid w-full max-w-4xl gap-4 px-4 py-10">
-          <Link href="/" className="flex items-center gap-2 text-sm text-white/80 hover:text-white">
+          <Link href="/" className="flex w-fit items-center gap-2 text-sm opacity-80 hover:opacity-100">
             <AwardIcon className="size-4" aria-hidden />
             Awards Platform
           </Link>
-          <p className="text-sm text-white/80">
+          <p className="text-sm opacity-80">
             {a.department.externalOrganiser ? `Organised by ${a.department.name}` : a.department.name} · {a.domain}
           </p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{a.name}</h1>
           <p className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="rounded-full px-2.5 py-0.5 font-medium text-black" style={{ backgroundColor: accent }}>
+            <span className="rounded-full px-2.5 py-0.5 font-medium" style={{ backgroundColor: accent, color: readableTextOn(accent) }}>
               {a.cycle.label}: {STATE_TEXT[a.cycle.state]}
             </span>
           </p>
@@ -98,7 +101,7 @@ export function PublicAwardPage({ slug }: { slug: string }) {
           <div className="grid gap-3 rounded-xl border p-4" style={{ borderColor: primary }}>
             <p className="text-sm">One application per organisation. Apply with an applicant account.</p>
             <div className="flex flex-wrap gap-3">
-              <Button asChild style={{ backgroundColor: primary }} className="text-white hover:opacity-90">
+              <Button asChild style={{ backgroundColor: primary, color: onPrimary }} className="hover:opacity-90">
                 <Link href="/register">Create an account to apply</Link>
               </Button>
               <Button asChild variant="outline">

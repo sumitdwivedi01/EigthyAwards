@@ -20,7 +20,11 @@ import { showApiErrors } from "@/lib/forms";
 import { TemporaryPasswordCard } from "./temporary-password-card";
 import { DEPARTMENTS_KEY, useDepartments } from "./use-people";
 
-/** The leader's departments (ADR 0017): every department, and a new one with its head. */
+/**
+ * The leader's departments (ADR 0017, ADR 0020): every department, and a new one with its head.
+ * A department then runs itself: its head adds the staff and jury and chooses the theme; the
+ * leader can look at each one.
+ */
 export function DepartmentsPage() {
   return (
     <AreaPage area="leader">
@@ -28,7 +32,7 @@ export function DepartmentsPage() {
         <>
           <PageTitle
             title="Departments"
-            description="Each department runs its own awards. Create one with its head; the head then adds their staff and jury."
+            description="Each department runs its own awards. Create one with its head; the head then adds their staff and jury and chooses how their award pages look."
           />
           <div className="grid gap-6">
             <NewDepartment />
@@ -80,22 +84,20 @@ function DepartmentCard({ department }: { department: DepartmentSummary }) {
       </CardHeader>
       <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm">
         <span className="text-muted-foreground">
-          {department.counts.staff} staff · {department.counts.jury} jury · {department.counts.awards} awards
+          {department.counts.staff} staff · {department.counts.jury} jury · {department.counts.awards}{" "}
+          {department.counts.awards === 1 ? "award" : "awards"}
         </span>
         <Button asChild size="sm" variant="outline">
-          <Link href={`/leader/departments/${department.id}`}>People</Link>
+          <Link href={`/leader/departments/${department.id}`}>View</Link>
         </Button>
       </CardContent>
     </Card>
   );
 }
 
-const colour = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a colour such as #1F4FA8.");
 const schema = z.object({
   name: z.string().trim().min(2, "Enter the department's name."),
   externalOrganiser: z.boolean(),
-  primaryColour: colour,
-  accentColour: colour,
   headName: z.string().trim().min(1, "Enter the head's name."),
   headEmail: z.string().trim().min(1, "Enter the head's email address."),
 });
@@ -104,8 +106,6 @@ type Values = z.infer<typeof schema>;
 const EMPTY: Values = {
   name: "",
   externalOrganiser: false,
-  primaryColour: "#1F4FA8",
-  accentColour: "#F2A900",
   headName: "",
   headEmail: "",
 };
@@ -124,8 +124,6 @@ function NewDepartment() {
       const result = await api.post<CreatedDepartment>("/departments", {
         name: values.name,
         externalOrganiser: values.externalOrganiser,
-        primaryColour: values.primaryColour,
-        accentColour: values.accentColour,
         head: { name: values.headName, email: values.headEmail },
       });
       await queryClient.invalidateQueries({ queryKey: DEPARTMENTS_KEY });
@@ -134,7 +132,7 @@ function NewDepartment() {
       else setNotice(`${result.department.name} is created. ${result.head.name} already had an account and now heads it.`);
     } catch (error) {
       // The head's fields come back as "head.name" and "head.email".
-      showApiErrors(error, form.setError, ["name", "primaryColour", "accentColour"], {
+      showApiErrors(error, form.setError, ["name"], {
         "head.name": "headName",
         "head.email": "headEmail",
       });
@@ -161,7 +159,7 @@ function NewDepartment() {
         <CardTitle>New department</CardTitle>
         <CardDescription>
           The head gets an account with a temporary password, shown to you once. If the email already has an account, it is
-          used as it is.
+          used as it is. The head then runs the department: its staff, jury and theme.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -181,12 +179,6 @@ function NewDepartment() {
                 An external award organiser (runs its own awards here)
               </Label>
             </div>
-            <FormField label="Main colour" hint="Used on the department's award pages." error={errors.primaryColour?.message}>
-              {(control) => <Input {...control} type="color" className="h-9 w-24 p-1" {...form.register("primaryColour")} />}
-            </FormField>
-            <FormField label="Accent colour" error={errors.accentColour?.message}>
-              {(control) => <Input {...control} type="color" className="h-9 w-24 p-1" {...form.register("accentColour")} />}
-            </FormField>
             <FormField label="Head's name" error={errors.headName?.message}>
               {(control) => <Input {...control} autoComplete="off" {...form.register("headName")} />}
             </FormField>

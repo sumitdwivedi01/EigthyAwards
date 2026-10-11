@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { requireSignedIn } from "../../lib/access.js";
-import { createDepartmentSchema, departmentIdSchema, personParamsSchema, personSchema, type ListKind } from "./schemas.js";
+import { createDepartmentSchema, departmentIdSchema, personParamsSchema, personSchema, themeSchema, type ListKind } from "./schemas.js";
 import {
   addPerson,
   createDepartment,
+  getTheme,
   issueTemporaryPassword,
   listDepartments,
   listPeople,
   removePerson,
+  updateTheme,
 } from "./service.js";
 
 export function buildDepartmentsRouter(): Router {
@@ -42,6 +44,16 @@ export function buildDepartmentsRouter(): Router {
   router.post("/:id/people/:userId/temporary-password", async (req, res) => {
     const { id, userId } = personParamsSchema.parse(req.params);
     res.json(await issueTemporaryPassword(requireSignedIn(req.actor), id, userId));
+  });
+
+  router.get("/:id/theme", async (req, res) => {
+    const { id } = departmentIdSchema.parse(req.params);
+    res.json(await getTheme(requireSignedIn(req.actor), id));
+  });
+
+  router.put("/:id/theme", async (req, res) => {
+    const { id } = departmentIdSchema.parse(req.params);
+    res.json(await updateTheme(requireSignedIn(req.actor), id, themeSchema.parse(req.body)));
   });
 
   return router;

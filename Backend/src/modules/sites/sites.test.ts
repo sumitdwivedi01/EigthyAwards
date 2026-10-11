@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
 import { db } from "../../lib/db.js";
 import { completeSetup, createAwardWithCycle, DAY, staffWithDepartment } from "../../../tests/helpers/award-setup.js";
+import { platformPerson, signIn } from "../../../tests/helpers/http.js";
 import { useTestDatabase } from "../../../tests/helpers/database.js";
 import { createApplication } from "../../../tests/helpers/factories.js";
 
@@ -83,5 +84,37 @@ describe("Open awards and the award page (spec §5.3, §5.19)", () => {
     expect(taken.status).toBe(400);
     expect(taken.body.error.details).toEqual([expect.objectContaining({ path: "slug" })]);
     expect((await other.staff.put(`/api/awards/${awardId}/site`).send({ slug: "stolen" })).status).toBe(403);
+  });
+});
+
+describe("the department's head looks after its award pages (ADR 0020)", () => {
+  it("shows the head's theme on the award page at once, and an empty footer as the department's name", async () => {
+    const { app, department } = await publishedAward("Safety Excellence Award");
+    await platformPerson("head@example.test", [{ role: "DEPT_HEAD", departmentId: department.id }]);
+    const head = await signIn(app, "head@example.test");
+    await head.put(`/api/departments/${department.id}/theme`).send({ primaryColour: "#0A5C8A", accentColour: "#FFCC00", footerText: "" });
+
+    const page = await request(app).get("/api/public/awards/safety-excellence-award");
+    expect(page.body.department).toMatchObject({ colours: { primary: "#0A5C8A", accent: "#FFCC00" }, footerText: department.name });
+    const theme = await head.get(`/api/departments/${department.id}/theme`);
+    expect(theme.body.awards).toEqual([
+      expect.objectContaining({ name: "Safety Excellence Award", slug: "safety-excellence-award", live: true }),
+    ]);
+  });
+
+  it("lets the head change an award page's address, but not another department's head or the leader", async () => {
+    const { app, department, awardId } = await publishedAward("Kaizen Competition");
+    await platformPerson("head@example.test", [{ role: "DEPT_HEAD", departmentId: department.id }]);
+    const elsewhere = await staffWithDepartment(app, { email: "staff.elsewhere@example.test" });
+    await platformPerson("head.elsewhere@example.test", [{ role: "DEPT_HEAD", departmentId: elsewhere.department.id }]);
+    await platformPerson("leader@example.test", [{ role: "LEADER" }]);
+
+    const head = await signIn(app, "head@example.test");
+    expect((await head.put(`/api/awards/${awardId}/site`).send({ slug: "kaizen" })).body).toEqual({ slug: "kaizen" });
+    expect(await db.auditEvent.findFirstOrThrow({ where: { action: "site.address_changed" } })).toMatchObject({ actorRole: "DEPT_HEAD" });
+    const otherHead = await signIn(app, "head.elsewhere@example.test");
+    expect((await otherHead.put(`/api/awards/${awardId}/site`).send({ slug: "taken-over" })).status).toBe(403);
+    const leader = await signIn(app, "leader@example.test");
+    expect((await leader.put(`/api/awards/${awardId}/site`).send({ slug: "taken-over" })).status).toBe(403);
   });
 });

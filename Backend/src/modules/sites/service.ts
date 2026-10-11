@@ -1,4 +1,4 @@
-import { requireStaffOfAward, type Actor } from "../../lib/access.js";
+import type { Actor } from "../../lib/access.js";
 import { clock } from "../../lib/clock.js";
 import { db, type Tx } from "../../lib/db.js";
 import { NotFoundError, ValidationError } from "../../lib/errors.js";
@@ -7,6 +7,7 @@ import { slugify } from "../../lib/slug.js";
 import { recordAudit } from "../audit/service.js";
 import { cycleState } from "../awards/views.js";
 import type { AwardPageInput } from "../awards/schemas.js";
+import { requirePageManager } from "./access.js";
 import { publicCycleInclude, type PublicAwardCardView, type PublicAwardView, publicAwardCardView, publicAwardView } from "./views.js";
 
 /**
@@ -28,9 +29,14 @@ export async function createSiteForAward(tx: Tx, awardId: string, awardName: str
   return slug;
 }
 
-/** Staff change their award page's address (spec §5.19). Addresses are unique, ignoring letter case. */
+/**
+ * The award's staff, or its department's head, change its page's address (spec §5.19, ADR 0020).
+ * Addresses are unique, ignoring letter case.
+ */
 export async function setAwardPageAddress(actor: Actor, awardId: string, input: AwardPageInput): Promise<{ slug: string }> {
-  requireStaffOfAward(actor, awardId);
+  const award = await db.award.findUnique({ where: { id: awardId }, select: { id: true, departmentId: true } });
+  if (!award) throw new NotFoundError("Award not found.");
+  const actorRole = requirePageManager(actor, award);
   const site = await db.awardSite.findUnique({ where: { awardId }, select: { id: true, slug: true } });
   if (!site) throw new NotFoundError("Award page not found.");
   if (site.slug === input.slug) return { slug: site.slug };
@@ -39,7 +45,7 @@ export async function setAwardPageAddress(actor: Actor, awardId: string, input: 
       await tx.awardSite.update({ where: { id: site.id }, data: { slug: input.slug } });
       await recordAudit(tx, {
         actorId: actor.userId,
-        actorRole: "AWARD_STAFF",
+        actorRole,
         action: "site.address_changed",
         entityType: "award_site",
         entityId: site.id,

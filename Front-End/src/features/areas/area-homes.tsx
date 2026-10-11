@@ -173,7 +173,10 @@ export function DepartmentHome() {
             <Card>
               <CardHeader>
                 <CardTitle>Departments you head</CardTitle>
-                <CardDescription>Add your staff and jury; they get a temporary password to start with.</CardDescription>
+                <CardDescription>
+                  You run each one: add your staff and jury (they get a temporary password to start with) and choose how its
+                  award pages look.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="grid gap-2">
@@ -183,7 +186,7 @@ export function DepartmentHome() {
                       <li key={r.department?.id} className="flex items-center justify-between gap-3 text-sm">
                         {r.department?.name}
                         <Button asChild size="sm" variant="outline">
-                          <Link href={`/department/${r.department?.id}`}>People</Link>
+                          <Link href={`/department/${r.department?.id}`}>Open</Link>
                         </Button>
                       </li>
                     ))}
@@ -226,7 +229,10 @@ export function LeaderHome() {
             <Card>
               <CardHeader>
                 <CardTitle>Departments</CardTitle>
-                <CardDescription>Create a department with its head, and see each one&apos;s people.</CardDescription>
+                <CardDescription>
+                  Create a department with its head. Each department then runs itself; you can see its people, theme and award
+                  pages.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button asChild size="sm">

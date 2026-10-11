@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api, messageOf } from "@/lib/api-client";
-import type { Area, ListedPerson, Person, PersonWithPassword } from "@/lib/api-types";
+import type { Area, HeadPerson, ListedPerson, PersonWithPassword } from "@/lib/api-types";
 import { showApiErrors } from "@/lib/forms";
+import { DepartmentThemeCard } from "./department-theme";
 import { TemporaryPasswordCard } from "./temporary-password-card";
 import { usePeople, useRefreshPeople } from "./use-people";
 
@@ -36,8 +37,9 @@ const LISTS: Record<ListKind, { title: string; description: string; add: string;
 };
 
 /**
- * A department's people (ADR 0017): its head(s), its staff list and its jury list. The head keeps
- * them; the leader can too, in any department. Every decision is the API's; this page shows them.
+ * A department's page (ADR 0017, ADR 0020): its head(s), its staff and jury lists, its theme and
+ * its award pages. The head keeps them; the leader only sees them (and can give a locked-out head
+ * a new temporary password). The API says which actions the viewer has; this page shows only those.
  */
 export function PeoplePage({ departmentId, area }: { departmentId: string; area: Extract<Area, "department" | "leader"> }) {
   return <AreaPage area={area}>{() => <People departmentId={departmentId} area={area} />}</AreaPage>;
@@ -55,7 +57,7 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
 
   if (people.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (people.error) return <p className="text-sm text-destructive">{messageOf(people.error)}</p>;
-  const { department, heads, staff, jury } = people.data;
+  const { department, canManage, heads, staff, jury } = people.data;
   const back = area === "leader" ? { href: "/leader/departments", label: "All departments" } : { href: "/department", label: "Department" };
 
   return (
@@ -66,8 +68,12 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
         </Link>
       </p>
       <PageTitle
-        title={`${department.name}: people`}
-        description="New people get a temporary password, shown to you once. They choose their own at the first login."
+        title={department.name}
+        description={
+          canManage
+            ? "Your staff, your jury and your award pages. New people get a temporary password, shown to you once; they choose their own at the first login."
+            : "The department's people, theme and award pages, to see. Its head manages them."
+        }
       />
       <div className="grid gap-6">
         {issued && <TemporaryPasswordCard {...issued} onDone={() => setIssued(null)} />}
@@ -82,15 +88,15 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
                 key={head.id}
                 person={head}
                 departmentId={departmentId}
-                // Only the leader issues a new password to a head (the API refuses anyone else).
-                canIssuePassword={area === "leader"}
+                canIssuePassword={head.canIssuePassword}
                 onIssued={setIssued}
               />
             ))}
           </CardContent>
         </Card>
-        <PersonList kind="staff" people={staff} departmentId={departmentId} onIssued={setIssued} />
-        <PersonList kind="jury" people={jury} departmentId={departmentId} onIssued={setIssued} />
+        <PersonList kind="staff" people={staff} departmentId={departmentId} canManage={canManage} onIssued={setIssued} />
+        <PersonList kind="jury" people={jury} departmentId={departmentId} canManage={canManage} onIssued={setIssued} />
+        <DepartmentThemeCard departmentId={departmentId} />
       </div>
     </>
   );
@@ -100,11 +106,13 @@ function PersonList({
   kind,
   people,
   departmentId,
+  canManage,
   onIssued,
 }: {
   kind: ListKind;
   people: ListedPerson[];
   departmentId: string;
+  canManage: boolean;
   onIssued: (issued: Issued) => void;
 }) {
   const list = LISTS[kind];
@@ -124,15 +132,16 @@ function PersonList({
                 <PersonRow
                   person={person}
                   departmentId={departmentId}
-                  canIssuePassword
+                  canIssuePassword={person.canIssuePassword}
                   onIssued={onIssued}
-                  removal={{ kind, canRemove: person.canRemove, work: list.work(person.workCount) }}
+                  work={list.work(person.workCount)}
+                  removal={canManage ? { kind, canRemove: person.canRemove } : undefined}
                 />
               </li>
             ))}
           </ul>
         )}
-        <AddPersonForm kind={kind} departmentId={departmentId} onIssued={onIssued} />
+        {canManage && <AddPersonForm kind={kind} departmentId={departmentId} onIssued={onIssued} />}
       </CardContent>
     </Card>
   );
@@ -143,13 +152,15 @@ function PersonRow({
   departmentId,
   canIssuePassword,
   onIssued,
+  work,
   removal,
 }: {
-  person: Person;
+  person: HeadPerson;
   departmentId: string;
   canIssuePassword: boolean;
   onIssued: (issued: Issued) => void;
-  removal?: { kind: ListKind; canRemove: boolean; work: string };
+  work?: string;
+  removal?: { kind: ListKind; canRemove: boolean };
 }) {
   const refresh = useRefreshPeople(departmentId);
   const [confirming, setConfirming] = useState<"password" | "remove" | null>(null);
@@ -183,7 +194,7 @@ function PersonRow({
         <span className="font-medium">{person.name}</span>
         <span className="text-sm text-muted-foreground">{person.email}</span>
         {person.waitingForFirstLogin && <Badge variant="outline">Hasn&apos;t logged in yet</Badge>}
-        {removal && <span className="text-xs text-muted-foreground">{removal.work}</span>}
+        {work && <span className="text-xs text-muted-foreground">{work}</span>}
         <div className="ml-auto flex flex-wrap gap-1">
           {confirming === null ? (
             <>

@@ -41,7 +41,12 @@ export interface Person {
   waitingForFirstLogin: boolean;
 }
 
-export interface ListedPerson extends Person {
+/** A person on a department's page, with what the API lets the viewer do (ADR 0020). */
+export interface HeadPerson extends Person {
+  canIssuePassword: boolean;
+}
+
+export interface ListedPerson extends HeadPerson {
   /** Staff: awards they work on here. Jury: applications assigned to them here. */
   workCount: number;
   canRemove: boolean;
@@ -58,9 +63,21 @@ export interface DepartmentSummary {
 
 export interface People {
   department: { id: string; name: string; externalOrganiser: boolean };
-  heads: Person[];
+  /** The viewer keeps the staff and jury lists: the department's head, never the leader. */
+  canManage: boolean;
+  heads: HeadPerson[];
   staff: ListedPerson[];
   jury: ListedPerson[];
+}
+
+/** A department's theme on its award pages, chosen by its head (ADR 0020). */
+export interface DepartmentTheme {
+  department: { id: string; name: string };
+  primaryColour: string;
+  accentColour: string;
+  footerText: string;
+  canEdit: boolean;
+  awards: { id: string; name: string; slug: string | null; live: boolean }[];
 }
 
 /** temporaryPassword is set only when one was made now; it is shown once and never again. */
