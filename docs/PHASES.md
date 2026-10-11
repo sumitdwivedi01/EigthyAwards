@@ -83,8 +83,8 @@ The plan has **three phases** ([PLAN.md](PLAN.md)). Phase 1 is built in **five s
 |---|---|---|---|---|---|
 | 1.1 | **Sat 10 Oct** | Foundation and people (logins, accounts, My profile, companies) | ~15 | `phase-1.1-foundation` | ✅ Merged (sumitdwivedi01/EigthyAwards#12, sumitdwivedi01/EigthyAwards#15) |
 | 1.2 | **Sun 11 – Mon 12 Oct** (morning) | Departments, people and award setup | ~19 | `phase-1.2-setup` | ✅ In `staging` (sumitdwivedi01/EigthyAwards#16) |
-| 1.3 | **Mon 12 – Tue 13 Oct** (morning) | Applying and proof check | ~14 | `phase-1.3-apply` | 🧪 Built and checked; pull request into `staging` next |
-| 1.4 | **Tue 13 – Wed 14 Oct** (midday) | Assignment, judging and results | ~14 | `phase-1.4-judging` | ⬜ |
+| 1.3 | **Mon 12 – Tue 13 Oct** (morning) | Applying and proof check | ~14 | `phase-1.3-apply` | ✅ In `staging` (sumitdwivedi01/EigthyAwards#18) |
+| 1.4 | **Tue 13 – Wed 14 Oct** (midday) | Assignment, judging and results | ~14 | `phase-1.4-judging` | 🧪 Built and checked; pull request into `staging` next |
 | 1.5 | **Wed 14 – Thu 15 Oct** (morning) | Online (production) and documents | ~9 | `phase-1.5-deploy` | ⬜ |
 | — | **Thu 15 Oct** (afternoon) | Walkthrough with the lead; tag `phase-1-done` | — | — | ⬜ |
 
