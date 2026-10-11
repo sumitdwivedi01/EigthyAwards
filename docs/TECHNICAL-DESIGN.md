@@ -36,7 +36,7 @@ flowchart LR
 | identity (login, roles, My profile, password, temporary passwords) | ✅ | invites by email, deactivation |
 | organisations (create, join, normalise) | ✅ | corrections by the leader |
 | master-data (award domains, organisation types) | read; lists seeded | admin screens |
-| departments (departments and their heads, staff and jury lists, brand colours) | ✅ created on screen (ADR 0017) | replace a head, more staff on an award, brand-kit screen |
+| departments (departments and their heads, staff and jury lists, the theme chosen by the head) | ✅ created on screen (ADR 0017); run by the head, viewed by the leader (ADR 0020) | replace a head, more staff on an award, brand-kit screen |
 | awards, forms (versions), scoring (weights, formula) | ✅ | copy last year's setup (Phase 3) |
 | sites | one branded page per award | full section builder, versions |
 | applications (start, fee, answers, files, proof, submit, release) | ✅ | edit after submit, withdraw, deadline extension, "questions changed" alerts |
@@ -222,7 +222,7 @@ All routes live under `/api` and return view models. The full contract grows in 
 | Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password` (also replaces a temporary password); `PUT /me/linkedin`; `POST /me/identity-document/uploads` (an upload link), then `PUT /me/identity-document` |
 | Master data (public) | `GET /master-data/organisation-types`, `/master-data/award-domains`, `/master-data/states` |
 | Organisations | `POST /organisations`, `POST /organisations/join`, `GET /organisations/mine`, `PATCH /organisations/:id` |
-| Departments and people (leader, head) | `POST /departments` (with its head), `GET /departments`, `GET /departments/:id/people`, `POST /departments/:id/staff`, `POST /departments/:id/jury`, `DELETE /departments/:id/people/:userId`, `POST /departments/:id/people/:userId/temporary-password` |
+| Departments and people (leader, head) | `POST /departments` (with its head), `GET /departments`, `GET /departments/:id/people`, `POST /departments/:id/staff`, `POST /departments/:id/jury`, `DELETE /departments/:id/people/:userId`, `POST /departments/:id/people/:userId/temporary-password`, `GET` and `PUT /departments/:id/theme` (the head changes; the leader views, ADR 0020) |
 | Public | `GET /public/awards` (open awards), `GET /public/awards/:slug` (branded page, live counter) |
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |
 | Applying | `POST /cycles/:id/applications`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files`, `POST /applications/:id/employment-proof`, `POST /applications/:id/submit`, `GET /applications/mine` |

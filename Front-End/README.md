@@ -24,9 +24,9 @@ What the screens look like: the clickable prototype in [docs/ui/](../docs/ui/REA
 | Staff | My awards, create award, edition setup (settings, questions, scoring sheet, jury per application, award page address); then applications, proof check | Built (1.2); 1.3 | Site builder and brand kit (2.2); release screen, full scoring-sheet builder (2.5) |
 | Staff, judging | Conflicts, the assignment board (by application and by juror), judging progress with the exact average, send for approval, results | 1.4 | On-site schedule, panels and progress (2.1) |
 | Jury | My assignments, scoring | 1.4 | Phone scoring on site (2.1) |
-| Department head | People (staff and jury lists, temporary passwords) | Built (1.2) | Invites by email (2.3) |
+| Department head | The department page: staff and jury lists, temporary passwords, the theme with a preview, the award pages (ADR 0020) | Built (1.2) | Invites by email (2.3) |
 | Department head | Approval queue, round review (approve) | 1.4 | Send back (2.5); brand kit (2.2); department dashboard, staff screens (2.3, 2.4) |
-| Leader | Departments (create with its head) | Built (1.2) | Replace a head, master data, organisation corrections, invites by email (2.3) |
+| Leader | Departments (create with its head; each department's page read-only) | Built (1.2) | Replace a head, master data, organisation corrections, invites by email (2.3) |
 | Leader | Dashboard | 1.4 | — |
 
 ## Structure

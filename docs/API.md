@@ -132,25 +132,29 @@ The award goes to the organisation, one record per PAN (spec §5.2). Only applic
 }
 ```
 
-## Departments and people (ADR 0017)
+## Departments and people (ADR 0017, ADR 0020)
 
-The leader creates departments, each with its head; a head keeps the department's two lists, its **staff** and its **jury**. Someone new gets a platform account with a **temporary password**, returned once in the response that creates it (never stored in plain text, never logged), valid 7 days and changed at the first login. Someone who already has a platform account is found by email and gets no new password. Applicant accounts are refused everywhere here (ADR 0016).
+The leader creates departments, each with its head, and from then on **only views** them (ADR 0020): the head keeps the department's two lists, its **staff** and its **jury**, and chooses its **theme**. The responses say which actions the caller has (`canManage`, `canIssuePassword`, `canRemove`, `canEdit`), so the screens show only those. Someone new gets a platform account with a **temporary password**, returned once in the response that creates it (never stored in plain text, never logged), valid 7 days and changed at the first login. Someone who already has a platform account is found by email and gets no new password. Applicant accounts are refused everywhere here (ADR 0016).
 
 | Method | Path | Who | Body | Response |
 |---|---|---|---|---|
 | GET | `/api/departments` | The leader (all), a head (their own) | — | `[DepartmentSummary]` |
-| POST | `/api/departments` | The leader | `{ name, externalOrganiser?, primaryColour?, accentColour?, head: { name, email } }`; colours as `#RRGGBB` | `201 { department: DepartmentSummary, head: Person, temporaryPassword }`. `400` on `name` if the name is taken (letter case ignored), on `head.email` for an applicant or deactivated account. The department, its brand colours, the head's role and the audit event share one transaction |
-| GET | `/api/departments/:id/people` | The leader, the department's head | — | `People` |
-| POST | `/api/departments/:id/staff` | The leader, the department's head | `{ name, email }` | `201 { person: Person, temporaryPassword }`. `400` on `email` for an applicant account, the leader, someone already on the list, the department's head, or someone on its jury list |
-| POST | `/api/departments/:id/jury` | The leader, the department's head | `{ name, email }` | As above; also refused for the department's staff, including the staff of its awards (spec A36, G-K26) |
-| DELETE | `/api/departments/:id/staff/:userId` and `/jury/:userId` | The leader, the department's head | — | `204`. `409` while the person has work there (awards they run; applications assigned to them) (G-K27) |
-| POST | `/api/departments/:id/people/:userId/temporary-password` | The leader; the head for their staff and jury (only the leader for anyone who heads a department) | — | `200 { person, temporaryPassword }`: the old password stops working and every session ends; audited without the password. `409` for your own account (use My profile) |
+| POST | `/api/departments` | The leader | `{ name, externalOrganiser?, head: { name, email } }`; any other field (such as colours) is refused with `400`: the head chooses the theme | `201 { department: DepartmentSummary, head: Person, temporaryPassword }`. `400` on `name` if the name is taken (letter case ignored), on `head.email` for an applicant or deactivated account. The department, its default theme, the head's role and the audit event share one transaction |
+| GET | `/api/departments/:id/people` | The department's head; the leader, to view | — | `People` |
+| POST | `/api/departments/:id/staff` | The department's head (the leader gets `403`) | `{ name, email }` | `201 { person: Person, temporaryPassword }`. `400` on `email` for an applicant account, the leader, someone already on the list, the department's head, or someone on its jury list |
+| POST | `/api/departments/:id/jury` | The department's head (the leader gets `403`) | `{ name, email }` | As above; also refused for the department's staff, including the staff of its awards (spec A36, G-K26) |
+| DELETE | `/api/departments/:id/staff/:userId` and `/jury/:userId` | The department's head (the leader gets `403`) | — | `204`. `409` while the person has work there (awards they run; applications assigned to them) (G-K27) |
+| POST | `/api/departments/:id/people/:userId/temporary-password` | The head, for its staff and jury; the leader, only for someone who heads a department (a locked-out head) | — | `200 { person, temporaryPassword }`: the old password stops working and every session ends; audited without the password. `409` for your own account (use My profile) |
+| GET | `/api/departments/:id/theme` | The department's head; the leader, to view | — | `Theme` |
+| PUT | `/api/departments/:id/theme` | The department's head | `{ primaryColour, accentColour, footerText? }`; colours as `#RRGGBB`, the footer up to 200 characters (empty shows the department's name) | `200 Theme`. Every award page of the department shows it at once; audited with before and after |
 
 **DepartmentSummary**: `{ id, name, externalOrganiser, colours: { primary, accent } | null, heads: [Person], counts: { staff, jury, awards } }`
 
 **Person**: `{ id, name, email, waitingForFirstLogin }` (`waitingForFirstLogin`: still on the temporary password)
 
-**People**: `{ department: { id, name, externalOrganiser }, heads: [Person], staff: [ListedPerson], jury: [ListedPerson] }`, where a ListedPerson adds `workCount` (staff: awards in the department; jury: assignments there) and `canRemove`.
+**People**: `{ department: { id, name, externalOrganiser }, canManage, heads: [Person & { canIssuePassword }], staff: [ListedPerson], jury: [ListedPerson] }`. `canManage` is true for the department's head (never the leader). A ListedPerson adds `canIssuePassword`, `workCount` (staff: awards in the department; jury: assignments there) and `canRemove` (the caller manages the lists and the person has no work there).
+
+**Theme**: `{ department: { id, name }, primaryColour, accentColour, footerText, canEdit, awards: [{ id, name, slug, live }] }`. `canEdit` is true for the department's head; `live` means an edition is published, so the page is public.
 
 ## Award setup (staff of the award)
 
@@ -161,7 +165,7 @@ Staff create an award in a department where they are staff, and become its award
 | GET | `/api/awards/mine` | — | `[Award]`: every award the caller runs, across departments |
 | POST | `/api/awards` | `{ departmentId, name, domainId, description }` (the domain from `/api/master-data/award-domains`) | `201 Award`; its page address is made from the name (`-2`, `-3` if taken). `400` on `name` if the department has an award with that name (letter case ignored); `403` if the caller isn't the department's staff |
 | GET | `/api/awards/:id` | — | `Award` |
-| PUT | `/api/awards/:id/site` | `{ slug }`: 2 to 60 lower-case letters, digits and single hyphens | `200 { slug }`. `400` on `slug` if another award uses it; audited |
+| PUT | `/api/awards/:id/site` | `{ slug }`: 2 to 60 lower-case letters, digits and single hyphens | `200 { slug }`. Also the department's head (ADR 0020); the leader gets `403`. `400` on `slug` if another award uses it; audited |
 | POST | `/api/awards/:id/cycles` | `{ label, opensAt, deadlineAt }` | `201 CycleSetup` (draft). `400` if the deadline isn't after the opening, or the label is taken in this award |
 | GET | `/api/cycles/:id` | — | `CycleSetup` |
 | PATCH | `/api/cycles/:id` | Any of `{ label, opensAt, deadlineAt, feePaise, blindJudging, maxEntries }`; `maxEntries: null` means no limit | `200 CycleSetup`. Once published, only `maxEntries` may change (`409 SETTINGS_FIXED` otherwise); `400` on `maxEntries` below the number already submitted; audited |
@@ -223,7 +227,7 @@ The arithmetic, used from Step 1.4: one juror's points `P = Σ W × w × v` (a w
 
 ## Award pages and Open awards (public, no login)
 
-Each award has one public page at `/awards/<slug>` in its department's colours. The dates, categories, fees and the entry counter are read live from the edition, never copied (spec §5.19). Drafts are never public. Staff choose only the address (`PUT /api/awards/:id/site`); the full site builder is package 2.2.
+Each award has one public page at `/awards/<slug>` in its department's colours. The dates, categories, fees and the entry counter are read live from the edition, never copied (spec §5.19). Drafts are never public. The department's head chooses the theme (`PUT /api/departments/:id/theme`); the award's staff or the head choose the address (`PUT /api/awards/:id/site`); the full site builder is package 2.2.
 
 | Method | Path | Response |
 |---|---|---|
