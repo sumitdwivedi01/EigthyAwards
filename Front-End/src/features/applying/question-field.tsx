@@ -1,7 +1,9 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import { CircleAlertIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { RadioCard } from "@/components/ui/radio-card";
 import { Textarea } from "@/components/ui/textarea";
 import type { AnswerValue, Question } from "@/lib/api-types";
 import type { LocalValue } from "./autosave";
@@ -17,17 +19,7 @@ export interface FieldIds {
 const GROUPED = new Set(["SINGLE_CHOICE", "YES_NO", "FILE_UPLOAD"]);
 
 /** The question's wording, help and message around its control, wired together for screen readers. */
-export function QuestionShell({
-  question,
-  number,
-  message,
-  children,
-}: {
-  question: Question;
-  number: number;
-  message?: string;
-  children: (ids: FieldIds) => ReactNode;
-}) {
+export function QuestionShell({ question, number, message, children }: { question: Question; number: number; message?: string; children: (ids: FieldIds) => ReactNode }) {
   const id = useId();
   const labelId = `${id}-label`;
   const helpId = question.help ? `${id}-help` : undefined;
@@ -35,7 +27,10 @@ export function QuestionShell({
   const describedBy = [helpId, messageId].filter(Boolean).join(" ") || undefined;
   const wording = (
     <>
-      {number}. {question.label}
+      <span className="mr-2 inline-grid size-7 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground" aria-hidden>
+        {number}
+      </span>
+      {question.label}
       {question.required ? (
         <span className="text-destructive" aria-hidden>
           {" "}
@@ -47,24 +42,25 @@ export function QuestionShell({
     </>
   );
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2.5">
       {GROUPED.has(question.type) ? (
-        <p id={labelId} className="text-sm font-medium leading-snug">
+        <p id={labelId} className="text-base leading-snug font-semibold">
           {wording}
         </p>
       ) : (
-        <label id={labelId} htmlFor={id} className="text-sm font-medium leading-snug">
+        <label id={labelId} htmlFor={id} className="text-base leading-snug font-semibold">
           {wording}
         </label>
       )}
       {question.help && (
-        <p id={helpId} className="text-xs text-muted-foreground">
+        <p id={helpId} className="text-sm text-muted-foreground">
           {question.help}
         </p>
       )}
       {children({ id, labelId, describedBy, invalid: Boolean(message) })}
       {message && (
-        <p id={messageId} className="text-xs text-destructive" role="alert">
+        <p id={messageId} className="flex items-start gap-1.5 text-sm font-medium text-destructive" role="alert">
+          <CircleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
           {message}
         </p>
       )}
@@ -73,19 +69,7 @@ export function QuestionShell({
 }
 
 /** An editable answer for the text, number, choice and yes/no questions (files have their own). */
-export function AnswerInput({
-  question,
-  value,
-  onChange,
-  onBlur,
-  ids,
-}: {
-  question: Question;
-  value: LocalValue;
-  onChange: (value: LocalValue) => void;
-  onBlur: () => void;
-  ids: FieldIds;
-}) {
+export function AnswerInput({ question, value, onChange, onBlur, ids }: { question: Question; value: LocalValue; onChange: (value: LocalValue) => void; onBlur: () => void; ids: FieldIds }) {
   const common = { id: ids.id, "aria-describedby": ids.describedBy, "aria-invalid": ids.invalid, onBlur };
   // A published question carries its limit (the API fills in the standard one).
   const limit = question.maxLength ?? undefined;
@@ -100,7 +84,7 @@ export function AnswerInput({
     case "LONG_TEXT":
       return (
         <div className="grid gap-1">
-          <Textarea {...common} rows={6} value={typeof value === "string" ? value : ""} maxLength={limit} onChange={(e) => onChange(e.target.value)} />
+          <Textarea {...common} rows={7} value={typeof value === "string" ? value : ""} maxLength={limit} onChange={(e) => onChange(e.target.value)} />
           <Counter value={value} limit={limit} />
         </div>
       );
@@ -110,7 +94,7 @@ export function AnswerInput({
           {...common}
           type="number"
           inputMode="decimal"
-          className="max-w-48"
+          className="max-w-52"
           min={question.min ?? undefined}
           max={question.max ?? undefined}
           value={typeof value === "string" ? value : ""}
@@ -119,40 +103,20 @@ export function AnswerInput({
       );
     case "SINGLE_CHOICE":
       return (
-        <div role="radiogroup" aria-labelledby={ids.labelId} aria-describedby={ids.describedBy} className="grid gap-2">
+        <div role="radiogroup" aria-labelledby={ids.labelId} aria-describedby={ids.describedBy} className="grid gap-2 sm:grid-cols-2">
           {(question.options ?? []).map((option) => (
-            <label key={option.key} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name={`${ids.id}-choice`}
-                className="size-4 accent-primary"
-                checked={value === option.key}
-                onChange={() => onChange(option.key ?? "")}
-                onBlur={onBlur}
-              />
-              {option.label}
-            </label>
+            <RadioCard key={option.key} name={`${ids.id}-choice`} value={option.key ?? ""} checked={value === option.key} onChange={() => onChange(option.key ?? "")} title={option.label} />
           ))}
         </div>
       );
     case "YES_NO":
       return (
-        <div role="radiogroup" aria-labelledby={ids.labelId} aria-describedby={ids.describedBy} className="flex gap-6">
+        <div role="radiogroup" aria-labelledby={ids.labelId} aria-describedby={ids.describedBy} className="grid max-w-md grid-cols-2 gap-2">
           {[
             { label: "Yes", answer: true },
             { label: "No", answer: false },
           ].map(({ label, answer }) => (
-            <label key={label} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name={`${ids.id}-yes-no`}
-                className="size-4 accent-primary"
-                checked={value === answer}
-                onChange={() => onChange(answer)}
-                onBlur={onBlur}
-              />
-              {label}
-            </label>
+            <RadioCard key={label} name={`${ids.id}-yes-no`} value={label} checked={value === answer} onChange={() => onChange(answer)} title={label} />
           ))}
         </div>
       );
@@ -163,9 +127,10 @@ export function AnswerInput({
 
 function Counter({ value, limit }: { value: LocalValue; limit: number | undefined }) {
   if (!limit || typeof value !== "string") return null;
+  const left = limit - value.length;
   return (
-    <p className="text-right text-xs text-muted-foreground">
-      {value.length} / {limit}
+    <p className={`text-right text-xs ${left < 50 ? "font-medium text-warning" : "text-muted-foreground"}`}>
+      {value.length} / {limit} characters
     </p>
   );
 }

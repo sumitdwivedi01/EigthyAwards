@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { CircleAlertIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { FormNotice } from "@/components/form-field";
+import { ErrorState, LoadingState } from "@/components/layout/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
-import { api, messageOf } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import type { Indicator, IndicatorType, ScoringSection, ScoringSheet } from "@/lib/api-types";
 import { BuilderErrorList, builderErrorsOf, FieldProblem, NO_ERRORS, type BuilderErrors } from "./builder-errors";
 import { cycleKey, sheetKey, useScoringSheet } from "./use-awards";
@@ -52,8 +53,8 @@ function weightOf(value: string): number {
 
 export function ScoringSheetBuilder({ cycleId, roundId, blind }: { cycleId: string; roundId: string; blind: boolean }) {
   const sheet = useScoringSheet(roundId);
-  if (sheet.isPending) return <p className="text-sm text-muted-foreground">Loading the scoring sheet…</p>;
-  if (sheet.error) return <p className="text-sm text-destructive">{messageOf(sheet.error)}</p>;
+  if (sheet.isPending) return <LoadingState label="Loading the scoring sheet" lines={6} />;
+  if (sheet.error) return <ErrorState error={sheet.error} onRetry={() => void sheet.refetch()} />;
   return <Builder cycleId={cycleId} roundId={roundId} sheet={sheet.data} blind={blind} />;
 }
 
@@ -127,7 +128,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
               : "What the jury marks. Section weights add up to 100%, and inside each section the indicator weights add up to 100%. Each juror's score is out of 100; an application's score is the average of its jurors' scores."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 text-sm">
+        <CardContent className="grid gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <span>
               Section weights: <strong>{sectionTotal}%</strong> of 100%
@@ -137,13 +138,13 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
                 Split evenly
               </Button>
             )}
-            {dirty && <Badge variant="destructive">Unsaved changes</Badge>}
+            {dirty && <Badge variant="warning">Unsaved changes</Badge>}
           </div>
           {!dirty && sheet.issues.length > 0 && (
-            <ul className="grid gap-1.5">
+            <ul className="grid gap-2">
               {sheet.issues.map((issue) => (
                 <li key={issue} className="flex items-start gap-2">
-                  <CircleAlertIcon className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
+                  <CircleAlertIcon className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden />
                   {issue}
                 </li>
               ))}
@@ -165,7 +166,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
           <Card key={section.key ?? `new-${s}`}>
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
-                <CardTitle>Section {s + 1}</CardTitle>
+                <CardTitle>Section {s + 1}{section.title && `: ${section.title}`}</CardTitle>
                 {!locked && (
                   <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setSections((all) => all.filter((_, i) => i !== s))}>
                     <Trash2Icon aria-hidden />
@@ -176,7 +177,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
             </CardHeader>
             <CardContent className="grid gap-4">
               <div className="grid gap-3 sm:grid-cols-[3fr_1fr]">
-                <div className="grid gap-1.5">
+                <div className="grid gap-2">
                   <Label htmlFor={`${domId}-title`}>Section title</Label>
                   <Input
                     id={`${domId}-title`}
@@ -187,7 +188,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
                   />
                   <FieldProblem message={e[`${path}.title`]} />
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid gap-2">
                   <Label htmlFor={`${domId}-weight`}>Weight (%)</Label>
                   <Input
                     id={`${domId}-weight`}
@@ -205,7 +206,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
 
               <div className="grid gap-2">
                 <div className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className="font-medium">Indicators</span>
+                  <span className="font-semibold">Indicators</span>
                   <span className="text-muted-foreground">weights: {indicatorTotal}% of 100%</span>
                   {!locked && section.indicators.length > 1 && (
                     <Button size="sm" variant="ghost" onClick={() => splitIndicators(s)}>
@@ -218,9 +219,9 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
                     const ipath = `${path}.indicators.${i}`;
                     const id = (field: string) => `sheet-${ipath}-${field}`;
                     return (
-                      <li key={indicator.key ?? `new-${i}`} className="grid gap-3 rounded-md border p-3">
+                      <li key={indicator.key ?? `new-${i}`} className="surface grid gap-4 p-4 sm:p-5">
                         <div className="grid gap-3 sm:grid-cols-[3fr_1fr]">
-                          <div className="grid gap-1.5">
+                          <div className="grid gap-2">
                             <Label htmlFor={id("label")}>Indicator {i + 1}</Label>
                             <Input
                               id={id("label")}
@@ -232,7 +233,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
                             />
                             <FieldProblem message={e[`${ipath}.label`]} />
                           </div>
-                          <div className="grid gap-1.5">
+                          <div className="grid gap-2">
                             <Label htmlFor={id("weight")}>Weight (%)</Label>
                             <Input
                               id={id("weight")}
@@ -248,7 +249,7 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
                           </div>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-[3fr_1fr]">
-                          <div className="grid gap-1.5">
+                          <div className="grid gap-2">
                             <Label htmlFor={id("question")}>Scores the answer to</Label>
                             <NativeSelect
                               id={id("question")}
@@ -267,13 +268,13 @@ function Builder({ cycleId, roundId, sheet, blind }: { cycleId: string; roundId:
                             </NativeSelect>
                             <FieldProblem message={e[`${ipath}.questionKey`]} />
                             {blind && questions.find((q) => q.key === indicator.questionKey)?.type === "FILE_UPLOAD" && (
-                              <p className="text-xs text-amber-700 dark:text-amber-400">
+                              <p className="text-sm font-medium text-warning">
                                 Blind award: jurors won&apos;t see this file, so they can&apos;t judge it. Score a written answer
                                 instead.
                               </p>
                             )}
                           </div>
-                          <div className="grid gap-1.5">
+                          <div className="grid gap-2">
                             <Label htmlFor={id("type")}>Marked as</Label>
                             <NativeSelect
                               id={id("type")}

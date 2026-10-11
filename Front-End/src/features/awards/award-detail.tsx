@@ -6,13 +6,16 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { ExternalLinkIcon, PlusIcon } from "lucide-react";
 import { z } from "zod";
 import { FormError, FormField, FormNotice } from "@/components/form-field";
+import { ListRow } from "@/components/layout/blocks";
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/states";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { api, messageOf } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import type { AwardDetail, CycleSetup } from "@/lib/api-types";
 import { fromIstInput, istDateTime } from "@/lib/format";
 import { showApiErrors } from "@/lib/forms";
@@ -26,58 +29,76 @@ export function AwardDetailPage({ awardId }: { awardId: string }) {
 
 function AwardDetailView({ awardId }: { awardId: string }) {
   const award = useAward(awardId);
-  if (award.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (award.error) return <p className="text-sm text-destructive">{messageOf(award.error)}</p>;
+  if (award.isPending) return <LoadingState label="Loading the award" lines={5} />;
+  if (award.error) return <ErrorState error={award.error} onRetry={() => void award.refetch()} />;
   const a = award.data;
+  const published = a.cycles.some((cycle) => cycle.status !== "DRAFT");
   return (
     <>
-      <p className="mb-2 text-sm">
-        <Link href="/staff" className="text-muted-foreground underline underline-offset-4">
-          My awards
-        </Link>
-      </p>
-      <PageTitle title={a.name} description={`${a.department.name} · ${a.domain.name}`} />
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="md:col-span-2">
+      <PageTitle
+        back={{ href: "/staff", label: "Your awards" }}
+        eyebrow={`${a.department.name} · ${a.domain.name}`}
+        title={a.name}
+        description={a.description}
+        actions={
+          a.siteSlug &&
+          published && (
+            <Button asChild variant="outline">
+              <Link href={`/awards/${a.siteSlug}`} target="_blank">
+                <ExternalLinkIcon aria-hidden />
+                Open the public page
+              </Link>
+            </Button>
+          )
+        }
+      />
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <Card>
           <CardHeader>
             <CardTitle>Editions</CardTitle>
             <CardDescription>Each edition has its own dates, fee, categories, questions and scoring sheet.</CardDescription>
           </CardHeader>
           <CardContent>
             {a.cycles.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No edition yet. Create the first one below.</p>
+              <EmptyState compact title="No edition yet" description="Create the first one on the right. Give it the year as its name." />
             ) : (
               <ul className="grid gap-2">
                 {a.cycles.map((cycle) => (
-                  <li key={cycle.id} className="flex flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-sm">
-                    <span className="font-medium">{cycle.label}</span>
-                    <StateBadge state={cycle.state} />
-                    <span className="text-muted-foreground">
-                      {istDateTime(cycle.opensAt)} to {istDateTime(cycle.deadlineAt)}
-                    </span>
-                    <span className="ml-auto flex gap-2">
+                  <ListRow key={cycle.id}>
+                    <div className="grid min-w-0 flex-1 gap-1">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-base font-semibold">{cycle.label}</span>
+                        <StateBadge state={cycle.state} />
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {istDateTime(cycle.opensAt)} to {istDateTime(cycle.deadlineAt)}
+                      </span>
+                    </div>
+                    <span className="flex flex-wrap gap-2">
                       {cycle.status !== "DRAFT" && (
-                        <Button asChild size="sm">
+                        <Button asChild variant="outline">
                           <Link href={`/staff/cycles/${cycle.id}/applications`}>Applications</Link>
                         </Button>
                       )}
                       {cycle.status !== "DRAFT" && cycle.roundId && (
-                        <Button asChild size="sm" variant="secondary">
+                        <Button asChild variant="outline">
                           <Link href={`/staff/rounds/${cycle.roundId}`}>Judging</Link>
                         </Button>
                       )}
-                      <Button asChild size="sm" variant="outline">
+                      <Button asChild variant={cycle.status === "DRAFT" ? "default" : "ghost"}>
                         <Link href={`/staff/cycles/${cycle.id}`}>Set up</Link>
                       </Button>
                     </span>
-                  </li>
+                  </ListRow>
                 ))}
               </ul>
             )}
           </CardContent>
         </Card>
-        <NewEdition award={a} />
-        <PageAddress award={a} />
+        <div className="grid content-start gap-6">
+          <NewEdition award={a} />
+          <PageAddress award={a} />
+        </div>
       </div>
     </>
   );
@@ -106,10 +127,7 @@ function NewEdition({ award }: { award: AwardDetail }) {
         opensAt: fromIstInput(values.opensAt),
         deadlineAt: fromIstInput(values.deadlineAt),
       });
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: awardKey(award.id) }),
-        queryClient.invalidateQueries({ queryKey: MY_AWARDS_KEY }),
-      ]);
+      await Promise.all([queryClient.invalidateQueries({ queryKey: awardKey(award.id) }), queryClient.invalidateQueries({ queryKey: MY_AWARDS_KEY })]);
       router.push(`/staff/cycles/${cycle.id}`);
     } catch (error) {
       showApiErrors(error, form.setError, ["label", "opensAt", "deadlineAt"]);
@@ -120,15 +138,15 @@ function NewEdition({ award }: { award: AwardDetail }) {
     <Card>
       <CardHeader>
         <CardTitle>New edition</CardTitle>
-        <CardDescription>Times are India time.</CardDescription>
+        <CardDescription>Times are India time. You set everything else up on the next screen.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
           <FormError message={errors.root?.server?.message} />
-          <FormField label="Edition name" error={errors.label?.message}>
+          <FormField label="Edition name" hint="Usually the year." error={errors.label?.message}>
             {(control) => <Input {...control} {...form.register("label")} />}
           </FormField>
-          <FormField label="Opens" error={errors.opensAt?.message}>
+          <FormField label="Applications open" error={errors.opensAt?.message}>
             {(control) => <Input {...control} type="datetime-local" {...form.register("opensAt")} />}
           </FormField>
           <FormField label="Deadline" error={errors.deadlineAt?.message}>
@@ -136,6 +154,7 @@ function NewEdition({ award }: { award: AwardDetail }) {
           </FormField>
           <div>
             <Button type="submit" disabled={isSubmitting}>
+              <PlusIcon aria-hidden />
               {isSubmitting ? "Creating…" : "Create edition"}
             </Button>
           </div>
@@ -152,8 +171,6 @@ function PageAddress({ award }: { award: AwardDetail }) {
   const [notice, setNotice] = useState<string | null>(null);
   const form = useForm<z.infer<typeof slugSchema>>({ resolver: zodResolver(slugSchema), defaultValues: { slug: award.siteSlug ?? "" } });
   const { errors, isSubmitting } = form.formState;
-  // Drafts are never public: the page goes live with the first published edition.
-  const published = award.cycles.some((cycle) => cycle.status !== "DRAFT");
 
   async function onSubmit({ slug }: z.infer<typeof slugSchema>) {
     setNotice(null);
@@ -170,27 +187,19 @@ function PageAddress({ award }: { award: AwardDetail }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Award page</CardTitle>
-        <CardDescription>
-          The public page shows the department&apos;s colours, and fills in the dates, categories, fees and the entry counter
-          by itself. It goes live when an edition is published.
-        </CardDescription>
+        <CardTitle>Public page address</CardTitle>
+        <CardDescription>The page shows the department&apos;s colours and fills in the dates, categories, fees and the entry counter by itself. It goes live when an edition is published.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
           <FormError message={errors.root?.server?.message} />
-          <FormField label="Page address" hint="Lower-case letters, digits and hyphens: /awards/your-address" error={errors.slug?.message}>
-            {(control) => <Input {...control} {...form.register("slug")} />}
+          <FormField label="Address" hint="Lower-case letters, digits and hyphens, after /awards/" error={errors.slug?.message}>
+            {(control) => <Input {...control} placeholder="safety-excellence" {...form.register("slug")} />}
           </FormField>
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" variant="outline" disabled={isSubmitting}>
               Save address
             </Button>
-            {award.siteSlug && published && (
-              <Link href={`/awards/${award.siteSlug}`} target="_blank" className="text-sm underline underline-offset-4">
-                Open the page
-              </Link>
-            )}
             <FormNotice message={notice} />
           </div>
         </form>

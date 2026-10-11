@@ -1,5 +1,5 @@
-import { AlertCircleIcon } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CircleAlertIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ApiError, messageOf } from "@/lib/api-client";
 
 /**
@@ -48,10 +48,10 @@ export function BuilderErrorList({ errors, title }: { errors: BuilderErrors; tit
   if (errors.list.length === 0) return null;
   return (
     <Alert variant="destructive">
-      <AlertCircleIcon />
+      <CircleAlertIcon />
+      <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
-        <div className="font-medium">{title}</div>
-        <ul className="mt-1 list-disc pl-4">
+        <ul className="list-disc pl-4">
           {errors.list.map((item, i) => (
             <li key={i}>{item}</li>
           ))}
@@ -65,7 +65,8 @@ export function BuilderErrorList({ errors, title }: { errors: BuilderErrors; tit
 export function FieldProblem({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p className="text-xs text-destructive" role="alert">
+    <p className="flex items-start gap-1.5 text-sm font-medium text-destructive" role="alert">
+      <CircleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
       {message}
     </p>
   );

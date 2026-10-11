@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
-import { AreaPage } from "@/components/layout/app-shell";
+import { CircleCheckIcon, DownloadIcon, ExternalLinkIcon, HistoryIcon, XIcon } from "lucide-react";
+import { Details } from "@/components/layout/blocks";
+import { ErrorState, LoadingState } from "@/components/layout/states";
+import { AreaPage, PageTitle } from "@/components/layout/app-shell";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +18,7 @@ import { istDate, istDateTime, rupees } from "@/lib/format";
 import { answerText } from "@/features/applying/question-field";
 import { downloadFile, fileSize, reviewKey, useReview } from "@/features/applying/use-applying";
 import { HistoryPanel } from "@/features/judging/history-panel";
-import { PROOF_LABELS } from "./applications-list";
+import { PROOF_LABELS, PROOF_VARIANTS, STATUS_VARIANTS } from "./applications-list";
 
 /**
  * One application as the award's staff see it (spec §5.20, §12): the organisation's identity, the
@@ -29,46 +31,56 @@ export function ApplicationReviewPage({ applicationId }: { applicationId: string
 
 function Review({ applicationId }: { applicationId: string }) {
   const review = useReview(applicationId);
-  if (review.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (review.error) return <p className="text-sm text-destructive">{messageOf(review.error)}</p>;
+  if (review.isPending) return <LoadingState label="Loading the application" lines={6} />;
+  if (review.error) return <ErrorState error={review.error} onRetry={() => void review.refetch()} />;
   const a = review.data;
   return (
     <>
-      <p className="mb-2 text-sm">
-        <Link href={`/staff/cycles/${a.cycle.id}/applications`} className="text-muted-foreground underline underline-offset-4">
-          Applications: {a.award.name} {a.cycle.label}
-        </Link>
-      </p>
-      <div className="mb-6 grid gap-1">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{a.organisation.legalName}</h1>
-          <Badge variant={a.status === "SUBMITTED" ? "default" : "outline"}>{a.statusLabel}</Badge>
-          {a.status === "SUBMITTED" && <Badge variant={a.proof.status === "REJECTED" ? "destructive" : "secondary"}>{PROOF_LABELS[a.proof.status]}</Badge>}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {a.category.name} · started by {a.startedBy.name} ({a.startedBy.email})
-          {a.submittedAt && ` · submitted ${istDateTime(a.submittedAt)}`}
-          {a.fee.amountPaise > 0 && ` · fee ${rupees(a.fee.amountPaise)} ${a.fee.paid ? `paid (${a.fee.reference})` : "not paid"}`}
-        </p>
-        {a.release && (
-          <p className="text-sm">
+      <PageTitle
+        back={{ href: `/staff/cycles/${a.cycle.id}/applications`, label: `Applications: ${a.award.name} ${a.cycle.label}` }}
+        eyebrow={a.category.name}
+        title={a.organisation.legalName}
+        badges={
+          <>
+            <Badge variant={STATUS_VARIANTS[a.status]}>{a.statusLabel}</Badge>
+            {a.status === "SUBMITTED" && <Badge variant={PROOF_VARIANTS[a.proof.status]}>{PROOF_LABELS[a.proof.status]}</Badge>}
+          </>
+        }
+        description={
+          <>
+            Started by {a.startedBy.name} ({a.startedBy.email})
+            {a.submittedAt && ` · submitted ${istDateTime(a.submittedAt)}`}
+            {a.fee.amountPaise > 0 && ` · fee ${rupees(a.fee.amountPaise)} ${a.fee.paid ? `paid (${a.fee.reference})` : "not paid"}`}
+          </>
+        }
+      />
+      {a.release && (
+        <Alert variant="warning" className="mb-6">
+          <AlertDescription>
             Released on {istDateTime(a.release.releasedAt)}: {a.release.reason}
-          </p>
-        )}
-      </div>
-      <div className="grid gap-6">
-        <ProofCard application={a} />
-        <OrganisationCard application={a} />
-        <AnswersCard application={a} />
-        <Card>
-          <CardHeader>
-            <CardTitle>History</CardTitle>
-            <CardDescription>Every recorded decision about this application: who, in which role, when, and why.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HistoryPanel applicationId={a.id} />
-          </CardContent>
-        </Card>
+          </AlertDescription>
+        </Alert>
+      )}
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div className="grid content-start gap-6">
+          <ProofCard application={a} />
+          <AnswersCard application={a} />
+        </div>
+        <div className="grid content-start gap-6">
+          <OrganisationCard application={a} />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HistoryIcon className="size-5 text-muted-foreground" aria-hidden />
+                History
+              </CardTitle>
+              <CardDescription>Every recorded decision: who, in which role, when, and why.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <HistoryPanel applicationId={a.id} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </>
   );
@@ -78,24 +90,18 @@ function FileRow({ file, detail }: { file: FileView; detail?: string }) {
   const [problem, setProblem] = useState<string | null>(null);
   return (
     <div className="grid gap-1">
-      <div className="flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-sm">
-        <span className="min-w-0 break-all">{file.fileName}</span>
-        <span className="text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-2.5">
+        <span className="min-w-0 flex-1 font-medium break-all">{file.fileName}</span>
+        <span className="text-sm text-muted-foreground">
           {fileSize(file.sizeBytes)}
           {detail && ` · ${detail}`}
         </span>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="ml-auto"
-          onClick={() => downloadFile(file.id).catch((error: unknown) => setProblem(messageOf(error)))}
-        >
+        <Button type="button" size="sm" variant="outline" onClick={() => downloadFile(file.id).catch((error: unknown) => setProblem(messageOf(error)))}>
           <DownloadIcon aria-hidden />
           Open
         </Button>
       </div>
-      {problem && <p className="text-xs text-destructive">{problem}</p>}
+      {problem && <p className="text-sm font-medium text-destructive">{problem}</p>}
     </div>
   );
 }
@@ -103,48 +109,45 @@ function FileRow({ file, detail }: { file: FileView; detail?: string }) {
 function ProofCard({ application }: { application: StaffApplication }) {
   const a = application;
   return (
-    <Card>
+    <Card className={a.canCheckProof ? "border-warning/40" : undefined}>
       <CardHeader>
         <CardTitle>Proof</CardTitle>
-        <CardDescription>
-          The identity document and LinkedIn link from the applicant&apos;s profile, and this application&apos;s proof of employment.
-          Never shown to the jury.
-        </CardDescription>
+        <CardDescription>The identity document and LinkedIn link from the applicant&apos;s profile, and this application&apos;s proof of employment. Never shown to the jury.</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent className="grid gap-5">
         <div className="grid gap-2">
-          <p className="text-sm font-medium">Photo identity document</p>
+          <p className="font-semibold">Photo identity document</p>
           {a.identityDocument ? <FileRow file={a.identityDocument} /> : <p className="text-sm text-muted-foreground">None on the profile.</p>}
         </div>
         <div className="grid gap-2">
-          <p className="text-sm font-medium">LinkedIn profile</p>
+          <p className="font-semibold">LinkedIn profile</p>
           {a.linkedinUrl ? (
-            <a href={a.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex w-fit items-center gap-1 text-sm break-all underline underline-offset-4">
+            <a href={a.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex w-fit items-center gap-1.5 font-medium break-all text-primary underline-offset-4 hover:underline">
               {a.linkedinUrl}
-              <ExternalLinkIcon className="size-3.5" aria-hidden />
+              <ExternalLinkIcon className="size-4 shrink-0" aria-hidden />
             </a>
           ) : (
             <p className="text-sm text-muted-foreground">None on the profile.</p>
           )}
         </div>
         <div className="grid gap-2">
-          <p className="text-sm font-medium">Proof of employment at {a.organisation.legalName}</p>
+          <p className="font-semibold">Proof of employment at {a.organisation.legalName}</p>
           {a.employmentProof ? (
-            <FileRow
-              file={a.employmentProof}
-              detail={`dated ${istDate(`${a.employmentProof.documentDate}T00:00:00+05:30`)}, uploaded ${istDate(a.employmentProof.uploadedAt)}`}
-            />
+            <FileRow file={a.employmentProof} detail={`dated ${istDate(`${a.employmentProof.documentDate}T00:00:00+05:30`)}, uploaded ${istDate(a.employmentProof.uploadedAt)}`} />
           ) : (
             <p className="text-sm text-muted-foreground">None yet.</p>
           )}
         </div>
         {a.proof.status !== "PENDING" && (
-          <p className="text-sm">
-            {a.proof.status === "VERIFIED" ? "Verified" : "Rejected"}
-            {a.proof.checkedBy && ` by ${a.proof.checkedBy}`}
-            {a.proof.checkedAt && ` on ${istDateTime(a.proof.checkedAt)}`}
-            {a.proof.note && `: ${a.proof.note}`}
-          </p>
+          <Alert variant={a.proof.status === "VERIFIED" ? "success" : "destructive"}>
+            {a.proof.status === "VERIFIED" ? <CircleCheckIcon /> : <XIcon />}
+            <AlertDescription>
+              {a.proof.status === "VERIFIED" ? "Verified" : "Rejected"}
+              {a.proof.checkedBy && ` by ${a.proof.checkedBy}`}
+              {a.proof.checkedAt && ` on ${istDateTime(a.proof.checkedAt)}`}
+              {a.proof.note && `: ${a.proof.note}`}
+            </AlertDescription>
+          </Alert>
         )}
         {a.canCheckProof && <ProofDecision application={a} />}
       </CardContent>
@@ -179,21 +182,21 @@ function ProofDecision({ application }: { application: StaffApplication }) {
   }
 
   return (
-    <div className="grid gap-3 rounded-md border p-3">
-      <p className="text-sm font-medium">Your check</p>
+    <div className="surface grid gap-4 p-4 sm:p-5">
+      <div className="grid gap-0.5">
+        <p className="font-semibold">Your check</p>
+        <p className="text-sm text-muted-foreground">Do the documents show that this person works for {application.organisation.legalName} now?</p>
+      </div>
       {rejecting ? (
-        <div className="grid gap-2">
-          <Label htmlFor="reject-note">Why it is rejected (the applicant sees this, and can fix it until the deadline)</Label>
-          <Textarea
-            id="reject-note"
-            rows={3}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="For example: the ID card shows another company's name."
-          />
+        <div className="grid gap-3">
+          <div className="grid gap-2">
+            <Label htmlFor="reject-note">Why it is rejected</Label>
+            <p className="text-sm text-muted-foreground">The applicant sees this and can fix it until the deadline.</p>
+            <Textarea id="reject-note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="For example: the ID card shows another company's name." />
+          </div>
           <div className="flex gap-2">
             <Button variant="destructive" onClick={() => void decide("REJECTED")} disabled={busy}>
-              Reject
+              {busy ? "Rejecting…" : "Reject the proof"}
             </Button>
             <Button variant="ghost" onClick={() => setRejecting(false)} disabled={busy}>
               Cancel
@@ -202,16 +205,18 @@ function ProofDecision({ application }: { application: StaffApplication }) {
         </div>
       ) : (
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => void decide("VERIFIED")} disabled={busy}>
-            Verify
+          <Button size="lg" onClick={() => void decide("VERIFIED")} disabled={busy}>
+            <CircleCheckIcon aria-hidden />
+            {busy ? "Saving…" : "Verify"}
           </Button>
-          <Button variant="outline" onClick={() => setRejecting(true)} disabled={busy}>
+          <Button size="lg" variant="destructive-outline" onClick={() => setRejecting(true)} disabled={busy}>
+            <XIcon aria-hidden />
             Reject…
           </Button>
         </div>
       )}
       {problem && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-sm font-medium text-destructive" role="alert">
           {problem}
         </p>
       )}
@@ -221,37 +226,24 @@ function ProofDecision({ application }: { application: StaffApplication }) {
 
 function OrganisationCard({ application }: { application: StaffApplication }) {
   const o = application.organisation;
-  const rows: [string, string | null][] = [
-    ["PAN", o.pan],
-    ["GSTIN", o.gstin],
-    ["Address", `${o.addressLine}, ${o.city}, ${o.state.name} ${o.pincode}`],
-    ["Official email", o.officialEmail],
-    ["Phone", o.phone],
-    ["Type", o.organisationType],
-    ["CIN", o.cin],
-    ["Website", o.website],
+  const rows: { label: string; value: string | null }[] = [
+    { label: "PAN", value: o.pan },
+    { label: "GSTIN", value: o.gstin },
+    { label: "Address", value: `${o.addressLine}, ${o.city}, ${o.state.name} ${o.pincode}` },
+    { label: "Official email", value: o.officialEmail },
+    { label: "Phone", value: o.phone },
+    { label: "Type", value: o.organisationType },
+    { label: "CIN", value: o.cin },
+    { label: "Website", value: o.website },
   ];
   return (
     <Card>
       <CardHeader>
         <CardTitle>Organisation</CardTitle>
-        <CardDescription>
-          {o.fromSnapshot
-            ? "As it stood when the application was submitted (frozen at the deadline)."
-            : "Its record as it is now; the application keeps a copy when it is submitted."}
-        </CardDescription>
+        <CardDescription>{o.fromSnapshot ? "As it stood when the application was submitted (frozen at the deadline)." : "Its record as it is now; the application keeps a copy when it is submitted."}</CardDescription>
       </CardHeader>
       <CardContent>
-        <dl className="grid gap-2 text-sm sm:grid-cols-[10rem_1fr]">
-          {rows
-            .filter(([, value]) => value)
-            .map(([label, value]) => (
-              <div key={label} className="contents">
-                <dt className="text-muted-foreground">{label}</dt>
-                <dd className="break-all">{value}</dd>
-              </div>
-            ))}
-        </dl>
+        <Details columns={1} items={rows.filter((r): r is { label: string; value: string } => Boolean(r.value))} />
       </CardContent>
     </Card>
   );
@@ -266,22 +258,20 @@ function AnswersCard({ application }: { application: StaffApplication }) {
         <CardTitle>Answers</CardTitle>
         <CardDescription>Version {application.form.version} of the questions.</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6">
+      <CardContent className="grid gap-8">
         {sections.map((section, s) => (
-          <section key={section.key} className="grid gap-3">
-            <h2 className="font-medium">{section.title}</h2>
-            <dl className="grid gap-3">
+          <section key={section.key} className="grid gap-4">
+            <h2 className="text-lg font-semibold">{section.title}</h2>
+            <dl className="grid gap-4">
               {section.questions.map((question, i) => {
                 const key = question.key ?? "";
                 return (
-                  <div key={key} className="grid gap-1">
+                  <div key={key} className="grid gap-1.5 border-l-2 pl-4">
                     <dt className="text-sm text-muted-foreground">
                       {(firstNumbers[s] ?? 1) + i}. {question.label}
                     </dt>
-                    <dd className="grid gap-1 text-sm whitespace-pre-line">
-                      {question.type === "FILE_UPLOAD"
-                        ? (application.files[key] ?? []).map((file) => <FileRow key={file.id} file={file} />)
-                        : answerText(question, application.answers[key])}
+                    <dd className="grid gap-1 whitespace-pre-line">
+                      {question.type === "FILE_UPLOAD" ? (application.files[key] ?? []).map((file) => <FileRow key={file.id} file={file} />) : answerText(question, application.answers[key])}
                       {question.type === "FILE_UPLOAD" && (application.files[key] ?? []).length === 0 && "No files"}
                     </dd>
                   </div>

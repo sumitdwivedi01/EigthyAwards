@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2Icon, CircleAlertIcon, DownloadIcon, EyeOffIcon } from "lucide-react";
-import { AreaPage } from "@/components/layout/app-shell";
+import { CircleAlertIcon, CircleCheckIcon, CloudOffIcon, DownloadIcon, EyeOffIcon, LoaderCircleIcon, LockIcon } from "lucide-react";
+import { cn } from "cn";
+import { ErrorState, LoadingState } from "@/components/layout/states";
+import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,8 +29,8 @@ export function ScoringPage({ evaluationId }: { evaluationId: string }) {
 
 function ScoringScreen({ evaluationId }: { evaluationId: string }) {
   const evaluation = useJuryEvaluation(evaluationId);
-  if (evaluation.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (evaluation.error) return <p className="text-sm text-destructive">{messageOf(evaluation.error)}</p>;
+  if (evaluation.isPending) return <LoadingState label="Loading the application" lines={6} />;
+  if (evaluation.error) return <ErrorState error={evaluation.error} onRetry={() => void evaluation.refetch()} />;
   return <Scoring key={evaluation.data.id} evaluation={evaluation.data} />;
 }
 
@@ -170,128 +171,173 @@ function Scoring({ evaluation }: { evaluation: JuryEvaluation }) {
 
   const allIndicators = [...evaluation.sections.flatMap((s) => s.questions.flatMap((q) => q.indicators)), ...evaluation.otherIndicators];
   const marked = allIndicators.filter((i) => scores[i.key] !== undefined).length;
+  const complete = marked === allIndicators.length && note.trim().length > 0;
+  const details = evaluation.organisation
+    ? [evaluation.organisation.type, evaluation.organisation.city, evaluation.organisation.state].filter(Boolean).join(", ")
+    : null;
 
   return (
     <>
-      <p className="mb-2 text-sm">
-        <Link href="/jury" className="text-muted-foreground underline underline-offset-4">
-          My assignments
-        </Link>
-      </p>
-      <div className="mb-6 grid gap-1">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{evaluation.organisation?.name ?? evaluation.reference}</h1>
-          <Badge variant={evaluation.status === "SUBMITTED" ? "default" : "secondary"}>{evaluation.statusLabel}</Badge>
-          {evaluation.cycle.blindJudging && (
-            <Badge variant="outline" className="gap-1">
-              <EyeOffIcon className="size-3" aria-hidden /> Blind
-            </Badge>
-          )}
-          {editable && <SaveIndicator state={autosave.state} />}
-        </div>
-        <p className="text-muted-foreground">
-          {evaluation.award.name} {evaluation.cycle.label} · {evaluation.category.name}
-          {evaluation.organisation && ` · ${[evaluation.organisation.type, evaluation.organisation.city, evaluation.organisation.state].filter(Boolean).join(", ")}`}
-          {evaluation.organisation && ` · ${evaluation.reference}`}
-        </p>
-      </div>
+      <PageTitle
+        back={{ href: "/jury", label: "My assignments" }}
+        eyebrow={`${evaluation.award.name} ${evaluation.cycle.label} · ${evaluation.category.name}`}
+        title={evaluation.organisation?.name ?? evaluation.reference}
+        badges={
+          <>
+            <Badge variant={evaluation.status === "SUBMITTED" ? "success" : "info"}>{evaluation.statusLabel}</Badge>
+            {evaluation.cycle.blindJudging && (
+              <Badge variant="outline">
+                <EyeOffIcon aria-hidden /> Blind
+              </Badge>
+            )}
+          </>
+        }
+        description={details ? `${details} · ${evaluation.reference}` : undefined}
+        actions={editable && <SaveIndicator state={autosave.state} />}
+      />
 
       {evaluation.cycle.blindJudging && (
-        <Alert className="mb-4">
+        <Alert variant="info" className="mb-6">
+          <EyeOffIcon />
           <AlertDescription>
-            This award is judged blind: you see the answers only, never who applied or their files. If an answer names the
-            organisation, score it as usual.
+            This award is judged blind: you see the answers only, never who applied or their files. If an answer names the organisation, score it as
+            usual.
           </AlertDescription>
         </Alert>
       )}
       {!editable && (
-        <Alert className="mb-4">
-          <AlertDescription>
-            {evaluation.status === "SUBMITTED" ? "You submitted this evaluation: your marks are final." : "Judging has closed for this round."}
-          </AlertDescription>
+        <Alert variant="success" className="mb-6">
+          <LockIcon />
+          <AlertDescription>{evaluation.status === "SUBMITTED" ? "You submitted this evaluation: your marks are final." : "Judging has closed for this round."}</AlertDescription>
         </Alert>
       )}
 
-      <div className="grid gap-6">
-        {evaluation.sections.map((section) => (
-          <Card key={section.key}>
-            <CardHeader>
-              <CardTitle>{section.title}</CardTitle>
-              {section.description && <CardDescription>{section.description}</CardDescription>}
-            </CardHeader>
-            <CardContent className="grid gap-6">
-              {section.questions.map((question) => (
-                <QuestionBlock
-                  key={question.key}
-                  question={question}
-                  scores={scores}
-                  comment={comments[question.key] ?? ""}
-                  editable={editable}
-                  onMark={setMark}
-                  onComment={(text) => {
-                    setComments((c) => ({ ...c, [question.key]: text }));
-                    autosave.queue((q) => {
-                      q.comments[question.key] = text;
-                    });
-                  }}
-                />
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-        {evaluation.otherIndicators.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Other indicators</CardTitle>
-              <CardDescription>These score questions this application&apos;s version of the form didn&apos;t have.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {evaluation.otherIndicators.map((indicator) => (
-                <IndicatorInput key={indicator.key} indicator={indicator} value={scores[indicator.key]} editable={editable} onMark={setMark} />
-              ))}
-            </CardContent>
-          </Card>
-        )}
+      <div className="grid gap-6 lg:grid-cols-[1fr_17rem]">
+        <div className="grid min-w-0 gap-6">
+          {evaluation.sections.map((section) => (
+            <Card key={section.key}>
+              <CardHeader>
+                <CardTitle className="text-xl">{section.title}</CardTitle>
+                {section.description && <CardDescription>{section.description}</CardDescription>}
+              </CardHeader>
+              <CardContent className="grid gap-8">
+                {section.questions.map((question) => (
+                  <QuestionBlock
+                    key={question.key}
+                    question={question}
+                    scores={scores}
+                    comment={comments[question.key] ?? ""}
+                    editable={editable}
+                    onMark={setMark}
+                    onComment={(text) => {
+                      setComments((c) => ({ ...c, [question.key]: text }));
+                      autosave.queue((q) => {
+                        q.comments[question.key] = text;
+                      });
+                    }}
+                  />
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+          {evaluation.otherIndicators.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Other indicators</CardTitle>
+                <CardDescription>These score questions this application&apos;s version of the form didn&apos;t have.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                {evaluation.otherIndicators.map((indicator) => (
+                  <IndicatorInput key={indicator.key} indicator={indicator} value={scores[indicator.key]} editable={editable} onMark={setMark} />
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Overall note</CardTitle>
-            <CardDescription>Required. Staff, the department head and the leader read it; other jury members never do.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <Textarea
-              aria-label="Overall note"
-              value={note}
-              disabled={!editable}
-              rows={4}
-              maxLength={10000}
-              onChange={(e) => {
-                setNote(e.target.value);
-                const text = e.target.value;
-                autosave.queue((q) => {
-                  q.overallNote = text;
-                });
-              }}
-            />
-            {editable && (
-              <div className="grid gap-2">
-                <p className="text-sm text-muted-foreground">
-                  {marked} of {allIndicators.length} indicators marked. Once you submit, your marks can&apos;t change.
-                </p>
-                <Button className="justify-self-start" onClick={() => void submit()} disabled={submitting}>
-                  {submitting ? "Submitting…" : "Submit my evaluation"}
-                </Button>
-                {submitError && (
-                  <ul className="grid list-disc gap-1 pl-5 text-sm text-destructive">
-                    {submitError.map((m) => (
-                      <li key={m}>{m}</li>
-                    ))}
-                  </ul>
-                )}
+          <Card id="overall-note">
+            <CardHeader>
+              <CardTitle>Overall note</CardTitle>
+              <CardDescription>Required. Staff, the department head and the leader read it; other jury members never do.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-5">
+              <Textarea
+                aria-label="Overall note"
+                value={note}
+                disabled={!editable}
+                rows={5}
+                maxLength={10000}
+                placeholder="Your overall view of this application, in a few sentences."
+                onChange={(e) => {
+                  setNote(e.target.value);
+                  const text = e.target.value;
+                  autosave.queue((q) => {
+                    q.overallNote = text;
+                  });
+                }}
+              />
+              {editable && (
+                <div className="grid gap-3">
+                  {submitError && (
+                    <Alert variant="destructive">
+                      <CircleAlertIcon />
+                      <AlertDescription>
+                        <ul className="grid gap-1">
+                          {submitError.map((m) => (
+                            <li key={m}>{m}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button size="lg" onClick={() => void submit()} disabled={submitting}>
+                      {submitting ? "Submitting…" : "Submit my evaluation"}
+                    </Button>
+                    <p className="text-sm text-muted-foreground">Once you submit, your marks can&apos;t change.</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <aside className="lg:sticky lg:top-6 lg:self-start">
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle>Your progress</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <div className="grid gap-1.5">
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="font-medium">Indicators marked</span>
+                  <span className="tabular-nums">
+                    {marked} / {allIndicators.length}
+                  </span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={allIndicators.length} aria-valuenow={marked}>
+                  <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${allIndicators.length ? (marked / allIndicators.length) * 100 : 0}%` }} />
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <ul className="grid gap-1.5 text-sm">
+                {evaluation.sectionWeights.map((s) => (
+                  <li key={s.key} className="flex items-baseline justify-between gap-2">
+                    <span className="truncate text-muted-foreground">{s.title}</span>
+                    <span className="shrink-0 tabular-nums">{s.weight}%</span>
+                  </li>
+                ))}
+              </ul>
+              <p className={cn("flex items-start gap-1.5 text-sm", note.trim() ? "text-success" : "text-muted-foreground")}>
+                {note.trim() ? <CircleCheckIcon className="mt-0.5 size-4 shrink-0" aria-hidden /> : <CircleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />}
+                Overall note {note.trim() ? "written" : "still to write"}
+              </p>
+              {editable && (
+                <Button variant={complete ? "default" : "outline"} onClick={() => document.getElementById("overall-note")?.scrollIntoView({ behavior: "smooth" })}>
+                  {complete ? "Ready to submit" : "Go to the note and submit"}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </aside>
       </div>
     </>
   );
@@ -300,15 +346,21 @@ function Scoring({ evaluation }: { evaluation: JuryEvaluation }) {
 function SaveIndicator({ state }: { state: SaveState }) {
   if (state.kind === "saved") {
     return (
-      <span className="flex items-center gap-1 text-sm text-muted-foreground">
-        <CheckCircle2Icon className="size-4 text-emerald-600" aria-hidden /> All changes saved
+      <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground" role="status">
+        <CircleCheckIcon className="size-4 text-success" aria-hidden /> All marks saved
       </span>
     );
   }
-  if (state.kind === "pending" || state.kind === "saving") return <span className="text-sm text-muted-foreground">Saving…</span>;
+  if (state.kind === "pending" || state.kind === "saving") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground" role="status">
+        <LoaderCircleIcon className="size-4 animate-spin" aria-hidden /> Saving…
+      </span>
+    );
+  }
   return (
-    <span className="flex items-center gap-1 text-sm text-destructive">
-      <CircleAlertIcon className="size-4" aria-hidden /> {state.kind === "retrying" ? `Not saved yet, retrying: ${state.message}` : state.message}
+    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive" role="status">
+      <CloudOffIcon className="size-4" aria-hidden /> {state.kind === "retrying" ? `Not saved yet, retrying: ${state.message}` : state.message}
     </span>
   );
 }
@@ -337,21 +389,23 @@ function QuestionBlock({
 }) {
   const [showComment, setShowComment] = useState(comment.length > 0);
   return (
-    <div className="grid gap-3 border-b pb-6 last:border-0 last:pb-0">
+    <div className="grid gap-4 border-b pb-8 last:border-0 last:pb-0">
       <div className="grid gap-1">
-        <p className="font-medium">{question.label}</p>
+        <p className="text-base font-semibold">{question.label}</p>
         {question.help && <p className="text-sm text-muted-foreground">{question.help}</p>}
       </div>
       {question.type === "FILE_UPLOAD" ? (
         question.filesHidden ? (
-          <p className="text-sm text-muted-foreground">Files aren&apos;t shown in a blind award.</p>
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <EyeOffIcon className="size-4" aria-hidden /> Files aren&apos;t shown in a blind award.
+          </p>
         ) : question.files.length === 0 ? (
           <p className="text-sm text-muted-foreground">No file uploaded.</p>
         ) : (
-          <ul className="grid gap-1">
+          <ul className="grid gap-2">
             {question.files.map((file) => (
               <li key={file.id}>
-                <Button size="sm" variant="outline" onClick={() => void downloadFile(file.id)}>
+                <Button variant="outline" onClick={() => void downloadFile(file.id)}>
                   <DownloadIcon aria-hidden /> {file.fileName} ({fileSize(file.sizeBytes)})
                 </Button>
               </li>
@@ -359,7 +413,7 @@ function QuestionBlock({
           </ul>
         )
       ) : (
-        <p className="whitespace-pre-wrap rounded-md bg-muted/50 px-3 py-2 text-sm">{answerText(question)}</p>
+        <blockquote className="rounded-lg border-l-4 border-primary/30 bg-muted/40 px-4 py-3 leading-relaxed whitespace-pre-wrap">{answerText(question)}</blockquote>
       )}
       {question.indicators.map((indicator) => (
         <IndicatorInput key={indicator.key} indicator={indicator} value={scores[indicator.key]} editable={editable} onMark={onMark} />
@@ -367,13 +421,13 @@ function QuestionBlock({
       {question.indicators.length > 0 &&
         (showComment || !editable ? (
           (editable || comment) && (
-            <div className="grid gap-1.5">
+            <div className="grid gap-2">
               <Label htmlFor={`comment-${question.key}`}>Comment (optional)</Label>
               <Textarea id={`comment-${question.key}`} value={comment} disabled={!editable} rows={2} maxLength={5000} onChange={(e) => onComment(e.target.value)} />
             </div>
           )
         ) : (
-          <Button size="xs" variant="ghost" className="justify-self-start" onClick={() => setShowComment(true)}>
+          <Button size="sm" variant="ghost" className="justify-self-start" onClick={() => setShowComment(true)}>
             Add a comment
           </Button>
         ))}
@@ -392,33 +446,37 @@ function IndicatorInput({
   editable: boolean;
   onMark: (indicator: SheetIndicator, value: number | null) => void;
 }) {
-  const options = indicator.type === "YES_NO" ? [{ value: 1, label: "Yes" }, { value: 0, label: "No" }] : Array.from({ length: 11 }, (_, v) => ({ value: v, label: String(v) }));
+  const yesNo = indicator.type === "YES_NO";
+  const options = yesNo ? [{ value: 1, label: "Yes" }, { value: 0, label: "No" }] : Array.from({ length: 11 }, (_, v) => ({ value: v, label: String(v) }));
+  const marked = value !== undefined;
   return (
-    <fieldset className="grid gap-2 rounded-md border px-3 py-2">
+    <fieldset className={cn("grid gap-3 rounded-lg border px-4 py-3", marked ? "border-success/30 bg-success-soft/30" : "bg-card")}>
       <legend className="px-1 text-sm">
-        <span className="font-medium">{indicator.label}</span>{" "}
-        <span className="text-muted-foreground">· {indicator.type === "YES_NO" ? "Yes or No" : "0 to 10"} · weight {indicator.weight}%</span>
+        <span className="font-semibold">{indicator.label}</span> <span className="text-muted-foreground">· {yesNo ? "Yes or No" : "0 to 10"} · weight {indicator.weight}%</span>
       </legend>
-      <div className="flex flex-wrap gap-1" role="radiogroup" aria-label={indicator.label}>
+      <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={indicator.label}>
         {options.map((option) => {
           const chosen = value === option.value;
           return (
-            <Button
+            <button
               key={option.value}
               type="button"
-              size="sm"
-              variant={chosen ? "default" : "outline"}
               role="radio"
               aria-checked={chosen}
               disabled={!editable}
-              className={indicator.type === "YES_NO" ? "min-w-14" : "min-w-9"}
               onClick={() => onMark(indicator, chosen ? null : option.value)}
+              className={cn(
+                "grid h-11 place-items-center rounded-lg border text-base font-semibold tabular-nums transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60",
+                yesNo ? "min-w-20 px-4" : "w-11",
+                chosen ? "border-primary bg-primary text-primary-foreground shadow-xs" : "border-input/70 bg-card hover:bg-muted",
+              )}
             >
               {option.label}
-            </Button>
+            </button>
           );
         })}
       </div>
+      {!yesNo && editable && <p className="text-xs text-muted-foreground">0 is the lowest mark, 10 the highest. Tap a mark again to clear it.</p>}
     </fieldset>
   );
 }

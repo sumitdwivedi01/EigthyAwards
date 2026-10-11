@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { EyeOffIcon } from "lucide-react";
-import { AreaPage } from "@/components/layout/app-shell";
+import { ErrorState, LoadingState } from "@/components/layout/states";
+import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { messageOf } from "@/lib/api-client";
-import type { Area, RoundHeader } from "@/lib/api-types";
+import type { Area, RoundHeader, RoundStatus } from "@/lib/api-types";
 import { istDateTime } from "@/lib/format";
 import { AssignmentTab } from "./assignment-tab";
 import { JudgingTab } from "./judging-tab";
@@ -25,48 +24,65 @@ export function RoundPage({ roundId, area }: { roundId: string; area: Area }) {
 
 const BACK: Partial<Record<Area, { href: (round: RoundHeader) => string; label: (round: RoundHeader) => string }>> = {
   staff: { href: (r) => `/staff/cycles/${r.cycle.id}`, label: (r) => `${r.award.name}: ${r.cycle.label}` },
-  department: { href: () => "/department", label: () => "Department" },
-  leader: { href: () => "/leader", label: () => "Dashboard" },
+  department: { href: () => "/department", label: () => "Your department" },
+  leader: { href: () => "/leader", label: () => "Across the platform" },
+};
+
+const STATUS_VARIANT: Record<RoundStatus, "outline" | "info" | "warning" | "success" | "secondary"> = {
+  NOT_STARTED: "outline",
+  JUDGING: "info",
+  PENDING_APPROVAL: "warning",
+  SENT_BACK: "warning",
+  APPROVED: "success",
+  CLOSED: "secondary",
+  RESULTS_PUBLISHED: "success",
+};
+
+/** Where the round stands, in one line, so the person knows what happens next. */
+const NEXT_STEP: Record<RoundStatus, string> = {
+  NOT_STARTED: "After the deadline, assign each application to jury from the Assignment tab.",
+  JUDGING: "Jury are scoring. Follow their progress under Judging; send the round for approval once every application has enough submitted scores.",
+  PENDING_APPROVAL: "Waiting for the department head to approve. Staff can still correct a mark, with a reason.",
+  SENT_BACK: "The head sent the round back.",
+  APPROVED: "Approved: the scores are locked. Staff give and publish the results under Results.",
+  CLOSED: "This round is closed.",
+  RESULTS_PUBLISHED: "Results are published: every applicant can see theirs.",
 };
 
 function RoundScreen({ roundId, area }: { roundId: string; area: Area }) {
   const judging = useJudging(roundId);
-  if (judging.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (judging.error) return <p className="text-sm text-destructive">{messageOf(judging.error)}</p>;
+  if (judging.isPending) return <LoadingState label="Loading the round" lines={6} />;
+  if (judging.error) return <ErrorState error={judging.error} onRetry={() => void judging.refetch()} />;
   const { round } = judging.data;
   const back = BACK[area];
   const locked = ["APPROVED", "RESULTS_PUBLISHED", "CLOSED"].includes(round.status);
+  const jurors = round.juryMin === round.juryMax ? round.juryMin : `${round.juryMin} to ${round.juryMax}`;
   return (
     <>
-      {back && (
-        <p className="mb-2 text-sm">
-          <Link href={back.href(round)} className="text-muted-foreground underline underline-offset-4">
-            {back.label(round)}
-          </Link>
-        </p>
-      )}
-      <div className="mb-6 grid gap-1">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Judging: {round.award.name} {round.cycle.label}
-          </h1>
-          <Badge variant={locked ? "secondary" : "default"}>{round.statusLabel}</Badge>
-          {round.cycle.blindJudging && (
-            <Badge variant="outline" className="gap-1">
-              <EyeOffIcon className="size-3" aria-hidden /> Blind
-            </Badge>
-          )}
-        </div>
-        <p className="text-muted-foreground">
-          {round.department.name} · deadline {istDateTime(round.cycle.deadlineAt)} · {round.juryMin === round.juryMax ? round.juryMin : `${round.juryMin} to ${round.juryMax}`}{" "}
-          {round.juryMax === 1 ? "juror" : "jurors"} per application
-        </p>
-      </div>
-      <Tabs defaultValue={locked ? "results" : "judging"} className="gap-4">
-        <TabsList className="flex-wrap group-data-horizontal/tabs:h-auto">
-          <TabsTrigger value="assignment">Assignment</TabsTrigger>
-          <TabsTrigger value="judging">Judging</TabsTrigger>
-          <TabsTrigger value="results">Results</TabsTrigger>
+      <PageTitle
+        back={back ? { href: back.href(round), label: back.label(round) } : undefined}
+        eyebrow={`${round.department.name} · judging`}
+        title={`${round.award.name} ${round.cycle.label}`}
+        badges={
+          <>
+            <Badge variant={STATUS_VARIANT[round.status]}>{round.statusLabel}</Badge>
+            {round.cycle.blindJudging && (
+              <Badge variant="outline">
+                <EyeOffIcon aria-hidden /> Blind
+              </Badge>
+            )}
+          </>
+        }
+        description={NEXT_STEP[round.status]}
+      />
+      <p className="-mt-3 mb-6 text-sm text-muted-foreground sm:-mt-5">
+        Deadline {istDateTime(round.cycle.deadlineAt)} · {jurors} {round.juryMax === 1 ? "juror" : "jurors"} per application
+      </p>
+      <Tabs defaultValue={locked ? "results" : round.status === "NOT_STARTED" ? "assignment" : "judging"}>
+        <TabsList>
+          <TabsTrigger value="assignment">1. Assignment</TabsTrigger>
+          <TabsTrigger value="judging">2. Judging and approval</TabsTrigger>
+          <TabsTrigger value="results">3. Results</TabsTrigger>
         </TabsList>
         <TabsContent value="assignment">
           <AssignmentTab roundId={roundId} />

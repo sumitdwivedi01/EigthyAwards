@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { DownloadIcon, PaperclipIcon, Trash2Icon } from "lucide-react";
+import { DownloadIcon, PaperclipIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api, messageOf } from "@/lib/api-client";
 import type { Application, FileType, FileView, Question, UploadStart } from "@/lib/api-types";
@@ -98,28 +98,21 @@ export function FileAnswer({
   }
 
   return (
-    <div role="group" aria-labelledby={ids.labelId} aria-describedby={ids.describedBy} className="grid gap-2">
-      {files.length === 0 && !editable && <p className="text-sm text-muted-foreground">No files.</p>}
+    <div role="group" aria-labelledby={ids.labelId} aria-describedby={ids.describedBy} className="grid gap-3">
+      {files.length === 0 && !editable && <p className="text-muted-foreground">No files.</p>}
       {files.length > 0 && (
-        <ul className="grid gap-1.5">
+        <ul className="grid gap-2">
           {files.map((file) => (
-            <li key={file.id} className="flex flex-wrap items-center gap-2 rounded-md border px-3 py-1.5 text-sm">
-              <PaperclipIcon className="size-4 text-muted-foreground" aria-hidden />
-              <span className="min-w-0 break-all">{file.fileName}</span>
-              <span className="text-xs text-muted-foreground">{fileSize(file.sizeBytes)}</span>
-              <span className="ml-auto flex gap-1">
+            <li key={file.id} className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-2.5">
+              <PaperclipIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              <span className="min-w-0 flex-1 font-medium break-all">{file.fileName}</span>
+              <span className="text-sm text-muted-foreground">{fileSize(file.sizeBytes)}</span>
+              <span className="flex gap-1">
                 <Button type="button" size="icon-sm" variant="ghost" onClick={() => void download(file.id)} aria-label={`Download ${file.fileName}`}>
                   <DownloadIcon aria-hidden />
                 </Button>
                 {editable && (
-                  <Button
-                    type="button"
-                    size="icon-sm"
-                    variant="ghost"
-                    disabled={busy !== null}
-                    onClick={() => void remove(file.id)}
-                    aria-label={`Remove ${file.fileName}`}
-                  >
+                  <Button type="button" size="icon-sm" variant="ghost" className="text-destructive hover:bg-destructive-soft" disabled={busy !== null} onClick={() => void remove(file.id)} aria-label={`Remove ${file.fileName}`}>
                     <Trash2Icon aria-hidden />
                   </Button>
                 )}
@@ -142,17 +135,17 @@ export function FileAnswer({
               if (file) void add(file);
             }}
           />
-          <Button type="button" size="sm" variant="outline" disabled={full || busy !== null} onClick={() => input.current?.click()}>
-            <PaperclipIcon aria-hidden />
-            {busy === "upload" ? "Uploading…" : "Add a file"}
+          <Button type="button" variant="outline" disabled={full || busy !== null} onClick={() => input.current?.click()}>
+            <UploadIcon aria-hidden />
+            {busy === "upload" ? "Uploading…" : files.length === 0 ? "Choose a file" : "Add another file"}
           </Button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {types.map((t) => TYPE_NAMES[t]).join(", ")} · up to 10 MB each · {full ? "the most files this question takes" : `at most ${maxFiles} ${maxFiles === 1 ? "file" : "files"}`}
           </span>
         </div>
       )}
       {error && (
-        <p className="text-xs text-destructive" role="alert">
+        <p className="text-sm font-medium text-destructive" role="alert">
           {error}
         </p>
       )}

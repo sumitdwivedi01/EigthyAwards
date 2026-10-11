@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { CircleAlertIcon, CircleCheckIcon, MegaphoneIcon } from "lucide-react";
+import { ListRow } from "@/components/layout/blocks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,8 @@ export function ResultsTab({ judging }: { judging: Judging }) {
   const { round, can, results } = judging;
   if (round.status !== "APPROVED" && round.status !== "RESULTS_PUBLISHED") {
     return (
-      <Alert>
+      <Alert variant="info">
+        <CircleAlertIcon />
         <AlertDescription>Results are given once the department&apos;s head approves the round.</AlertDescription>
       </Alert>
     );
@@ -31,7 +34,8 @@ export function ResultsTab({ judging }: { judging: Judging }) {
       {can.decideResults && <DecideResults judging={judging} />}
       <ResultsList judging={judging} />
       {results.published ? (
-        <Alert>
+        <Alert variant="success">
+          <CircleCheckIcon />
           <AlertDescription>Published: every applicant sees their result.</AlertDescription>
         </Alert>
       ) : (
@@ -72,14 +76,11 @@ function DecideResults({ judging }: { judging: Judging }) {
     <Card>
       <CardHeader>
         <CardTitle>Give the results</CardTitle>
-        <CardDescription>
-          Applications are ranked within their category. Pick the top of each category, or everyone at or above a score; then
-          adjust any one by hand below.
-        </CardDescription>
+        <CardDescription>Applications are ranked within their category. Pick the top of each category, or everyone at or above a score; then adjust any one by hand below.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={apply} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
-          <div className="grid gap-1.5">
+        <form onSubmit={apply} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
+          <div className="grid gap-2">
             <Label htmlFor="results-mode">How</Label>
             <NativeSelect id="results-mode" value={mode} onChange={(e) => setMode(e.target.value as Mode)}>
               <option value="TOP_N">Top N of each category</option>
@@ -87,17 +88,17 @@ function DecideResults({ judging }: { judging: Judging }) {
             </NativeSelect>
           </div>
           {mode === "TOP_N" ? (
-            <div className="grid gap-1.5">
-              <Label htmlFor="results-n">N</Label>
+            <div className="grid gap-2">
+              <Label htmlFor="results-n">How many (N)</Label>
               <Input id="results-n" type="number" min={1} value={n} onChange={(e) => setN(e.target.value)} />
             </div>
           ) : (
-            <div className="grid gap-1.5">
+            <div className="grid gap-2">
               <Label htmlFor="results-min">Minimum final score</Label>
               <Input id="results-min" inputMode="decimal" value={minScore} onChange={(e) => setMinScore(e.target.value)} placeholder="70.00" />
             </div>
           )}
-          <div className="grid gap-1.5">
+          <div className="grid gap-2">
             <Label htmlFor="results-selected">They get</Label>
             <NativeSelect id="results-selected" value={selected} onChange={(e) => setSelected(e.target.value)}>
               {labels.map((l) => (
@@ -105,7 +106,7 @@ function DecideResults({ judging }: { judging: Judging }) {
               ))}
             </NativeSelect>
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2">
             <Label htmlFor="results-others">The others get</Label>
             <NativeSelect id="results-others" value={others} onChange={(e) => setOthers(e.target.value)}>
               {labels.map((l) => (
@@ -117,7 +118,11 @@ function DecideResults({ judging }: { judging: Judging }) {
             {busy ? "Applying…" : "Apply"}
           </Button>
         </form>
-        {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+        {error && (
+          <p className="mt-3 text-sm font-medium text-destructive" role="alert">
+            {error}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -127,13 +132,14 @@ function ResultsList({ judging }: { judging: Judging }) {
   return (
     <div className="grid gap-4">
       {judging.categories.map((category) => {
-        const rows = judging.applications
-          .filter((a) => a.category.id === category.id)
-          .sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
+        const rows = judging.applications.filter((a) => a.category.id === category.id).sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
         return (
           <Card key={category.id}>
             <CardHeader>
               <CardTitle>{category.name}</CardTitle>
+              <CardDescription>
+                {rows.length} {rows.length === 1 ? "application" : "applications"}, ranked by final score.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="grid gap-2">
@@ -164,20 +170,22 @@ function ResultRow({ judging, row }: { judging: Judging; row: JudgedApplication 
   };
 
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-3 py-2 text-sm">
-      <span className="w-8 tabular-nums text-muted-foreground">{row.rank ? `#${row.rank}` : "–"}</span>
-      <span className="font-medium">{row.organisation.name}</span>
-      <span className="text-muted-foreground">{row.reference}</span>
-      {row.tied && <Badge variant="outline">Tie</Badge>}
-      <span className="tabular-nums">{row.final?.display ?? "Not judged"}</span>
-      <span className="ml-auto">
+    <ListRow>
+      <span className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums ${row.rank === 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`} aria-label={row.rank ? `Rank ${row.rank}` : "No rank"}>
+        {row.rank ?? "–"}
+      </span>
+      <div className="grid min-w-40 flex-1 gap-0.5">
+        <span className="font-semibold">{row.organisation.name}</span>
+        <span className="text-sm text-muted-foreground">
+          {row.reference}
+          {row.tied && " · tie"}
+        </span>
+      </div>
+      {row.tied && <Badge variant="warning">Tie</Badge>}
+      <span className="text-lg font-semibold tabular-nums">{row.final?.display ?? <span className="text-sm font-normal text-muted-foreground">Not judged</span>}</span>
+      <span>
         {editable ? (
-          <NativeSelect
-            aria-label={`Result for ${row.reference}`}
-            value={row.result?.label ?? ""}
-            onChange={(e) => void change(e.target.value)}
-            className="w-44"
-          >
+          <NativeSelect aria-label={`Result for ${row.reference}`} value={row.result?.label ?? ""} onChange={(e) => void change(e.target.value)} className="h-10 w-48">
             <option value="" disabled>
               No result yet
             </option>
@@ -186,47 +194,79 @@ function ResultRow({ judging, row }: { judging: Judging; row: JudgedApplication 
             ))}
           </NativeSelect>
         ) : (
-          <Badge variant={row.result?.advances ? "default" : "secondary"}>{row.result?.label ?? "No result yet"}</Badge>
+          <Badge variant={row.result?.advances ? "success" : row.result ? "secondary" : "outline"}>{row.result?.label ?? "No result yet"}</Badge>
         )}
       </span>
-      {error && <p className="w-full text-destructive">{error}</p>}
-    </li>
+      {error && (
+        <p className="w-full text-sm font-medium text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+    </ListRow>
   );
 }
 
 function Publish({ judging }: { judging: Judging }) {
   const refresh = useRefreshRound(judging.round.id);
   const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const { results, can } = judging;
   if (!judging.can.decideResults) {
     return <p className="text-sm text-muted-foreground">The award&apos;s staff give and publish the results.</p>;
   }
   const publish = async () => {
-    if (!window.confirm("Publish the results? Every applicant sees their result and is emailed.")) return;
     setBusy(true);
     setError(null);
     try {
       refresh(await api.post<Judging>(`/rounds/${judging.round.id}/publish-results`, {}));
+      setConfirming(false);
     } catch (e) {
       setError(messageOf(e));
     } finally {
       setBusy(false);
     }
   };
+  const ready = results.decided === results.total;
   return (
-    <Card>
+    <Card className="border-primary/30">
       <CardHeader>
-        <CardTitle>Publish</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <MegaphoneIcon className="size-5 text-muted-foreground" aria-hidden />
+          Publish the results
+        </CardTitle>
         <CardDescription>
-          {results.decided} of {results.total} applications have a result. Applicants see nothing until you publish.
+          {results.decided} of {results.total} applications have a result. Applicants see nothing until you publish; then every applicant sees their
+          result and is emailed.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button onClick={() => void publish()} disabled={busy || !can.publishResults}>
-          {busy ? "Publishing…" : "Publish the results"}
-        </Button>
-        {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      <CardContent className="grid gap-3">
+        {confirming ? (
+          <div className="surface grid gap-3 p-4">
+            <p className="font-semibold">Publish the results now?</p>
+            <p className="text-sm text-muted-foreground">Every applicant will see their result straight away and receive an email. This can&apos;t be undone.</p>
+            <div className="flex gap-2">
+              <Button onClick={() => void publish()} disabled={busy}>
+                {busy ? "Publishing…" : "Yes, publish"}
+              </Button>
+              <Button variant="ghost" onClick={() => setConfirming(false)} disabled={busy}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="lg" onClick={() => setConfirming(true)} disabled={!can.publishResults}>
+              Publish the results
+            </Button>
+            {!ready && <p className="text-sm text-muted-foreground">Give every application a result first.</p>}
+          </div>
+        )}
+        {error && (
+          <p className="text-sm font-medium text-destructive" role="alert">
+            {error}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

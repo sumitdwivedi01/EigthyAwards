@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRef, useState, type ReactNode } from "react";
-import { CheckCircle2Icon, CircleAlertIcon, DownloadIcon } from "lucide-react";
+import { CircleAlertIcon, CircleCheckIcon, DownloadIcon, UploadIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,11 @@ import { istDate } from "@/lib/format";
 import { contentTypeOf } from "./file-answer";
 import { downloadFile, MAX_FILE_BYTES, uploadFile } from "./use-applying";
 
-const PROOF_LABELS = { PENDING: "Not checked yet", VERIFIED: "Verified by the award team", REJECTED: "Rejected" } as const;
+const PROOF: Record<string, { label: string; variant: "warning" | "success" | "destructive" }> = {
+  PENDING: { label: "Not checked yet", variant: "warning" },
+  VERIFIED: { label: "Verified by the award team", variant: "success" },
+  REJECTED: { label: "Rejected", variant: "destructive" },
+};
 
 /**
  * The proof step (spec §5.20): the identity document and LinkedIn link from the profile, given
@@ -25,41 +30,38 @@ export function ProofStep({ application, onUpdated }: { application: Application
   const { profile, employmentProof, proof } = application;
   const submitted = application.submittedAt !== null;
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-6">
       {submitted && (
-        <div className="grid gap-1 text-sm">
-          <p>
-            <span className="font-medium">Proof check:</span> {PROOF_LABELS[proof.status]}
-            {proof.checkedAt && proof.status !== "PENDING" && <span className="text-muted-foreground"> on {istDate(proof.checkedAt)}</span>}
+        <div className="grid gap-3">
+          <p className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold">Proof check:</span>
+            <Badge variant={PROOF[proof.status]?.variant}>{PROOF[proof.status]?.label}</Badge>
+            {proof.checkedAt && proof.status !== "PENDING" && <span className="text-sm text-muted-foreground">on {istDate(proof.checkedAt)}</span>}
           </p>
           {proof.status === "REJECTED" && proof.note && (
             <Alert variant="destructive">
               <CircleAlertIcon />
               <AlertDescription>
-                {proof.note}
-                {application.canReplaceProof && " Fix it before the deadline: replace the document on My profile, or upload a new proof of employment below."}
+                <p>{proof.note}</p>
+                {application.canReplaceProof && <p>Fix it before the deadline: replace the document on My profile, or upload a new proof of employment below.</p>}
               </AlertDescription>
             </Alert>
           )}
         </div>
       )}
 
-      <section aria-labelledby="profile-proof" className="grid gap-2">
-        <h3 id="profile-proof" className="text-sm font-medium">
-          From your profile (used for every application)
+      <section aria-labelledby="profile-proof" className="grid gap-3">
+        <h3 id="profile-proof" className="font-semibold">
+          From your profile <span className="font-normal text-muted-foreground">(used for every application)</span>
         </h3>
-        <ul className="grid gap-1.5 text-sm">
-          <ProfileItem done={profile.identityDocument !== null}>
-            Photo identity document{profile.identityDocument && `: ${profile.identityDocument.fileName}`}
-          </ProfileItem>
-          <ProfileItem done={profile.linkedinUrl !== null}>
-            LinkedIn profile{profile.linkedinUrl && `: ${profile.linkedinUrl}`}
-          </ProfileItem>
+        <ul className="grid gap-2">
+          <ProfileItem done={profile.identityDocument !== null}>Photo identity document{profile.identityDocument && `: ${profile.identityDocument.fileName}`}</ProfileItem>
+          <ProfileItem done={profile.linkedinUrl !== null}>LinkedIn profile{profile.linkedinUrl && `: ${profile.linkedinUrl}`}</ProfileItem>
         </ul>
         {(!profile.identityDocument || !profile.linkedinUrl || application.canReplaceProof) && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Add or change them on{" "}
-            <Link href="/me" className="underline underline-offset-4">
+            <Link href="/me?tab=proof" className="font-semibold text-primary underline-offset-4 hover:underline">
               My profile
             </Link>
             ; this application uses them from there.
@@ -67,26 +69,17 @@ export function ProofStep({ application, onUpdated }: { application: Application
         )}
       </section>
 
-      <section aria-labelledby="employment-proof" className="grid gap-2">
-        <h3 id="employment-proof" className="text-sm font-medium">
-          Recent proof of employment at {application.organisation.legalName}
+      <section aria-labelledby="employment-proof" className="grid gap-3">
+        <h3 id="employment-proof" className="font-semibold">
+          Recent proof that you work at {application.organisation.legalName}
         </h3>
-        <p className="text-xs text-muted-foreground">
-          A company ID card, a letter on company letterhead, or a payslip with the salary hidden, dated within the last 3 months.
-        </p>
+        <p className="text-sm text-muted-foreground">A company ID card, a letter on company letterhead, or a payslip with the salary hidden, dated within the last 3 months.</p>
         {employmentProof && (
-          <div className="flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-sm">
-            <CheckCircle2Icon className="size-4 text-emerald-600" aria-hidden />
-            <span className="min-w-0 break-all">{employmentProof.fileName}</span>
-            <span className="text-xs text-muted-foreground">dated {istDate(`${employmentProof.documentDate}T00:00:00+05:30`)}</span>
-            <Button
-              type="button"
-              size="icon-sm"
-              variant="ghost"
-              className="ml-auto"
-              onClick={() => void downloadFile(employmentProof.id)}
-              aria-label={`Download ${employmentProof.fileName}`}
-            >
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-success-soft/40 px-4 py-3">
+            <CircleCheckIcon className="size-5 shrink-0 text-success" aria-hidden />
+            <span className="min-w-0 flex-1 font-medium break-all">{employmentProof.fileName}</span>
+            <span className="text-sm text-muted-foreground">dated {istDate(`${employmentProof.documentDate}T00:00:00+05:30`)}</span>
+            <Button type="button" size="icon-sm" variant="ghost" onClick={() => void downloadFile(employmentProof.id)} aria-label={`Download ${employmentProof.fileName}`}>
               <DownloadIcon aria-hidden />
             </Button>
           </div>
@@ -99,26 +92,14 @@ export function ProofStep({ application, onUpdated }: { application: Application
 
 function ProfileItem({ done, children }: { done: boolean; children: ReactNode }) {
   return (
-    <li className="flex items-start gap-2">
-      {done ? (
-        <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-emerald-600" aria-label="Done" />
-      ) : (
-        <CircleAlertIcon className="mt-0.5 size-4 shrink-0 text-amber-600" aria-label="Missing" />
-      )}
+    <li className="flex items-start gap-2.5">
+      {done ? <CircleCheckIcon className="mt-0.5 size-5 shrink-0 text-success" aria-label="Done" /> : <CircleAlertIcon className="mt-0.5 size-5 shrink-0 text-warning" aria-label="Missing" />}
       <span className="min-w-0 break-all">{children}</span>
     </li>
   );
 }
 
-function ProofUpload({
-  application,
-  replacing,
-  onUpdated,
-}: {
-  application: Application;
-  replacing: boolean;
-  onUpdated: (application: Application) => void;
-}) {
+function ProofUpload({ application, replacing, onUpdated }: { application: Application; replacing: boolean; onUpdated: (application: Application) => void }) {
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [date, setDate] = useState("");
@@ -172,49 +153,44 @@ function ProofUpload({
   }
 
   return (
-    <div className="grid gap-3 rounded-md border p-3">
-      <p className="text-sm font-medium">{replacing ? "Upload a new proof" : "Upload the proof"}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="grid gap-1.5">
-          <Label htmlFor="proof-date">Date on the document</Label>
+    <div className="surface grid gap-4 p-4 sm:p-5">
+      <p className="font-semibold">{replacing ? "Upload a new proof" : "Upload the proof"}</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <Label htmlFor="proof-date">Date printed on the document</Label>
           <Input id="proof-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-invalid={Boolean(problems.date)} />
           {problems.date && (
-            <p className="text-xs text-destructive" role="alert">
+            <p className="text-sm font-medium text-destructive" role="alert">
               {problems.date}
             </p>
           )}
         </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="proof-file">Document (PDF, JPG or PNG, up to 10 MB)</Label>
-          <Input
-            ref={input}
-            id="proof-file"
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            aria-invalid={Boolean(problems.file)}
-          />
+        <div className="grid gap-2">
+          <Label htmlFor="proof-file">Document</Label>
+          <Input ref={input} id="proof-file" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} aria-invalid={Boolean(problems.file)} />
+          <p className="text-sm text-muted-foreground">PDF, JPG or PNG, up to 10 MB.</p>
           {problems.file && (
-            <p className="text-xs text-destructive" role="alert">
+            <p className="text-sm font-medium text-destructive" role="alert">
               {problems.file}
             </p>
           )}
         </div>
       </div>
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-3">
         <Checkbox id="proof-consent" checked={consent} onCheckedChange={(value) => setConsent(value === true)} className="mt-0.5" />
-        <Label htmlFor="proof-consent" className="text-sm leading-snug font-normal">
-          I agree that the platform keeps this document to confirm that I work for {application.organisation.legalName}. Only
-          this award&apos;s team sees it, never the jury. It is deleted 12 months after the award&apos;s results.
+        <Label htmlFor="proof-consent" className="text-sm leading-relaxed font-normal">
+          I agree that the platform keeps this document to confirm that I work for {application.organisation.legalName}. Only this award&apos;s team sees
+          it, never the jury. It is deleted 12 months after the award&apos;s results.
         </Label>
       </div>
       {problems.form && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-sm font-medium text-destructive" role="alert">
           {problems.form}
         </p>
       )}
       <div>
         <Button type="button" onClick={() => void upload()} disabled={busy}>
+          <UploadIcon aria-hidden />
           {busy ? "Uploading…" : "Upload proof"}
         </Button>
       </div>

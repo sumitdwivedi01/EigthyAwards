@@ -46,10 +46,14 @@ Front-End/
 │  │  └─ (app)/             signed-in pages in the app shell: home, me, applicant (and its
 │  │                        organisation page), staff (awards, editions), department (people),
 │  │                        jury, leader (departments)
+│  ├─ app/globals.css       the design tokens: colours (with soft tints for status), type scale, radii
 │  ├─ components/
-│  │  ├─ ui/                shadcn/ui (Radix base, Nova preset)
-│  │  ├─ layout/            the app shell, area guard, page titles
-│  │  └─ form-field.tsx     label, control, hint and error, wired for screen readers
+│  │  ├─ ui/                shadcn/ui (Radix base), sized up for comfortable reading: larger
+│  │  │                     buttons and inputs, soft status badges, line tabs, tinted alerts, radio cards
+│  │  ├─ layout/            the app shell (sidebar on a wide screen, menu on a phone), area guard,
+│  │  │                     page titles with a way back, loading / error / empty states, stats,
+│  │  │                     list rows, the stepper of the application form
+│  │  └─ form-field.tsx     label, hint, control and error, wired for screen readers
 │  ├─ features/<area>/      feature components and API hooks (TanStack Query): auth, profile,
 │  │                        organisations, areas, people, awards (edition setup, question and
 │  │                        scoring-sheet builders), public (Open awards, award page)

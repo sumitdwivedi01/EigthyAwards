@@ -8,7 +8,14 @@ const LABELS: Record<CycleState, string> = {
   CLOSED: "Closed",
 };
 
+const VARIANTS: Record<CycleState, "success" | "info" | "outline" | "secondary"> = {
+  DRAFT: "outline",
+  SCHEDULED: "info",
+  OPEN: "success",
+  CLOSED: "secondary",
+};
+
 /** Where an edition stands, as the API worked it out. */
 export function StateBadge({ state }: { state: CycleState }) {
-  return <Badge variant={state === "OPEN" ? "default" : state === "DRAFT" ? "outline" : "secondary"}>{LABELS[state]}</Badge>;
+  return <Badge variant={VARIANTS[state]}>{LABELS[state]}</Badge>;
 }

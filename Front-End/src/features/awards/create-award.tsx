@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { FormError, FormField } from "@/components/form-field";
+import { EmptyState } from "@/components/layout/states";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,18 +54,17 @@ function CreateAward({ me }: { me: Me }) {
 
   return (
     <>
-      <p className="mb-2 text-sm">
-        <Link href="/staff" className="text-muted-foreground underline underline-offset-4">
-          Staff
-        </Link>
-      </p>
-      <PageTitle title="Create an award" description="The award lasts from year to year; each year you set up a new edition of it." />
+      <PageTitle back={{ href: "/staff", label: "Your awards" }} title="Create an award" description="The award lasts from year to year; each year you set up a new edition of it with its own dates, questions and scoring sheet." />
       {departments.length === 0 ? (
-        <p className="text-sm text-muted-foreground">You aren&apos;t on a department&apos;s staff yet, so you can&apos;t create awards.</p>
+        <EmptyState title="You can't create awards yet" description="You aren't on a department's staff. The department's head adds you." />
       ) : (
         <Card className="max-w-2xl">
+          <CardHeader>
+            <CardTitle>About the award</CardTitle>
+            <CardDescription>What visitors read on the award&apos;s page and on Open awards.</CardDescription>
+          </CardHeader>
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5" noValidate>
               <FormError message={errors.root?.server?.message} />
               <FormField label="Department" error={errors.departmentId?.message}>
                 {(control) => (
@@ -100,11 +99,11 @@ function CreateAward({ me }: { me: Me }) {
                   />
                 )}
               </FormField>
-              <FormField label="Short description" hint="Shown on Open awards and the award's page." error={errors.description?.message}>
-                {(control) => <Textarea {...control} rows={3} {...form.register("description")} />}
+              <FormField label="Short description" hint="A sentence or two: what the award recognises and who it is for." error={errors.description?.message}>
+                {(control) => <Textarea {...control} rows={4} {...form.register("description")} />}
               </FormField>
               <div>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" size="lg" disabled={isSubmitting}>
                   {isSubmitting ? "Creating…" : "Create award"}
                 </Button>
               </div>

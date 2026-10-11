@@ -5,16 +5,18 @@ import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { Building2Icon, ChevronRightIcon, PlusIcon } from "lucide-react";
 import { z } from "zod";
 import { FormError, FormField, FormNotice } from "@/components/form-field";
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/states";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api, messageOf } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import type { CreatedDepartment, DepartmentSummary } from "@/lib/api-types";
 import { showApiErrors } from "@/lib/forms";
 import { TemporaryPasswordCard } from "./temporary-password-card";
@@ -26,17 +28,27 @@ import { DEPARTMENTS_KEY, useDepartments } from "./use-people";
  * leader can look at each one.
  */
 export function DepartmentsPage() {
+  const [creating, setCreating] = useState(false);
   return (
     <AreaPage area="leader">
       {() => (
         <>
           <PageTitle
+            back={{ href: "/leader", label: "Across the platform" }}
             title="Departments"
-            description="Each department runs its own awards. Create one with its head; the head then adds their staff and jury and chooses how their award pages look."
+            description="Each department runs its own awards. You create one with its head; the head then adds their staff and jury and chooses how their award pages look."
+            actions={
+              !creating && (
+                <Button onClick={() => setCreating(true)}>
+                  <PlusIcon aria-hidden />
+                  New department
+                </Button>
+              )
+            }
           />
           <div className="grid gap-6">
-            <NewDepartment />
-            <DepartmentList />
+            {creating && <NewDepartment onClose={() => setCreating(false)} />}
+            <DepartmentList onCreate={() => setCreating(true)} />
           </div>
         </>
       )}
@@ -44,11 +56,25 @@ export function DepartmentsPage() {
   );
 }
 
-function DepartmentList() {
+function DepartmentList({ onCreate }: { onCreate: () => void }) {
   const departments = useDepartments();
-  if (departments.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (departments.error) return <p className="text-sm text-destructive">{messageOf(departments.error)}</p>;
-  if (departments.data.length === 0) return <p className="text-sm text-muted-foreground">No departments yet.</p>;
+  if (departments.isPending) return <LoadingState label="Loading the departments" lines={5} />;
+  if (departments.error) return <ErrorState error={departments.error} onRetry={() => void departments.refetch()} />;
+  if (departments.data.length === 0) {
+    return (
+      <EmptyState
+        icon={Building2Icon}
+        title="No departments yet"
+        description="Create the first one with its head."
+        action={
+          <Button onClick={onCreate}>
+            <PlusIcon aria-hidden />
+            New department
+          </Button>
+        }
+      />
+    );
+  }
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {departments.data.map((department) => (
@@ -58,37 +84,29 @@ function DepartmentList() {
   );
 }
 
-function ColourDot({ colour, label }: { colour: string; label: string }) {
-  return <span className="inline-block size-4 rounded-full border" style={{ backgroundColor: colour }} title={`${label} ${colour}`} />;
-}
-
 function DepartmentCard({ department }: { department: DepartmentSummary }) {
+  const colour = department.colours?.primary ?? "var(--primary)";
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="-mt-(--card-spacing) h-1.5" style={{ backgroundColor: colour }} aria-hidden />
       <CardHeader>
         <CardTitle className="flex flex-wrap items-center gap-2">
           {department.name}
-          {department.externalOrganiser && <Badge variant="secondary">External organiser</Badge>}
+          {department.externalOrganiser && <Badge variant="outline">External organiser</Badge>}
         </CardTitle>
         <CardDescription>
-          {department.heads.length > 0
-            ? `Head: ${department.heads.map((h) => h.name + (h.waitingForFirstLogin ? " (hasn't logged in yet)" : "")).join(", ")}`
-            : "No head"}
+          {department.heads.length > 0 ? `Head: ${department.heads.map((h) => h.name + (h.waitingForFirstLogin ? " (hasn't logged in yet)" : "")).join(", ")}` : "No head"}
         </CardDescription>
-        {department.colours && (
-          <CardAction className="flex gap-1">
-            <ColourDot colour={department.colours.primary} label="Primary colour" />
-            <ColourDot colour={department.colours.accent} label="Accent colour" />
-          </CardAction>
-        )}
       </CardHeader>
-      <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm">
-        <span className="text-muted-foreground">
-          {department.counts.staff} staff · {department.counts.jury} jury · {department.counts.awards}{" "}
-          {department.counts.awards === 1 ? "award" : "awards"}
+      <CardContent className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-sm text-muted-foreground">
+          {department.counts.staff} staff · {department.counts.jury} jury · {department.counts.awards} {department.counts.awards === 1 ? "award" : "awards"}
         </span>
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/leader/departments/${department.id}`}>View</Link>
+        <Button asChild variant="outline">
+          <Link href={`/leader/departments/${department.id}`}>
+            View
+            <ChevronRightIcon aria-hidden />
+          </Link>
         </Button>
       </CardContent>
     </Card>
@@ -110,7 +128,7 @@ const EMPTY: Values = {
   headEmail: "",
 };
 
-function NewDepartment() {
+function NewDepartment({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
   const [created, setCreated] = useState<CreatedDepartment | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -148,35 +166,32 @@ function NewDepartment() {
         onDone={() => {
           setNotice(`${created.department.name} is created, with ${created.head.name} as its head.`);
           setCreated(null);
+          onClose();
         }}
       />
     );
   }
 
   return (
-    <Card>
+    <Card className="border-primary/30">
       <CardHeader>
         <CardTitle>New department</CardTitle>
         <CardDescription>
-          The head gets an account with a temporary password, shown to you once. If the email already has an account, it is
-          used as it is. The head then runs the department: its staff, jury and theme.
+          The head gets an account with a temporary password, shown to you once. If the email already has an account, it is used as it is. The head
+          then runs the department: its staff, jury and theme.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5" noValidate>
           <FormError message={errors.root?.server?.message} />
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <FormField label="Department name" error={errors.name?.message}>
-              {(control) => <Input {...control} {...form.register("name")} />}
+              {(control) => <Input {...control} autoFocus {...form.register("name")} />}
             </FormField>
-            <div className="flex items-center gap-2 self-end pb-2">
-              <Checkbox
-                id="external-organiser"
-                checked={externalOrganiser}
-                onCheckedChange={(value) => form.setValue("externalOrganiser", value === true)}
-              />
-              <Label htmlFor="external-organiser" className="font-normal">
-                An external award organiser (runs its own awards here)
+            <div className="flex items-start gap-3 self-end pb-2">
+              <Checkbox id="external-organiser" checked={externalOrganiser} onCheckedChange={(value) => form.setValue("externalOrganiser", value === true)} className="mt-0.5" />
+              <Label htmlFor="external-organiser" className="leading-snug font-normal">
+                An external award organiser (runs its own awards here, under its own brand)
               </Label>
             </div>
             <FormField label="Head's name" error={errors.headName?.message}>
@@ -189,6 +204,9 @@ function NewDepartment() {
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Creating…" : "Create department"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+              Cancel
             </Button>
             <FormNotice message={notice} />
           </div>

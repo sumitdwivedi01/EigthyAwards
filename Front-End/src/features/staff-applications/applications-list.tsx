@@ -2,17 +2,27 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import { ChevronRightIcon, FileTextIcon, FilterIcon } from "lucide-react";
+import { ListRow, Stat } from "@/components/layout/blocks";
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/states";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
-import { messageOf } from "@/lib/api-client";
-import type { ProofStatus, StaffApplicationRow } from "@/lib/api-types";
+import type { ApplicationStatus, ProofStatus, StaffApplicationRow } from "@/lib/api-types";
 import { istDateTime } from "@/lib/format";
 import { useStaffApplications } from "@/features/applying/use-applying";
 
 export const PROOF_LABELS: Record<ProofStatus, string> = { PENDING: "Proof to check", VERIFIED: "Proof verified", REJECTED: "Proof rejected" };
+export const PROOF_VARIANTS: Record<ProofStatus, "warning" | "success" | "destructive"> = { PENDING: "warning", VERIFIED: "success", REJECTED: "destructive" };
+export const STATUS_VARIANTS: Record<ApplicationStatus, "info" | "outline" | "secondary" | "destructive"> = {
+  DRAFT: "outline",
+  SUBMITTED: "info",
+  WITHDRAWN: "secondary",
+  NOT_SUBMITTED: "secondary",
+  RELEASED: "destructive",
+};
 
 /** An edition's applications for its staff (spec §12): filters by status, category and proof. */
 export function ApplicationsListPage({ cycleId }: { cycleId: string }) {
@@ -26,40 +36,42 @@ function ApplicationsList({ cycleId }: { cycleId: string }) {
   const query = new URLSearchParams({ ...(status && { status }), ...(categoryId && { categoryId }), ...(proof && { proof }) }).toString();
   const list = useStaffApplications(cycleId, query);
 
-  if (list.isPending && !list.data) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (list.error) return <p className="text-sm text-destructive">{messageOf(list.error)}</p>;
+  if (list.isPending && !list.data) return <LoadingState label="Loading the applications" lines={6} />;
+  if (list.error) return <ErrorState error={list.error} onRetry={() => void list.refetch()} />;
   const data = list.data;
   if (!data) return null;
   const { counts, entries } = data;
+  const filtered = Boolean(status || categoryId || proof);
   return (
     <>
-      <p className="mb-2 text-sm">
-        <Link href={`/staff/cycles/${cycleId}`} className="text-muted-foreground underline underline-offset-4">
-          {data.cycle.award.name}: {data.cycle.label}
-        </Link>
-      </p>
       <PageTitle
+        back={{ href: `/staff/cycles/${cycleId}`, label: `${data.cycle.award.name}: ${data.cycle.label}` }}
+        eyebrow={`${data.cycle.award.name} ${data.cycle.label} · deadline ${istDateTime(data.cycle.deadlineAt)}`}
         title="Applications"
-        description={`${data.cycle.award.name} ${data.cycle.label} · deadline ${istDateTime(data.cycle.deadlineAt)} · ${
-          entries.limit === null ? `${entries.submitted} submitted` : `${entries.submitted} / ${entries.limit} submitted`
-        }`}
+        description="Open a submitted application to check its proof of employment. Unverified applications can't be assigned to jury."
+        actions={
+          data.cycle.roundId && (
+            <Button asChild>
+              <Link href={`/staff/rounds/${data.cycle.roundId}`}>
+                Judging
+                <ChevronRightIcon aria-hidden />
+              </Link>
+            </Button>
+          )
+        }
       />
-      {data.cycle.roundId && (
-        <p className="-mt-3 mb-4 text-sm">
-          <Link href={`/staff/rounds/${data.cycle.roundId}`} className="underline underline-offset-4">
-            Judging: assignment, scores and results
-          </Link>
-        </p>
-      )}
-      <div className="mb-4 flex flex-wrap gap-2 text-sm">
-        <Badge variant="outline">{counts.byStatus.DRAFT} drafts</Badge>
-        <Badge>{counts.byStatus.SUBMITTED} submitted</Badge>
-        <Badge variant="outline">{counts.byStatus.NOT_SUBMITTED} not submitted</Badge>
-        <Badge variant="secondary">{counts.byProof.PENDING} proofs to check</Badge>
-        <Badge variant="secondary">{counts.byProof.VERIFIED} verified</Badge>
-        <Badge variant="secondary">{counts.byProof.REJECTED} rejected</Badge>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Stat label="submitted" value={entries.limit === null ? counts.byStatus.SUBMITTED : `${counts.byStatus.SUBMITTED} / ${entries.limit}`} tone="primary" />
+        <Stat label="drafts" value={counts.byStatus.DRAFT} />
+        <Stat label="not submitted" value={counts.byStatus.NOT_SUBMITTED} />
+        <Stat label="proofs to check" value={counts.byProof.PENDING} tone={counts.byProof.PENDING > 0 ? "warning" : "neutral"} />
+        <Stat label="verified" value={counts.byProof.VERIFIED} tone="success" />
+        <Stat label="rejected" value={counts.byProof.REJECTED} />
       </div>
-      <div className="mb-4 grid gap-3 sm:grid-cols-3">
+      <div className="mb-6 grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-[auto_1fr_1fr_1fr] sm:items-end">
+        <span className="flex items-center gap-2 text-sm font-semibold text-muted-foreground sm:pb-3">
+          <FilterIcon className="size-4" aria-hidden /> Show
+        </span>
         <Filter id="status" label="Status" value={status} onChange={setStatus}>
           <option value="">All</option>
           <option value="DRAFT">Draft</option>
@@ -75,7 +87,7 @@ function ApplicationsList({ cycleId }: { cycleId: string }) {
             </option>
           ))}
         </Filter>
-        <Filter id="proof" label="Proof (submitted)" value={proof} onChange={setProof}>
+        <Filter id="proof" label="Proof (submitted only)" value={proof} onChange={setProof}>
           <option value="">All</option>
           <option value="PENDING">To check</option>
           <option value="VERIFIED">Verified</option>
@@ -83,7 +95,25 @@ function ApplicationsList({ cycleId }: { cycleId: string }) {
         </Filter>
       </div>
       {data.applications.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No applications match.</p>
+        <EmptyState
+          icon={FileTextIcon}
+          title={filtered ? "No applications match these filters" : "No applications yet"}
+          description={filtered ? "Try a wider filter." : "Applications appear here as organisations start them."}
+          action={
+            filtered && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStatus("");
+                  setCategoryId("");
+                  setProof("");
+                }}
+              >
+                Clear the filters
+              </Button>
+            )
+          }
+        />
       ) : (
         <ul className="grid gap-2">
           {data.applications.map((row) => (
@@ -95,21 +125,9 @@ function ApplicationsList({ cycleId }: { cycleId: string }) {
   );
 }
 
-function Filter({
-  id,
-  label,
-  value,
-  onChange,
-  children,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
+function Filter({ id, label, value, onChange, children }: { id: string; label: string; value: string; onChange: (value: string) => void; children: ReactNode }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2">
       <Label htmlFor={`filter-${id}`}>{label}</Label>
       <NativeSelect id={`filter-${id}`} value={value} onChange={(e) => onChange(e.target.value)}>
         {children}
@@ -120,21 +138,26 @@ function Filter({
 
 function Row({ row }: { row: StaffApplicationRow }) {
   return (
-    <li>
-      <Card className="py-3">
-        <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <Link href={`/staff/applications/${row.id}`} className="font-medium underline-offset-4 hover:underline">
+    <ListRow>
+      <div className="grid min-w-0 flex-1 gap-1">
+        <span className="flex flex-wrap items-center gap-2">
+          <Link href={`/staff/applications/${row.id}`} className="text-base font-semibold underline-offset-4 hover:underline">
             {row.organisation.legalName}
           </Link>
-          <span className="text-muted-foreground">{row.category.name}</span>
-          <Badge variant={row.status === "SUBMITTED" ? "default" : "outline"}>{row.statusLabel}</Badge>
-          {row.status === "SUBMITTED" && <Badge variant={row.proofStatus === "REJECTED" ? "destructive" : "secondary"}>{PROOF_LABELS[row.proofStatus]}</Badge>}
-          <span className="text-muted-foreground">
-            by {row.startedBy.name} · {row.submittedAt ? `submitted ${istDateTime(row.submittedAt)}` : `started ${istDateTime(row.createdAt)}`}
-            {row.feeUnpaid && " · fee not paid"}
-          </span>
-        </CardContent>
-      </Card>
-    </li>
+          <Badge variant={STATUS_VARIANTS[row.status]}>{row.statusLabel}</Badge>
+          {row.status === "SUBMITTED" && <Badge variant={PROOF_VARIANTS[row.proofStatus]}>{PROOF_LABELS[row.proofStatus]}</Badge>}
+        </span>
+        <span className="text-sm text-muted-foreground">
+          {row.category.name} · by {row.startedBy.name} · {row.submittedAt ? `submitted ${istDateTime(row.submittedAt)}` : `started ${istDateTime(row.createdAt)}`}
+          {row.feeUnpaid && " · fee not paid"}
+        </span>
+      </div>
+      <Button asChild size="sm" variant={row.status === "SUBMITTED" && row.proofStatus === "PENDING" ? "default" : "outline"}>
+        <Link href={`/staff/applications/${row.id}`}>
+          {row.status === "SUBMITTED" && row.proofStatus === "PENDING" ? "Check proof" : "Open"}
+          <ChevronRightIcon aria-hidden />
+        </Link>
+      </Button>
+    </ListRow>
   );
 }

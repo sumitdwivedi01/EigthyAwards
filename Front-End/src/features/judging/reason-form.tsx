@@ -14,12 +14,14 @@ export function ReasonForm({
   id,
   label,
   submitLabel,
+  destructive,
   onSubmit,
   onCancel,
 }: {
   id: string;
   label: string;
   submitLabel: string;
+  destructive?: boolean;
   onSubmit: (reason: string) => Promise<void>;
   onCancel: () => void;
 }) {
@@ -44,15 +46,19 @@ export function ReasonForm({
   };
 
   return (
-    <form onSubmit={submit} className="grid gap-2 rounded-md border bg-muted/40 p-3">
+    <form onSubmit={submit} className="surface grid gap-3 p-4">
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} autoFocus aria-invalid={error !== null} />
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm font-medium text-destructive" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flex gap-2">
-        <Button type="submit" size="sm" disabled={busy}>
+        <Button type="submit" variant={destructive ? "destructive" : "default"} disabled={busy}>
           {busy ? "Saving…" : submitLabel}
         </Button>
-        <Button type="button" size="sm" variant="ghost" onClick={onCancel} disabled={busy}>
+        <Button type="button" variant="ghost" onClick={onCancel} disabled={busy}>
           Cancel
         </Button>
       </div>

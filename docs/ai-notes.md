@@ -120,3 +120,10 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **Why.** A health check says that *an* API answers, not *which*. Two worktrees had been given the same ports at different times.
 - **Fix.** Step 1.4 moved to ports 4200/3200; before running anything, the check now confirms that the process on the port belongs to the expected folder. The owner was told what was written to their database and decides whether to remove it.
 - **Lesson.** Before writing through an endpoint, check that it is the one you mean (here: the process behind the port), especially with several copies of the app running.
+
+## 17. A menu that closed itself from inside an effect (UI pass, 12 Oct)
+
+- **What looked right.** In the new phone navigation, the AI closed the open menu whenever the page changed with `useEffect(() => setOpen(false), [pathname])`: the common pattern in older React code.
+- **How it was caught.** The project's lint (React's compiler rules in Next.js 16) refused it: setting state synchronously inside an effect causes a second render on every page change.
+- **Fix.** The menu now remembers the path it was opened on and closes during render when the path differs (the "adjust state from the previous render" pattern), with no effect at all.
+- **Lesson.** Patterns that were idiomatic in React 17 can be wrong under the compiler rules; the lint is the source of truth, not memory.
