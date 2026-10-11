@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { AwardIcon, LogOutIcon, UserRoundIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SetOwnPassword } from "@/features/auth/set-own-password";
 import { useLogout, useMe } from "@/features/auth/use-me";
 import { ApiError, messageOf } from "@/lib/api-client";
 import { AREA_ROUTES } from "@/lib/areas";
@@ -49,18 +50,22 @@ export function AppShell({ children }: { children: ReactNode }) {
             <AwardIcon className="size-5 text-primary" aria-hidden />
             Awards Platform
           </Link>
-          <nav aria-label="Areas" className="flex flex-wrap gap-1">
-            {user.areas.map((area) => (
-              <AreaLink key={area} area={area} active={pathname.startsWith(AREA_ROUTES[area].href)} />
-            ))}
-          </nav>
+          {!user.mustChangePassword && (
+            <nav aria-label="Areas" className="flex flex-wrap gap-1">
+              {user.areas.map((area) => (
+                <AreaLink key={area} area={area} active={pathname.startsWith(AREA_ROUTES[area].href)} />
+              ))}
+            </nav>
+          )}
           <div className="ml-auto flex items-center gap-1">
-            <Button asChild variant={pathname.startsWith("/me") ? "secondary" : "ghost"} size="sm">
-              <Link href="/me">
-                <UserRoundIcon aria-hidden />
-                {user.name}
-              </Link>
-            </Button>
+            {!user.mustChangePassword && (
+              <Button asChild variant={pathname.startsWith("/me") ? "secondary" : "ghost"} size="sm">
+                <Link href="/me">
+                  <UserRoundIcon aria-hidden />
+                  {user.name}
+                </Link>
+              </Button>
+            )}
             <Button variant="ghost" size="sm" onClick={() => logout.mutate()} disabled={logout.isPending}>
               <LogOutIcon aria-hidden />
               Log out
@@ -68,7 +73,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+        {/* On a temporary password the API refuses everything else (ADR 0017). */}
+        {user.mustChangePassword ? <SetOwnPassword me={user} /> : children}
+      </main>
     </div>
   );
 }

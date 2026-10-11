@@ -8,9 +8,10 @@ import { ForbiddenError, NotFoundError, UnauthenticatedError } from "./errors.js
  */
 export interface ScopedRole {
   readonly role: Role;
+  /** DEPT_HEAD, DEPT_STAFF and JURY (the department's jury list, ADR 0017). */
   readonly departmentId: string | null;
+  /** AWARD_STAFF. */
   readonly awardId: string | null;
-  readonly cycleId: string | null;
 }
 
 export interface Actor {
@@ -19,6 +20,8 @@ export interface Actor {
   readonly name: string;
   /** An applicant account applies; a platform account holds roles (ADR 0016). */
   readonly accountType: AccountType;
+  /** Signed in with a temporary password: nothing but setting their own works yet (ADR 0017). */
+  readonly mustChangePassword: boolean;
   /** Active role assignments only (revoked ones are left out). Always empty for an applicant account. */
   readonly roles: readonly ScopedRole[];
   /** Organisations the user is a member of (applying on their behalf). Always empty for a platform account. */
@@ -52,8 +55,9 @@ export function isStaffOfAward(actor: Actor, awardId: string): boolean {
   return holds(actor, (r) => r.role === "AWARD_STAFF" && r.awardId === awardId);
 }
 
-export function isJuryOfCycle(actor: Actor, cycleId: string): boolean {
-  return holds(actor, (r) => r.role === "JURY" && r.cycleId === cycleId);
+/** On the department's jury list. Which applications a juror judges is decided by assignments. */
+export function isJuryOfDepartment(actor: Actor, departmentId: string): boolean {
+  return holds(actor, (r) => r.role === "JURY" && r.departmentId === departmentId);
 }
 
 export function isMemberOf(actor: Actor, organisationId: string): boolean {
@@ -84,8 +88,8 @@ export function requireStaffOfAward(actor: Actor, awardId: string): void {
   if (!isStaffOfAward(actor, awardId)) throw new ForbiddenError();
 }
 
-export function requireJuryOfCycle(actor: Actor, cycleId: string): void {
-  if (!isJuryOfCycle(actor, cycleId)) throw new ForbiddenError();
+export function requireJuryOfDepartment(actor: Actor, departmentId: string): void {
+  if (!isJuryOfDepartment(actor, departmentId)) throw new ForbiddenError();
 }
 
 /** Another organisation's data answers "not found", so its existence isn't revealed (spec §11). */

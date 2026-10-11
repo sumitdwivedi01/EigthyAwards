@@ -41,13 +41,13 @@ export class UnauthenticatedError extends AppError {
   }
 }
 
-/** 403: logged in, but this role or scope does not allow it. */
+/** 403: logged in, but this role or scope does not allow it. `details.reason` may name why. */
 export class ForbiddenError extends AppError {
   override readonly status = 403;
   override readonly code = "FORBIDDEN";
 
-  constructor(message = "You are not allowed to do this.") {
-    super(message);
+  constructor(message = "You are not allowed to do this.", details?: { reason: string }) {
+    super(message, details);
   }
 }
 

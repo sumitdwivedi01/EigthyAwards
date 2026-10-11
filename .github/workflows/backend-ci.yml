@@ -59,5 +59,19 @@ jobs:
       - run: npm run typecheck
       - name: Check the schema and the migrations agree
         run: npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code
+      # The type check can't see a wrong field nested in a Prisma query (its methods are generic),
+      # so the seed is run for real: on a fresh database, twice, because it must be safe to repeat.
+      - name: Seed a fresh database twice
+        env:
+          DATABASE_URL: postgresql://awards:awards@localhost:5432/awards_seed
+          DIRECT_URL: postgresql://awards:awards@localhost:5432/awards_seed
+          LEADER_EMAIL: leader@ci.test
+          LEADER_PASSWORD: ci-only-leader-password
+          DEMO_PASSWORD: ci-only-demo-password
+        run: |
+          PGPASSWORD=awards psql -h localhost -U awards -d awards_test -c "CREATE DATABASE awards_seed"
+          npx prisma migrate deploy
+          npm run db:seed
+          npm run db:seed
       - run: npm test
       - run: npm run build

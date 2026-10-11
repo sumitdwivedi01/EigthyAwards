@@ -115,7 +115,7 @@ flowchart LR
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
 | 1 | Department dashboard | An organiser running its awards on its own | `#h-dash` |
-| 2 | Brand kit | Logo, colours (readability checked), font, links, live preview | `#h-brand` |
+| 2 | Brand kit (theme) | Chosen by the head (ADR 0020). Phase 1: colours (text kept readable) and footer, with a preview; logo, font and links from Phase 2 | `#h-brand` |
 | 3 | Staff and awards | Invite staff, give them awards | `#h-staff` |
 | 4 | Approve a round | Ranked list by average, each jury member's score and note, disqualified list; approve locks scores (R3) | `#h-review` |
 
@@ -132,7 +132,7 @@ flowchart LR
 |---|---|---|---|
 | 1 | Leader dashboard | One view across every award and department | `#l-dash` |
 | 2 | Departments | Create a department for an external organiser and appoint its head | `#l-depts` |
-| 3 | People and awards | Find a person; assign staff to awards; resend invites; deactivate accounts; the leader's recent changes | `#l-people` |
+| 3 | People and awards | Find a person; see who works where (read-only: each department's head manages its people, ADR 0020); heads' accounts; the leader's recent changes | `#l-people` |
 | 4 | Master data | Shared lists (retire, never delete); organisation corrections with a reason | `#l-master` |
 
 ---

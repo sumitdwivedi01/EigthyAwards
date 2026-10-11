@@ -99,6 +99,17 @@ describe("roles (ADR 0014: five roles, no PA)", () => {
     await expect(
       db.roleAssignment.create({ data: { userId: user.id, role: "LEADER", departmentId: department.id } }),
     ).rejects.toThrow(/role_assignments_scope_check/);
+    // A juror belongs to a department's jury list (ADR 0017), never to an award.
+    const { award } = await createCycle();
+    await expect(db.roleAssignment.create({ data: { userId: user.id, role: "JURY" } })).rejects.toThrow(
+      /role_assignments_scope_check/,
+    );
+    await expect(
+      db.roleAssignment.create({ data: { userId: user.id, role: "JURY", awardId: award.id } }),
+    ).rejects.toThrow(/role_assignments_scope_check/);
+    await expect(
+      db.roleAssignment.create({ data: { userId: user.id, role: "JURY", departmentId: department.id } }),
+    ).resolves.toBeTruthy();
   });
 
   it("refuses the same active role twice in the same scope, but allows many awards for one staff member", async () => {
@@ -123,12 +134,12 @@ describe("applicant and platform accounts (ADR 0016)", () => {
   it("gives roles and evaluations only to platform accounts", async () => {
     const applicant = await createApplicantAccount();
     const juror = await createPlatformAccount();
-    const { cycle, category } = await createCycle();
+    const { cycle, category, department } = await createCycle();
     await expect(
-      db.roleAssignment.create({ data: { userId: applicant.id, role: "JURY", cycleId: cycle.id } }),
+      db.roleAssignment.create({ data: { userId: applicant.id, role: "JURY", departmentId: department.id } }),
     ).rejects.toThrow(/Only platform accounts hold roles/);
     await expect(
-      db.roleAssignment.create({ data: { userId: juror.id, role: "JURY", cycleId: cycle.id } }),
+      db.roleAssignment.create({ data: { userId: juror.id, role: "JURY", departmentId: department.id } }),
     ).resolves.toBeTruthy();
     const round = await createRound(cycle.id);
     const application = await createApplication(cycle.id, category.id);
@@ -207,6 +218,18 @@ describe("data consistency (spec §5.18)", () => {
   it("refuses an unnormalised phone or PIN code", async () => {
     await expect(createOrganisation({ phone: "98765 43210" })).rejects.toThrow(/organisations_phone_check/);
     await expect(createOrganisation({ pincode: "011001" })).rejects.toThrow(/organisations_pincode_check/);
+  });
+});
+
+describe("temporary passwords (ADR 0017)", () => {
+  it("keeps the change-password flag and the temporary password's expiry together", async () => {
+    await expect(createPlatformAccount({ mustChangePassword: true })).rejects.toThrow(/users_temporary_password_check/);
+    await expect(
+      createPlatformAccount({ temporaryPasswordExpiresAt: new Date("2026-10-18T00:00:00Z") }),
+    ).rejects.toThrow(/users_temporary_password_check/);
+    await expect(
+      createPlatformAccount({ mustChangePassword: true, temporaryPasswordExpiresAt: new Date("2026-10-18T00:00:00Z") }),
+    ).resolves.toBeTruthy();
   });
 });
 

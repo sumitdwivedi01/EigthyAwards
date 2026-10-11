@@ -96,7 +96,7 @@ flowchart TD
 | **Jury member** | A senior person scoring between meetings | Stop anytime and continue later. On site, they score on their phone |
 | **Staff** | Works in the system every day while a cycle runs | Set up awards and build each award's branded site on screens, check applicants' proof, track progress, publish results |
 | **Department head** | Owns a group of awards, or leads an **outside organiser** (e.g. the FPO Awards team) that runs its awards here on its own | Sets the brand kit, adds staff and jury, reviews the ranked results, then approves or sends them back |
-| **Leader** (and the leader's team, on the same account) | Wants one view of everything | One dashboard across all awards; sets up departments and their heads |
+| **Leader** (and the leader's team, on the same account) | Wants one view of everything | One dashboard across all awards; sets up departments and their heads, then leaves each department to run itself |
 
 The award always goes to the **organisation** (identified by its PAN), never to one of its plants or units. One real entry per organisation per award.
 

@@ -198,12 +198,12 @@ To fit the dates, these move to Phase 2. None of them is needed for the brief or
 |---|---|
 | On-site rounds (shop-floor competitions, live finals, medals) | Written rounds; the data model already includes on-site rounds |
 | The full site builder (pages of sections, banner, about, contacts, versions) | One page per award in its department's logo and colours |
-| Invitations by email | The leader or the head creates the account and passes on a temporary password |
+| Invitations by email | The leader (heads) or the head (staff and jury) creates the account and passes on a temporary password |
 | Other admin screens (master lists, company corrections, deactivation) | Created by the starter data, or fixed by us |
 | The head sending a round back | The head approves |
 | "New / Updated" markers and version comparison | Versions are still frozen and tested |
 | Editing after submit, withdrawing | Submit when ready; staff can release a wrong application |
-| The brand-kit screen, image uploads | Colours set when the department is created; logos from the starter data |
+| The full brand-kit screen, image uploads | The head chooses the colours and footer on the department page (ADR 0020); no logo yet (G-K30) |
 | The staging site online | `staging` tested by CI and on a laptop |
 | Real emails | Every email is written to a log |
 

@@ -142,7 +142,7 @@ describe("roles are read from the database on every request (ADR 0003)", () => {
     const asStaff = await agent.get("/api/me");
     expect(asStaff.body).toMatchObject({ home: "staff", areas: ["staff"] });
     expect(asStaff.body.roles).toEqual([
-      { role: "AWARD_STAFF", award: { id: award.id, name: award.name }, department: null, cycle: null },
+      { role: "AWARD_STAFF", award: { id: award.id, name: award.name }, department: null },
     ]);
 
     await db.roleAssignment.update({ where: { id: role.id }, data: { revokedAt: new Date() } });

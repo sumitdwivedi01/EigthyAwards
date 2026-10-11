@@ -58,12 +58,14 @@ interface Person {
 const DEPARTMENTS = [
   {
     name: "Safety, Health and Environment",
+    externalOrganiser: false,
     head: { email: "head.she@demo.test", name: "Meera Iyer" },
     brand: { primaryColour: "#1F4FA8", accentColour: "#F2A900", fontKey: "inter", footerText: "Safety, Health and Environment department" },
   },
   {
     // An external award organiser, set up as a department and running its awards alone (§3).
     name: "FPO Awards team",
+    externalOrganiser: true,
     head: { email: "head.fpo@demo.test", name: "Arjun Patil" },
     brand: { primaryColour: "#2E7D32", accentColour: "#F9A825", fontKey: "poppins", footerText: "FPO Awards: celebrating farmer producer organisations" },
   },
@@ -79,14 +81,17 @@ const STAFF: { person: Person; departments: string[] }[] = [
   },
 ];
 
-/** Jury accounts: platform accounts with no role until staff add them to a cycle's pool (G-K19). */
-const JURY: Person[] = [
-  { email: "jury.anil@demo.test", name: "Anil Mehta" },
-  { email: "jury.priya@demo.test", name: "Priya Nair" },
-  { email: "jury.vikram@demo.test", name: "Vikram Joshi" },
-  { email: "jury.sunita@demo.test", name: "Sunita Reddy" },
-  { email: "jury.farhan@demo.test", name: "Farhan Ali" },
-  { email: "jury.lakshmi@demo.test", name: "Lakshmi Menon" },
+/** Jury on the departments' jury lists (ADR 0017); Vikram judges for both departments. */
+const JURY: { person: Person; departments: string[] }[] = [
+  { person: { email: "jury.anil@demo.test", name: "Anil Mehta" }, departments: ["Safety, Health and Environment"] },
+  { person: { email: "jury.priya@demo.test", name: "Priya Nair" }, departments: ["Safety, Health and Environment"] },
+  {
+    person: { email: "jury.vikram@demo.test", name: "Vikram Joshi" },
+    departments: ["Safety, Health and Environment", "FPO Awards team"],
+  },
+  { person: { email: "jury.sunita@demo.test", name: "Sunita Reddy" }, departments: ["FPO Awards team"] },
+  { person: { email: "jury.farhan@demo.test", name: "Farhan Ali" }, departments: ["FPO Awards team"] },
+  { person: { email: "jury.lakshmi@demo.test", name: "Lakshmi Menon" }, departments: ["FPO Awards team"] },
 ];
 
 /** Kiran is a member of Acme Steel; Deepa, a colleague, joins it on screen; Rahul registers a new company. */
@@ -132,7 +137,7 @@ async function grant(
   grantedById: string | null,
 ): Promise<void> {
   const active = await db.roleAssignment.findFirst({
-    where: { userId, role, departmentId: scope.departmentId ?? null, awardId: null, cycleId: null, revokedAt: null },
+    where: { userId, role, departmentId: scope.departmentId ?? null, awardId: null, revokedAt: null },
   });
   if (!active) {
     await db.roleAssignment.create({ data: { userId, role, departmentId: scope.departmentId ?? null, grantedById } });
@@ -170,7 +175,11 @@ async function main(): Promise<void> {
   const departmentIds = new Map<string, string>();
   for (const department of DEPARTMENTS) {
     const name = normalizeName(department.name);
-    const row = await db.department.upsert({ where: { name }, update: {}, create: { name, createdById: leaderId } });
+    const row = await db.department.upsert({
+      where: { name },
+      update: { externalOrganiser: department.externalOrganiser },
+      create: { name, externalOrganiser: department.externalOrganiser, createdById: leaderId },
+    });
     departmentIds.set(name, row.id);
     await db.brandKit.upsert({
       where: { departmentId: row.id },
@@ -190,7 +199,14 @@ async function main(): Promise<void> {
     }
   }
 
-  for (const person of JURY) await upsertPerson(person, DEMO_PASSWORD, "PLATFORM");
+  for (const { person, departments } of JURY) {
+    const juryId = await upsertPerson(person, DEMO_PASSWORD, "PLATFORM");
+    for (const departmentName of departments) {
+      const departmentId = departmentIds.get(normalizeName(departmentName));
+      if (!departmentId) throw new Error(`Unknown department ${departmentName}`);
+      await grant(juryId, "JURY", { departmentId }, leaderId);
+    }
+  }
 
   const applicantIds = new Map<string, string>();
   for (const person of APPLICANTS) {
@@ -224,7 +240,7 @@ async function main(): Promise<void> {
     LEADER_EMAIL,
     ...DEPARTMENTS.map((d) => d.head.email),
     ...STAFF.map((s) => s.person.email),
-    ...JURY.map((j) => j.email),
+    ...JURY.map((j) => j.person.email),
     ...APPLICANTS.map((a) => a.email),
   ];
   console.log(`Seeded the master lists, ${DEPARTMENTS.length} departments with brand kits, and ${people.length} accounts:`);
