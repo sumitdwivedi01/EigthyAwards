@@ -82,7 +82,14 @@ export async function register(input: RegisterInput): Promise<SessionResult> {
 export async function login(input: LoginInput): Promise<SessionResult> {
   const user = await db.user.findUnique({
     where: { email: normalizeEmail(input.email) },
-    select: { id: true, passwordHash: true, sessionVersion: true, deactivatedAt: true },
+    select: {
+      id: true,
+      passwordHash: true,
+      sessionVersion: true,
+      deactivatedAt: true,
+      mustChangePassword: true,
+      temporaryPasswordExpiresAt: true,
+    },
   });
   if (!user?.passwordHash) {
     await burnPasswordCheck(input.password);
@@ -93,6 +100,10 @@ export async function login(input: LoginInput): Promise<SessionResult> {
   }
   if (user.deactivatedAt) {
     throw new UnauthenticatedError("This account has been deactivated.");
+  }
+  // Said only to someone who knows the temporary password (it was checked above).
+  if (user.mustChangePassword && user.temporaryPasswordExpiresAt && user.temporaryPasswordExpiresAt <= clock.now()) {
+    throw new UnauthenticatedError("This temporary password has expired. Ask the person who added you for a new one.");
   }
   return startSession(user.id, user.sessionVersion);
 }
@@ -158,14 +169,15 @@ export async function updateMyProfile(actor: Actor, input: UpdateProfileInput): 
 }
 
 /**
- * Needs the current password. In one transaction: the new hash, a higher session version (every
- * other session ends at once), an audit event without the password, and the "password changed"
- * email. The current session continues with a renewed token.
+ * Needs the current password (after a temporary one, that is the temporary password). In one
+ * transaction: the new hash, a higher session version (every other session ends at once), the
+ * temporary-password flag cleared, an audit event without the password, and the "password
+ * changed" email. The current session continues with a renewed token.
  */
 export async function changePassword(actor: Actor, input: ChangePasswordInput): Promise<SessionResult> {
   const user = await db.user.findUniqueOrThrow({
     where: { id: actor.userId },
-    select: { email: true, name: true, passwordHash: true },
+    select: { email: true, name: true, passwordHash: true, mustChangePassword: true },
   });
   if (!user.passwordHash || !(await verifyPassword(input.currentPassword, user.passwordHash))) {
     throw new ValidationError("The current password is wrong.", [
@@ -181,13 +193,20 @@ export async function changePassword(actor: Actor, input: ChangePasswordInput): 
   const updated = await db.$transaction(async (tx) => {
     const row = await tx.user.update({
       where: { id: actor.userId },
-      data: { passwordHash, passwordChangedAt: clock.now(), sessionVersion: { increment: 1 } },
+      data: {
+        passwordHash,
+        passwordChangedAt: clock.now(),
+        sessionVersion: { increment: 1 },
+        mustChangePassword: false,
+        temporaryPasswordExpiresAt: null,
+      },
       select: { sessionVersion: true },
     });
     await recordAudit(tx, {
       actorId: actor.userId,
       actorRole: primaryRole(actor),
-      action: "user.password_changed",
+      // The first password a person chooses after a temporary one is recorded as such.
+      action: user.mustChangePassword ? "user.password_set" : "user.password_changed",
       entityType: "user",
       entityId: actor.userId,
     });
