@@ -20,10 +20,10 @@ Each prototype screen has yellow notes (which decision it shows) and red notes (
 
 ```mermaid
 flowchart LR
-    A["Leader<br/>creates a department<br/>for the organiser"] --> B["Department head<br/>sets the brand kit,<br/>adds staff"]
+    A["Leader<br/>creates a department<br/>and its head"] --> B["Department head<br/>adds staff and jury<br/>(temporary passwords)"]
     B --> C["Staff<br/>set up the award<br/>and build its site"]
     C --> D["Applicants<br/>find the site, apply,<br/>upload proof"]
-    D --> E["Staff<br/>check proof, mask,<br/>assign 1 or more jury each"]
+    D --> E["Staff<br/>check proof, assign each<br/>application to listed jury"]
     E --> F["Jury<br/>score alone;<br/>the average counts"]
     F --> G["Department head<br/>approves<br/>(written rounds)"]
     G --> H["Staff<br/>publish results"]
@@ -71,7 +71,7 @@ flowchart TD
     S1["My awards<br/>many awards per person"] --> S2["Award setup<br/>dates, fee, limit, blind,<br/>rounds, questions, scoring"]
     S2 --> S3["Site builder<br/>pages, sections, publish, versions"]
     S3 --> S4["Applications<br/>proof status, release"]
-    S4 --> S5["Proof check"] --> S6["Masking<br/>blind awards only"] --> S7["Jury pool, conflicts,<br/>assignment"]
+    S4 --> S5["Proof check"] --> S7["Conflicts and<br/>the assignment board"]
     S7 --> S8["Judging progress<br/>score change needs a reason"] --> S9["Send for approval,<br/>then results"]
     S9 -.->|award has an on-site round| S10["On site: slots, panels,<br/>close, medals"]
 ```
@@ -81,10 +81,10 @@ flowchart TD
 | 1 | My awards | Awards across departments | `#s-awards` |
 | 2 | Award setup | Every difference between awards, set on screen; publish blocked until valid (R4) | `#s-setup` |
 | 3 | Site builder | Pages, sections, layouts, preview, publish, restore | `#s-site` |
-| 4 | Applications | Filters; proof and masking status; release a wrong application with a reason | `#s-apps` |
+| 4 | Applications | Filters; proof status; release a wrong application with a reason | `#s-apps` |
 | 5 | Proof check | The profile's ID and LinkedIn next to this application's dated employment proof; Verified, or Rejected with a reason (each award checks its own) | `#s-proof` |
-| 6 | Masking | Original next to the masked copy; files masked or marked safe (R1) | `#s-mask` |
-| 7 | Jury and assignment | Pool, recorded conflicts (R2); **jury per application** (minimum and maximum); assign several jury at once; "needs more jury" | `#s-assign` |
+| 6 | ~~Masking~~ | *Dropped on 11 Oct (ADR 0018): blind awards hide identity and files automatically. The prototype screen is kept for the record* | `#s-mask` |
+| 7 | Jury and assignment | Recorded conflicts (R2); **jury per application** (minimum and maximum); assign by hand from the department's jury list; the board with counts per application and per juror; "needs more jury" | `#s-assign` |
 | 8 | Judging progress | Each jury member's score and the average; score correction with a reason, kept in history (R3) | `#s-judging` |
 | 9 | Results | After approval: ranked list, Shortlisted / Rejected, publish | `#s-results` |
 | 10 | On-site round | Slots, panels, staff backup entry, close, suggested medals | `#s-onsite` |
@@ -93,14 +93,14 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    J1["My assignments"] --> J2["Score a written application<br/>masked copy, weights, overall note"]
+    J1["My assignments"] --> J2["Score a written application<br/>answers, weights, overall note"]
     J1 --> J3["On site: score on a phone<br/>alone, never sees other scores"]
 ```
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
 | 1 | My assignments | Only their own applications and progress | `#j-list` |
-| 2 | Scoring (written, blind) | Masked answers, no identity, no proof documents, no total, never another jury member's marks (R1) | `#j-score` |
+| 2 | Scoring (written, blind) | The answers as typed; no identity, no files, no proof documents, no total, never another jury member's marks (R1) | `#j-score` |
 | 3 | On-site scoring | Phone screen; panel member scores alone | `#j-onsite` |
 
 ## 5. Department head (or an external organiser's lead)

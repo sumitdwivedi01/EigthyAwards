@@ -1,0 +1,922 @@
+// Awards Platform data model.
+// Source of truth: docs/requirements.md §10, plus ADRs 0006 (data consistency), 0008 (on-site
+// rounds), 0009 (award sites), 0010 and 0012 (proof documents, entry limit, My profile),
+// 0011 (one application per organisation), 0013 (several jury per application), 0014 (no PA
+// role) and 0016 (applicant and platform accounts).
+//
+// Ground rules:
+// - Every award-related row reaches its cycle through foreign keys. Where two rows must belong
+//   to the same cycle (an application and its category, an evaluation and its round), the
+//   foreign key includes cycleId, so the database refuses mixed-up rows.
+// - Names that must be unique ignore letter case (citext).
+// - Nothing people produce is hard-deleted. Raw SQL in the migrations adds CHECK constraints
+//   and append-only triggers that Prisma cannot express.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+  previewFeatures     = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────────── enums ─────────────────────────────
+
+/// Two kinds of account (ADR 0016, decided 10 Oct 2026), fixed once the account is in use:
+/// - APPLICANT: registers itself, creates or joins its organisation, applies, and keeps the
+///   profile proof (identity document, LinkedIn link). It never holds a role.
+/// - PLATFORM: the leader, department heads, staff and jury, created by the seed (and by invites
+///   from Phase 2). It holds roles and never applies.
+/// Someone who does both uses two accounts, with two email addresses. Triggers in the migrations
+/// refuse rows that mix them up.
+enum AccountType {
+  APPLICANT
+  PLATFORM
+}
+
+/// Held only by platform accounts. Applying is not a role: an applicant account is a member of an
+/// organisation (OrganisationMember).
+enum Role {
+  LEADER
+  DEPT_HEAD
+  DEPT_STAFF
+  AWARD_STAFF
+  JURY
+}
+
+enum AuthTokenType {
+  INVITE
+  PASSWORD_RESET
+}
+
+enum CycleStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  RESULTS_PUBLISHED
+}
+
+enum RoundType {
+  DOCUMENT_REVIEW
+  ON_SITE
+}
+
+enum RoundStatus {
+  NOT_STARTED
+  JUDGING
+  PENDING_APPROVAL
+  SENT_BACK
+  APPROVED
+  CLOSED
+  RESULTS_PUBLISHED
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  WITHDRAWN
+  NOT_SUBMITTED
+  RELEASED
+}
+
+enum MaskingStatus {
+  NOT_REQUIRED
+  PENDING
+  DONE
+}
+
+enum ProofStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum FileKind {
+  EVIDENCE
+  MASKED_EVIDENCE
+  IDENTITY_PROOF
+  EMPLOYMENT_PROOF
+}
+
+enum FileStatus {
+  PENDING
+  READY
+}
+
+enum PaymentStatus {
+  PAID
+}
+
+enum EvaluationStatus {
+  ASSIGNED
+  IN_PROGRESS
+  SUBMITTED
+  REDO
+  REVOKED
+}
+
+enum ApprovalDecision {
+  PENDING
+  APPROVED
+  SENT_BACK
+}
+
+enum DisqualificationAction {
+  DISQUALIFY
+  REINSTATE
+}
+
+enum SiteStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// ───────────────────────── people and access ─────────────────────────
+
+model User {
+  id                String      @id @default(uuid()) @db.Uuid
+  email             String      @unique @db.Citext
+  accountType       AccountType
+  name              String
+  /// "+91" and 10 digits, like organisation phones (a CHECK constraint guards the format).
+  phone             String?
+  passwordHash      String?
+  /// Raised by a password change, reset or deactivation; sessions carrying an older value end.
+  sessionVersion    Int         @default(0)
+  passwordChangedAt DateTime?
+  /// The applicant's profile proof (§5.20): given once, reused by every application. Applicant
+  /// accounts only (a CHECK constraint).
+  linkedinUrl       String?
+  /// The current identity document: an IDENTITY_PROOF file owned by this user.
+  identityFileId    String?     @unique @db.Uuid
+  deactivatedAt     DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  identityFile FileAsset? @relation("UserIdentityFile", fields: [identityFileId], references: [id])
+
+  roles                  RoleAssignment[]        @relation("RoleHolder")
+  rolesGranted           RoleAssignment[]        @relation("RoleGranter")
+  rolesRevoked           RoleAssignment[]        @relation("RoleRevoker")
+  authTokens             AuthToken[]             @relation("TokenOwner")
+  authTokensCreated      AuthToken[]             @relation("TokenCreator")
+  departmentsCreated     Department[]
+  organisationsCreated   Organisation[]
+  memberships            OrganisationMember[]
+  awardsCreated          Award[]
+  formVersionsPublished  FormVersion[]
+  roundsClosed           Round[]
+  applicationsCreated    Application[]           @relation("ApplicationCreator")
+  applicationsReleased   Application[]           @relation("ApplicationReleaser")
+  proofChecks            Application[]           @relation("ProofChecker")
+  maskedAnswers          MaskedAnswer[]
+  filesUploaded          FileAsset[]             @relation("FileUploader")
+  filesOwned             FileAsset[]             @relation("FileOwner")
+  conflicts              Conflict[]              @relation("ConflictedJury")
+  conflictsRecorded      Conflict[]              @relation("ConflictRecorder")
+  evaluations            Evaluation[]            @relation("EvaluationJury")
+  evaluationsEntered     Evaluation[]            @relation("EvaluationEnteredBy")
+  approvalsSubmitted     ApprovalRequest[]       @relation("ApprovalSubmitter")
+  approvalsDecided       ApprovalRequest[]       @relation("ApprovalDecider")
+  disqualificationEvents DisqualificationEvent[]
+  slotsScheduled         PresentationSlot[]
+  resultsDecided         RoundResult[]
+  sitePagesPublished     SitePageVersion[]
+  mediaUploaded          MediaAsset[]
+  auditEvents            AuditEvent[]
+
+  @@map("users")
+}
+
+/// A role held inside a scope. LEADER has no scope; DEPT_HEAD and DEPT_STAFF a department;
+/// AWARD_STAFF an award; JURY a cycle (a CHECK constraint enforces the shape).
+/// Removing a role sets revokedAt; rows are kept.
+model RoleAssignment {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  role         Role
+  departmentId String?   @db.Uuid
+  awardId      String?   @db.Uuid
+  cycleId      String?   @db.Uuid
+  grantedById  String?   @db.Uuid
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  revokedById  String?   @db.Uuid
+
+  user       User        @relation("RoleHolder", fields: [userId], references: [id])
+  grantedBy  User?       @relation("RoleGranter", fields: [grantedById], references: [id])
+  revokedBy  User?       @relation("RoleRevoker", fields: [revokedById], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  award      Award?      @relation(fields: [awardId], references: [id])
+  cycle      Cycle?      @relation(fields: [cycleId], references: [id])
+
+  // One active row per user, role and scope.
+  @@unique([userId, role], map: "role_assignments_unscoped_active_key", where: raw("\"revokedAt\" IS NULL AND \"departmentId\" IS NULL AND \"awardId\" IS NULL AND \"cycleId\" IS NULL"))
+  @@unique([userId, role, departmentId], map: "role_assignments_department_active_key", where: raw("\"revokedAt\" IS NULL AND \"departmentId\" IS NOT NULL"))
+  @@unique([userId, role, awardId], map: "role_assignments_award_active_key", where: raw("\"revokedAt\" IS NULL AND \"awardId\" IS NOT NULL"))
+  @@unique([userId, role, cycleId], map: "role_assignments_cycle_active_key", where: raw("\"revokedAt\" IS NULL AND \"cycleId\" IS NOT NULL"))
+  // Exactly one active leader on the platform.
+  @@unique([role], map: "role_assignments_single_leader_key", where: raw("role = 'LEADER' AND \"revokedAt\" IS NULL"))
+  @@index([userId])
+  @@map("role_assignments")
+}
+
+/// Invite and password-reset links. Only a hash of the token is stored; each is single use.
+model AuthToken {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @db.Uuid
+  type        AuthTokenType
+  tokenHash   String        @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdById String?       @db.Uuid
+  createdAt   DateTime      @default(now())
+
+  user      User  @relation("TokenOwner", fields: [userId], references: [id])
+  createdBy User? @relation("TokenCreator", fields: [createdById], references: [id])
+
+  @@index([userId, type])
+  @@map("auth_tokens")
+}
+
+/// A unit that runs awards: part of the industry body, or an external award organiser.
+model Department {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.Citext
+  createdById String?  @db.Uuid
+  createdAt   DateTime @default(now())
+
+  createdBy   User?            @relation(fields: [createdById], references: [id])
+  brandKit    BrandKit?
+  mediaAssets MediaAsset[]
+  awards      Award[]
+  roles       RoleAssignment[]
+
+  @@map("departments")
+}
+
+// ───────────────────────────── master data ─────────────────────────────
+
+/// Controlled list of award domains. Retired values stay readable but can't be picked.
+model AwardDomain {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.Citext
+  retiredAt DateTime?
+  createdAt DateTime  @default(now())
+
+  awards Award[]
+
+  @@map("award_domains")
+}
+
+/// Controlled list of organisation types. Same rules as AwardDomain.
+model OrganisationType {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique @db.Citext
+  retiredAt DateTime?
+  createdAt DateTime  @default(now())
+
+  organisations Organisation[]
+
+  @@map("organisation_types")
+}
+
+// ───────────────────────────── organisations ─────────────────────────────
+
+/// The legal body that applies and receives the award: one row per PAN.
+/// Values are normalised before saving (src/lib/normalize.ts); CHECK constraints guard formats.
+model Organisation {
+  id            String   @id @default(uuid()) @db.Uuid
+  legalName     String
+  pan           String   @unique @db.Char(10)
+  gstin         String?  @unique @db.Char(15)
+  addressLine   String
+  city          String
+  stateCode     String   @db.Char(2)
+  pincode       String   @db.Char(6)
+  officialEmail String   @db.Citext
+  phone         String
+  orgTypeId     String?  @db.Uuid
+  cin           String?
+  website       String?
+  createdById   String?  @db.Uuid
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orgType      OrganisationType?    @relation(fields: [orgTypeId], references: [id])
+  createdBy    User?                @relation(fields: [createdById], references: [id])
+  members      OrganisationMember[]
+  applications Application[]
+  conflicts    Conflict[]
+
+  @@map("organisations")
+}
+
+model OrganisationMember {
+  organisationId String   @db.Uuid
+  userId         String   @db.Uuid
+  joinedAt       DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@id([organisationId, userId])
+  @@index([userId])
+  @@map("organisation_members")
+}
+
+// ───────────────────────── awards and their configuration ─────────────────────────
+
+model Award {
+  id           String   @id @default(uuid()) @db.Uuid
+  departmentId String   @db.Uuid
+  name         String   @db.Citext
+  domainId     String   @db.Uuid
+  description  String
+  createdById  String?  @db.Uuid
+  createdAt    DateTime @default(now())
+
+  department Department       @relation(fields: [departmentId], references: [id])
+  domain     AwardDomain      @relation(fields: [domainId], references: [id])
+  createdBy  User?            @relation(fields: [createdById], references: [id])
+  site       AwardSite?
+  cycles     Cycle[]
+  roles      RoleAssignment[]
+
+  @@unique([departmentId, name])
+  @@map("awards")
+}
+
+/// One edition of an award. Behaviour comes from these settings, never from the award's name.
+model Cycle {
+  id              String      @id @default(uuid()) @db.Uuid
+  awardId         String      @db.Uuid
+  label           String      @db.Citext
+  opensAt         DateTime
+  deadlineAt      DateTime
+  feePaise        Int         @default(0)
+  blindJudging    Boolean     @default(false)
+  /// The optional entry limit: the most submitted applications the cycle accepts (§5.20).
+  maxEntries      Int?
+  status          CycleStatus @default(DRAFT)
+  draftFormSchema Json?
+  publishedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  award        Award            @relation(fields: [awardId], references: [id])
+  categories   EntryCategory[]
+  formVersions FormVersion[]
+  rounds       Round[]
+  applications Application[]
+  roles        RoleAssignment[]
+  auditEvents  AuditEvent[]
+
+  @@unique([awardId, label])
+  @@map("cycles")
+}
+
+model EntryCategory {
+  id       String @id @default(uuid()) @db.Uuid
+  cycleId  String @db.Uuid
+  name     String @db.Citext
+  /// Overrides the cycle's fee when set.
+  feePaise Int?
+
+  cycle        Cycle         @relation(fields: [cycleId], references: [id])
+  applications Application[]
+
+  @@unique([cycleId, name])
+  @@unique([id, cycleId])
+  @@map("entry_categories")
+}
+
+/// An immutable snapshot of the questionnaire. Never updated after insert (a trigger enforces it).
+model FormVersion {
+  id            String   @id @default(uuid()) @db.Uuid
+  cycleId       String   @db.Uuid
+  version       Int
+  schema        Json
+  changeSummary String
+  publishedAt   DateTime @default(now())
+  publishedById String?  @db.Uuid
+
+  cycle        Cycle         @relation(fields: [cycleId], references: [id])
+  publishedBy  User?         @relation(fields: [publishedById], references: [id])
+  applications Application[]
+
+  @@unique([cycleId, version])
+  @@unique([id, cycleId])
+  @@map("form_versions")
+}
+
+/// One judging stage. juryMin..juryMax is the jury per application (ADR 0013): in a
+/// DOCUMENT_REVIEW round 1 <= min <= max (the service also caps max at the cycle's pool); in an
+/// ON_SITE round it is the panel size, 2 <= min <= max <= 5. Document rounds are approved by the
+/// department head; on-site rounds have no approval and are closed by staff.
+model Round {
+  id           String      @id @default(uuid()) @db.Uuid
+  cycleId      String      @db.Uuid
+  number       Int
+  type         RoundType
+  status       RoundStatus @default(NOT_STARTED)
+  /// [{ "label": "Shortlisted", "advances": true }, { "label": "Rejected" }]
+  resultLabels Json
+  juryMin      Int         @default(1)
+  juryMax      Int         @default(1)
+  closedAt     DateTime?
+  closedById   String?     @db.Uuid
+
+  cycle            Cycle              @relation(fields: [cycleId], references: [id])
+  closedBy         User?              @relation(fields: [closedById], references: [id])
+  scoringSheet     ScoringSheet?
+  evaluations      Evaluation[]
+  approvalRequests ApprovalRequest[]
+  slots            PresentationSlot[]
+  results          RoundResult[]
+
+  @@unique([cycleId, number])
+  @@unique([id, cycleId])
+  @@map("rounds")
+}
+
+/// Indicators and weights of one round. Locked once the first score is saved.
+model ScoringSheet {
+  id        String    @id @default(uuid()) @db.Uuid
+  roundId   String    @unique @db.Uuid
+  schema    Json
+  lockedAt  DateTime?
+  updatedAt DateTime  @updatedAt
+
+  round Round @relation(fields: [roundId], references: [id])
+
+  @@map("scoring_sheets")
+}
+
+// ───────────────────────────── award sites (ADR 0009) ─────────────────────────────
+
+/// A department's brand, used by all its award sites (an award site can override colours).
+model BrandKit {
+  id            String   @id @default(uuid()) @db.Uuid
+  departmentId  String   @unique @db.Uuid
+  logoAssetId   String?  @db.Uuid
+  /// "#RRGGBB"
+  primaryColour String
+  accentColour  String
+  /// A key from the safe font list in code.
+  fontKey       String
+  /// [{ "network": "linkedin", "url": "https://..." }]
+  socialLinks   Json     @default("[]")
+  footerText    String   @default("")
+  updatedAt     DateTime @updatedAt
+
+  department Department  @relation(fields: [departmentId], references: [id])
+  logo       MediaAsset? @relation(fields: [logoAssetId], references: [id])
+
+  @@map("brand_kits")
+}
+
+/// An award's public site at /awards/<slug>. customDomain is designed for, not used yet.
+model AwardSite {
+  id             String     @id @default(uuid()) @db.Uuid
+  awardId        String     @unique @db.Uuid
+  slug           String     @unique @db.Citext
+  status         SiteStatus @default(DRAFT)
+  themeOverrides Json       @default("{}")
+  customDomain   String?    @unique @db.Citext
+  publishedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  award Award      @relation(fields: [awardId], references: [id])
+  pages SitePage[]
+
+  @@map("award_sites")
+}
+
+/// One page of an award site. Staff edit the draft; publishing inserts a SitePageVersion.
+model SitePage {
+  id            String   @id @default(uuid()) @db.Uuid
+  siteId        String   @db.Uuid
+  slug          String   @db.Citext
+  title         String
+  navOrder      Int      @default(0)
+  showInNav     Boolean  @default(true)
+  /// Ready-made sections (ADR 0009), checked by a Zod schema; never HTML.
+  draftSections Json     @default("[]")
+  draftSeo      Json     @default("{}")
+  updatedAt     DateTime @updatedAt
+
+  site     AwardSite         @relation(fields: [siteId], references: [id])
+  versions SitePageVersion[]
+
+  @@unique([siteId, slug])
+  @@map("site_pages")
+}
+
+/// A published page, immutable like FormVersion (a trigger refuses UPDATE and DELETE).
+model SitePageVersion {
+  id            String   @id @default(uuid()) @db.Uuid
+  pageId        String   @db.Uuid
+  version       Int
+  sections      Json
+  seo           Json
+  publishedAt   DateTime @default(now())
+  publishedById String?  @db.Uuid
+
+  page        SitePage @relation(fields: [pageId], references: [id])
+  publishedBy User?    @relation(fields: [publishedById], references: [id])
+
+  @@unique([pageId, version])
+  @@map("site_page_versions")
+}
+
+/// An image for award sites. Lives in the PUBLIC bucket, never next to applicants' files.
+model MediaAsset {
+  id           String   @id @default(uuid()) @db.Uuid
+  departmentId String   @db.Uuid
+  storageKey   String   @unique
+  fileName     String
+  mimeType     String
+  sizeBytes    Int
+  width        Int
+  height       Int
+  altText      String
+  uploadedById String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  department Department @relation(fields: [departmentId], references: [id])
+  uploadedBy User       @relation(fields: [uploadedById], references: [id])
+  brandKits  BrandKit[]
+
+  @@index([departmentId])
+  @@map("media_assets")
+}
+
+// ───────────────────────────── applications ─────────────────────────────
+
+/// One organisation's entry in one cycle. At most one active (not WITHDRAWN or RELEASED) per
+/// organisation and cycle (ADR 0011): checked by the service at start, enforced by the partial
+/// unique index below.
+model Application {
+  id               String            @id @default(uuid()) @db.Uuid
+  cycleId          String            @db.Uuid
+  organisationId   String            @db.Uuid
+  createdById      String            @db.Uuid
+  categoryId       String            @db.Uuid
+  formVersionId    String?           @db.Uuid
+  status           ApplicationStatus @default(DRAFT)
+  maskingStatus    MaskingStatus     @default(NOT_REQUIRED)
+  updateRequested  Boolean           @default(false)
+  /// The organisation's identity fields, taken at submit and frozen at the deadline.
+  identitySnapshot Json?
+  /// The profile proof this application uses (§5.20): set at submit, following the profile
+  /// until staff verify the proof or the deadline locks the application.
+  identityFileId   String?           @db.Uuid
+  linkedinUrl      String?
+  proofStatus      ProofStatus       @default(PENDING)
+  proofCheckedById String?           @db.Uuid
+  proofCheckedAt   DateTime?
+  proofNote        String?
+  submittedAt      DateTime?
+  lockedAt         DateTime?
+  withdrawnAt      DateTime?
+  withdrawReason   String?
+  /// Set together, exactly when the status is RELEASED (a CHECK constraint enforces it).
+  releasedAt       DateTime?
+  releasedById     String?           @db.Uuid
+  releaseReason    String?
+  /// Cache of the latest DisqualificationEvent, written in the same transaction.
+  disqualifiedAt   DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  cycle          Cycle         @relation(fields: [cycleId], references: [id])
+  organisation   Organisation  @relation(fields: [organisationId], references: [id])
+  createdBy      User          @relation("ApplicationCreator", fields: [createdById], references: [id])
+  category       EntryCategory @relation(fields: [categoryId, cycleId], references: [id, cycleId])
+  formVersion    FormVersion?  @relation(fields: [formVersionId, cycleId], references: [id, cycleId])
+  identityFile   FileAsset?    @relation("ApplicationIdentityFile", fields: [identityFileId], references: [id])
+  proofCheckedBy User?         @relation("ProofChecker", fields: [proofCheckedById], references: [id])
+  releasedBy     User?         @relation("ApplicationReleaser", fields: [releasedById], references: [id])
+
+  answers          Answer[]
+  maskedAnswers    MaskedAnswer[]
+  files            FileAsset[]             @relation("ApplicationFiles")
+  payments         Payment[]
+  evaluations      Evaluation[]
+  approvalRemarks  ApprovalRemark[]
+  disqualification DisqualificationEvent[]
+  slots            PresentationSlot[]
+  results          RoundResult[]
+
+  @@unique([id, cycleId])
+  @@unique([cycleId, organisationId], map: "applications_one_active_per_organisation_key", where: raw("status <> 'WITHDRAWN' AND status <> 'RELEASED'"))
+  @@index([cycleId, status])
+  @@index([organisationId])
+  @@index([identityFileId])
+  @@map("applications")
+}
+
+/// Answers are stored by stable question key, so they carry across form versions.
+model Answer {
+  applicationId String   @db.Uuid
+  questionKey   String
+  value         Json
+  updatedAt     DateTime @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id])
+
+  @@id([applicationId, questionKey])
+  @@map("answers")
+}
+
+/// The jury-safe copy of an answer (blind document rounds).
+model MaskedAnswer {
+  applicationId String   @db.Uuid
+  questionKey   String
+  value         Json
+  maskedById    String   @db.Uuid
+  maskedAt      DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id])
+  maskedBy    User        @relation(fields: [maskedById], references: [id])
+
+  @@id([applicationId, questionKey])
+  @@map("masked_answers")
+}
+
+/// File metadata; the bytes live in storage under storageKey. Exactly one owner (a CHECK
+/// constraint enforces it): IDENTITY_PROOF belongs to a user (their profile), every other kind
+/// to an application. A "safe as is" masked copy points at the same storageKey as its original.
+/// Proof files are deleted after the retention period; the row stays with purgedAt.
+model FileAsset {
+  id            String     @id @default(uuid()) @db.Uuid
+  applicationId String?    @db.Uuid
+  ownerUserId   String?    @db.Uuid
+  questionKey   String?
+  kind          FileKind
+  status        FileStatus @default(PENDING)
+  maskedFromId  String?    @db.Uuid
+  safeAsIs      Boolean    @default(false)
+  /// The date printed on an EMPLOYMENT_PROOF (required for it; within 3 months, checked by the service).
+  documentDate  DateTime?  @db.Date
+  /// When the uploader consented to keeping this proof document (required for both proof kinds).
+  consentAt     DateTime?
+  storageKey    String
+  fileName      String
+  mimeType      String
+  sizeBytes     Int
+  uploadedById  String     @db.Uuid
+  purgedAt      DateTime?
+  createdAt     DateTime   @default(now())
+
+  application        Application?  @relation("ApplicationFiles", fields: [applicationId], references: [id])
+  owner              User?         @relation("FileOwner", fields: [ownerUserId], references: [id])
+  uploadedBy         User          @relation("FileUploader", fields: [uploadedById], references: [id])
+  maskedFrom         FileAsset?    @relation("MaskedCopy", fields: [maskedFromId], references: [id])
+  maskedCopy         FileAsset[]   @relation("MaskedCopy")
+  identityOfUser     User?         @relation("UserIdentityFile")
+  usedByApplications Application[] @relation("ApplicationIdentityFile")
+
+  @@index([applicationId, kind])
+  @@index([ownerUserId])
+  @@map("file_assets")
+}
+
+/// Demo payments only: "Pay" writes a row with a fake reference.
+model Payment {
+  id            String        @id @default(uuid()) @db.Uuid
+  applicationId String        @db.Uuid
+  amountPaise   Int
+  status        PaymentStatus
+  reference     String        @unique
+  paidAt        DateTime      @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id])
+
+  @@index([applicationId])
+  @@map("payments")
+}
+
+// ───────────────────────── jury, judging and results ─────────────────────────
+
+/// "This jury member has a conflict with this organisation". Applies across all awards.
+model Conflict {
+  id             String   @id @default(uuid()) @db.Uuid
+  juryUserId     String   @db.Uuid
+  organisationId String   @db.Uuid
+  note           String?
+  recordedById   String   @db.Uuid
+  createdAt      DateTime @default(now())
+
+  juryUser     User         @relation("ConflictedJury", fields: [juryUserId], references: [id])
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  recordedBy   User         @relation("ConflictRecorder", fields: [recordedById], references: [id])
+
+  @@unique([juryUserId, organisationId])
+  @@map("conflicts")
+}
+
+/// One jury member's scoring of one application in one round. An application has up to the
+/// round's juryMax active evaluations (counted by the service under a lock on the application);
+/// the same jury member can hold only one active (non-revoked) evaluation of it.
+model Evaluation {
+  id            String           @id @default(uuid()) @db.Uuid
+  cycleId       String           @db.Uuid
+  roundId       String           @db.Uuid
+  applicationId String           @db.Uuid
+  juryUserId    String           @db.Uuid
+  status        EvaluationStatus @default(ASSIGNED)
+  overallNote   String?
+  submittedAt   DateTime?
+  /// Set when staff typed the scores on the panel member's behalf (on-site backup entry).
+  enteredById   String?          @db.Uuid
+  revokedAt     DateTime?
+  revokedReason String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  round       Round       @relation(fields: [roundId, cycleId], references: [id, cycleId])
+  application Application @relation(fields: [applicationId, cycleId], references: [id, cycleId])
+  juryUser    User        @relation("EvaluationJury", fields: [juryUserId], references: [id])
+  enteredBy   User?       @relation("EvaluationEnteredBy", fields: [enteredById], references: [id])
+
+  scores   IndicatorScore[]
+  comments QuestionComment[]
+
+  @@unique([roundId, applicationId, juryUserId], map: "evaluations_one_active_per_jury_key", where: raw("status <> 'REVOKED'"))
+  @@index([roundId, applicationId])
+  @@index([juryUserId, status])
+  @@map("evaluations")
+}
+
+/// A whole number 0..10, or 0/1 for Yes/No (a CHECK constraint guards the range).
+model IndicatorScore {
+  evaluationId String   @db.Uuid
+  indicatorKey String
+  value        Int
+  updatedAt    DateTime @updatedAt
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+
+  @@id([evaluationId, indicatorKey])
+  @@map("indicator_scores")
+}
+
+model QuestionComment {
+  evaluationId String   @db.Uuid
+  questionKey  String
+  comment      String
+  updatedAt    DateTime @updatedAt
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+
+  @@id([evaluationId, questionKey])
+  @@map("question_comments")
+}
+
+/// One row per submission of a document review round to the department head.
+model ApprovalRequest {
+  id            String           @id @default(uuid()) @db.Uuid
+  roundId       String           @db.Uuid
+  submittedById String           @db.Uuid
+  submittedAt   DateTime         @default(now())
+  decision      ApprovalDecision @default(PENDING)
+  decidedById   String?          @db.Uuid
+  decidedAt     DateTime?
+  remark        String?
+
+  round       Round            @relation(fields: [roundId], references: [id])
+  submittedBy User             @relation("ApprovalSubmitter", fields: [submittedById], references: [id])
+  decidedBy   User?            @relation("ApprovalDecider", fields: [decidedById], references: [id])
+  remarks     ApprovalRemark[]
+
+  @@index([roundId])
+  @@map("approval_requests")
+}
+
+model ApprovalRemark {
+  approvalRequestId String @db.Uuid
+  applicationId     String @db.Uuid
+  remark            String
+
+  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId], references: [id])
+  application     Application     @relation(fields: [applicationId], references: [id])
+
+  @@id([approvalRequestId, applicationId])
+  @@map("approval_remarks")
+}
+
+/// Disqualify / reinstate history. The current state is the latest event. Append-only.
+model DisqualificationEvent {
+  id            String                 @id @default(uuid()) @db.Uuid
+  applicationId String                 @db.Uuid
+  action        DisqualificationAction
+  byUserId      String                 @db.Uuid
+  byRole        Role
+  reason        String
+  createdAt     DateTime               @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id])
+  byUser      User        @relation(fields: [byUserId], references: [id])
+
+  @@index([applicationId, createdAt])
+  @@map("disqualification_events")
+}
+
+/// When and where an entry presents in an ON_SITE round.
+model PresentationSlot {
+  id            String   @id @default(uuid()) @db.Uuid
+  cycleId       String   @db.Uuid
+  roundId       String   @db.Uuid
+  applicationId String   @db.Uuid
+  startsAt      DateTime
+  venue         String
+  note          String?
+  scheduledById String   @db.Uuid
+  updatedAt     DateTime @updatedAt
+
+  round       Round       @relation(fields: [roundId, cycleId], references: [id, cycleId])
+  application Application @relation(fields: [applicationId, cycleId], references: [id, cycleId])
+  scheduledBy User        @relation(fields: [scheduledById], references: [id])
+
+  @@unique([roundId, applicationId])
+  @@map("presentation_slots")
+}
+
+/// An application's outcome in one round: final score (the average of its submitted
+/// evaluations, rounded once), rank and result label. Snapshotted when the round's scores lock.
+model RoundResult {
+  id            String    @id @default(uuid()) @db.Uuid
+  cycleId       String    @db.Uuid
+  roundId       String    @db.Uuid
+  applicationId String    @db.Uuid
+  finalScore    Decimal?  @db.Decimal(5, 2)
+  rank          Int?
+  resultLabel   String?
+  decidedById   String?   @db.Uuid
+  decidedAt     DateTime?
+  publishedAt   DateTime?
+
+  round       Round       @relation(fields: [roundId, cycleId], references: [id, cycleId])
+  application Application @relation(fields: [applicationId, cycleId], references: [id, cycleId])
+  decidedBy   User?       @relation(fields: [decidedById], references: [id])
+
+  @@unique([roundId, applicationId])
+  @@map("round_results")
+}
+
+// ───────────────────────────── platform ─────────────────────────────
+
+/// Append-only history of every decision that matters (a trigger refuses UPDATE and DELETE).
+/// actorRole records the role the actor acted in (staff, department head, leader, ...).
+model AuditEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  actorRole  Role?
+  action     String
+  entityType String
+  entityId   String
+  cycleId    String?  @db.Uuid
+  before     Json?
+  after      Json?
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  actor User?  @relation(fields: [actorId], references: [id])
+  cycle Cycle? @relation(fields: [cycleId], references: [id])
+
+  @@index([cycleId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@index([actorRole, createdAt])
+  @@map("audit_events")
+}
+
+/// Every email, and the outbox: rows are written PENDING inside the business transaction and
+/// sent after commit.
+model EmailLog {
+  id        String      @id @default(uuid()) @db.Uuid
+  to        String
+  template  String
+  payload   Json
+  status    EmailStatus @default(PENDING)
+  attempts  Int         @default(0)
+  lastError String?
+  createdAt DateTime    @default(now())
+  sentAt    DateTime?
+
+  @@index([status, createdAt])
+  @@map("email_logs")
+}

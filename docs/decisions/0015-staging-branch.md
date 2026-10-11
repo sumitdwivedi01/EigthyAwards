@@ -1,6 +1,7 @@
 # 0015. A `staging` branch between the step branches and `main`
 
 - Status: **Accepted** (owner, 2026-10-10)
+- Update (2026-10-11, owner): in Phase 1 only **production** goes online; `staging` is tested by CI and locally (this ADR's own fallback, "what would change our mind"). The staging site comes in Phase 2.
 - Date: 2026-10-10
 - Related: supersedes the branch flow of [ADR 0004](0004-git-branching-workflow.md) (naming, Conventional Commits, merge commits and tags still apply); GAPS G-D05, G-G03, G-K18
 

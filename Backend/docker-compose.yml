@@ -1,0 +1,28 @@
+# Local services for development and tests. Start with: docker compose up -d
+# PostgreSQL is published on host port 5433 so it never clashes with a local PostgreSQL on 5432.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: awards
+      POSTGRES_PASSWORD: awards
+      POSTGRES_DB: awards
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U awards -d awards"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # web inbox: http://localhost:8025
+
+volumes:
+  postgres-data:

@@ -1,6 +1,7 @@
 # 0013. Several jury per application in document review rounds, with the average as the final score
 
 - Status: **Accepted** (lead call and owner, 2026-10-09)
+- Update (2026-10-11, [ADR 0017](0017-people-created-on-screen.md)): there is no cycle pool any more. "The jury in the pool" below now means the department's jury list; staff assign from it by hand.
 - Date: 2026-10-09
 - Related: spec §5.5, §5.8, §5.9, §5.11, §5.12, §10; extends ADR 0008 (on-site panels); supersedes "exactly one jury member per application" in document review rounds
 
