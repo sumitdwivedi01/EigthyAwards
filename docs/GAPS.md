@@ -8,7 +8,7 @@
 >
 > Phase numbers in sections A–I were remapped to the 7 Oct plan (old Phases 4–9 became 5–9; see PHASES.md §2).
 >
-> Last updated: 2026-10-12 (Day 10: closed gaps folded away per section; G-C01, G-F09 corrected). Update this file at the end of every step.
+> Last updated: 2026-10-12 (Day 10: one award per award department, ADR 0021; K41–K44 added). Update this file at the end of every step.
 >
 > **Phase numbers** in the "Phase" columns use the old 15-phase list. [PHASES.md §7](PHASES.md#7-where-the-old-15-phase-list-went) maps them to the new steps (1.1–1.5) and packages (2.x, 3.x).
 
@@ -26,7 +26,7 @@
 | H | Gaps from the leader call: data consistency (and the PA role, removed 9 Oct) (Day 3) | 12 | 3 |
 | I | Gaps from on-site rounds (Day 4) | 13 | 8 |
 | J | New issues (Day 5): branded award sites, organisers, verification, entry limits, domains | 24 | 7 |
-| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores; Step 1.2, 1.3 and 1.4 findings | 40 | 7 |
+| K | Lead call (Day 7) and Phase 1 planning (Days 8–9): proof once, My profile, several jury, re-plan, staging, accounts, people on screen, no masking, exact scores; Step 1.2, 1.3 and 1.4 findings; one award per department (Day 10) | 44 | 9 |
 
 \* Not yet closed = any status except `Decided`, `Fixed`, `Accepted risk`, `Done`, `Answered`, `Removed`, `Superseded` or `Ongoing` (a habit kept every day, such as the daily log). "Default adopted" still counts as open until the code that implements it is merged and tested.
 
@@ -314,8 +314,10 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K30 | The plan shows the department's **logo** on award pages and cards, but Phase 1 has no image uploads | Phase 1 pages and cards use the department's name and colours; the logo comes with image uploads in package 2.2 (the brand kit already has `logoAssetId`) | 1.2, 2.2 | Default adopted |
 | G-K33 | There is no scheduled job, so the deadline lock (drafts to Not submitted, the snapshot frozen) runs on the first use of the edition after its deadline | Every write checks the clock itself, and every view works the status out from the clock, so nothing changes or shows wrongly in between; Step 1.4's assignment runs the lock first. A scheduled job if a report ever needs the stored status before anyone opens the edition | 1.3, 1.4 | Default adopted |
 | G-K40 | Changing an application's proof check after judging has started would put an application into, or out of, a round in progress | The proof check is fixed once the application has an evaluation or its round has gone for approval (409). A wrong verified proof found later waits for disqualification (package 2.5) | 1.4, 2.5 | Default adopted |
+| G-K43 | Should staff assign applications to jury **before the deadline**, as they arrive, so jury can start early on a six-month award? | **Recommended (not built):** a per-edition setting "Assign as applications arrive", off by default. When on, a submitted application with verified proof can be assigned before the deadline, and assigning it **freezes it** (no edits or withdrawal after that; both come in 2.5 anyway). Every other rule stays (conflicts, minimum and maximum, blind view). Keep it off for awards that want every application judged against the same field, and wait until 2.5 (edit after submit, withdraw) is built, so the freeze has something to stop. Phase 1 keeps assignment after the deadline | 2.5 | Decision needed |
+| G-K44 | One edition at a time (ADR 0021): an edition left as a draft, or published and never judged, blocks the next one, and Phase 1 can't delete an edition | Staff finish the draft (or reuse it for the next year: its dates and name can change while it is a draft); a published edition whose deadline passed with nothing submitted no longer blocks. Removing an unused draft edition comes with the admin screens (2.3) | 1.4b, 2.3 | Default adopted |
 
-<details><summary>Closed: 33 items (decided, fixed, answered, removed or ongoing)</summary>
+<details><summary>Closed: 35 items (decided, fixed, answered, removed or ongoing)</summary>
 
 | ID | Gap or question | Default / answer | Phase | Status |
 |---|---|---|---|---|
@@ -351,6 +353,8 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 | G-K37 | A conflict recorded after the juror submitted: the spec says "flagged for staff" but not what staff can then do | **Owner, 11 Oct:** flagged on the board and in judging; it still counts. Accepted risk: a conflicted juror's submitted marks stay in the average; staff see the flag and can correct a mark with a reason before approval | 1.4 | Decided (accepted risk) |
 | G-K38 | In an award that isn't blind, the spec didn't say which of the organisation's details the jury see | **Owner, 11 Oct:** its name, type, city and state, with the answers and the evidence files; never its PAN, GSTIN, contacts, address, the applicant or the proof documents (minimum data) | 1.4 | Decided |
 | G-K39 | A conflict recorded by mistake would block a juror from an organisation everywhere, with no way back (nothing staff produced is deleted) | **Owner, 11 Oct:** removed by the award's staff or the department's head with a reason; the row is kept with who, when and why (one active conflict per pair), and audited | 1.4 | Decided |
+| G-K41 | A department ran several awards, sharing its people, jury list and theme; the lead says the client thinks of each award as having its own home | **Lead and owner, 12 Oct:** one award per award department (ADR 0021). Staff create it and a second is refused (also by a unique index); a new award needs a new award department from the leader; every staff member of the department runs its award; one edition at a time; the screens say "award department" | 1.4b | Decided |
+| G-K42 | The brief's "Another has 38 categories competing in the same cycle" was ambiguous: 38 entry categories inside one award, or 38 awards? | **The lead, 12 Oct:** 38 separate awards in the same yearly cycle. The README and the spec say so; entry categories inside one award stay as built | 1.4b | Answered |
 | G-K31 | The leader can still issue a new temporary password to a department head, and sees it once: a way into a department that otherwise runs itself (ADR 0020) | Kept by the owner (11 Oct) as the only way back in for a locked-out head until email reset (2.3): the head's sessions end, they must set a new password, and it is audited as the leader's action, so the head notices. Email reset removes the need | 1.2, 2.3 | Accepted risk |
 
 </details>
@@ -382,6 +386,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-12 | One award per award department (ADR 0021): K41 decided and K42 answered with the lead ("38 categories" means 38 separate awards); K43 added (assigning before the deadline: decision needed, with the recommended answer); K44 added (one edition at a time and an unused draft edition). |
 | 2026-10-12 | Docs cleanup on the Step 1.4 branch: closed items folded into a collapsed table per section; G-C01 corrected to 15 modules (no `onsite` folder yet); G-F09 reworded to the Phase 1 scope (two written awards, on-site in 2.1); the proposal links point to git history. |
 | 2026-10-11 | Step 1.4 (assignment, judging and results): C14, K06, K07 and K25 fixed (built and tested); K34–K39 added and decided with the owner (score corrections until approval; sending waits for every proof check; ranks per category; a late conflict on submitted work is flagged and counts; the jury's view of a non-blind award; conflicts removed with a reason); K40 added (the proof check is fixed once judging starts). |
 | 2026-10-11 | Step 1.3 (applying and the proof check): J20 and K04 fixed (built and tested); J23 updated (release through the API); K29 corrected (the failed logins came from a script, ai-notes #14); K32 (Word and Excel files known only as ZIP) and K33 (the deadline lock runs on first use) added. |

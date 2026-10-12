@@ -25,7 +25,8 @@ The brief asks: *"Write each one down when you make it. Give the options, the on
 | [0017](0017-people-created-on-screen.md) | Departments, heads, staff and jury created on screen in Phase 1, with temporary passwords; jury listed per department and assigned by hand | Accepted (updates 0013, 0016; changed by 0020) | 2026-10-11 |
 | [0018](0018-blind-judging-without-masking.md) | Blind judging without a masking step: identity, names and files never reach the jury; masking dropped | Accepted (replaces spec §5.7's masking) | 2026-10-11 |
 | [0019](0019-exact-score-arithmetic.md) | Exact score arithmetic: whole-number points, one half-up rounding to 2 decimals, ties share a rank | Accepted | 2026-10-11 |
-| [0020](0020-departments-run-themselves.md) | Departments run themselves: the head keeps the staff, jury and theme; the leader creates a department with its head and then only watches (and can reset a locked-out head) | Accepted (changes 0017) | 2026-10-11 |
+| [0020](0020-departments-run-themselves.md) | Departments run themselves: the head keeps the staff, jury and theme; the leader creates a department with its head and then only watches (and can reset a locked-out head) | Accepted (changes 0017; changed by 0021) | 2026-10-11 |
+| [0021](0021-one-award-per-department.md) | One award per award department: its staff create it and all of them run it, one edition at a time; a new award needs a new award department | Accepted (changes 0020) | 2026-10-12 |
 
 **Proposed** means it's what we will build, but we're waiting for confirmation (see [GAPS.md §A](../GAPS.md)). **Accepted** means confirmed.
 

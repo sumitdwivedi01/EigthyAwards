@@ -14,6 +14,8 @@ The awards work in different ways:
 
 - The largest one scores applicants on about 250 indicators across 15 areas. Its assessment runs six months, with two jury rounds.
 - Another has 38 categories competing in the same cycle.
+
+> **Note added 12 Oct 2026** (not part of the brief): the lead confirmed this line means 38 separate awards running in the same yearly cycle, not 38 groups of applicants inside one award. See the README, section 6, and ADR 0021.
 - Some charge an entry fee. Most do not.
 - The shop-floor competitions may not fit the usual "fill a form, upload evidence" shape.
 

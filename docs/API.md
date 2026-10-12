@@ -148,7 +148,7 @@ The leader creates departments, each with its head, and from then on **only view
 | GET | `/api/departments/:id/theme` | The department's head; the leader, to view | — | `Theme` |
 | PUT | `/api/departments/:id/theme` | The department's head | `{ primaryColour, accentColour, footerText? }`; colours as `#RRGGBB`, the footer up to 200 characters (empty shows the department's name) | `200 Theme`. Every award page of the department shows it at once; audited with before and after |
 
-**DepartmentSummary**: `{ id, name, externalOrganiser, colours: { primary, accent } | null, heads: [Person], counts: { staff, jury, awards } }`
+**DepartmentSummary**: `{ id, name, externalOrganiser, colours: { primary, accent } | null, heads: [Person], counts: { staff, jury, awards }, award: { id, name } | null }` (an award department runs at most one award, ADR 0021)
 
 **Person**: `{ id, name, email, waitingForFirstLogin }` (`waitingForFirstLogin`: still on the temporary password)
 
@@ -158,15 +158,15 @@ The leader creates departments, each with its head, and from then on **only view
 
 ## Award setup (staff of the award)
 
-Staff create an award in a department where they are staff, and become its award staff; only an award's own staff see or change it (others get `403`). Each year's run of an award is an **edition** (a cycle). A new edition starts as a draft with one written round (document review, 1 juror per application, results Shortlisted / Rejected), no categories, an empty questionnaire and an empty scoring sheet. Times are sent as ISO 8601 with their offset (the screens send India time, `+05:30`); money is whole paise.
+Staff create their award department's **one award** (ADR 0021); every staff member of the department then runs it, and only they see or change it (others get `403`). Each year's run of an award is an **edition** (a cycle), and **one edition runs at a time**. A new edition starts as a draft with one written round (document review, 1 juror per application, results Shortlisted / Rejected), no categories, an empty questionnaire and an empty scoring sheet. Times are sent as ISO 8601 with their offset (the screens send India time, `+05:30`); money is whole paise.
 
 | Method | Path | Body | Response |
 |---|---|---|---|
 | GET | `/api/awards/mine` | — | `[Award]`: every award the caller runs, across departments |
-| POST | `/api/awards` | `{ departmentId, name, domainId, description }` (the domain from `/api/master-data/award-domains`) | `201 Award`; its page address is made from the name (`-2`, `-3` if taken). `400` on `name` if the department has an award with that name (letter case ignored); `403` if the caller isn't the department's staff |
+| POST | `/api/awards` | `{ departmentId, name, domainId, description }` (the domain from `/api/master-data/award-domains`) | `201 Award`; its page address is made from the name (`-2`, `-3` if taken). `409 { reason: "DEPARTMENT_HAS_AWARD" }` if the award department already runs its award (also when two staff create one at once); `403` if the caller isn't the department's staff |
 | GET | `/api/awards/:id` | — | `Award` |
 | PUT | `/api/awards/:id/site` | `{ slug }`: 2 to 60 lower-case letters, digits and single hyphens | `200 { slug }`. Also the department's head (ADR 0020); the leader gets `403`. `400` on `slug` if another award uses it; audited |
-| POST | `/api/awards/:id/cycles` | `{ label, opensAt, deadlineAt }` | `201 CycleSetup` (draft). `400` if the deadline isn't after the opening, or the label is taken in this award |
+| POST | `/api/awards/:id/cycles` | `{ label, opensAt, deadlineAt }` | `201 CycleSetup` (draft). `400` if the deadline isn't after the opening, or the label is taken in this award. `409 { reason: "EDITION_RUNNING" }` while another edition is still being set up or running: the next one starts once its results are published, or once its deadline passed with nothing submitted |
 | GET | `/api/cycles/:id` | — | `CycleSetup` |
 | PATCH | `/api/cycles/:id` | Any of `{ label, opensAt, deadlineAt, feePaise, blindJudging, maxEntries }`; `maxEntries: null` means no limit | `200 CycleSetup`. Once published, only `maxEntries` may change (`409 SETTINGS_FIXED` otherwise); `400` on `maxEntries` below the number already submitted; audited |
 | POST | `/api/cycles/:id/categories` | `{ name, feePaise? }`; `feePaise: null` uses the edition's fee | `201 CycleSetup`. `400` on `name` for a duplicate (letter case ignored); `409 SETTINGS_FIXED` once published |
@@ -174,7 +174,7 @@ Staff create an award in a department where they are staff, and become its award
 | PATCH | `/api/rounds/:id` | Any of `{ juryMin, juryMax, resultLabels: [{ label, advances }] }` (at least 1 juror; 2 to 6 results with different names) | `200 CycleSetup`. `400` if the minimum is above the maximum; `409` once judging has started in the round; audited |
 | POST | `/api/cycles/:id/publish` | — | `200 CycleSetup`. `409` with `details.reason: "PUBLISH_BLOCKED"` and `details.issues` listing everything still missing, or if already published; the award page goes live with it |
 
-**Award**: `{ id, name, description, department: { id, name }, domain: { id, name }, siteSlug, cycles: [{ id, label, status, state, opensAt, deadlineAt, roundId }] }` (`roundId`: the edition's judging round, Step 1.4)
+**Award**: `{ id, name, description, department: { id, name }, domain: { id, name }, siteSlug, cycles: [{ id, label, status, state, opensAt, deadlineAt, roundId }], newEditionBlockedReason }` (`roundId`: the edition's judging round, Step 1.4; `newEditionBlockedReason`: why a new edition can't start yet, or `null`). `GET /api/awards/mine` lists the award of every award department the caller is staff of
 
 **CycleSetup**:
 
