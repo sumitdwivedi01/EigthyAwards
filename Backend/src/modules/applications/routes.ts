@@ -31,6 +31,7 @@ import {
   startApplication,
   submitApplication,
 } from "./service.js";
+import { applicationHistory } from "./history.js";
 import { checkProof, listCycleApplications, releaseApplication, reviewApplication } from "./staff.js";
 
 /** Mounted at /cycles: starting an application, and the staff's list of an edition's applications. */
@@ -117,6 +118,11 @@ export function buildApplicationsRouter(): Router {
   router.get("/:id/review", async (req, res) => {
     const { id } = idSchema.parse(req.params);
     res.json(await reviewApplication(requireSignedIn(req.actor), id));
+  });
+
+  router.get("/:id/history", async (req, res) => {
+    const { id } = idSchema.parse(req.params);
+    res.json(await applicationHistory(requireSignedIn(req.actor), id));
   });
 
   router.post("/:id/proof-check", async (req, res) => {

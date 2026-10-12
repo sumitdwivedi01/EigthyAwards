@@ -182,6 +182,7 @@ model User {
   filesOwned             FileAsset[]             @relation("FileOwner")
   conflicts              Conflict[]              @relation("ConflictedJury")
   conflictsRecorded      Conflict[]              @relation("ConflictRecorder")
+  conflictsRemoved       Conflict[]              @relation("ConflictRemover")
   evaluations            Evaluation[]            @relation("EvaluationJury")
   evaluationsEntered     Evaluation[]            @relation("EvaluationEnteredBy")
   approvalsSubmitted     ApprovalRequest[]       @relation("ApprovalSubmitter")
@@ -690,20 +691,28 @@ model Payment {
 
 // ───────────────────────── jury, judging and results ─────────────────────────
 
-/// "This jury member has a conflict with this organisation". Applies across all awards.
+/// "Jury member X has a conflict with organisation Y" (spec §5.8, rule R2): it applies to every
+/// award. One recorded by mistake is removed with a reason and kept (removedAt, removedById and
+/// removeReason are set together; a CHECK constraint enforces it).
 model Conflict {
-  id             String   @id @default(uuid()) @db.Uuid
-  juryUserId     String   @db.Uuid
-  organisationId String   @db.Uuid
+  id             String    @id @default(uuid()) @db.Uuid
+  juryUserId     String    @db.Uuid
+  organisationId String    @db.Uuid
   note           String?
-  recordedById   String   @db.Uuid
-  createdAt      DateTime @default(now())
+  recordedById   String    @db.Uuid
+  createdAt      DateTime  @default(now())
+  removedAt      DateTime?
+  removedById    String?   @db.Uuid
+  removeReason   String?
 
   juryUser     User         @relation("ConflictedJury", fields: [juryUserId], references: [id])
   organisation Organisation @relation(fields: [organisationId], references: [id])
   recordedBy   User         @relation("ConflictRecorder", fields: [recordedById], references: [id])
+  removedBy    User?        @relation("ConflictRemover", fields: [removedById], references: [id])
 
-  @@unique([juryUserId, organisationId])
+  // One active conflict per jury member and organisation; removed ones stay as history.
+  @@unique([juryUserId, organisationId], map: "conflicts_one_active_key", where: raw("\"removedAt\" IS NULL"))
+  @@index([organisationId])
   @@map("conflicts")
 }
 
@@ -835,18 +844,24 @@ model PresentationSlot {
 }
 
 /// An application's outcome in one round: final score (the average of its submitted
-/// evaluations, rounded once), rank and result label. Snapshotted when the round's scores lock.
+/// evaluations, rounded once), rank and result label. Snapshotted when the round's scores lock
+/// (ADR 0019): totalPoints is ΣP and evaluationCount is n, so anyone can redo F₂ by hand; a CHECK
+/// constraint holds finalScore to exactly that formula, and a trigger keeps the three and the rank
+/// fixed once written. An application that wasn't judged (its proof was rejected) has no score.
 model RoundResult {
-  id            String    @id @default(uuid()) @db.Uuid
-  cycleId       String    @db.Uuid
-  roundId       String    @db.Uuid
-  applicationId String    @db.Uuid
-  finalScore    Decimal?  @db.Decimal(5, 2)
-  rank          Int?
-  resultLabel   String?
-  decidedById   String?   @db.Uuid
-  decidedAt     DateTime?
-  publishedAt   DateTime?
+  id              String    @id @default(uuid()) @db.Uuid
+  cycleId         String    @db.Uuid
+  roundId         String    @db.Uuid
+  applicationId   String    @db.Uuid
+  finalScore      Decimal?  @db.Decimal(5, 2)
+  totalPoints     Int?
+  evaluationCount Int?
+  /// Within the application's entry category (each category is its own competition, 11 Oct).
+  rank            Int?
+  resultLabel     String?
+  decidedById     String?   @db.Uuid
+  decidedAt       DateTime?
+  publishedAt     DateTime?
 
   round       Round       @relation(fields: [roundId, cycleId], references: [id, cycleId])
   application Application @relation(fields: [applicationId, cycleId], references: [id, cycleId])

@@ -7,10 +7,10 @@ export const metadata: Metadata = { title: "Log in" };
 
 export default function LoginPage() {
   return (
-    <Card>
+    <Card className="shadow-raised">
       <CardHeader>
-        <CardTitle className="text-xl">Log in</CardTitle>
-        <CardDescription>Applicants, staff, jury, department heads and the leader all log in here.</CardDescription>
+        <CardTitle className="text-2xl">Log in</CardTitle>
+        <CardDescription>Applicants, staff, jury, department heads and the leader all log in here with their email address.</CardDescription>
       </CardHeader>
       <CardContent>
         {/* The form reads ?next= from the address, which needs a Suspense boundary. */}

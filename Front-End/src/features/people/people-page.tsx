@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { KeyRoundIcon, PlusIcon, UserMinusIcon, UsersIcon } from "lucide-react";
 import { z } from "zod";
 import { FormError, FormField, FormNotice } from "@/components/form-field";
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/states";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,18 +21,19 @@ import { usePeople, useRefreshPeople } from "./use-people";
 
 type ListKind = "staff" | "jury";
 
-const LISTS: Record<ListKind, { title: string; description: string; add: string; work: (n: number) => string }> = {
+const LISTS: Record<ListKind, { title: string; description: string; add: string; empty: string; work: (n: number) => string }> = {
   staff: {
     title: "Staff",
     description: "Staff create and run the department's awards.",
     add: "Add a staff member",
+    empty: "No staff yet. Add the people who will set up and run your awards.",
     work: (n) => (n === 1 ? "1 award" : `${n} awards`),
   },
   jury: {
     title: "Jury",
-    description:
-      "The experts who judge the department's awards. After each deadline, staff assign applications to people on this list.",
+    description: "The experts who judge the department's awards. After each deadline, staff assign applications to people on this list.",
     add: "Add a juror",
+    empty: "No jury yet. Add the experts who will score applications.",
     work: (n) => (n === 1 ? "1 assignment" : `${n} assignments`),
   },
 };
@@ -55,19 +57,16 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
   const people = usePeople(departmentId);
   const [issued, setIssued] = useState<Issued | null>(null);
 
-  if (people.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (people.error) return <p className="text-sm text-destructive">{messageOf(people.error)}</p>;
+  if (people.isPending) return <LoadingState label="Loading the department" lines={6} />;
+  if (people.error) return <ErrorState error={people.error} onRetry={() => void people.refetch()} />;
   const { department, canManage, heads, staff, jury } = people.data;
-  const back = area === "leader" ? { href: "/leader/departments", label: "All departments" } : { href: "/department", label: "Department" };
+  const back = area === "leader" ? { href: "/leader/departments", label: "All departments" } : { href: "/department", label: "Your department" };
 
   return (
     <>
-      <p className="mb-2 text-sm">
-        <Link href={back.href} className="text-muted-foreground underline underline-offset-4">
-          {back.label}
-        </Link>
-      </p>
       <PageTitle
+        back={back}
+        eyebrow={department.externalOrganiser ? "External award organiser" : "Department"}
         title={department.name}
         description={
           canManage
@@ -80,51 +79,40 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
         <Card>
           <CardHeader>
             <CardTitle>Head</CardTitle>
-            <CardDescription>Approves the department&apos;s judged rounds.</CardDescription>
+            <CardDescription>Runs the department and approves its judged rounds.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
             {heads.map((head) => (
-              <PersonRow
-                key={head.id}
-                person={head}
-                departmentId={departmentId}
-                canIssuePassword={head.canIssuePassword}
-                onIssued={setIssued}
-              />
+              <PersonRow key={head.id} person={head} departmentId={departmentId} canIssuePassword={head.canIssuePassword} onIssued={setIssued} />
             ))}
           </CardContent>
         </Card>
-        <PersonList kind="staff" people={staff} departmentId={departmentId} canManage={canManage} onIssued={setIssued} />
-        <PersonList kind="jury" people={jury} departmentId={departmentId} canManage={canManage} onIssued={setIssued} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <PersonList kind="staff" people={staff} departmentId={departmentId} canManage={canManage} onIssued={setIssued} />
+          <PersonList kind="jury" people={jury} departmentId={departmentId} canManage={canManage} onIssued={setIssued} />
+        </div>
         <DepartmentThemeCard departmentId={departmentId} />
       </div>
     </>
   );
 }
 
-function PersonList({
-  kind,
-  people,
-  departmentId,
-  canManage,
-  onIssued,
-}: {
-  kind: ListKind;
-  people: ListedPerson[];
-  departmentId: string;
-  canManage: boolean;
-  onIssued: (issued: Issued) => void;
-}) {
+function PersonList({ kind, people, departmentId, canManage, onIssued }: { kind: ListKind; people: ListedPerson[]; departmentId: string; canManage: boolean; onIssued: (issued: Issued) => void }) {
   const list = LISTS[kind];
+  const [adding, setAdding] = useState(false);
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{list.title}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <UsersIcon className="size-5 text-muted-foreground" aria-hidden />
+          {list.title}
+          <Badge variant="secondary">{people.length}</Badge>
+        </CardTitle>
         <CardDescription>{list.description}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {people.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nobody yet.</p>
+          <EmptyState compact title="Nobody yet" description={canManage ? list.empty : undefined} />
         ) : (
           <ul className="grid gap-2">
             {people.map((person) => (
@@ -141,7 +129,15 @@ function PersonList({
             ))}
           </ul>
         )}
-        {canManage && <AddPersonForm kind={kind} departmentId={departmentId} onIssued={onIssued} />}
+        {canManage &&
+          (adding ? (
+            <AddPersonForm kind={kind} departmentId={departmentId} onIssued={onIssued} onClose={() => setAdding(false)} />
+          ) : (
+            <Button variant="outline" className="justify-self-start" onClick={() => setAdding(true)}>
+              <PlusIcon aria-hidden />
+              {list.add}
+            </Button>
+          ))}
       </CardContent>
     </Card>
   );
@@ -188,42 +184,51 @@ function PersonRow({
     }
   }
 
+  const initials = person.name
+    .split(" ")
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
-    <div className="grid gap-1 rounded-md border px-3 py-2">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="font-medium">{person.name}</span>
-        <span className="text-sm text-muted-foreground">{person.email}</span>
-        {person.waitingForFirstLogin && <Badge variant="outline">Hasn&apos;t logged in yet</Badge>}
-        {work && <span className="text-xs text-muted-foreground">{work}</span>}
-        <div className="ml-auto flex flex-wrap gap-1">
+    <div className="grid gap-2 rounded-lg border px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-soft text-sm font-semibold text-primary" aria-hidden>
+          {initials}
+        </span>
+        <div className="grid min-w-0 flex-1 gap-0.5">
+          <span className="flex flex-wrap items-center gap-2 font-semibold">
+            {person.name}
+            {person.waitingForFirstLogin && <Badge variant="warning">Hasn&apos;t logged in yet</Badge>}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {person.email}
+            {work && ` · ${work}`}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1">
           {confirming === null ? (
             <>
               {canIssuePassword && (
                 <Button size="sm" variant="ghost" onClick={() => setConfirming("password")}>
+                  <KeyRoundIcon aria-hidden />
                   New temporary password
                 </Button>
               )}
               {removal && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setConfirming("remove")}
-                  disabled={!removal.canRemove}
-                  title={removal.canRemove ? undefined : "People who already have work here can't be removed yet."}
-                >
+                <Button size="sm" variant="ghost" onClick={() => setConfirming("remove")} disabled={!removal.canRemove} title={removal.canRemove ? undefined : "People who already have work here can't be removed yet."}>
+                  <UserMinusIcon aria-hidden />
                   Remove
                 </Button>
               )}
             </>
           ) : (
             <>
-              <span className="self-center text-xs text-muted-foreground">
-                {confirming === "password"
-                  ? "Their current password stops working and they are signed out."
-                  : "They lose access to this department."}
-              </span>
+              <span className="text-sm text-muted-foreground">{confirming === "password" ? "Their current password stops working and they are signed out." : "They lose access to this department."}</span>
               <Button size="sm" variant={confirming === "remove" ? "destructive" : "default"} disabled={busy} onClick={() => void act(confirming)}>
-                {confirming === "password" ? "Issue it" : "Remove"}
+                {confirming === "password" ? "Issue it" : "Yes, remove"}
               </Button>
               <Button size="sm" variant="ghost" disabled={busy} onClick={() => setConfirming(null)}>
                 Cancel
@@ -233,7 +238,7 @@ function PersonRow({
         </div>
       </div>
       {error && (
-        <p className="text-xs text-destructive" role="alert">
+        <p className="text-sm font-medium text-destructive" role="alert">
           {error}
         </p>
       )}
@@ -247,15 +252,7 @@ const personSchema = z.object({
 });
 type PersonValues = z.infer<typeof personSchema>;
 
-function AddPersonForm({
-  kind,
-  departmentId,
-  onIssued,
-}: {
-  kind: ListKind;
-  departmentId: string;
-  onIssued: (issued: Issued) => void;
-}) {
+function AddPersonForm({ kind, departmentId, onIssued, onClose }: { kind: ListKind; departmentId: string; onIssued: (issued: Issued) => void; onClose: () => void }) {
   const refresh = useRefreshPeople(departmentId);
   const [notice, setNotice] = useState<string | null>(null);
   const form = useForm<PersonValues>({ resolver: zodResolver(personSchema), defaultValues: { name: "", email: "" } });
@@ -269,6 +266,7 @@ function AddPersonForm({
       form.reset();
       if (result.temporaryPassword) {
         onIssued({ name: result.person.name, email: result.person.email, password: result.temporaryPassword });
+        onClose();
       } else {
         setNotice(`${result.person.name} already had an account and is now on the list.`);
       }
@@ -278,21 +276,26 @@ function AddPersonForm({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3 border-t pt-4" noValidate>
-      <p className="text-sm font-medium">{LISTS[kind].add}</p>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="surface grid gap-4 p-4" noValidate>
+      <p className="font-semibold">{LISTS[kind].add}</p>
       <FormError message={errors.root?.server?.message} />
-      <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-start">
+      <div className="grid gap-4 md:grid-cols-2">
         <FormField label="Name" error={errors.name?.message}>
-          {(control) => <Input {...control} autoComplete="off" {...form.register("name")} />}
+          {(control) => <Input {...control} autoComplete="off" autoFocus {...form.register("name")} />}
         </FormField>
         <FormField label="Email" hint="Their login. An existing account is added as it is." error={errors.email?.message}>
           {(control) => <Input {...control} type="email" autoComplete="off" {...form.register("email")} />}
         </FormField>
-        <Button type="submit" className="md:mt-[1.375rem]" disabled={isSubmitting}>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Adding…" : "Add"}
         </Button>
+        <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <FormNotice message={notice} />
       </div>
-      <FormNotice message={notice} />
     </form>
   );
 }

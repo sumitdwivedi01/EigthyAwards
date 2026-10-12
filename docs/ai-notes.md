@@ -104,3 +104,26 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **Why.** The helper read `.env` by hand (split on the first "=", strip quotes) instead of with the library the app uses. The diagnosis then built on a fact nobody had checked.
 - **Fix.** The scripts read `.env` with `dotenv.parse`; the seeded hashes match `DEMO_PASSWORD` as `dotenv` reads it; G-K29 corrected.
 - **Lesson.** Parse configuration with the same library the application uses, and test a diagnosis (here: compare the stored hash) before writing it down as a cause.
+
+## 15. A trigger error code the repo had already fixed once (Step 1.4, 11 Oct)
+
+- **What looked right.** Step 1.4's new database triggers (scores locked after approval, results kept) raised their errors with `ERRCODE = 'restrict_violation'`, copied from the first guards migration. The services refused the same changes first, so every service test passed.
+- **How it was caught.** The rule tests that try a direct database update after approval expected the trigger's message ("locked") and got "Foreign key constraint violated" instead.
+- **Why.** Prisma's pg adapter maps SQLSTATE 23001 to a generic foreign-key error and drops the message. The repo had found and fixed exactly this on 6 Oct (`20261006120200_fix_guard_errors_and_null_checks` switched to the default `P0001`), but the AI copied the pattern from the older migration, not the fix.
+- **Fix.** The Step 1.4 triggers use the default SQLSTATE, with a comment pointing at the earlier fix; the step's local databases were recreated from the corrected migration (it had not left the branch).
+- **Lesson.** When copying a pattern, copy it from the newest place it appears and check for a later fix; and test the database's own refusal, not only the service's.
+
+## 16. A setup script that ran against someone else's API (Step 1.4, 11 Oct)
+
+- **What looked right.** For the browser check, the AI started the Step 1.4 API on port 4100, waited for `/api/health` to answer "ok", and ran a script that set up an award with applications.
+- **How it was caught.** The script failed on the third applicant ("Your organisation already has an application"), which couldn't happen in Step 1.4's fresh database. The process listening on 4100 was the owner's Step 1.3 API, started meanwhile from the same instructions; Step 1.4's API had failed to bind. The script had written an award and two applications into the owner's Step 1.3 test database.
+- **Why.** A health check says that *an* API answers, not *which*. Two worktrees had been given the same ports at different times.
+- **Fix.** Step 1.4 moved to ports 4200/3200; before running anything, the check now confirms that the process on the port belongs to the expected folder. The owner was told what was written to their database and decides whether to remove it.
+- **Lesson.** Before writing through an endpoint, check that it is the one you mean (here: the process behind the port), especially with several copies of the app running.
+
+## 17. A menu that closed itself from inside an effect (UI pass, 12 Oct)
+
+- **What looked right.** In the new phone navigation, the AI closed the open menu whenever the page changed with `useEffect(() => setOpen(false), [pathname])`: the common pattern in older React code.
+- **How it was caught.** The project's lint (React's compiler rules in Next.js 16) refused it: setting state synchronously inside an effect causes a second render on every page change.
+- **Fix.** The menu now remembers the path it was opened on and closes during render when the path differs (the "adjust state from the previous render" pattern), with no effect at all.
+- **Lesson.** Patterns that were idiomatic in React 17 can be wrong under the compiler rules; the lint is the source of truth, not memory.

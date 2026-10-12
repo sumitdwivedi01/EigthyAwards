@@ -105,6 +105,8 @@ export interface CycleSummary {
   state: CycleState;
   opensAt: string;
   deadlineAt: string;
+  /** The edition's judging round: its assignment board, judging and results. */
+  roundId: string | null;
 }
 
 export interface AwardDetail {
@@ -241,7 +243,8 @@ export interface PublicAward {
 
 /** What an applicant sees of an application's state (spec §4). */
 export interface ApplicantStatus {
-  code: "PENDING" | "SUBMITTED" | "UNDER_REVIEW" | "NOT_SUBMITTED" | "WITHDRAWN" | "CLOSED";
+  /** RESULT: the round's results are published; the label is the result, such as Shortlisted. */
+  code: "PENDING" | "SUBMITTED" | "UNDER_REVIEW" | "RESULT" | "NOT_SUBMITTED" | "WITHDRAWN" | "CLOSED";
   label: string;
   message: string;
 }
@@ -349,7 +352,7 @@ export interface StaffApplicationRow {
 }
 
 export interface StaffApplicationList {
-  cycle: { id: string; label: string; deadlineAt: string; award: { id: string; name: string } };
+  cycle: { id: string; label: string; deadlineAt: string; award: { id: string; name: string }; roundId: string | null };
   entries: { submitted: number; limit: number | null };
   counts: { byStatus: Record<ApplicationStatus, number>; byProof: Record<ProofStatus, number> };
   categories: { id: string; name: string }[];
@@ -431,4 +434,279 @@ export interface IndianState {
 export interface IdentityUpload {
   fileId: string;
   upload: { url: string; method: "PUT"; headers: Record<string, string>; expiresAt: string };
+}
+
+// ───────────── Step 1.4: assignment, judging, approval, results, the dashboard ─────────────
+
+export type RoundStatus = "NOT_STARTED" | "JUDGING" | "PENDING_APPROVAL" | "SENT_BACK" | "APPROVED" | "CLOSED" | "RESULTS_PUBLISHED";
+export type EvaluationStatus = "ASSIGNED" | "IN_PROGRESS" | "SUBMITTED" | "REDO" | "REVOKED";
+export interface JurorRef {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface RoundHeader {
+  id: string;
+  number: number;
+  type: "DOCUMENT_REVIEW" | "ON_SITE";
+  status: RoundStatus;
+  statusLabel: string;
+  juryMin: number;
+  juryMax: number;
+  cycle: { id: string; label: string; deadlineAt: string; blindJudging: boolean; deadlinePassed: boolean };
+  award: { id: string; name: string };
+  department: { id: string; name: string };
+}
+
+export interface BoardApplication {
+  id: string;
+  reference: string;
+  organisation: { id: string; name: string };
+  category: { id: string; name: string };
+  proofStatus: ProofStatus;
+  /** Submitted, proof verified, not disqualified: it can be assigned and is judged. */
+  eligible: boolean;
+  notEligibleReason: string | null;
+  assigned: number;
+  submitted: number;
+  /** How many more jury it needs to reach the minimum. */
+  needs: number;
+  full: boolean;
+  evaluations: {
+    evaluationId: string;
+    juror: JurorRef;
+    status: EvaluationStatus;
+    submittedAt: string | null;
+    /** A conflict was recorded after this juror submitted: it still counts (decided 11 Oct). */
+    conflictFlagged: boolean;
+    canRevoke: boolean;
+  }[];
+  /** Jury with a recorded conflict with this organisation: left out of its picker. */
+  conflictedJuryIds: string[];
+}
+
+export interface ConflictRow {
+  id: string;
+  juror: JurorRef;
+  organisation: { id: string; name: string };
+  note: string | null;
+  recordedBy: string;
+  recordedAt: string;
+}
+
+export interface AssignmentBoard {
+  round: RoundHeader;
+  juryOnList: number;
+  mostAssigned: number;
+  applications: BoardApplication[];
+  jury: (JurorRef & { assigned: number; submitted: number; pending: number })[];
+  conflicts: ConflictRow[];
+  organisations: { id: string; name: string }[];
+  counts: { eligible: number; needMoreJury: number; proofPending: number; proofRejected: number };
+  can: { assign: boolean; changeJuryPerApplication: boolean; recordConflicts: boolean };
+  assignBlockedReason: string | null;
+}
+
+export interface AssignmentProblem {
+  applicationId: string | null;
+  juryUserId: string | null;
+  message: string;
+}
+
+export interface SheetIndicator {
+  key: string;
+  label: string;
+  type: IndicatorType;
+  weight: number;
+  questionKey: string;
+}
+
+export interface SheetSection {
+  key: string;
+  title: string;
+  weight: number;
+  indicators: SheetIndicator[];
+}
+
+export interface ScoredEvaluation {
+  id: string;
+  juror: JurorRef;
+  status: EvaluationStatus;
+  submittedAt: string | null;
+  /** P = Σ W × w × v, once every indicator has a mark (ADR 0019). */
+  points: number | null;
+  score: string | null;
+  marks: Record<string, number>;
+  overallNote: string | null;
+  conflictFlagged: boolean;
+  canCorrect: boolean;
+}
+
+export interface JudgedApplication {
+  id: string;
+  reference: string;
+  organisation: { id: string; name: string };
+  category: { id: string; name: string };
+  judged: boolean;
+  evaluations: ScoredEvaluation[];
+  /** ΣP, n and F₂, so the final score can be checked by hand. */
+  final: { totalPoints: number; count: number; display: string } | null;
+  /** Within its category. */
+  rank: number | null;
+  tied: boolean;
+  minimumMet: boolean;
+  result: { label: string | null; advances: boolean | null; publishedAt: string | null } | null;
+}
+
+export interface Judging {
+  round: RoundHeader;
+  sheet: SheetSection[];
+  applications: JudgedApplication[];
+  categories: { id: string; name: string }[];
+  approvals: {
+    id: string;
+    submittedAt: string;
+    submittedBy: string;
+    decision: "PENDING" | "APPROVED" | "SENT_BACK";
+    decidedAt: string | null;
+    decidedBy: string | null;
+    remark: string | null;
+  }[];
+  sendBlockers: string[];
+  resultLabels: ResultLabel[];
+  results: { decided: number; total: number; published: boolean };
+  can: { correctScores: boolean; sendForApproval: boolean; approve: boolean; decideResults: boolean; publishResults: boolean };
+}
+
+export interface JuryItem {
+  evaluationId: string;
+  reference: string;
+  /** Only in an award that isn't blind. */
+  organisationName: string | null;
+  category: string;
+  status: EvaluationStatus;
+  statusLabel: string;
+  submittedAt: string | null;
+}
+
+export interface JuryHome {
+  departments: {
+    id: string;
+    name: string;
+    cycles: {
+      roundId: string;
+      award: string;
+      cycle: string;
+      blindJudging: boolean;
+      roundStatus: RoundStatus;
+      closed: boolean;
+      assigned: number;
+      submitted: number;
+      items: JuryItem[];
+    }[];
+  }[];
+  totals: { assigned: number; submitted: number };
+}
+
+export interface JuryQuestion {
+  key: string;
+  type: QuestionType;
+  label: string;
+  help: string;
+  options: { key: string; label: string }[];
+  answer: AnswerValue | null;
+  files: { id: string; fileName: string; mimeType: string; sizeBytes: number }[];
+  /** A file question in a blind award: its files aren't shown (ADR 0018). */
+  filesHidden: boolean;
+  indicators: SheetIndicator[];
+}
+
+export interface JuryEvaluation {
+  id: string;
+  reference: string;
+  status: EvaluationStatus;
+  statusLabel: string;
+  submittedAt: string | null;
+  canEdit: boolean;
+  award: { name: string };
+  cycle: { label: string; blindJudging: boolean };
+  department: { name: string };
+  category: { name: string };
+  /** Only in an award that isn't blind. */
+  organisation: { name: string; type: string | null; city: string; state: string } | null;
+  sections: { key: string; title: string; description: string; questions: JuryQuestion[] }[];
+  otherIndicators: SheetIndicator[];
+  sectionWeights: { key: string; title: string; weight: number }[];
+  scores: Record<string, number>;
+  comments: Record<string, string>;
+  overallNote: string;
+  missing: string[];
+}
+
+export interface ApprovalQueueItem {
+  id: string;
+  roundId: string;
+  roundNumber: number;
+  award: { id: string; name: string };
+  cycle: { id: string; label: string };
+  department: { id: string; name: string };
+  submittedAt: string;
+  submittedBy: string;
+  decision: "PENDING" | "APPROVED" | "SENT_BACK";
+  decidedAt: string | null;
+  decidedBy: string | null;
+}
+
+export interface ApprovalQueue {
+  pending: ApprovalQueueItem[];
+  decided: ApprovalQueueItem[];
+}
+
+export interface HistoryEvent {
+  id: string;
+  at: string;
+  action: string;
+  summary: string;
+  actor: string | null;
+  actorRole: Role | null;
+  reason: string | null;
+  before: unknown;
+  after: unknown;
+}
+
+export interface DashboardCycle {
+  id: string;
+  label: string;
+  status: CycleStatus;
+  state: CycleState;
+  deadlineAt: string;
+  maxEntries: number | null;
+  applications: Record<ApplicationStatus, number>;
+  proof: Record<ProofStatus, number>;
+  round: {
+    id: string;
+    status: RoundStatus;
+    statusLabel: string;
+    juryMin: number;
+    juryMax: number;
+    evaluationsAssigned: number;
+    evaluationsSubmitted: number;
+    judged: number;
+    atMinimum: number;
+    waitingForApproval: boolean;
+  } | null;
+}
+
+export interface Dashboard {
+  scope: "PLATFORM" | "DEPARTMENTS";
+  totals: { departments: number; awards: number; openCycles: number; submitted: number; judging: number; pendingApprovals: number };
+  pendingApprovals: { roundId: string; award: string; cycle: string; department: string; submittedAt: string }[];
+  upcomingDeadlines: { cycleId: string; award: string; cycle: string; department: string; deadlineAt: string }[];
+  departments: {
+    id: string;
+    name: string;
+    externalOrganiser: boolean;
+    awards: { id: string; name: string; cycles: DashboardCycle[] }[];
+  }[];
 }

@@ -43,7 +43,7 @@ flowchart LR
 | judging (conflicts, assignment by hand with the board, several jury, scores, audit) | ✅ | disqualify and reinstate, reopen |
 | approval (approve), results | ✅ | send back |
 | reporting | leader dashboard | department dashboard |
-| onsite | tables only | ✅ slots, panels, close, medals |
+| onsite (no module folder yet) | tables only | ✅ the module: slots, panels, close, medals |
 | audit, notifications | ✅ (outbox, log) | real email provider |
 
 There is no masking module: blind awards leave identity and files out of the jury view, and the masking step is dropped (ADR 0018).
@@ -227,9 +227,9 @@ All routes live under `/api` and return view models. The full contract grows in 
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |
 | Applying | `GET /cycles/:id/apply`, `POST /cycles/:id/applications`, `GET /applications/mine`, `GET` and `PATCH /applications/:id`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files` and `PUT`/`DELETE /applications/:id/files/:fileId`, `POST /applications/:id/employment-proof/uploads` and `PUT /applications/:id/employment-proof`, `POST /applications/:id/submit` (built in Step 1.3; [API.md](API.md)) |
 | Staff checks | `GET /cycles/:id/applications`, `GET /applications/:id/review`, `POST /applications/:id/proof-check`, `POST /applications/:id/release` |
-| Assignment and judging | `POST /conflicts`, `GET /rounds/:id/assignment-board`, `POST /rounds/:id/assignments`, `POST /evaluations/:id/revoke`, `GET /jury/evaluations`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `POST /evaluations/:id/score-changes` |
-| Approval and results | `POST /rounds/:id/send-for-approval`, `POST /approvals/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
-| Leader | `GET /reports/leader-dashboard`; `GET /applications/:id/history` |
+| Assignment and judging | `POST /cycles/:id/conflicts` and `/cycles/:id/conflicts/:conflictId/remove`, `GET /rounds/:id/assignment-board`, `POST /rounds/:id/assignments`, `POST /evaluations/:id/revoke`, `GET /jury/evaluations`, `GET /evaluations/:id`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `GET /rounds/:id/judging`, `POST /evaluations/:id/score-changes` (built in Step 1.4; [API.md](API.md)) |
+| Approval and results | `POST /rounds/:id/send-for-approval`, `GET /approvals`, `POST /rounds/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
+| Leader | `GET /reports/dashboard` (the leader; a head for their departments); `GET /applications/:id/history` |
 | Files | `GET /files/:id` (checks who may read which kind, then answers with a short-lived signed link). Uploads get a signed link from the endpoint that owns the file, for example `PUT /me/identity-document` |
 
 ## 5. How it scales

@@ -33,6 +33,7 @@ export async function listCycleApplications(actor: Actor, cycleId: string, filte
       feePaise: true,
       award: { select: { id: true, name: true, departmentId: true } },
       categories: { select: { id: true, name: true }, orderBy: { name: "asc" } },
+      rounds: { select: { id: true }, orderBy: { number: "asc" }, take: 1 },
     },
   });
   if (!cycle) throw new NotFoundError("Award edition not found.");
@@ -65,7 +66,13 @@ export async function listCycleApplications(actor: Actor, cycleId: string, filte
   const byProof = await db.application.groupBy({ by: ["proofStatus"], where: { cycleId, status: "SUBMITTED" }, _count: { _all: true } });
 
   return {
-    cycle: { id: cycle.id, label: cycle.label, deadlineAt: cycle.deadlineAt.toISOString(), award: { id: cycle.award.id, name: cycle.award.name } },
+    cycle: {
+      id: cycle.id,
+      label: cycle.label,
+      deadlineAt: cycle.deadlineAt.toISOString(),
+      award: { id: cycle.award.id, name: cycle.award.name },
+      roundId: cycle.rounds[0]?.id ?? null,
+    },
     entries: await entriesOf(db, cycle),
     counts: {
       byStatus: Object.fromEntries(STATUSES.map((s) => [s, byStatus.find((r) => r.status === s)?._count._all ?? 0])) as Record<ApplicationStatus, number>,
@@ -180,6 +187,12 @@ export async function checkProof(actor: Actor, applicationId: string, input: Pro
   await db.$transaction(async (tx) => {
     const status = await lockApplication(tx, application.id);
     if (status !== "SUBMITTED") throw new StateError("Only a submitted application's proof is checked.", { reason: "NOT_SUBMITTED" });
+    // Once judging has started for it, or its round has gone for approval, the check is fixed (Step 1.4).
+    const judging = await tx.evaluation.count({ where: { applicationId: application.id, status: { not: "REVOKED" } } });
+    const sent = await tx.round.count({ where: { cycleId: application.cycleId, status: { notIn: ["NOT_STARTED", "JUDGING"] } } });
+    if (judging > 0 || sent > 0) {
+      throw new StateError("Judging has started for this application, so its proof check can't change.", { reason: "JUDGING_STARTED" });
+    }
     const before = await tx.application.findUniqueOrThrow({ where: { id: application.id }, select: { proofStatus: true, proofNote: true } });
     const note = input.note && input.note.length > 0 ? input.note : null;
     await tx.application.update({

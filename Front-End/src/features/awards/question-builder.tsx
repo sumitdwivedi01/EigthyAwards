@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { FormNotice } from "@/components/form-field";
+import { ErrorState, LoadingState } from "@/components/layout/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import { api, messageOf } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import type { FileType, FormBuilder, FormSection, FormVersionSummary, Question, QuestionType } from "@/lib/api-types";
 import { istDateTime } from "@/lib/format";
 import { BuilderErrorList, builderErrorsOf, FieldProblem, NO_ERRORS, type BuilderErrors } from "./builder-errors";
@@ -98,8 +99,8 @@ function move<T>(items: T[], from: number, to: number): T[] {
 
 export function QuestionBuilder({ cycleId, blind }: { cycleId: string; blind: boolean }) {
   const form = useFormBuilder(cycleId);
-  if (form.isPending) return <p className="text-sm text-muted-foreground">Loading the questions…</p>;
-  if (form.error) return <p className="text-sm text-destructive">{messageOf(form.error)}</p>;
+  if (form.isPending) return <LoadingState label="Loading the questions" lines={6} />;
+  if (form.error) return <ErrorState error={form.error} onRetry={() => void form.refetch()} />;
   return <Builder cycleId={cycleId} builder={form.data} blind={blind} />;
 }
 
@@ -158,13 +159,13 @@ function Builder({ cycleId, builder, blind }: { cycleId: string; builder: FormBu
               : "Build the application form in sections. Save the draft as you go; applicants only ever see a published version, and each application keeps the version it started with."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap items-center gap-3 text-sm">
+        <CardContent className="flex flex-wrap items-center gap-3">
           {builder.latestVersion === null ? (
             <Badge variant="outline">Nothing published yet</Badge>
           ) : (
-            <Badge>Version {builder.latestVersion} is live</Badge>
+            <Badge variant="success">Version {builder.latestVersion} is live</Badge>
           )}
-          {dirty ? <Badge variant="destructive">Unsaved changes</Badge> : builder.hasUnpublishedChanges && <Badge variant="secondary">Saved, not published</Badge>}
+          {dirty ? <Badge variant="warning">Unsaved changes</Badge> : builder.hasUnpublishedChanges && <Badge variant="secondary">Saved, not published</Badge>}
           {blind && (
             <p className="basis-full text-muted-foreground">
               This award is judged blind: jurors see the answers as typed, never who applied, and no uploaded files.
@@ -184,7 +185,7 @@ function Builder({ cycleId, builder, blind }: { cycleId: string; builder: FormBu
           <Card key={section.key ?? `new-${s}`}>
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
-                <CardTitle>Section {s + 1}</CardTitle>
+                <CardTitle>Section {s + 1}{section.title && `: ${section.title}`}</CardTitle>
                 {sectionPublished && <Badge variant="secondary">Published</Badge>}
                 {!locked && (
                   <div className="ml-auto flex gap-1">
@@ -211,7 +212,7 @@ function Builder({ cycleId, builder, blind }: { cycleId: string; builder: FormBu
               </div>
             </CardHeader>
             <CardContent className="grid gap-4">
-              <div className="grid gap-1.5">
+              <div className="grid gap-2">
                 <Label htmlFor={`${domId}-title`}>Section title</Label>
                 <Input
                   id={`${domId}-title`}
@@ -222,7 +223,7 @@ function Builder({ cycleId, builder, blind }: { cycleId: string; builder: FormBu
                 />
                 <FieldProblem message={e[`${path}.title`]} />
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid gap-2">
                 <Label htmlFor={`${domId}-description`}>Introduction (optional)</Label>
                 <Textarea
                   id={`${domId}-description`}
@@ -333,9 +334,9 @@ function QuestionEditor({
   const fileTypes = question.fileTypes ?? [];
 
   return (
-    <li className="grid gap-3 rounded-md border p-3">
+    <li className="surface grid gap-4 p-4 sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium">Question {number}</span>
+        <span className="font-semibold">Question {number}</span>
         {isPublished && <Badge variant="secondary">Published</Badge>}
         {!locked && (
           <div className="ml-auto flex gap-1">
@@ -354,7 +355,7 @@ function QuestionEditor({
         )}
       </div>
       <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
-        <div className="grid gap-1.5">
+        <div className="grid gap-2">
           <Label htmlFor={id("label")}>Question</Label>
           <Input
             id={id("label")}
@@ -365,7 +366,7 @@ function QuestionEditor({
           />
           <FieldProblem message={errors[`${path}.label`]} />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2">
           <Label htmlFor={id("type")}>Answer type</Label>
           <NativeSelect
             id={id("type")}
@@ -379,10 +380,10 @@ function QuestionEditor({
               </option>
             ))}
           </NativeSelect>
-          {isPublished && <p className="text-xs text-muted-foreground">Published, so its type is fixed in this edition.</p>}
+          {isPublished && <p className="text-sm text-muted-foreground">Published, so its type is fixed in this edition.</p>}
         </div>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-2">
         <Label htmlFor={id("help")}>Help text (optional)</Label>
         <Input id={id("help")} value={question.help} readOnly={locked} onChange={(event) => set({ help: event.target.value })} />
       </div>
@@ -406,11 +407,11 @@ function QuestionEditor({
 
       {question.type === "NUMBER" && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2">
             <Label htmlFor={id("min")}>Smallest value (optional)</Label>
             <Input id={id("min")} type="number" value={question.min ?? ""} readOnly={locked} onChange={(event) => set({ min: numberOrNull(event.target.value) })} />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-2">
             <Label htmlFor={id("max")}>Largest value (optional)</Label>
             <Input
               id={id("max")}
@@ -464,7 +465,7 @@ function QuestionEditor({
 
       {question.type === "FILE_UPLOAD" && (
         <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
-          <div className="grid gap-1.5">
+          <div className="grid gap-2">
             <Label htmlFor={id("maxFiles")}>Most files</Label>
             <NativeSelect
               id={id("maxFiles")}
@@ -479,7 +480,7 @@ function QuestionEditor({
               ))}
             </NativeSelect>
           </div>
-          <fieldset className="grid gap-1.5">
+          <fieldset className="grid gap-2">
             <legend className="mb-1 text-sm font-medium">Kinds of file</legend>
             <div className="flex flex-wrap gap-4">
               {(Object.keys(FILE_LABELS) as FileType[]).map((type) => (
@@ -501,7 +502,7 @@ function QuestionEditor({
             <FieldProblem message={errors[`${path}.fileTypes`]} />
           </fieldset>
           {blind && (
-            <p className="text-xs text-amber-700 sm:col-span-2 dark:text-amber-400">
+            <p className="text-sm font-medium text-warning sm:col-span-2">
               Blind award: only staff see these files; jurors won&apos;t.
             </p>
           )}
@@ -598,7 +599,7 @@ function Versions({ cycleId, versions }: { cycleId: string; versions: FormVersio
       <CardContent>
         <ul className="grid gap-2">
           {[...versions].reverse().map((v) => (
-            <li key={v.version} className="grid gap-2 rounded-md border px-3 py-2 text-sm">
+            <li key={v.version} className="grid gap-2 rounded-lg border bg-card px-4 py-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-medium">Version {v.version}</span>
                 <span>{v.changeSummary}</span>
@@ -625,8 +626,8 @@ function VersionPreview({ cycleId, version }: { cycleId: string; version: number
     queryFn: () => api.get<FormVersionSummary & { definition: { sections: FormSection[] } }>(`/cycles/${cycleId}/form-versions/${version}`),
     staleTime: Infinity, // a published version never changes (R4)
   });
-  if (query.isPending) return <p className="text-muted-foreground">Loading…</p>;
-  if (query.error) return <p className="text-destructive">{messageOf(query.error)}</p>;
+  if (query.isPending) return <LoadingState label="Loading the version" />;
+  if (query.error) return <ErrorState error={query.error} />;
   return (
     <div className="grid gap-3 border-t pt-2">
       {query.data.definition.sections.map((section) => (

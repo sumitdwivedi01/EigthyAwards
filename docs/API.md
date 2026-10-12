@@ -174,7 +174,7 @@ Staff create an award in a department where they are staff, and become its award
 | PATCH | `/api/rounds/:id` | Any of `{ juryMin, juryMax, resultLabels: [{ label, advances }] }` (at least 1 juror; 2 to 6 results with different names) | `200 CycleSetup`. `400` if the minimum is above the maximum; `409` once judging has started in the round; audited |
 | POST | `/api/cycles/:id/publish` | — | `200 CycleSetup`. `409` with `details.reason: "PUBLISH_BLOCKED"` and `details.issues` listing everything still missing, or if already published; the award page goes live with it |
 
-**Award**: `{ id, name, description, department: { id, name }, domain: { id, name }, siteSlug, cycles: [{ id, label, status, state, opensAt, deadlineAt }] }`
+**Award**: `{ id, name, description, department: { id, name }, domain: { id, name }, siteSlug, cycles: [{ id, label, status, state, opensAt, deadlineAt, roundId }] }` (`roundId`: the edition's judging round, Step 1.4)
 
 **CycleSetup**:
 
@@ -311,10 +311,69 @@ The award's staff list the applications, check each one's proof and release a wr
 | POST | `/api/applications/:id/proof-check` | `{ decision: "VERIFIED" }` or `{ decision: "REJECTED", note }` (a rejection needs its reason) | `200 StaffApplication`. Only a submitted application; audited. A rejection emails the applicant, who can fix it until the deadline (on the profile, or with a new employment proof), after which the check is pending again. Once verified, the application keeps the identity document and link staff checked |
 | POST | `/api/applications/:id/release` | `{ reason }` | `200 StaffApplication`: the application is kept as Released with the reason, and the organisation can start a new one. One transaction with its audit event; refused once judging has started. API only in Phase 1 (the screen is Phase 2) |
 
-**StaffApplicationRow**: `{ id, organisation: { id, legalName }, startedBy: { name, email }, category, status, statusLabel, proofStatus, feeUnpaid, createdAt, submittedAt }`
+**StaffApplicationRow**: `{ id, organisation: { id, legalName }, startedBy: { name, email }, category, status, statusLabel, proofStatus, feeUnpaid, createdAt, submittedAt }`. The list's `cycle` carries `roundId` (its judging round, Step 1.4).
+
+Once judging has started for an application (it has an evaluation), or the round has gone for approval, its proof check can't change (`409`, Step 1.4).
+
+## Conflicts of interest (rule R2; spec §5.8)
+
+"Jury member X has a conflict with organisation Y", for every award. Recorded in an edition's context by the award's staff or its department's head (the leader and jury get `403`): the juror must be on the department's jury list and the organisation must have applied to the edition.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| POST | `/api/cycles/:id/conflicts` | `{ juryUserId, organisationId, note? }` | `201 { conflict: ConflictRow, revoked, flagged }`. Every unsubmitted evaluation of the pair, in any award still being judged, is taken back with the reason "A conflict of interest with this organisation was recorded." (`revoked`); submitted ones are flagged for staff and still count (`flagged`; decided 11 Oct). `409` if already recorded |
+| POST | `/api/cycles/:id/conflicts/:conflictId/remove` | `{ reason }` | `204`. A conflict recorded by mistake is kept, marked removed with who, when and why (decided 11 Oct); the pair can be assigned again |
+
+**ConflictRow**: `{ id, juror: { id, name, email }, organisation: { id, name }, note, recordedBy, recordedAt }`
+
+## Assigning applications to jury (staff of the award; spec §5.8, ADR 0013, ADR 0017)
+
+After the deadline, staff give each application between the round's minimum and maximum of different jury from the award's department list. The department's head and the leader read the board; only the award's staff change it.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/rounds/:id/assignment-board` | — | `AssignmentBoard`: the round, the jury on the list, the most jury any application has, each submitted application (`eligible` when its proof is verified; `assigned`, `submitted`, `needs`, `full`, its evaluations and the jury it is conflicted with), each juror (`assigned`, `submitted`, `pending`), the conflicts, the organisations that applied, counts, and `can: { assign, changeJuryPerApplication, recordConflicts }` with `assignBlockedReason` |
+| POST | `/api/rounds/:id/assignments` | `{ applicationIds: [...], juryUserIds: [...] }` | `201 AssignmentBoard`. Each application gets every juror, all or nothing. Refused with `409 { reason: "ASSIGNMENT_REFUSED", problems: [{ applicationId, juryUserId, message }] }` for: before the deadline, a juror off the list (or one of the award's organisers), a recorded conflict, an application whose proof isn't verified or that isn't in the edition, the same juror twice, or going above the maximum (counted under a lock on each application, so two staff at once can't overfill one). The round moves to Judging; each juror gets one email with the count |
+| POST | `/api/evaluations/:id/revoke` | `{ reason }` | `200 AssignmentBoard`. Only before the evaluation is submitted and before the round is sent; it is kept as Revoked with its draft marks |
+| PATCH | `/api/rounds/:id` | `{ juryMin?, juryMax? }` | As in award setup. Once the edition is published the maximum can't exceed the department's jury list; it can change until the round is first sent for approval, never below the jury an application already has. The result names change only before judging starts |
+
+## Judging (spec §5.9, rule R1, ADR 0018, ADR 0019)
+
+A jury member reads and scores only their own evaluations: anyone else's, and a taken-back one, answer `404`. In a blind award the jury view has no organisation, applicant, file, proof or payment; in an award that isn't blind it has the organisation's name, type, city and state and the evidence files (decided 11 Oct), never its PAN, GSTIN, contacts or address, the applicant or the proof documents. No jury response carries a total, an average or another juror's work.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/api/jury/evaluations` | — | `JuryHome`: per department and award, the juror's evaluations (`reference`, `organisationName` only when not blind, `category`, `status`) with counts |
+| GET | `/api/evaluations/:id` | — | `JuryEvaluation`: the sections and questions of the application's pinned version (R4), each with its answer as typed, its files (never in a blind award: `filesHidden`) and its indicators with weights; the juror's marks, comments and overall note; `canEdit`; `missing` (what still stops submitting) |
+| PUT | `/api/evaluations/:id/scores` | `{ scores?: { [indicatorKey]: 0–10 or null }, comments?: { [questionKey]: text }, overallNote? }` | `200 JuryEvaluation`. A draft save (not audited): a score is a whole number 0 to 10, a Yes/No 1 or 0; `null` or an empty comment clears it. The first mark in the round locks its scoring sheet. `409` once submitted or once the round is no longer being judged |
+| POST | `/api/evaluations/:id/submit` | — | `200 JuryEvaluation`. Needs every indicator and the overall note (`400` names what is missing); audited with the marks and points. Then the juror can't change it |
+| GET | `/api/rounds/:id/judging` | — | `Judging` (staff, the head, the leader): the sheet, each submitted application with every juror's marks, points `P`, score and note, its final score `{ totalPoints: ΣP, count: n, display: F₂ }` (live while judging, as stored once approved), its rank within the category, `tied`, `minimumMet` and result; the categories, the approval requests, `sendBlockers`, the result labels and `can: { correctScores, sendForApproval, approve, decideResults, publishResults }` |
+| POST | `/api/evaluations/:id/score-changes` | `{ changes: [{ indicatorKey, value }], reason }` | `200 Judging`. Staff only, on a submitted evaluation, while the round is judging or waiting for approval (decided 11 Oct). Each change and its audit event (who, role, when, old value, new value, reason) are one transaction (rule R3). `409` after approval; the database refuses it too |
+
+## Approval (department head; spec §5.11)
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| POST | `/api/rounds/:id/send-for-approval` | — | `200 Judging`. Staff only. Refused with `409 { reason: "SEND_BLOCKED", issues }` while an application's proof is still unchecked (decided 11 Oct), no application is judged, one has fewer submitted evaluations than the minimum, or an evaluation is unfinished. The round waits for approval; the department's heads are emailed; assignments and the jury per application are fixed from then on |
+| GET | `/api/approvals` | — | `{ pending, decided }`: the rounds sent to the heads of the actor's departments (the leader sees all of them, read-only) |
+| POST | `/api/rounds/:id/approve` | `{ remark? }` | `200 Judging`. Only the head of the award's department (`403` for the leader and staff). In one transaction under the round's lock: each application's final score `F₂` is stored with `ΣP` and `n` and its rank within its category; an application whose proof was rejected gets the round's not-advancing result, unjudged; the round locks for good. Send back comes in Phase 2 |
+
+## Results (staff of the award; spec §5.12)
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| PUT | `/api/rounds/:id/results` | `{ mode: "TOP_N", n, selected?, others? }`, `{ mode: "MIN_SCORE", minScore: "70.00", selected?, others? }` or `{ mode: "MANUAL", labels: [{ applicationId, label }] }` | `200 Judging`. Only after approval. Top N is the top N of each category (ties at the cut all get in); the minimum compares the stored final score. `selected` defaults to the round's advancing result, `others` to its first not-advancing one. An unjudged application's result is fixed |
+| POST | `/api/rounds/:id/publish-results` | — | `200 Judging`. Needs a result for every application. Applicants then see it (`status.code: "RESULT"`, the label and its message); each applicant and organisation official email gets an email; after the cycle's last round the cycle becomes Results published |
+
+## History and the dashboard (spec §5.14, §5.15)
+
+| Method | Path | Response |
+|---|---|---|
+| GET | `/api/applications/:id/history` | `[HistoryEvent]`, newest first: `{ id, at, action, summary, actor, actorRole, reason, before, after }`. The award's staff, its department's head and the leader; jury and applicants get `403` |
+| GET | `/api/reports/dashboard` | `Dashboard`: the leader sees every department (`scope: "PLATFORM"`), a department head their own (`"DEPARTMENTS"`); staff, jury and applicants get `403`. Totals, rounds waiting for approval, deadlines in the next 30 days, and per department, award and edition: its state, applications by status, proof checks, and the round's status with evaluations submitted and applications at the minimum. Counts only |
 
 ## Reading a file (GAPS G-B03)
 
 | Method | Path | Response |
 |---|---|---|
-| GET | `/api/files/:id` | `200 { url, fileName, contentType, expiresAt }`: a link valid for 2 minutes that downloads the file as an attachment. The applicant reads their application's files and their own identity document; the award's staff, its department's head and the leader read an application's files and the identity document it uses. Anyone else, and jury, get `404` (jury see evidence in non-blind awards from Step 1.4, never proof documents) |
+| GET | `/api/files/:id` | `200 { url, fileName, contentType, expiresAt }`: a link valid for 2 minutes that downloads the file as an attachment. The applicant reads their application's files and their own identity document; the award's staff, its department's head and the leader read an application's files and the identity document it uses. A jury member reads the evidence files of an application assigned to them in an award that isn't blind (Step 1.4); never in a blind award and never a proof document. Anyone else gets `404` |

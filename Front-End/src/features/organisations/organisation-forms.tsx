@@ -85,7 +85,7 @@ function toPayload(values: ProfileValues) {
 function Warnings({ warnings }: { warnings: string[] }) {
   if (warnings.length === 0) return null;
   return (
-    <Alert>
+    <Alert variant="warning">
       <AlertTriangleIcon />
       <AlertDescription>
         {warnings.map((warning) => (
@@ -112,7 +112,7 @@ function ProfileFields({
       <FormField label="Legal name" hint="As on the PAN card or certificate of incorporation." error={errors.legalName?.message}>
         {(c) => <Input {...c} autoComplete="organization" {...register("legalName")} />}
       </FormField>
-      <FormField label="GSTIN (optional)" hint="15 characters; it contains the PAN. Leave empty if there is none." error={errors.gstin?.message}>
+      <FormField label="GSTIN" optional hint="15 characters; it contains the PAN. Leave empty if there is none." error={errors.gstin?.message}>
         {(c) => <Input {...c} className="uppercase" {...register("gstin")} />}
       </FormField>
       <FormField label="Registered address" error={errors.addressLine?.message}>
@@ -156,7 +156,7 @@ function ProfileFields({
           {(c) => <Input {...c} type="tel" {...register("phone")} />}
         </FormField>
       </div>
-      <FormField label="Organisation type (optional)" error={errors.orgTypeId?.message}>
+      <FormField label="Organisation type" optional error={errors.orgTypeId?.message}>
         {(c) => (
           <Controller
             control={control}
@@ -180,10 +180,10 @@ function ProfileFields({
         )}
       </FormField>
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="CIN (optional)" error={errors.cin?.message}>
+        <FormField label="CIN" optional error={errors.cin?.message}>
           {(c) => <Input {...c} className="uppercase" {...register("cin")} />}
         </FormField>
-        <FormField label="Website (optional)" error={errors.website?.message}>
+        <FormField label="Website" optional error={errors.website?.message}>
           {(c) => <Input {...c} type="url" placeholder="https://" {...register("website")} />}
         </FormField>
       </div>
@@ -225,14 +225,14 @@ export function RegisterOrganisationForm({ onPanRegistered }: { onPanRegistered:
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5" noValidate>
       <FormError message={errors.root?.server?.message} />
       <Warnings warnings={warnings} />
       <FormField label="PAN" hint="5 letters, 4 digits, 1 letter (for example ABCDE1234F)." error={errors.pan?.message}>
         {(c) => <Input {...c} className="uppercase" {...form.register("pan")} />}
       </FormField>
       <ProfileFields register={form.register} control={form.control} errors={errors} />
-      <Button type="submit" disabled={isSubmitting} className="justify-self-start">
+      <Button type="submit" size="lg" disabled={isSubmitting} className="justify-self-start">
         {isSubmitting ? "Registering…" : "Register organisation"}
       </Button>
     </form>
@@ -265,9 +265,9 @@ export function JoinOrganisationForm({ initialPan, notice }: { initialPan?: stri
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-xl gap-4" noValidate>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-xl gap-5" noValidate>
       {notice && (
-        <Alert>
+        <Alert variant="info">
           <AlertDescription>{notice}</AlertDescription>
         </Alert>
       )}
@@ -336,7 +336,7 @@ export function EditOrganisationForm({ organisation, onDone }: { organisation: O
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5" noValidate>
       <FormError message={errors.root?.server?.message} />
       <Warnings warnings={warnings} />
       <FormField label="PAN" hint="The PAN identifies the organisation and can't be changed here.">

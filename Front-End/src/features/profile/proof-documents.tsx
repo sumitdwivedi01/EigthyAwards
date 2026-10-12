@@ -4,9 +4,10 @@ import { useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { FileCheck2Icon } from "lucide-react";
+import { CircleCheckIcon, IdCardIcon, LinkIcon, ShieldCheckIcon, UploadIcon } from "lucide-react";
 import { z } from "zod";
 import { FormError, FormField, FormNotice } from "@/components/form-field";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,13 +29,15 @@ const ACCEPTED = ["application/pdf", "image/jpeg", "image/png"] as const;
  */
 export function ProofDocuments({ me }: { me: Me }) {
   return (
-    <div className="grid gap-6">
-      <p className="max-w-2xl text-sm text-muted-foreground">
-        You give these once. Every application you make, for any award, uses them, and each award&apos;s team checks
-        them. Jury members never see them.
-      </p>
-      <LinkedinCard me={me} />
+    <div className="grid max-w-3xl gap-6">
+      <Alert variant="info">
+        <ShieldCheckIcon />
+        <AlertDescription>
+          You give these once. Every application you make, for any award, uses them, and each award&apos;s team checks them. Jury members never see them.
+        </AlertDescription>
+      </Alert>
       <IdentityDocumentCard me={me} />
+      <LinkedinCard me={me} />
     </div>
   );
 }
@@ -63,18 +66,22 @@ function LinkedinCard({ me }: { me: Me }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>LinkedIn profile</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <LinkIcon className="size-5 text-muted-foreground" aria-hidden />
+          LinkedIn profile
+          {me.linkedinUrl && <CircleCheckIcon className="size-5 text-success" aria-label="Added" />}
+        </CardTitle>
         <CardDescription>A link to your own LinkedIn profile, so the award team can see where you work.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-xl gap-4" noValidate>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-xl gap-5" noValidate>
           <FormError message={errors.root?.server?.message} />
           <FormField label="Profile link" hint="For example https://www.linkedin.com/in/your-name" error={errors.url?.message}>
-            {(control) => <Input {...control} type="url" inputMode="url" {...form.register("url")} />}
+            {(control) => <Input {...control} type="url" inputMode="url" placeholder="https://www.linkedin.com/in/…" {...form.register("url")} />}
           </FormField>
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={isSubmitting}>
-              Save link
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" variant={me.linkedinUrl ? "outline" : "default"} disabled={isSubmitting}>
+              {isSubmitting ? "Saving…" : "Save link"}
             </Button>
             <FormNotice message={notice} />
           </div>
@@ -125,45 +132,43 @@ function IdentityDocumentCard({ me }: { me: Me }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Photo identity document</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <IdCardIcon className="size-5 text-muted-foreground" aria-hidden />
+          Photo identity document
+          {me.identityDocument && <CircleCheckIcon className="size-5 text-success" aria-label="Added" />}
+        </CardTitle>
         <CardDescription>
-          Your PAN card, passport, driving licence, voter ID, or a masked Aadhaar (only the last four digits showing).
-          Never upload a full Aadhaar number.
+          Your PAN card, passport, driving licence, voter ID, or a masked Aadhaar (only the last four digits showing). Never upload a full Aadhaar
+          number.
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent className="grid gap-5">
         {me.identityDocument ? (
-          <p className="flex items-center gap-2 text-sm">
-            <FileCheck2Icon className="size-4 text-emerald-600" aria-hidden />
+          <p className="flex items-start gap-2 rounded-lg bg-success-soft/50 px-4 py-3 text-sm">
+            <CircleCheckIcon className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
             <span>
-              <span className="font-medium">{me.identityDocument.fileName}</span>, added{" "}
-              {istDateTime(me.identityDocument.uploadedAt)}. Upload a new one to replace it.
+              <span className="font-semibold">{me.identityDocument.fileName}</span>, added {istDateTime(me.identityDocument.uploadedAt)}. Upload a new one
+              to replace it.
             </span>
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">No identity document yet. You need one before you submit an application.</p>
         )}
-        <form onSubmit={onSubmit} className="grid max-w-xl gap-4" noValidate>
+        <form onSubmit={onSubmit} className="grid max-w-xl gap-5" noValidate>
           <FormError message={error ?? undefined} />
           <FormField label="File" hint="PDF, JPG or PNG, up to 10 MB.">
-            {(control) => (
-              <Input
-                {...control}
-                type="file"
-                accept={ACCEPTED.join(",")}
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-              />
-            )}
+            {(control) => <Input {...control} type="file" accept={ACCEPTED.join(",")} onChange={(event) => setFile(event.target.files?.[0] ?? null)} />}
           </FormField>
-          <div className="flex items-start gap-2">
-            <Checkbox id="identity-consent" checked={consent} onCheckedChange={(value) => setConsent(value === true)} />
-            <Label htmlFor="identity-consent" className="text-sm leading-snug font-normal">
-              I agree that the platform keeps this document to confirm who I am when I apply. Only the teams of the awards I
-              apply to see it, never the jury. It is deleted 12 months after the results of the last award that used it.
+          <div className="flex items-start gap-3">
+            <Checkbox id="identity-consent" checked={consent} onCheckedChange={(value) => setConsent(value === true)} className="mt-0.5" />
+            <Label htmlFor="identity-consent" className="text-sm leading-relaxed font-normal">
+              I agree that the platform keeps this document to confirm who I am when I apply. Only the teams of the awards I apply to see it, never
+              the jury. It is deleted 12 months after the results of the last award that used it.
             </Label>
           </div>
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={busy}>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" variant={me.identityDocument ? "outline" : "default"} disabled={busy}>
+              <UploadIcon aria-hidden />
               {busy ? "Uploading…" : me.identityDocument ? "Replace document" : "Upload document"}
             </Button>
             <FormNotice message={notice} />

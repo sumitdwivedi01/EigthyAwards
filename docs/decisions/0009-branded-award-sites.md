@@ -2,7 +2,7 @@
 
 - Status: **Accepted** (owner's answers, 7 Oct 2026)
 - Date: 2026-10-07
-- Related: spec §5.19; proposal [0.4-new-issues.md](../proposals/0.4-new-issues.md) §2 and §5; GAPS §J
+- Related: spec §5.19; proposal 0.4-new-issues §2 and §5 (removed 12 Oct 2026; git history); GAPS §J
 
 ## Context
 

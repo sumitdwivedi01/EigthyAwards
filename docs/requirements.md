@@ -16,6 +16,7 @@
 | 2026-10-09 | **Delivered in three phases** (lead call). Phase 1 (10–15 Oct) builds a working subset of §14: two written-review awards, online. On-site rounds, the full site builder and the admin screens move to Phase 2; launch work to Phase 3. Sections changed: 1, 14, 15, 17 (notes only; behaviour unchanged). | docs/PLAN.md, docs/PHASES.md |
 | 2026-10-10 | **Git workflow:** step branches → `staging` (tested there) → `main` (production), close to §16's `develop` → `main`; two online environments from 14 Oct. Sections changed: 16 (note only; behaviour unchanged). | ADR 0015 |
 | 2026-10-10 | **Applicant accounts and platform accounts** (owner, 10 Oct). Only an applicant account (made by registering) creates or joins an organisation, applies and keeps the profile proof; the leader, department heads, staff and jury use platform accounts (seeded now, invited later) that hold roles and never apply. Someone who does both registers a second, applicant account with another email. This replaces "the same account with two roles". Sections changed: 2, 3, 5.1, 5.2, 5.8, 5.21, 10, 12, 18. | ADR 0016 |
+| 2026-10-11 | **Judging decisions for Step 1.4** (owner, 11 Oct): score corrections with a reason until approval; sending for approval waits for every proof check, and a rejected proof gets the not-advancing result unjudged; ranks and "top N" per category; a late conflict on submitted work is flagged and counts; the jury's view of a non-blind award (name, type, city, state); conflicts removed with a reason. Sections changed: 5.7, 5.8, 5.11, 5.12, 18. | GAPS G-K34–K39 |
 | 2026-10-11 | **Departments run themselves** (owner, 11 Oct; ADR 0020). The leader is a service provider: it creates a department with its head, then sees it but changes nothing in it. Only the head adds and removes staff and jury, issues their temporary passwords and chooses the department's **theme** (colours, footer) for all its award pages; the head and the award's staff manage the award pages. The leader keeps one power inside a department: a new temporary password for a locked-out head. The leader no longer creates awards or assigns staff. Sections changed: 3 (roles, matrix, rules), 5.1, 5.3, 5.19, 7, 15. | Owner, 11 Oct |
 | 2026-10-11 | **Re-plan around the lead's focus** (lead and owner, 11 Oct). (1) **People are created on screen**: the leader creates a department with its head; the head creates their staff and jury; each new account gets a temporary password that must be changed at first login (invites by email later). (2) **Jury belong to a department's jury list**, not to a cycle's pool; after the deadline staff assign applications to listed jury by hand, with counts per application and per juror. (3) **No masking**: in a blind award the jury view leaves out identity, names and every file automatically. (4) **Exact score arithmetic**: whole-number points, one half-up rounding to 2 decimals, equal scores share a rank. Sections changed: 1–4, 5.1, 5.3–5.9, 5.12, 5.14, 5.15, 5.17, 6–8, 10–12, 14, 15, 18. | ADR 0017, 0018, 0019 |
 
@@ -339,7 +340,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - An application is locked when the current time passes the cycle's deadline. The check runs in the service on every write, so no scheduled job is required.
 - There is **no masking step** (the lead's decision; ADR 0018). Once locked, a submitted application is ready to assign, blind or not.
 - **Blind judging on:** the jury view never contains the identity section (the organisation's name, PAN, GSTIN, address, official email, phone, and the identity snapshot), the applicant's name or email, team-member answers, proof documents, payments, or **any uploaded file**. It is built from an allow-list of fields, so nothing new reaches the jury by accident. The jury sees the answers to text, number, date, choice and yes/no questions as typed.
-- **Blind judging off:** jury see the answers and the evidence files as submitted; never the proof documents.
+- **Blind judging off:** jury see the answers and the evidence files as submitted, and the organisation's name, type, city and state (decided 11 Oct; minimum data); never its PAN, GSTIN, contacts or address, the applicant, or the proof documents.
 - If jury notice identity information inside an answer, there is no special flow; they score normally (client decision).
 - Known limit: a name an applicant types inside an answer reaches the jury; the form warns against it (§5.4). A blind award can't have its evidence files judged by the jury.
 - Accept when: in a blind award, no jury response ever contains an identity field, the applicant's name or a file, and a jury file download is refused; in a non-blind award jury see the answers and files.
@@ -355,7 +356,8 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - Staff can change the minimum and maximum until the round is sent for approval for the first time. The maximum can't go below the number of jury an application already has; raising the minimum shows the applications that now need more jury.
 - Applications whose proof isn't verified, and disqualified applications, cannot be assigned.
 - **Conflicts:** the client says staff already know who is conflicted. To meet rule 2 at almost no cost, staff or the department head can record "jury member X has a conflict with organisation Y". Once recorded, the system refuses that assignment and hides that jury member in the assignment list. A conflict applies across all awards.
-- If a conflict is recorded after assignment, the assignment is removed if the evaluation is not submitted; otherwise it is flagged for staff. If that leaves the application below the minimum, staff assign another jury member.
+- If a conflict is recorded after assignment, the assignment is removed if the evaluation is not submitted; otherwise it is flagged for staff and still counts (decided 11 Oct). If that leaves the application below the minimum, staff assign another jury member.
+- A conflict recorded by mistake is removed by the award's staff or the department's head with a reason; it is kept with who, when and why (decided 11 Oct).
 - Jury get one email per assignment action, listing how many new applications they have.
 - Accept when: assigning a recorded conflict is refused by the server even if the UI is bypassed; an assignment before the deadline, above the maximum (also when two staff assign at once), to a juror who isn't on the department's list, or of an unverified application is refused; a maximum above the department's jury list is refused; the board's counts match the evaluations; an application with fewer jury than the minimum blocks sending for approval.
 
@@ -383,8 +385,8 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 ### 5.11 Approval (document review rounds)
 
 - Only document review rounds go to the department head. On-site rounds have no approval; staff close them (§5.16).
-- Staff can "Send for approval" only when every eligible application in the round has at least the round's minimum number of submitted evaluations and no assigned evaluation still unfinished. The batch is the whole round of the cycle, and it goes to the head of the award's department.
-- Before sending, staff can edit any score; a reason is required and recorded (rule 3).
+- Staff can "Send for approval" only when every eligible application in the round has at least the round's minimum number of submitted evaluations, no assigned evaluation is still unfinished, and every submitted application's proof has been checked (decided 11 Oct). The batch is the whole round of the cycle, and it goes to the head of the award's department. An application whose proof was rejected isn't judged and gets the round's not-advancing result.
+- Until the head approves (before sending and while the round waits for approval; decided 11 Oct), staff can edit any submitted score; a reason is required and recorded (rule 3).
 - The department head sees the ranked list per entry category: each application's final score (the average), every jury member's score and overall note, indicator details, and the disqualified list with reasons.
 - The department head can approve: the round is locked and no score can ever change again.
 - Or the department head can send back: an overall remark is required, and remarks on specific applications are optional. Scores stay as they are.
@@ -396,7 +398,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 ### 5.12 Results of a round
 
 - Staff decide a round's results once its scores are locked: after the department head approves a document review round, or after staff close an on-site round. Assumption: no further approval is needed for the results.
-- Rankings use the official final score: the exact average of the jury's scores, rounded once to two decimals (§5.5, ADR 0019). The ranked list of a document review round is per entry category or overall. An on-site round's medals use the overall ranking of the round. Equal final scores share a rank and the next rank is skipped (1, 2, 2, 4); staff decide ties manually.
+- Rankings use the official final score: the exact average of the jury's scores, rounded once to two decimals (§5.5, ADR 0019). The ranked list of a document review round is per entry category (decided 11 Oct): "top N" is the top N of each category, and ties at the cut all get in. An on-site round's medals use the overall ranking of the round. Equal final scores share a rank and the next rank is skipped (1, 2, 2, 4); staff decide ties manually.
 - **Document review round:** staff give each application **Shortlisted** or **Rejected**, using top N, a minimum score or manual selection. Shortlisted applications move on to the next round, if the cycle has one.
 - **On-site round:** the system suggests **Gold, Silver and Bronze** for ranks 1 to 3 of the whole round (one set per award cycle, across all entry categories; decided 6 Oct 2026) and **Participated** for the rest. Staff can change any label before publishing.
 - A cycle can rename a round's labels, and mark which label moves an entry on to the next round, without any code change.
@@ -987,74 +989,9 @@ The load is small for a single PostgreSQL database, so the design favours correc
 | Browsers | Current Chrome, Edge, Firefox and Safari |
 | Backups | Managed database backups in production |
 
-## 14. Scope for the 10-day build
+## 14. Scope
 
-> **Changed 9 Oct 2026:** the build is delivered in three phases. **Phase 1 (10–15 Oct)** builds the part listed in [PLAN.md](PLAN.md#what-works-in-phase-1); on-site rounds, the full site builder, the leader's admin screens and all emails move to **Phase 2**; security, privacy, load, payments and domains to **Phase 3**. The lists below stay as the full product scope.
-
-> **Changed 11 Oct 2026:** departments, heads, staff and jury are created on screen in Phase 1 (ADR 0017); the masking workspace is dropped (ADR 0018).
-
-With about 40 working hours, the build covers the full cycle at its core and cuts depth, not steps. The priorities below decide what drops first if time runs short.
-
-### Must have
-
-- Branded award sites with the page builder (§5.19), the brand kit, and branded cards on Open awards.
-- Proof: the identity document and LinkedIn link once on the profile, a recent proof of employment with every application, and the staff check; the entry limit with its public counter (§5.20).
-- My profile for every user: name, phone, change password (§5.21).
-- The department head's dashboard (external organisers run their awards from it).
-- Login and roles with scopes; a seeded leader, with departments, department heads, staff and jury created through the hierarchy.
-- Data consistency rules: normalisation, case-insensitive uniqueness, controlled lists for award domains, organisation types and states, identity snapshots (§5.18).
-- Organisation profile with PAN and GSTIN checks.
-- Departments and department heads (leader), staff assignment to many awards (department head or leader), award and cycle setup (staff), all in the UI.
-- Questionnaire builder and immutable form versions (rule 4).
-- Scoring sheet builder with weight validation and the score formula.
-- Applicant flow: one application per organisation (blocked at start; colleagues read-only), demo fee, dynamic form, autosave, submit, edit until deadline, withdraw.
-- Deadline locking and blind judging without a masking step (rule 1; ADR 0018).
-- The department's jury list, conflicts and assignment by hand (rule 2), with several jury per application in document review rounds (a minimum and maximum per round) and the average as the final score.
-- Scoring, overall note, submit, staff edits with reason, audit history (rule 3).
-- Approval by the department head: send for approval, approve, send back with remarks, resubmit.
-- Shortlist and publish results.
-- On-site rounds (§5.16): slots, panels of 2 to 5, independent panel scoring, staff backup entry, averages, closing, and Gold, Silver and Bronze results.
-- Three seeded cycles with clearly different settings (blind document review with a fee; document review then on-site with medals; shop-floor on-site only), plus one more configured live in the UI during the walkthrough.
-
-### Should have
-
-- Releasing an application with a reason (staff).
-- Disqualify and reinstate.
-- Emails for: questionnaire updated, jury assigned, results published (others if time allows).
-- Leader dashboard with basic counts.
-- Master data screens (until built, the lists come from the seed).
-- Organisation record correction and account deactivation screens.
-
-### Could have
-
-- Leader drill-down screens beyond the dashboard.
-- A flag when the jury of one application disagree widely (for example more than 20 points between the highest and lowest score).
-- Remaining email templates.
-- Reminders the leader can send: to department heads with rounds waiting for approval, and to jury with unfinished evaluations.
-- Export of cross-award reports as CSV for the leader.
-- A "possible duplicate organisations" list for the leader (same name, different PAN) to clean up.
-
-### Designed for, not built (room kept)
-
-- A live scoreboard for on-site rounds.
-- Changing one's own email address (with a confirmation link to the new address).
-- Copying last year's cycle setup.
-- Transferring an application to another member of the organisation.
-- More organisation fields.
-- Own domains for award sites: a sub-domain first, then the organiser's own domain (slug and customDomain field already stored).
-- Drag-and-drop free layout, uploaded custom fonts, and page-visit analytics for award sites.
-- Named accounts for each member of the leader's team (ADR 0014).
-
-### Out of scope
-
-- Real payment gateway and refunds.
-- Automatic removal of names from documents.
-- Integration with the client's member portal or single sign-on.
-- Importing past cycles' data.
-- Multiple languages, a mobile app, feedback reports for applicants.
-- Virus scanning of uploads.
-- Offline scoring at venues without internet.
-- Booking of presentation slots by applicants.
+> Superseded on 9 Oct 2026 by the three-phase plan: what Phase 1 builds is in [PLAN.md](PLAN.md#what-works-in-phase-1), and Phases 2 and 3 carry the rest of this specification. The old 10-day scope lists were removed on 12 Oct 2026 (git history).
 
 ## 15. Testing strategy
 
@@ -1179,24 +1116,7 @@ Three lines: Done · Next · Stuck. Add Plan changed when the plan was updated, 
 
 ## 17. Build plan
 
-> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). Kept for history.
-
-Days 1 and 2 went to understanding, questions and design. Days 3 to 8 build one vertical slice per day, each ending with its rule tests green; days 9 and 10 finish. If the actual day count differs, shift the rows and note the change in plan.md.
-
-| Day | Focus | Done when |
-|---|---|---|
-| 3 | Project skeleton, CI, Prisma schema, seed, login, roles and scopes, departments and department heads, organisation profile | Seeded users log in and land on their role's area; PAN and GSTIN checks tested |
-| 4 | Award creation, staff assignment, cycle setup, questionnaire builder, form versions, scoring sheet builder | Staff publish a complete cycle in the UI; rule 4 and weight tests green |
-| 5 | Open awards, demo fee, form renderer with autosave, submit, edit, withdraw, duplicate flag | An applicant submits end to end; deadline and fee tests green |
-| 6 | Deadline lock, masking workspace, jury pool, conflicts, assignment | A blind application reaches its jury masked; rule 1 and 2 tests green |
-| 7 | Scoring screen, submit evaluation, staff edits with reason, disqualify and reinstate, audit history | A jury submits; staff corrections are audited; rule 3 tests green |
-| 8 | Approval and send back, shortlist, publish results, key emails, leader dashboard; configure a second award in the UI only | One full cycle runs for both awards with no code change |
-| 9 | README from a fresh clone, user journeys page, architecture drawing, testing.md, ai-notes.md, deploy | A stranger can run it; every brief deliverable is in the repo |
-| 10 | Self-review of every module, fixes, walkthrough rehearsal | The 20-minute walkthrough runs without surprises |
-
-Cut order if behind: remaining email templates → department head dashboard → duplicate resolution screen (keep the flag) → jury-side disqualification (keep staff-side). The four rules and the end-to-end cycle are never cut.
-
-Each day: open the issues for that day's slice, merge through pull requests into develop, merge develop into main when CI is green, write the daily update.
+> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). The original day-by-day table was removed on 12 Oct 2026 (git history).
 
 ## 18. Open questions and assumptions
 
@@ -1209,6 +1129,12 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | New | The lead's focus is the form builder, filling the form and judging. He doesn't want masking: blind awards hide identity, names and files automatically (ADR 0018). |
 | New | The leader creates departments and their heads, and the head creates their own staff and jury, on screen, in Phase 1. A new account gets a temporary password that must be changed at first login (ADR 0017). |
 | New | After the deadline staff assign applications to jury by hand, with a minimum per application, and see the counts per application and per juror. The final mark is the exact average of the jury's scores (ADR 0019). |
+| New (owner, Step 1.4) | Staff correct a submitted score, with a reason, **until the head approves** (also while the round waits for approval); the head sees every change in the history (GAPS G-K34). |
+| New (owner, Step 1.4) | Sending for approval **waits until every submitted application's proof is checked**; an application whose proof was rejected is never judged and gets the round's not-advancing result (G-K35). |
+| New (owner, Step 1.4) | Ranks, "top N" and the cut-off are **per entry category** (G-K36). |
+| New (owner, Step 1.4) | A conflict recorded after the juror submitted is **flagged for staff and still counts** (G-K37). |
+| New (owner, Step 1.4) | In an award that isn't blind, the jury see the organisation's **name, type, city and state**, the answers and the evidence files; never its PAN, GSTIN, contacts, address, the applicant or the proof documents (G-K38). |
+| New (owner, Step 1.4) | A conflict recorded by mistake can be **removed with a reason**; it is kept as history (G-K39). |
 
 ### Answered on 10 Oct 2026 (owner)
 

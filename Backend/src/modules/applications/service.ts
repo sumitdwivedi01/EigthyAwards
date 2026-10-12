@@ -19,6 +19,7 @@ import {
   loadApplication,
   lockApplication,
   missingForSubmit,
+  publishedResultsOf,
   requireBeforeDeadline,
   requireDraft,
   requireEditable,
@@ -75,7 +76,7 @@ async function applicantView(applicationId: string): Promise<ApplicantApplicatio
 
   return {
     id: application.id,
-    status: applicantStatus(application, application.cycle.deadlineAt, now),
+    status: applicantStatus(application, application.cycle.deadlineAt, now, (await publishedResultsOf(db, [application.id])).get(application.id) ?? null),
     award: { name: application.cycle.award.name, slug: application.cycle.award.site?.slug ?? null },
     cycle: {
       id: application.cycle.id,
@@ -300,6 +301,7 @@ export async function listMyApplications(actor: Actor): Promise<MyApplicationRow
     orderBy: { createdAt: "desc" },
   });
   const now = clock.now();
+  const results = await publishedResultsOf(db, rows.map((r) => r.id));
   return rows.map((row) => {
     const mine = row.createdById === actor.userId;
     return {
@@ -308,7 +310,7 @@ export async function listMyApplications(actor: Actor): Promise<MyApplicationRow
       award: { name: row.cycle.award.name, slug: row.cycle.award.site?.slug ?? null },
       cycle: { id: row.cycle.id, label: row.cycle.label, deadlineAt: row.cycle.deadlineAt.toISOString() },
       organisation: row.organisation,
-      status: applicantStatus(row, row.cycle.deadlineAt, now),
+      status: applicantStatus(row, row.cycle.deadlineAt, now, results.get(row.id) ?? null),
       category: mine ? row.category.name : null,
       proof: mine && row.status !== "DRAFT" ? row.proofStatus : null,
     };

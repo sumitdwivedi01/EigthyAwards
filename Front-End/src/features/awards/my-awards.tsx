@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { PlusIcon } from "lucide-react";
+import { ChevronRightIcon, PlusIcon, TrophyIcon } from "lucide-react";
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/states";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { messageOf } from "@/lib/api-client";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StateBadge } from "./state-badge";
 import { useMyAwards } from "./use-awards";
 
@@ -12,47 +12,67 @@ import { useMyAwards } from "./use-awards";
 export function MyAwards({ canCreate }: { canCreate: boolean }) {
   const awards = useMyAwards();
   return (
-    <Card className="md:col-span-2">
+    <Card>
       <CardHeader>
-        <div className="flex flex-wrap items-center gap-3">
-          <CardTitle>Your awards</CardTitle>
-          {canCreate && (
-            <Button asChild size="sm" className="ml-auto">
+        <CardTitle>Awards you run</CardTitle>
+        <CardDescription>Open an award to set up its editions: dates, fee, categories, questions and the scoring sheet.</CardDescription>
+        {canCreate && (
+          <CardAction>
+            <Button asChild>
               <Link href="/staff/awards/new">
                 <PlusIcon aria-hidden />
                 Create an award
               </Link>
             </Button>
-          )}
-        </div>
-        <CardDescription>Set up each edition: its dates, fee, categories, questions and scoring sheet, then publish it.</CardDescription>
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent>
         {awards.isPending ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <LoadingState label="Loading your awards" lines={4} />
         ) : awards.error ? (
-          <p className="text-sm text-destructive">{messageOf(awards.error)}</p>
+          <ErrorState error={awards.error} onRetry={() => void awards.refetch()} />
         ) : awards.data.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {canCreate ? "No awards yet. Create the first one." : "No awards yet: you aren't on a department's staff."}
-          </p>
+          <EmptyState
+            icon={TrophyIcon}
+            title="No awards yet"
+            description={canCreate ? "Create the first one. An award lasts from year to year; each year gets its own edition." : "You aren't on a department's staff yet, so there is nothing to run."}
+            action={
+              canCreate && (
+                <Button asChild>
+                  <Link href="/staff/awards/new">
+                    <PlusIcon aria-hidden />
+                    Create an award
+                  </Link>
+                </Button>
+              )
+            }
+          />
         ) : (
           <ul className="grid gap-3">
             {awards.data.map((award) => (
-              <li key={award.id} className="grid gap-2 rounded-md border px-3 py-2">
+              <li key={award.id} className="grid gap-3 rounded-lg border px-4 py-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <Link href={`/staff/awards/${award.id}`} className="font-medium underline-offset-4 hover:underline">
-                    {award.name}
-                  </Link>
-                  <span className="text-sm text-muted-foreground">{award.department.name}</span>
+                  <div className="grid min-w-0 flex-1 gap-0.5">
+                    <Link href={`/staff/awards/${award.id}`} className="text-base font-semibold underline-offset-4 hover:underline">
+                      {award.name}
+                    </Link>
+                    <span className="text-sm text-muted-foreground">{award.department.name}</span>
+                  </div>
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={`/staff/awards/${award.id}`}>
+                      Open
+                      <ChevronRightIcon aria-hidden />
+                    </Link>
+                  </Button>
                 </div>
                 {award.cycles.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No edition yet.</p>
+                  <p className="text-sm text-muted-foreground">No edition yet: open the award to create one.</p>
                 ) : (
                   <ul className="flex flex-wrap gap-2">
                     {award.cycles.map((cycle) => (
                       <li key={cycle.id}>
-                        <Link href={`/staff/cycles/${cycle.id}`} className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm hover:bg-muted">
+                        <Link href={`/staff/cycles/${cycle.id}`} className="flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-sm font-medium hover:bg-muted">
                           {cycle.label}
                           <StateBadge state={cycle.state} />
                         </Link>

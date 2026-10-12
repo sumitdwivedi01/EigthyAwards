@@ -19,6 +19,8 @@ export interface CycleSummaryView {
   state: CycleState;
   opensAt: string;
   deadlineAt: string;
+  /** The edition's (first) judging round: its assignment board and judging live there. */
+  roundId: string | null;
 }
 
 export interface AwardView {
@@ -71,7 +73,14 @@ export const awardInclude = {
   domain: { select: { id: true, name: true } },
   site: { select: { slug: true } },
   cycles: {
-    select: { id: true, label: true, status: true, opensAt: true, deadlineAt: true },
+    select: {
+      id: true,
+      label: true,
+      status: true,
+      opensAt: true,
+      deadlineAt: true,
+      rounds: { select: { id: true }, orderBy: { number: "asc" }, take: 1 },
+    },
     orderBy: { opensAt: "desc" },
   },
 } satisfies Prisma.AwardInclude;
@@ -93,6 +102,7 @@ export function awardView(award: AwardRecord, now: Date): AwardView {
       state: cycleState(cycle, now),
       opensAt: cycle.opensAt.toISOString(),
       deadlineAt: cycle.deadlineAt.toISOString(),
+      roundId: cycle.rounds[0]?.id ?? null,
     })),
   };
 }

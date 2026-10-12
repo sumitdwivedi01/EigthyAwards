@@ -8,6 +8,7 @@ import { z } from "zod";
 import { FormError, FormField, FormNotice } from "@/components/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/features/auth/login-form";
 import { ME_KEY } from "@/features/auth/use-me";
 import { api } from "@/lib/api-client";
 import type { Me } from "@/lib/api-types";
@@ -43,20 +44,20 @@ export function DetailsForm({ me }: { me: Me }) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-md gap-4" noValidate>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-md gap-5" noValidate>
       <FormError message={errors.root?.server?.message} />
-      <FormField label="Email" hint="This is your login. Changing it comes later.">
+      <FormField label="Email address" hint="This is your login. Changing it comes later.">
         {(control) => <Input {...control} value={me.email} readOnly disabled />}
       </FormField>
       <FormField label="Name" error={errors.name?.message}>
         {(control) => <Input {...control} autoComplete="name" {...form.register("name")} />}
       </FormField>
-      <FormField label="Phone (optional)" hint="A 10-digit Indian number; we store it as +91…" error={errors.phone?.message}>
-        {(control) => <Input {...control} type="tel" autoComplete="tel" {...form.register("phone")} />}
+      <FormField label="Phone" optional hint="A 10-digit Indian mobile number; we store it as +91…" error={errors.phone?.message}>
+        {(control) => <Input {...control} type="tel" inputMode="tel" autoComplete="tel" {...form.register("phone")} />}
       </FormField>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isSubmitting}>
-          Save
+          {isSubmitting ? "Saving…" : "Save details"}
         </Button>
         <FormNotice message={notice} />
       </div>
@@ -96,23 +97,21 @@ export function PasswordForm({ me }: { me: Me }) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-md gap-4" noValidate>
-      {me.passwordChangedAt && (
-        <p className="text-sm text-muted-foreground">Last changed {istDateTime(me.passwordChangedAt)}.</p>
-      )}
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-w-md gap-5" noValidate>
+      {me.passwordChangedAt && <p className="text-sm text-muted-foreground">Last changed {istDateTime(me.passwordChangedAt)}.</p>}
       <FormError message={errors.root?.server?.message} />
       <FormField label="Current password" error={errors.currentPassword?.message}>
-        {(control) => <Input {...control} type="password" autoComplete="current-password" {...form.register("currentPassword")} />}
+        {(control) => <PasswordInput {...control} autoComplete="current-password" {...form.register("currentPassword")} />}
       </FormField>
       <FormField label="New password" hint="At least 8 characters." error={errors.newPassword?.message}>
-        {(control) => <Input {...control} type="password" autoComplete="new-password" {...form.register("newPassword")} />}
+        {(control) => <PasswordInput {...control} autoComplete="new-password" {...form.register("newPassword")} />}
       </FormField>
       <FormField label="Repeat the new password" error={errors.confirm?.message}>
-        {(control) => <Input {...control} type="password" autoComplete="new-password" {...form.register("confirm")} />}
+        {(control) => <PasswordInput {...control} autoComplete="new-password" {...form.register("confirm")} />}
       </FormField>
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isSubmitting}>
-          Change password
+          {isSubmitting ? "Changing…" : "Change password"}
         </Button>
         <FormNotice message={notice} />
       </div>

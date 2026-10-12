@@ -184,7 +184,7 @@ Two demo awards show it. They differ only in settings; no code mentions either:
 | Jurors per application | 2 to 3, averaged | 1 |
 | Entry limit | None | 500, shown as "499 / 500" |
 
-**How it is built:** `Front-End/` is a Next.js app on Vercel, with screens only and no business rules. `Backend/` is an Express and TypeScript API on Render, a modular monolith of 16 modules where every check happens on the server. PostgreSQL and file storage are on Supabase. More: [docs/overview/](docs/overview/) (in pictures) and [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
+**How it is built:** `Front-End/` is a Next.js app on Vercel, with screens only and no business rules. `Backend/` is an Express and TypeScript API on Render, a modular monolith of 15 modules where every check happens on the server. PostgreSQL and file storage are on Supabase. More: [docs/overview/](docs/overview/) (in pictures) and [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
 
 ---
 
@@ -198,7 +198,7 @@ The work is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)):
 | **2. Complete product** | On-site rounds and medals, the full site builder, invitations by email, all emails, end-to-end tests | About 23 working days |
 | **3. Launch-ready** | Security and privacy reviews, load testing, real payments, own web addresses, client testing | About 15 working days, plus client testing |
 
-**Now (11 Oct):** Step 1.1 is built and merged into `staging`: logins, roles, applicant and platform accounts, My profile and organisations, with 136 tests. Next is Step 1.2: departments and people on screen, then award setup. The walkthrough is on Thursday 15 October. Live status: [docs/PROGRESS.md](docs/PROGRESS.md) and [Daily.md](Daily.md).
+**Now (12 Oct):** Steps 1.1 to 1.4 are built: logins and accounts, departments and people on screen, award setup with frozen question versions, applying with the proof check, and judging from assignment to published results, with 332 backend tests. Steps 1.2 and 1.3 are in `staging`; Step 1.4 waits for its pull request. Next is Step 1.5: production online and the brief's documents. The walkthrough is on Thursday 15 October. Live status: [docs/PROGRESS.md](docs/PROGRESS.md) and [Daily.md](Daily.md).
 
 ---
 
@@ -207,9 +207,8 @@ The work is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)):
 | You want… | Open |
 |---|---|
 | The plan: three phases, dates, what's in each | [docs/PLAN.md](docs/PLAN.md) |
-| Phase 1, day by day, and the walkthrough | [docs/PHASE-1-ROADMAP.md](docs/PHASE-1-ROADMAP.md) |
 | The platform in pictures | [docs/overview/](docs/overview/) |
-| What it looks like: clickable prototype, flows per role | [docs/ui/](docs/ui/README.md) |
+| The flows per role, screen by screen | [docs/ui/](docs/ui/README.md) |
 | How it's built: architecture, data model, API | [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md), [docs/API.md](docs/API.md) |
 | Decisions, with the options and reasons | [docs/decisions/](docs/decisions/) |
 | What's missing, contradictory or undecided | [docs/GAPS.md](docs/GAPS.md) |

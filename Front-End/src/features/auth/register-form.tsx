@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api-client";
 import type { Me } from "@/lib/api-types";
 import { showApiErrors } from "@/lib/forms";
+import { PasswordInput } from "./login-form";
 import { ME_KEY } from "./use-me";
 
 // Only the obvious checks happen here, to help as people type; the API decides (and normalises).
@@ -45,26 +46,26 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5" noValidate>
       <FormError message={errors.root?.server?.message} />
       <FormField label="Your name" error={errors.name?.message}>
-        {(control) => <Input {...control} autoComplete="name" {...form.register("name")} />}
+        {(control) => <Input {...control} autoComplete="name" autoFocus {...form.register("name")} />}
       </FormField>
-      <FormField label="Email" hint="Your login, and where we write to you." error={errors.email?.message}>
-        {(control) => <Input {...control} type="email" autoComplete="email" {...form.register("email")} />}
+      <FormField label="Email address" hint="Your login, and where we write to you." error={errors.email?.message}>
+        {(control) => <Input {...control} type="email" autoComplete="email" inputMode="email" {...form.register("email")} />}
       </FormField>
       <FormField label="Password" hint="At least 8 characters." error={errors.password?.message}>
-        {(control) => <Input {...control} type="password" autoComplete="new-password" {...form.register("password")} />}
+        {(control) => <PasswordInput {...control} autoComplete="new-password" {...form.register("password")} />}
       </FormField>
       <FormField label="Repeat the password" error={errors.confirm?.message}>
-        {(control) => <Input {...control} type="password" autoComplete="new-password" {...form.register("confirm")} />}
+        {(control) => <PasswordInput {...control} autoComplete="new-password" {...form.register("confirm")} />}
       </FormField>
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" size="lg" disabled={isSubmitting}>
         {isSubmitting ? "Creating your account…" : "Create account"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
+        <Link href="/login" className="font-semibold text-primary underline underline-offset-4">
           Log in
         </Link>
       </p>
