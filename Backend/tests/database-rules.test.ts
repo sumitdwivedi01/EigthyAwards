@@ -552,6 +552,18 @@ describe("payments (spec §5.6)", () => {
   });
 });
 
+describe("award departments (ADR 0021)", () => {
+  it("holds one award per department", async () => {
+    const department = await createDepartment();
+    const domain = await db.awardDomain.create({ data: { name: `Domain ${department.id.slice(0, 6)}` } });
+    await db.award.create({ data: { departmentId: department.id, domainId: domain.id, name: "First", description: "x" } });
+    await expect(db.award.create({ data: { departmentId: department.id, domainId: domain.id, name: "Second", description: "x" } })).rejects.toThrow();
+    // Another department has its own.
+    const other = await createDepartment();
+    await expect(db.award.create({ data: { departmentId: other.id, domainId: domain.id, name: "First", description: "x" } })).resolves.toBeTruthy();
+  });
+});
+
 describe("judging (Step 1.4: rule R2, rule R3, ADR 0019)", () => {
   it("keeps one active conflict per juror and organisation; a removed one says when, by whom and why", async () => {
     const juror = await createPlatformAccount();

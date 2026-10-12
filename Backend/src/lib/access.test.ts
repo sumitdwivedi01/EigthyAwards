@@ -38,14 +38,18 @@ describe("access checks: every role only inside its own scope (spec §3)", () =>
 
   it("refuses a jury member on staff work, even for the award they judge", () => {
     const jury = actor([{ role: "JURY", departmentId: "dept-1" }]);
-    expect(() => requireStaffOfAward(jury, "award-1")).toThrow(ForbiddenError);
+    expect(() => requireStaffOfAward(jury, { id: "award-1", departmentId: "dept-1" })).toThrow(ForbiddenError);
     expect(() => requireJuryOfDepartment(jury, "dept-1")).not.toThrow();
   });
 
   it("keeps a scoped role to its own scope", () => {
     const staff = actor([{ role: "AWARD_STAFF", awardId: "award-1" }]);
-    expect(() => requireStaffOfAward(staff, "award-1")).not.toThrow();
-    expect(() => requireStaffOfAward(staff, "award-2")).toThrow(ForbiddenError);
+    expect(() => requireStaffOfAward(staff, { id: "award-1", departmentId: "dept-9" })).not.toThrow();
+    expect(() => requireStaffOfAward(staff, { id: "award-2", departmentId: "dept-9" })).toThrow(ForbiddenError);
+    // ADR 0021: every staff member of the award department runs its award; another department's don't.
+    const departmentStaff = actor([{ role: "DEPT_STAFF", departmentId: "dept-1" }]);
+    expect(() => requireStaffOfAward(departmentStaff, { id: "award-1", departmentId: "dept-1" })).not.toThrow();
+    expect(() => requireStaffOfAward(departmentStaff, { id: "award-2", departmentId: "dept-2" })).toThrow(ForbiddenError);
     const head = actor([{ role: "DEPT_HEAD", departmentId: "dept-1" }]);
     expect(() => requireDeptHead(head, "dept-1")).not.toThrow();
     expect(() => requireDeptHead(head, "dept-2")).toThrow(ForbiddenError);

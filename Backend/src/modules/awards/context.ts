@@ -30,7 +30,7 @@ const contextSelect = {
 export async function requireCycleStaff(actor: Actor, cycleId: string): Promise<CycleContext> {
   const cycle = await db.cycle.findUnique({ where: { id: cycleId }, select: contextSelect });
   if (!cycle) throw new NotFoundError("Award edition not found.");
-  requireStaffOfAward(actor, cycle.awardId);
+  requireStaffOfAward(actor, { id: cycle.awardId, departmentId: cycle.award.departmentId });
   return {
     cycleId: cycle.id,
     awardId: cycle.awardId,

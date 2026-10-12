@@ -177,17 +177,25 @@ export async function createDepartment(actor: Actor, input: CreateDepartmentInpu
   }
 }
 
-/** Work a person has in the department: staff count their awards, jury their assignments. */
+/**
+ * Work a person has in the award department: staff count what they recorded on its award (ADR
+ * 0021: every staff member runs it), jury their assignments.
+ */
 async function workCounts(departmentId: string, kind: ListKind, userIds: string[]): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
   if (userIds.length === 0) return counts;
   if (kind === "staff") {
-    const rows = await db.roleAssignment.groupBy({
-      by: ["userId"],
-      where: { userId: { in: userIds }, role: "AWARD_STAFF", revokedAt: null, award: { departmentId } },
+    const award = await db.award.findUnique({ where: { departmentId }, select: { id: true } });
+    if (!award) return counts;
+    const rows = await db.auditEvent.groupBy({
+      by: ["actorId"],
+      where: {
+        actorId: { in: userIds },
+        OR: [{ entityType: "award", entityId: award.id }, { cycle: { awardId: award.id } }],
+      },
       _count: { _all: true },
     });
-    for (const row of rows) counts.set(row.userId, row._count._all);
+    for (const row of rows) if (row.actorId) counts.set(row.actorId, row._count._all);
   } else {
     const rows = await db.evaluation.groupBy({
       by: ["juryUserId"],
@@ -298,7 +306,7 @@ export async function removePerson(actor: Actor, departmentId: string, kind: Lis
   if (work > 0) {
     throw new StateError(
       kind === "staff"
-        ? "This person still works on awards in this department, so they can't be removed yet."
+        ? "This person has already worked on the department's award, so they can't be removed yet."
         : "This person already has applications assigned in this department, so they can't be removed yet.",
     );
   }

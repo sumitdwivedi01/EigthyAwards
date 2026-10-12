@@ -28,7 +28,7 @@ function DashboardView({ data, roundHref }: { data: DashboardData; roundHref: (r
   return (
     <div className="grid gap-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <Stat label={totals.departments === 1 ? "department" : "departments"} value={totals.departments} />
+        <Stat label={totals.departments === 1 ? "award department" : "award departments"} value={totals.departments} />
         <Stat label="awards" value={totals.awards} />
         <Stat label="open for applications" value={totals.openCycles} tone="primary" />
         <Stat label="applications submitted" value={totals.submitted} />
@@ -107,7 +107,7 @@ function DashboardView({ data, roundHref }: { data: DashboardData; roundHref: (r
           </CardHeader>
           <CardContent>
             {department.awards.every((a) => a.cycles.length === 0) ? (
-              <EmptyState compact title="No editions yet" description="The department's staff create awards and their editions." />
+              <EmptyState compact title="No editions yet" description="The award department's staff create its award and its editions." />
             ) : (
               <div className="-mx-(--card-spacing) overflow-x-auto px-(--card-spacing)">
                 <table className="w-full min-w-[48rem] text-left text-sm">

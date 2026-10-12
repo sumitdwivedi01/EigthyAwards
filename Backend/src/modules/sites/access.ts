@@ -8,7 +8,7 @@ import { ForbiddenError } from "../../lib/errors.js";
  * editions, never people or applications.
  */
 export function requirePageManager(actor: Actor, award: { id: string; departmentId: string }): Role {
-  if (isStaffOfAward(actor, award.id)) return "AWARD_STAFF";
+  if (isStaffOfAward(actor, award)) return "AWARD_STAFF";
   if (headsDepartment(actor, award.departmentId)) return "DEPT_HEAD";
   throw new ForbiddenError("Only the award's staff and its department's head manage its page.");
 }

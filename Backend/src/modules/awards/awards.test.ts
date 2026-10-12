@@ -8,8 +8,8 @@ import { useTestDatabase } from "../../../tests/helpers/database.js";
 
 useTestDatabase();
 
-describe("staff create an award in their department (spec §5.3)", () => {
-  it("makes the creator its staff, gives it a page address from its name, and audits it", async () => {
+describe("staff create their award department's one award (spec §5.3, ADR 0021)", () => {
+  it("gives it a page address from its name, lists it as the staff's award, and audits it", async () => {
     const app = createApp();
     const { staff, department, domain } = await staffWithDepartment(app);
     const res = await staff
@@ -20,23 +20,66 @@ describe("staff create an award in their department (spec §5.3)", () => {
     const mine = await staff.get("/api/awards/mine");
     expect(mine.body.map((a: { id: string }) => a.id)).toEqual([res.body.id]);
     expect(await auditActions()).toContain("award.created");
+    // The leader's list of award departments names each one's award.
+    const leader = await signIn(app, (await platformPerson("leader@example.test", [{ role: "LEADER" }])).email);
+    const departments = await leader.get("/api/departments");
+    expect(departments.body.find((d: { id: string }) => d.id === department.id).award).toEqual({ id: res.body.id, name: "Safety Excellence Award" });
   });
 
-  it("refuses a name the department already uses (ignoring case), a retired domain, and another department", async () => {
+  it("refuses a second award in the same award department, whatever its name", async () => {
     const app = createApp();
     const { staff, department, domain } = await staffWithDepartment(app);
     const base = { departmentId: department.id, domainId: domain.id, description: "An award." };
     expect((await staff.post("/api/awards").send({ ...base, name: "Energy Award" })).status).toBe(201);
-    const twice = await staff.post("/api/awards").send({ ...base, name: "ENERGY award" });
-    expect(twice.status).toBe(400);
-    expect(twice.body.error.details).toEqual([expect.objectContaining({ path: "name" })]);
+    for (const name of ["ENERGY award", "Water Award"]) {
+      const second = await staff.post("/api/awards").send({ ...base, name });
+      expect(second.status).toBe(409);
+      expect(second.body.error).toMatchObject({ details: { reason: "DEPARTMENT_HAS_AWARD" } });
+      expect(second.body.error.message).toMatch(/already runs its award, "Energy Award".*new award department/);
+    }
+    expect(await db.award.count({ where: { departmentId: department.id } })).toBe(1);
+  });
 
+  it("creates only one when two staff of the department create an award at the same moment", async () => {
+    const app = createApp();
+    const { staff, department, domain } = await staffWithDepartment(app);
+    await platformPerson("second.staff@example.test", [{ role: "DEPT_STAFF", departmentId: department.id }]);
+    const colleague = await signIn(app, "second.staff@example.test");
+    const base = { departmentId: department.id, domainId: domain.id, description: "An award." };
+    const results = await Promise.all([
+      staff.post("/api/awards").send({ ...base, name: "Energy Award" }),
+      colleague.post("/api/awards").send({ ...base, name: "Water Award" }),
+    ]);
+    expect(results.map((r) => r.status).sort()).toEqual([201, 409]);
+    expect(await db.award.count({ where: { departmentId: department.id } })).toBe(1);
+  });
+
+  it("refuses a retired domain, and another department's award", async () => {
+    const app = createApp();
+    const { staff, department, domain } = await staffWithDepartment(app);
+    const base = { departmentId: department.id, domainId: domain.id, description: "An award." };
     const retired = await createAwardDomain("Old domain");
     await db.awardDomain.update({ where: { id: retired.id }, data: { retiredAt: new Date() } });
     expect((await staff.post("/api/awards").send({ ...base, name: "Another", domainId: retired.id })).status).toBe(400);
 
     const other = await staffWithDepartment(app, { email: "other@example.test" });
     expect((await staff.post("/api/awards").send({ ...base, departmentId: other.department.id, name: "Someone else's award" })).status).toBe(403);
+  });
+
+  it("is run by every staff member of the award department, never by another department's staff", async () => {
+    const app = createApp();
+    const { staff, department, domain } = await staffWithDepartment(app);
+    const { awardId, cycleId } = await createAwardWithCycle(staff, department.id, domain.id);
+    // Added to the department after the award was created, and not its creator: still runs it.
+    await platformPerson("second.staff@example.test", [{ role: "DEPT_STAFF", departmentId: department.id }]);
+    const colleague = await signIn(app, "second.staff@example.test");
+    expect((await colleague.get(`/api/awards/${awardId}`)).status).toBe(200);
+    expect((await colleague.get("/api/awards/mine")).body.map((a: { id: string }) => a.id)).toEqual([awardId]);
+    expect((await colleague.patch(`/api/cycles/${cycleId}`).send({ feePaise: 50_000 })).status).toBe(200);
+
+    const other = await staffWithDepartment(app, { email: "other@example.test" });
+    expect((await other.staff.get(`/api/awards/${awardId}`)).status).toBe(403);
+    expect((await other.staff.get("/api/awards/mine")).body).toEqual([]);
   });
 
   it("gives a second award with the same name in another department its own address", async () => {
@@ -100,9 +143,50 @@ describe("an edition (cycle) and its settings", () => {
       .send({ label: "2027", opensAt: "2027-02-01T00:00:00+05:30", deadlineAt: "2027-01-01T00:00:00+05:30" });
     expect(backwards.status).toBe(400);
     expect(backwards.body.error.details).toEqual([expect.objectContaining({ path: "deadlineAt" })]);
+    // Once the first edition is finished, a new one may not reuse its name.
+    await db.cycle.update({ where: { id: cycleId }, data: { status: "RESULTS_PUBLISHED" } });
     expect((await staff.post(`/api/awards/${awardId}/cycles`).send({ label: "2026", ...openDates() })).status).toBe(400);
+    await db.cycle.update({ where: { id: cycleId }, data: { status: "DRAFT" } });
     const swapped = await staff.patch(`/api/cycles/${cycleId}`).send({ deadlineAt: new Date(Date.now() - 2 * DAY).toISOString() });
     expect(swapped.status).toBe(400);
+  });
+
+  it("runs one edition at a time: the next one starts once the current one's results are published (ADR 0021)", async () => {
+    const app = createApp();
+    const { staff, department, domain } = await staffWithDepartment(app);
+    const { awardId, cycleId } = await createAwardWithCycle(staff, department.id, domain.id);
+    const next = () => staff.post(`/api/awards/${awardId}/cycles`).send({ label: "2027", ...openDates() });
+
+    // A draft is still being set up.
+    let res = await next();
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatchObject({ details: { reason: "EDITION_RUNNING" } });
+    expect(res.body.error.message).toMatch(/2026 edition is still being set up/);
+    expect((await staff.get(`/api/awards/${awardId}`)).body.newEditionBlockedReason).toMatch(/still being set up/);
+
+    // Published and open, or closed with applications still to judge: still running.
+    await db.cycle.update({ where: { id: cycleId }, data: { status: "PUBLISHED" } });
+    res = await next();
+    expect(res.body.error.message).toMatch(/2026 edition is still running/);
+
+    // Its deadline passed with nothing submitted: nothing to judge, so the next one may start.
+    await db.cycle.update({ where: { id: cycleId }, data: { status: "CLOSED", deadlineAt: new Date(Date.now() - DAY) } });
+    expect((await staff.get(`/api/awards/${awardId}`)).body.newEditionBlockedReason).toBeNull();
+    res = await next();
+    expect(res.status, JSON.stringify(res.body)).toBe(201);
+    // And now that one runs: no third edition at the same time.
+    expect((await staff.post(`/api/awards/${awardId}/cycles`).send({ label: "2028", ...openDates() })).status).toBe(409);
+  });
+
+  it("starts the next edition once the current one's results are published", async () => {
+    const app = createApp();
+    const { staff, department, domain } = await staffWithDepartment(app);
+    const { awardId, cycleId } = await createAwardWithCycle(staff, department.id, domain.id);
+    await db.cycle.update({ where: { id: cycleId }, data: { status: "RESULTS_PUBLISHED" } });
+    const res = await staff.post(`/api/awards/${awardId}/cycles`).send({ label: "2027", ...openDates() });
+    expect(res.status, JSON.stringify(res.body)).toBe(201);
+    const award = await staff.get(`/api/awards/${awardId}`);
+    expect(award.body.cycles.map((c: { label: string }) => c.label).sort()).toEqual(["2026", "2027"]);
   });
 
   it("keeps categories with their own fee, unique by name", async () => {

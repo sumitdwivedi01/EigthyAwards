@@ -8,9 +8,13 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { StateBadge } from "./state-badge";
 import { useMyAwards } from "./use-awards";
 
-/** The awards a staff member runs (one AWARD_STAFF role each), with their editions. */
-export function MyAwards({ canCreate }: { canCreate: boolean }) {
+/**
+ * The awards a staff member runs, with their editions: the one award of each award department
+ * they are staff of (ADR 0021). "Create an award" shows while one of their departments has none.
+ */
+export function MyAwards({ departments }: { departments: { id: string; name: string }[] }) {
   const awards = useMyAwards();
+  const canCreate = awards.data !== undefined && departments.some((d) => !awards.data.some((a) => a.department.id === d.id));
   return (
     <Card>
       <CardHeader>
@@ -36,7 +40,7 @@ export function MyAwards({ canCreate }: { canCreate: boolean }) {
           <EmptyState
             icon={TrophyIcon}
             title="No awards yet"
-            description={canCreate ? "Create the first one. An award lasts from year to year; each year gets its own edition." : "You aren't on a department's staff yet, so there is nothing to run."}
+            description={canCreate ? "Create your award department's award. It lasts from year to year; each year gets its own edition." : "You aren't on an award department's staff yet, so there is nothing to run."}
             action={
               canCreate && (
                 <Button asChild>

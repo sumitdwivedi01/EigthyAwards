@@ -191,7 +191,8 @@ describe("a head keeps the department's staff and jury lists (ADR 0017)", () => 
     const award = await db.award.create({
       data: { departmentId: department.id, domainId: (await createAwardDomain()).id, name: "Award", description: "A test award" },
     });
-    await db.roleAssignment.create({ data: { userId: busy.id, role: "AWARD_STAFF", awardId: award.id } });
+    // Every staff member runs the department's award (ADR 0021); work is what they did on it.
+    await db.auditEvent.create({ data: { actorId: busy.id, actorRole: "AWARD_STAFF", action: "award.created", entityType: "award", entityId: award.id } });
 
     expect((await head.delete(`/api/departments/${department.id}/staff/${staff.id}`)).status).toBe(204);
     const revoked = await db.roleAssignment.findFirstOrThrow({ where: { userId: staff.id, role: "DEPT_STAFF" } });

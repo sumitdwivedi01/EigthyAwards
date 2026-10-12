@@ -23,9 +23,9 @@ import { TemporaryPasswordCard } from "./temporary-password-card";
 import { DEPARTMENTS_KEY, useDepartments } from "./use-people";
 
 /**
- * The leader's departments (ADR 0017, ADR 0020): every department, and a new one with its head.
- * A department then runs itself: its head adds the staff and jury and chooses the theme; the
- * leader can look at each one.
+ * The leader's award departments (ADR 0017, ADR 0020, ADR 0021): every one, and a new one with its
+ * head. Each runs a single award: a new award needs a new award department. It then runs itself:
+ * its head adds the staff and jury and chooses the theme; the leader can look at each one.
  */
 export function DepartmentsPage() {
   const [creating, setCreating] = useState(false);
@@ -35,13 +35,13 @@ export function DepartmentsPage() {
         <>
           <PageTitle
             back={{ href: "/leader", label: "Across the platform" }}
-            title="Departments"
-            description="Each department runs its own awards. You create one with its head; the head then adds their staff and jury and chooses how their award pages look."
+            title="Award departments"
+            description="Each award department runs one award. For a new award, create a new award department with its head; the head then adds the staff and jury, and the staff set up the award."
             actions={
               !creating && (
                 <Button onClick={() => setCreating(true)}>
                   <PlusIcon aria-hidden />
-                  New department
+                  New award department
                 </Button>
               )
             }
@@ -58,18 +58,18 @@ export function DepartmentsPage() {
 
 function DepartmentList({ onCreate }: { onCreate: () => void }) {
   const departments = useDepartments();
-  if (departments.isPending) return <LoadingState label="Loading the departments" lines={5} />;
+  if (departments.isPending) return <LoadingState label="Loading the award departments" lines={5} />;
   if (departments.error) return <ErrorState error={departments.error} onRetry={() => void departments.refetch()} />;
   if (departments.data.length === 0) {
     return (
       <EmptyState
         icon={Building2Icon}
-        title="No departments yet"
-        description="Create the first one with its head."
+        title="No award departments yet"
+        description="Create the first one with its head. Each one runs a single award."
         action={
           <Button onClick={onCreate}>
             <PlusIcon aria-hidden />
-            New department
+            New award department
           </Button>
         }
       />
@@ -99,8 +99,9 @@ function DepartmentCard({ department }: { department: DepartmentSummary }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-sm text-muted-foreground">
-          {department.counts.staff} staff · {department.counts.jury} jury · {department.counts.awards} {department.counts.awards === 1 ? "award" : "awards"}
+        <span className="grid gap-0.5 text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{department.award ? department.award.name : "No award yet: its staff create it"}</span>
+          {department.counts.staff} staff · {department.counts.jury} jury
         </span>
         <Button asChild variant="outline">
           <Link href={`/leader/departments/${department.id}`}>
@@ -114,7 +115,7 @@ function DepartmentCard({ department }: { department: DepartmentSummary }) {
 }
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Enter the department's name."),
+  name: z.string().trim().min(2, "Enter the award department's name."),
   externalOrganiser: z.boolean(),
   headName: z.string().trim().min(1, "Enter the head's name."),
   headEmail: z.string().trim().min(1, "Enter the head's email address."),
@@ -175,23 +176,23 @@ function NewDepartment({ onClose }: { onClose: () => void }) {
   return (
     <Card className="border-primary/30">
       <CardHeader>
-        <CardTitle>New department</CardTitle>
+        <CardTitle>New award department</CardTitle>
         <CardDescription>
-          The head gets an account with a temporary password, shown to you once. If the email already has an account, it is used as it is. The head
-          then runs the department: its staff, jury and theme.
+          An award department runs one award. The head gets an account with a temporary password, shown to you once; if the email already has an
+          account, it is used as it is. The head then runs it: its staff, jury and theme. Its staff create the award.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5" noValidate>
           <FormError message={errors.root?.server?.message} />
           <div className="grid gap-5 md:grid-cols-2">
-            <FormField label="Department name" error={errors.name?.message}>
+            <FormField label="Award department name" hint="Usually named after its award, for example Safety Excellence Award." error={errors.name?.message}>
               {(control) => <Input {...control} autoFocus {...form.register("name")} />}
             </FormField>
             <div className="flex items-start gap-3 self-end pb-2">
               <Checkbox id="external-organiser" checked={externalOrganiser} onCheckedChange={(value) => form.setValue("externalOrganiser", value === true)} className="mt-0.5" />
               <Label htmlFor="external-organiser" className="leading-snug font-normal">
-                An external award organiser (runs its own awards here, under its own brand)
+                An external award organiser (runs its award here, under its own brand)
               </Label>
             </div>
             <FormField label="Head's name" error={errors.headName?.message}>
@@ -203,7 +204,7 @@ function NewDepartment({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating…" : "Create department"}
+              {isSubmitting ? "Creating…" : "Create award department"}
             </Button>
             <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
               Cancel

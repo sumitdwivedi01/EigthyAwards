@@ -12,6 +12,24 @@ export function cycleState(cycle: { status: CycleStatus; opensAt: Date; deadline
   return now >= cycle.opensAt ? "OPEN" : "SCHEDULED";
 }
 
+/**
+ * Why a new edition can't start yet, or null (ADR 0021): an award runs one edition at a time. An
+ * edition is finished once its results are published, or once its deadline passed with nothing
+ * submitted (there is nothing to judge). A draft is still being set up.
+ */
+export function newEditionBlocker(
+  editions: readonly { label: string; status: CycleStatus; deadlineAt: Date; submitted: number }[],
+  now: Date,
+): string | null {
+  const running = editions.find(
+    (e) => e.status !== "RESULTS_PUBLISHED" && !(e.status !== "DRAFT" && now >= e.deadlineAt && e.submitted === 0),
+  );
+  if (!running) return null;
+  return running.status === "DRAFT"
+    ? `The ${running.label} edition is still being set up. An award runs one edition at a time: finish and publish that one first.`
+    : `The ${running.label} edition is still running. An award runs one edition at a time: the next one can start once its results are published.`;
+}
+
 export interface CycleSummaryView {
   id: string;
   label: string;
@@ -31,6 +49,8 @@ export interface AwardView {
   domain: { id: string; name: string };
   siteSlug: string | null;
   cycles: CycleSummaryView[];
+  /** Why a new edition can't start yet (one edition at a time, ADR 0021), or null. */
+  newEditionBlockedReason: string | null;
 }
 
 // A type, not an interface, so it also fits where plain JSON is expected (the audit history).
@@ -80,6 +100,7 @@ export const awardInclude = {
       opensAt: true,
       deadlineAt: true,
       rounds: { select: { id: true }, orderBy: { number: "asc" }, take: 1 },
+      _count: { select: { applications: { where: { status: "SUBMITTED" } } } },
     },
     orderBy: { opensAt: "desc" },
   },
@@ -104,6 +125,10 @@ export function awardView(award: AwardRecord, now: Date): AwardView {
       deadlineAt: cycle.deadlineAt.toISOString(),
       roundId: cycle.rounds[0]?.id ?? null,
     })),
+    newEditionBlockedReason: newEditionBlocker(
+      award.cycles.map((c) => ({ label: c.label, status: c.status, deadlineAt: c.deadlineAt, submitted: c._count.applications })),
+      now,
+    ),
   };
 }
 
