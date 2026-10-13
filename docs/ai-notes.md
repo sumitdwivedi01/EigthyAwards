@@ -127,3 +127,10 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **How it was caught.** The project's lint (React's compiler rules in Next.js 16) refused it: setting state synchronously inside an effect causes a second render on every page change.
 - **Fix.** The menu now remembers the path it was opened on and closes during render when the path differs (the "adjust state from the previous render" pattern), with no effect at all.
 - **Lesson.** Patterns that were idiomatic in React 17 can be wrong under the compiler rules; the lint is the source of truth, not memory.
+
+## 17. A weight field that kept showing what was typed (13 Oct)
+
+- **What looked right.** The auto-balancing weight field kept the typed text while the person typed (so a field could be emptied and retyped) and cleared it when the field lost focus. Typing and leaving the field worked.
+- **How it was caught.** In the browser check, after typing 40 and then pressing "automatic" or "Make equal" without leaving the field, the field still showed 40 while the weight was 35, then 34. A second attempt that showed typed text only while the field had focus failed in the check too: the focus events never arrived in a background browser pane, which a real person's browser might also miss.
+- **Fix.** Valid numbers are applied at once and the field shows the balanced weight; only half-typed text (an emptied field) is kept, tied to the weight it was typed over, so any other change to that weight replaces it. No focus events needed.
+- **Lesson.** Local "draft" state that shadows a value must be invalidated by the value changing, not only by an event the user may or may not cause.

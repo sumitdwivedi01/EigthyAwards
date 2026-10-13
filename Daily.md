@@ -2,7 +2,7 @@
 
 What I did each day, in short: **Done · Next · Stuck · Plan changed**. The full detail is in [docs/PROGRESS.md](docs/PROGRESS.md).
 
-> **Where we are (Mon 12 Oct, Day 10):** Phase 1 Steps 1.1 to 1.4 are built and in `staging`: logins and people, award setup on screen, applying, and judging through to published results (338 backend tests). **We are about two days ahead of the plan:** Steps 1.3 and 1.4 were due Mon 12 – Wed 14 Oct, and I built both on Sunday. Today the lead's change (one award per award department) is built too. Next: Step 1.5, the platform online, then the walkthrough on Thu 15 Oct.
+> **Where we are (Tue 13 Oct, Day 11):** Phase 1 Steps 1.1 to 1.4 are built and in `staging`: logins and people, award setup on screen, applying, and judging through to published results (338 backend tests). **We are about two days ahead of the plan:** Steps 1.3 and 1.4 were due Mon 12 – Wed 14 Oct, and I built both on Sunday. The lead's change (one award per award department) and self-balancing scoring weights are built too. Next: Step 1.5, the platform online, then the walkthrough on Thu 15 Oct.
 
 ## Day 1 (Sat 3 Oct)
 - **Done:** Read the brief. Listed my questions for the client instead of assuming, and drew a first high-level architecture.
@@ -48,3 +48,7 @@ What I did each day, in short: **Done · Next · Stuck · Plan changed**. The fu
 - **Cleared up:** The brief's "38 categories competing in the same cycle" was ambiguous: it means **38 separate awards**, not 38 groups inside one award.
 - **Open for the lead:** Should jury assignment start before the deadline? My recommendation is in [GAPS G-K43](docs/GAPS.md); not built yet.
 - **Next:** Merge this change into `staging`, then Step 1.5: the platform online and the brief's documents.
+
+## Day 11 (Tue 13 Oct)
+- **Done:** The scoring sheet's weights now **balance themselves**: they start equal and always add up to exactly 100%, adding or removing a section or indicator re-splits them, and typing one weight makes the others adjust. A new **"Start from the questions"** button builds a balanced sheet from the form in one click. Checked with thousands of random edits and by hand in the browser.
+- **Next:** Merge this branch into `staging`, then Step 1.5: the platform online and the brief's documents.

@@ -221,7 +221,7 @@ One sheet per round: sections with whole-percent weights, each holding indicator
 | GET | `/api/rounds/:id/scoring-sheet` | — | `ScoringSheet` |
 | PUT | `/api/rounds/:id/scoring-sheet` | `{ sections: [{ key?, title, weight, indicators: [{ key?, label, type, weight, questionKey }] }] }`; weights whole numbers 1–100 | `200 ScoringSheet`. `400` by path for a missing name or weight, or a question that isn't in the form; `409` once locked |
 
-**ScoringSheet**: `{ roundId, sections, locked, totals: { sections, bySection: { [sectionKey]: total } }, issues: [string], questions: [{ key, label, type, published }] }`
+**ScoringSheet**: `{ roundId, sections, locked, totals: { sections, bySection: { [sectionKey]: total } }, issues: [string], questions: [{ key, label, type, published, section: { key, title } }] }` (each question names its form section, so the builder can start a sheet from the form; the builder balances weights itself, and the API still refuses to publish unless every total is 100)
 
 The arithmetic, used from Step 1.4: one juror's points `P = Σ W × w × v` (a whole number from 0 to 100,000); the final score over `n` submitted evaluations `F = ⌊(ΣP + 5n) ÷ (10n)⌋ ÷ 100`, rounded once, half up, to two decimals; equal scores share a rank (1, 2, 2, 4).
 
