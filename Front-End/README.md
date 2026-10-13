@@ -9,7 +9,10 @@ What the screens look like: the clickable prototype in [docs/ui/](../docs/ui/REA
 | | |
 |---|---|
 | **Built (Step 1.1)** | Login, register, logout; the signed-in shell with the areas the API gives each person; **My profile** (details and change password for everyone; the LinkedIn link and identity document for applicant accounts); **My organisation** (register, join, edit; applicant accounts); a home page per role, and "Nothing is assigned to you yet" for a juror not yet on a jury |
-| **Next** | **Step 1.2 (11–12 Oct):** the leader's Departments, the head's People, Set your password; then staff's award setup screens, Open awards and the award page |
+| **Built (Step 1.2)** | The leader's **Departments** and the head's **People** (temporary passwords shown once), **Set your password** at the first login; staff's **My awards**, **Create award**, the award's editions and page address, and the **edition setup** tabs (basics, categories, judging, the **question builder** with versions, the **scoring-sheet builder** with running totals, publish with the API's list of what is missing); the public **Open awards** and **award page** |
+| **Built (Step 1.3)** | The applicant's **My applications** and **Open awards**, **Apply**, and **the application**: the demo payment, the form in steps with **autosave** (and a message next to any refused answer), file questions, the **proof** step, **review and submit**, and the read-only summary; staff's **Applications** list and the **review** with the proof check |
+| **Built (Step 1.4)** | **The round page** for staff, the head and the leader (read-only): Assignment (the board, jury per application, conflicts), Judging (every juror's marks, the exact average with `ΣP` and `n`, corrections with a reason, history, send for approval, approve) and Results (top N, a cut-off or by hand, publish); the jury's **My assignments** and **scoring screen** with autosave; the head's **approval queue**; the **dashboard** for the leader and the head; results shown to applicants |
+| **Next** | **Step 1.5 (14–15 Oct):** production online (Vercel, with the API on Render), demo data and logins |
 | **Plan** | [PLAN.md](../docs/PLAN.md) (three phases) · [PHASES.md §4](../docs/PHASES.md#4-phase-1-steps-in-detail) (what each step builds) |
 
 ## What gets built when
@@ -18,15 +21,15 @@ What the screens look like: the clickable prototype in [docs/ui/](../docs/ui/REA
 |---|---|---|---|
 | Account | Login, register, My profile (details, change password, ID and LinkedIn for applicants) | Built (1.1) | Forgot password, accept invite (2.3) |
 | Applicant | My organisation | Built (1.1) | — |
-| Applicant | My applications, start and demo payment, the form, proof of employment, review and submit, status | 1.3 | Edit after submit, withdraw, status timeline (2.5); on-site slot and medals (2.1) |
-| Public | Open awards (branded cards), the award's page (department logo and colours, facts filled in automatically) | 1.2 | Banner, about, contacts and multi-page sites from the site builder (2.2) |
-| Staff | My awards, create award, cycle setup (settings, questions, scoring sheet, jury per application, award page), applications, proof check | 1.2, 1.3 | Site builder and brand kit (2.2); release screen, full scoring-sheet builder (2.5) |
-| Staff, judging | Conflicts, the assignment board (by application and by juror), judging progress with the exact average, send for approval, results | 1.4 | On-site schedule, panels and progress (2.1) |
-| Jury | My assignments, scoring | 1.4 | Phone scoring on site (2.1) |
-| Department head | People (staff and jury lists, temporary passwords) | 1.2 | Invites by email (2.3) |
-| Department head | Approval queue, round review (approve) | 1.4 | Send back (2.5); brand kit (2.2); department dashboard, staff screens (2.3, 2.4) |
-| Leader | Departments (create with its head) | 1.2 | Replace a head, master data, organisation corrections, invites by email (2.3) |
-| Leader | Dashboard | 1.4 | — |
+| Applicant | My applications, start and demo payment, the form, proof of employment, review and submit, status | Built (1.3) | Edit after submit, withdraw, status timeline (2.5); on-site slot and medals (2.1) |
+| Public | Open awards (branded cards), the award's page (department colours, facts filled in automatically; the logo comes with image uploads in 2.2) | Built (1.2) | Banner, about, contacts and multi-page sites from the site builder (2.2) |
+| Staff | My awards, create award, edition setup (settings, questions, scoring sheet, jury per application, award page address); then applications, proof check | Built (1.2, 1.3) | Site builder and brand kit (2.2); release screen, full scoring-sheet builder (2.5) |
+| Staff, judging | Conflicts, the assignment board (by application and by juror), judging progress with the exact average, send for approval, results | Built (1.4) | On-site schedule, panels and progress (2.1) |
+| Jury | My assignments, scoring | Built (1.4) | Phone scoring on site (2.1) |
+| Department head | The department page: staff and jury lists, temporary passwords, the theme with a preview, the award pages (ADR 0020) | Built (1.2) | Invites by email (2.3) |
+| Department head | Approval queue, round review (approve), the dashboard for their departments | Built (1.4) | Send back (2.5); brand kit (2.2); department dashboard, staff screens (2.3, 2.4) |
+| Leader | Departments (create with its head; each department's page read-only) | Built (1.2) | Replace a head, master data, organisation corrections, invites by email (2.3) |
+| Leader | Dashboard, read-only round pages | Built (1.4) | — |
 
 ## Structure
 
@@ -37,22 +40,29 @@ Front-End/
 │  ├─ proxy.ts              coarse gate: no session cookie → the login page (Next.js 16 renamed
 │  │                        middleware.ts to proxy.ts); never decides permissions
 │  ├─ app/
-│  │  ├─ page.tsx           the public front door (Open awards from Step 1.2)
+│  │  ├─ page.tsx           the public front door, with Open awards
+│  │  ├─ awards/[slug]/     an award's public page (no login)
 │  │  ├─ (auth)/            login, register
 │  │  └─ (app)/             signed-in pages in the app shell: home, me, applicant (and its
-│  │                        organisation page), staff, department, jury, leader
+│  │                        organisation page), staff (awards, editions), department (people),
+│  │                        jury, leader (departments)
+│  ├─ app/globals.css       the design tokens: colours (with soft tints for status), type scale, radii
 │  ├─ components/
-│  │  ├─ ui/                shadcn/ui (Radix base, Nova preset)
-│  │  ├─ layout/            the app shell, area guard, page titles
-│  │  └─ form-field.tsx     label, control, hint and error, wired for screen readers
+│  │  ├─ ui/                shadcn/ui (Radix base), sized up for comfortable reading: larger
+│  │  │                     buttons and inputs, soft status badges, line tabs, tinted alerts, radio cards
+│  │  ├─ layout/            the app shell (sidebar on a wide screen, menu on a phone), area guard,
+│  │  │                     page titles with a way back, loading / error / empty states, stats,
+│  │  │                     list rows, the stepper of the application form
+│  │  └─ form-field.tsx     label, hint, control and error, wired for screen readers
 │  ├─ features/<area>/      feature components and API hooks (TanStack Query): auth, profile,
-│  │                        organisations, areas
+│  │                        organisations, areas, people, awards (edition setup, question and
+│  │                        scoring-sheet builders), public (Open awards, award page)
 │  └─ lib/                  api-client (errors to messages, field errors to inputs, signed uploads),
 │                           api-types (the API's shapes), format (₹ from paise, India time), forms, areas
 └─ tests/e2e/               browser tests with Playwright (Phase 2, package 2.8)
 ```
 
-Coming in later steps: `components/form-builder/` and `form-renderer/` (1.2, 1.3), `components/scoring-sheet/` (1.2, 1.4).
+The question and scoring-sheet builders live in `features/awards/`; the applicant's form, its autosave and the proof step in `features/applying/`; the staff's applications and review in `features/staff-applications/`; the round page (assignment, judging, results), the jury's screens, the approval queue and the dashboard in `features/judging/`.
 
 ## Running it locally
 

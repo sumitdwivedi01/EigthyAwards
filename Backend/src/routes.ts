@@ -2,15 +2,27 @@ import { Router } from "express";
 import { env } from "./config/env.js";
 import { db } from "./lib/db.js";
 import { buildDiskStorageRouter } from "./lib/storage/disk-routes.js";
+import { buildApplicationsRouter, buildCycleApplicationsRouter, buildFilesRouter } from "./modules/applications/routes.js";
+import { buildApprovalRoundsRouter, buildApprovalsRouter } from "./modules/approval/routes.js";
+import { buildAwardsRouter, buildCyclesRouter, buildRoundsRouter } from "./modules/awards/routes.js";
+import { buildDepartmentsRouter } from "./modules/departments/routes.js";
+import { buildFormsRouter } from "./modules/forms/routes.js";
 import { buildIdentityRouter, type IdentityRouterOptions } from "./modules/identity/routes.js";
+import { buildConflictsRouter, buildEvaluationsRouter, buildJuryRouter, buildRoundJudgingRouter } from "./modules/judging/routes.js";
 import { buildMasterDataRouter } from "./modules/master-data/routes.js";
 import { buildOrganisationsRouter } from "./modules/organisations/routes.js";
+import { buildReportingRouter } from "./modules/reporting/routes.js";
+import { buildResultsRouter } from "./modules/results/routes.js";
+import { buildScoringRouter } from "./modules/scoring/routes.js";
+import { buildSitesRouter } from "./modules/sites/routes.js";
 
 export type ApiOptions = IdentityRouterOptions;
 
 /**
  * Mounts every module's router under /api. Module routers arrive step by step (PHASES.md §4):
- * identity, master data and organisations in Step 1.1, award setup in 1.2, and so on.
+ * identity, master data and organisations in Step 1.1; departments and award setup in 1.2; applying
+ * and the proof check in 1.3; conflicts, assignment, judging, approval, results and the dashboard
+ * in 1.4.
  */
 export function buildApiRouter(options: ApiOptions): Router {
   const router = Router();
@@ -28,6 +40,25 @@ export function buildApiRouter(options: ApiOptions): Router {
   router.use(buildIdentityRouter(options));
   router.use("/master-data", buildMasterDataRouter());
   router.use("/organisations", buildOrganisationsRouter());
+  router.use("/departments", buildDepartmentsRouter());
+  router.use("/awards", buildAwardsRouter());
+  router.use("/cycles", buildCyclesRouter());
+  router.use("/cycles", buildFormsRouter());
+  router.use("/cycles", buildCycleApplicationsRouter());
+  router.use("/cycles", buildConflictsRouter());
+  router.use("/applications", buildApplicationsRouter());
+  router.use("/files", buildFilesRouter());
+  router.use("/rounds", buildRoundsRouter());
+  router.use("/rounds", buildScoringRouter());
+  router.use("/rounds", buildRoundJudgingRouter());
+  router.use("/rounds", buildApprovalRoundsRouter());
+  router.use("/rounds", buildResultsRouter());
+  router.use("/evaluations", buildEvaluationsRouter());
+  router.use("/jury", buildJuryRouter());
+  router.use("/approvals", buildApprovalsRouter());
+  router.use("/reports", buildReportingRouter());
+  // The award page's address, and the public Open awards list and award pages.
+  router.use(buildSitesRouter());
 
   // Upload and download links of the local disk driver; Supabase Storage serves its own online.
   if (env.STORAGE_DRIVER === "disk") {

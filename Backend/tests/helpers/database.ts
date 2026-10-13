@@ -5,6 +5,8 @@ import { db } from "../../src/lib/db.js";
  * Empties every table. The append-only triggers also block TRUNCATE, so the reset runs with
  * session_replication_role = replica, which skips triggers for this one transaction. That needs a
  * superuser: true for the local Docker database and the CI service, never for production.
+ * The transaction gets 30 seconds: with the judging tables the TRUNCATE can pass Prisma's default
+ * 5 seconds on a busy machine, which once failed a test that had nothing to do with it.
  */
 export async function resetDatabase(): Promise<void> {
   const rows = await db.$queryRaw<{ tablename: string }[]>`
@@ -12,10 +14,13 @@ export async function resetDatabase(): Promise<void> {
     WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
   if (rows.length === 0) return;
   const tables = rows.map((row) => `"public"."${row.tablename}"`).join(", ");
-  await db.$transaction([
-    db.$executeRawUnsafe("SET LOCAL session_replication_role = replica"),
-    db.$executeRawUnsafe(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`),
-  ]);
+  await db.$transaction(
+    async (tx) => {
+      await tx.$executeRawUnsafe("SET LOCAL session_replication_role = replica");
+      await tx.$executeRawUnsafe(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
+    },
+    { timeout: 30_000, maxWait: 30_000 },
+  );
 }
 
 /** Call at the top of an integration test file: a clean database for every test. */

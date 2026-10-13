@@ -16,7 +16,10 @@
 | 2026-10-09 | **Delivered in three phases** (lead call). Phase 1 (10–15 Oct) builds a working subset of §14: two written-review awards, online. On-site rounds, the full site builder and the admin screens move to Phase 2; launch work to Phase 3. Sections changed: 1, 14, 15, 17 (notes only; behaviour unchanged). | docs/PLAN.md, docs/PHASES.md |
 | 2026-10-10 | **Git workflow:** step branches → `staging` (tested there) → `main` (production), close to §16's `develop` → `main`; two online environments from 14 Oct. Sections changed: 16 (note only; behaviour unchanged). | ADR 0015 |
 | 2026-10-10 | **Applicant accounts and platform accounts** (owner, 10 Oct). Only an applicant account (made by registering) creates or joins an organisation, applies and keeps the profile proof; the leader, department heads, staff and jury use platform accounts (seeded now, invited later) that hold roles and never apply. Someone who does both registers a second, applicant account with another email. This replaces "the same account with two roles". Sections changed: 2, 3, 5.1, 5.2, 5.8, 5.21, 10, 12, 18. | ADR 0016 |
+| 2026-10-11 | **Judging decisions for Step 1.4** (owner, 11 Oct): score corrections with a reason until approval; sending for approval waits for every proof check, and a rejected proof gets the not-advancing result unjudged; ranks and "top N" per category; a late conflict on submitted work is flagged and counts; the jury's view of a non-blind award (name, type, city, state); conflicts removed with a reason. Sections changed: 5.7, 5.8, 5.11, 5.12, 18. | GAPS G-K34–K39 |
+| 2026-10-11 | **Departments run themselves** (owner, 11 Oct; ADR 0020). The leader is a service provider: it creates a department with its head, then sees it but changes nothing in it. Only the head adds and removes staff and jury, issues their temporary passwords and chooses the department's **theme** (colours, footer) for all its award pages; the head and the award's staff manage the award pages. The leader keeps one power inside a department: a new temporary password for a locked-out head. The leader no longer creates awards or assigns staff. Sections changed: 3 (roles, matrix, rules), 5.1, 5.3, 5.19, 7, 15. | Owner, 11 Oct |
 | 2026-10-11 | **Re-plan around the lead's focus** (lead and owner, 11 Oct). (1) **People are created on screen**: the leader creates a department with its head; the head creates their staff and jury; each new account gets a temporary password that must be changed at first login (invites by email later). (2) **Jury belong to a department's jury list**, not to a cycle's pool; after the deadline staff assign applications to listed jury by hand, with counts per application and per juror. (3) **No masking**: in a blind award the jury view leaves out identity, names and every file automatically. (4) **Exact score arithmetic**: whole-number points, one half-up rounding to 2 decimals, equal scores share a rank. Sections changed: 1–4, 5.1, 5.3–5.9, 5.12, 5.14, 5.15, 5.17, 6–8, 10–12, 14, 15, 18. | ADR 0017, 0018, 0019 |
+| 2026-10-12 | **One award per award department** (the lead and the owner, 12 Oct; ADR 0021). A department runs one award, created by its staff (a second is refused); a new award needs a new award department, which the leader creates. Every staff member of the department runs its award (no separate assignment of staff). One edition at a time. The brief's "38 categories" means 38 separate awards. Sections changed: 2, 3, 5.3, 7, 12, 18. | ADR 0021; GAPS G-K41–K44 |
 
 # Awards Platform — Product & Technical Specification
 
@@ -32,7 +35,7 @@ The core idea. An award is data, not code. The code knows the parts every award 
 
 Success criteria for the 10-day build (since 9 Oct 2026 delivered in three phases, [PLAN.md](PLAN.md): Phase 1 proves the first two cycles below, written review only; the on-site cycles follow in Phase 2):
 
-- The leader creates a department with its head, the department head adds their staff and jury, and staff create and configure the full award in the UI: questionnaire, scoring sheet with weights, deadline, fee and blind judging.
+- The leader creates an award department with its head, the department head adds their staff and jury, and staff create and configure the department's award in the UI: questionnaire, scoring sheet with weights, deadline, fee and blind judging.
 - At least three differently configured cycles run end to end with no code change: a blind document-review award with a fee (apply, lock, assign, score, approve, shortlist, publish); a free award whose shortlisted entries then present on site to a panel and win Gold, Silver or Bronze; and a shop-floor competition judged only on site.
 - The four rules of the brief (blind judging, conflict of interest, score audit, question versioning) are enforced on the server and covered by automated tests.
 - Every award has its own **branded award site** that its staff build and change without a developer (§5.19).
@@ -47,7 +50,7 @@ Every word below means exactly one thing in code, UI and docs. Two different thi
 
 | Term | Meaning | Example |
 |---|---|---|
-| Department | A unit that owns and runs awards; created by the leader and run by a department head. It can be part of the industry body, or an **external award organiser** that runs its awards on the platform on its own | Energy department; the FPO Awards team |
+| Award department | The home of **one award** (changed 12 Oct 2026; ADR 0021): its head, staff and jury list and its theme; created by the leader and run by its head. A new award needs a new award department. It can be part of the industry body, or an **external award organiser** that runs its award on the platform on its own. In the data and the API it is still called a department | The Safety Excellence Award's department; the FPO Awards team |
 | Award domain | The subject area picked when creating an award, from a controlled list (master data) | Energy, Safety, Innovation |
 | Award | A permanent award programme | National Energy Excellence Award |
 | Cycle | One edition of an award, with its own dates, questionnaire and scoring sheet | 2026 edition |
@@ -97,9 +100,9 @@ Five roles use the platform. The leader works across the whole platform (the lea
 
 | Role | Scope | Who they are |
 |---|---|---|
-| Leader | Whole platform | The single top authority. Creates departments and appoints their heads, creates awards in any department, assigns staff, and keeps master data, organisation records and accounts in order. The leader's team works from this account. Sees everything in every award, read-only: never changes judging data (cycle setup, applications, scores, decisions) |
-| Department head | One or more departments | The second-level leader, or the lead of an external award organiser. Adds staff to the department and assigns them to awards, selects jury together with staff, and reviews and approves the department's judgements |
-| Staff | One or more awards (can span departments) | Does the general work: creates and runs awards, selects jury together with the department head, and is the only role that assigns applications to jury. **One staff member can be assigned many awards at once** |
+| Leader | Whole platform | The platform's operator, serving the departments and external organisers that run awards on it. Creates each department with its head, and keeps master data, organisation records and the heads' accounts in order. Sees every department, award and decision, but changes nothing inside a department: its people, theme, award pages and awards are its own (ADR 0020). The leader's team works from this account. Sees everything in every award, read-only: never changes judging data (cycle setup, applications, scores, decisions) |
+| Department head | One or more award departments | Runs the award department, or leads an external award organiser. Adds its staff and jury (creating their accounts), chooses its theme, manages its award's page with the staff, and reviews and approves its award's judgements |
+| Staff | One or more award departments (one award each) | Does the general work: creates the department's one award and runs it, selects jury together with the department head, and is the only role that assigns applications to jury. Every staff member of an award department runs its award (ADR 0021); **one person can run many awards** by being staff of several award departments |
 | Jury | One or more departments (their jury lists) | Senior expert who scores the applications staff assign to them; in a document review round one application can be scored by several jury members, each on their own |
 | Applicant user | One or more organisations | Person applying on behalf of an organisation |
 
@@ -110,16 +113,18 @@ Five roles use the platform. The leader works across the whole platform (the lea
 | Action | Leader | Dept head | Staff | Jury | Applicant |
 |---|---|---|---|---|---|
 | Create departments with their heads (a new account or an existing one); replace a department head | ✓ |   |   |   |   |
-| Add staff to a department, creating their accounts, and assign staff to awards (one staff member, many awards) | ✓ any | ✓ own |   |   |   |
-| Add jury to a department's jury list, creating their accounts | ✓ any | ✓ own |   |   |   |
-| Issue a new temporary password to someone on the department's lists | ✓ any | ✓ own |   |   |   |
-| Create an award (name, domain, description) | ✓ any |   | ✓ own dept |   |   |
+| See a department's people, theme and award pages | ✓ any | ✓ own |   |   |   |
+| Add or remove staff, creating their accounts (every staff member runs the department's award, ADR 0021) |   | ✓ own |   |   |   |
+| Add or remove jury on a department's jury list, creating their accounts |   | ✓ own |   |   |   |
+| Issue a new temporary password to the department's staff and jury |   | ✓ own |   |   |   |
+| Issue a new temporary password to a department head (locked out; until email reset in Phase 2) | ✓ |   |   |   |   |
+| Create the award department's one award (name, domain, description) |   |   | ✓ own dept |   |   |
 | Manage master data (award domains, organisation types) | ✓ |   |   |   |   |
 | Correct an organisation's record, with a reason | ✓ |   |   |   |   |
-| Resend invites; deactivate or reactivate accounts | ✓ |   |   |   |   |
+| Resend invites; deactivate or reactivate accounts | ✓ heads | ✓ own staff and jury |   |   |   |
 | Configure a cycle: questionnaire, scoring sheet, dates, fee, blind, categories, entry limit |   |   | ✓ own |   |   |
-| Edit the department's brand kit |   | ✓ own | ✓ own dept |   |   |
-| Build, change and publish an award site, at any time (also after publishing) |   | ✓ own | ✓ own |   |   |
+| Choose the department's theme (brand kit: colours, footer; logo, font and links from Phase 2) |   | ✓ own |   |   |   |
+| Build, change and publish an award site, at any time (also after publishing); choose its address |   | ✓ own | ✓ own |   |   |
 | Check applicants' proof documents (Verified or Rejected, with a reason) |   |   | ✓ own |   |   |
 | Publish a cycle, edit questions before deadline, extend deadline |   |   | ✓ own |   |   |
 | Record conflicts (a juror and an organisation) |   | ✓ own | ✓ own |   |   |
@@ -147,11 +152,11 @@ Five roles use the platform. The leader works across the whole platform (the lea
 
 Rules that follow from the client's answers:
 
-- The leader never changes judging data. The leader's writes are organisational only: departments, people and their roles, award creation, master data, organisation record fixes and accounts. Cycle setup, applications, assignment, scores, approvals and results belong to staff, jury and department heads.
+- The leader never changes judging data, and changes nothing inside a department (ADR 0020). The leader's writes are: creating departments with their heads (and replacing a head), master data, organisation record fixes, and the heads' accounts (a new temporary password for a locked-out head). Cycle setup, applications, assignment, scores, approvals and results belong to staff, jury and department heads.
 - There is **no separate role for the leader's team** (decided 9 Oct 2026; ADR 0014). They work from the leader's account, so the audit history shows the leader as the actor for their actions.
-- An external award organiser is set up as a department: the leader creates it and appoints the organiser's lead as department head. From then on the organiser runs its awards alone (staff, jury, award sites, approvals), and sees only its own department. One person may head several departments.
+- An external award organiser is set up as an award department: the leader creates it and appoints the organiser's lead as department head. From then on the organiser runs its award alone (staff, jury, award site, approvals), and sees only its own department. One person may head several award departments, which is how an organiser with several awards runs them (ADR 0021).
 - Award sites go live without the leader's approval; the leader can see them but not edit them.
-- Only staff create awards; department heads add staff and assign them.
+- **One award per award department** (the lead, 12 Oct 2026; ADR 0021): only staff create it, and a second one is refused; a new award needs a new award department, which the leader creates. Every staff member of the department runs its award; there is no separate step to assign staff to it. The department head chooses the theme; the head and the award's staff manage the award's page (ADR 0020).
 - The department head approves **document review** rounds: staff send the round's results to them, and they approve or send back with a remark. They do not edit scores. Their approval is final; the leader does not sign off after it.
 - **On-site rounds have no approval** (client answer, 6 Oct 2026). When every panel member has submitted, staff close the round, and its scores lock just as an approved round's do.
 - The department head may sit on an on-site panel as a juror (Phase 2), and is never a juror in a document review round of their own department, because they approve those rounds. They are not on their own department's jury list, and neither are its staff (ADR 0017).
@@ -238,12 +243,12 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 ### 5.1 Accounts and login
 
 - Everyone logs in with email and password. Passwords are hashed, never stored plain.
-- Applicant users register themselves, which creates an **applicant account**. The leader's account is created at setup. The leader creates department heads; department heads (or the leader) create staff and jury (changed 11 Oct 2026; ADR 0017). Everyone created this way has a **platform account**.
-- **Temporary password** (Phase 1). A new platform account gets a strong, random, one-time password, shown once to the person who created it, who passes it on privately. It is stored only as a hash and is valid for 7 days. At first login the person must set their own password before anything else works. The creator (the leader for heads; the head or the leader for staff and jury) can issue a new one if it is lost; the old one stops working, the person's sessions end, and it is audited without the password. From Phase 2 an invite link by email replaces the temporary password.
+- Applicant users register themselves, which creates an **applicant account**. The leader's account is created at setup. The leader creates department heads; department heads create their staff and jury (changed 11 Oct 2026; ADR 0017, ADR 0020). Everyone created this way has a **platform account**.
+- **Temporary password** (Phase 1). A new platform account gets a strong, random, one-time password, shown once to the person who created it, who passes it on privately. It is stored only as a hash and is valid for 7 days. At first login the person must set their own password before anything else works. The creator (the leader for heads; the head for their staff and jury, ADR 0020) can issue a new one if it is lost; the old one stops working, the person's sessions end, and it is audited without the password. From Phase 2 an invite link by email replaces the temporary password.
 - Adding someone whose email already has a platform account adds that account to the department instead of creating another one.
 - An email address belongs to only one account, compared without regard to case.
 - **An account either applies or works on awards, never both** (decided 10 Oct 2026; ADR 0016). An applicant account creates or joins organisations, applies and keeps the profile proof (§5.20), and never holds a role. A platform account (leader, department head, staff, jury) holds roles and never applies. A juror or staff member who wants to apply for their own organisation registers a separate applicant account with another email address. The type is fixed once the account is in use.
-- A deactivated account cannot log in, and its sessions end at once. Nothing it did is removed. Only the leader can deactivate or reactivate an account, and nobody can deactivate the leader.
+- A deactivated account cannot log in, and its sessions end at once. Nothing it did is removed. The leader deactivates or reactivates heads' accounts, and a head their staff's and jury's (ADR 0020); nobody can deactivate the leader.
 - Password reset works through an emailed link that expires.
 - Every user can change their own password and edit their name and phone on **My profile** (§5.21, added 9 Oct 2026).
 - Every request loads the user's role assignments from the database; the UI never decides permissions on its own.
@@ -266,11 +271,12 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - Profile edits by the organisation's users, and corrections by the leader (which need a reason), are audited with before and after values. The PAN cannot be changed by the organisation's users; a wrong PAN is corrected by the leader with a reason.
 - Accept when: a second start by the same organisation in the same cycle is refused, also when two colleagues try at the same moment; colleagues see the application read-only, without the starter's name; a staff release (with a reason, audited) lets the organisation start again; a withdrawal frees the place; a profile edit appears in the organisation's history.
 
-### 5.3 Departments, awards and cycle setup
+### 5.3 Award departments, awards and cycle setup
 
-- The leader creates departments, each with its head: a new platform account or an existing one (one person may head several departments). The leader also sets the department's brand colours and marks whether it is an external award organiser (a label only). Department names are unique, compared without regard to case (changed 11 Oct 2026; ADR 0017).
-- The department head adds staff and jury to the department, creating their accounts, and assigns staff to awards. The leader can do the same in any department. Someone with no work in the department yet (staff with no award, a juror with no assignment) can be removed from it. **A staff member can be assigned to many awards at once**, and can belong to several departments.
-- Staff create an award in their department: name, domain (from the award domain list), short description. The creator is assigned to it automatically, and the department head can add or remove staff on any award in the department. The leader can also create an award in any department and assign its staff; configuring its cycles is then the staff's work. Award names are unique inside a department, compared without regard to case.
+- The leader creates award departments, each with its head: a new platform account or an existing one (one person may head several). Each award department runs **one award** (changed 12 Oct 2026; ADR 0021). The leader also marks whether it is an external award organiser (a label only); the department starts with the default theme, and its head chooses its own (ADR 0020). Department names are unique, compared without regard to case (changed 11 Oct 2026; ADR 0017).
+- The department head adds staff and jury to the department, creating their accounts. Every staff member runs the department's award (ADR 0021). The leader sees the department's people but can't change them (ADR 0020). Someone with no work in the department yet (staff who haven't worked on its award, a juror with no assignment) can be removed from it. **One person can run many awards** by being staff of several award departments.
+- Staff create their award department's award: name, domain (from the award domain list), short description. A department has **at most one award**: a second is refused ("This award department already runs its award"), also when two staff create one at the same moment (a unique index). A new award needs a new award department.
+- The award runs year after year, **one edition at a time** (ADR 0021): a new cycle can be created once the current one's results are published, or once its deadline passed with nothing submitted.
 - Staff create a cycle (for example "2026") and configure:
   - dates: opening date and deadline (date and time, India time);
   - entry categories: at least one;
@@ -305,7 +311,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - Indicators are jury-only. They are never sent to applicants.
 - In a document review round, each indicator belongs to exactly one question; a question can have zero, one or many indicators. In an on-site round, criteria score the presentation, so they stand on their own: the score sheet has its own sections and criteria, with the same weight rules.
 - Indicator fields: key, label, type (score 0 to 10 in whole numbers, or Yes/No), weight.
-- Weights: each section has a weight, a **whole percentage** from 1 to 100, and a round's section weights add up to 100. Each indicator has a weight, a whole percentage of its section, and the indicator weights in one section add up to 100. The builder shows running totals, offers "split evenly" (for example 33, 33 and 34), and blocks publishing until every total is 100.
+- Weights: each section has a weight, a **whole percentage** from 1 to 100, and a round's section weights add up to 100. Each indicator has a weight, a whole percentage of its section, and the indicator weights in one section add up to 100. **Weights balance themselves** (owner, 13 Oct): untouched weights share 100% equally (34, 33 and 33 for three), adding or removing a section or indicator re-splits them, and a typed weight stays while the others adjust, so every total is exactly 100 without arithmetic; "Make equal" starts over. A sheet can also **start from the questions**: one section per form section and one indicator per question, all equal (file questions left out in a blind award). The builder shows the totals, and publishing is still blocked until every total is 100.
 - A simple award with no areas uses one section with weight 100.
 - The jury sees each indicator's weight next to it. There is no scoring guidance text; marks are the jury's judgement.
 - Assumption: the scoring sheet can be edited until the first score is saved in that round, then it is locked.
@@ -336,7 +342,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - An application is locked when the current time passes the cycle's deadline. The check runs in the service on every write, so no scheduled job is required.
 - There is **no masking step** (the lead's decision; ADR 0018). Once locked, a submitted application is ready to assign, blind or not.
 - **Blind judging on:** the jury view never contains the identity section (the organisation's name, PAN, GSTIN, address, official email, phone, and the identity snapshot), the applicant's name or email, team-member answers, proof documents, payments, or **any uploaded file**. It is built from an allow-list of fields, so nothing new reaches the jury by accident. The jury sees the answers to text, number, date, choice and yes/no questions as typed.
-- **Blind judging off:** jury see the answers and the evidence files as submitted; never the proof documents.
+- **Blind judging off:** jury see the answers and the evidence files as submitted, and the organisation's name, type, city and state (decided 11 Oct; minimum data); never its PAN, GSTIN, contacts or address, the applicant, or the proof documents.
 - If jury notice identity information inside an answer, there is no special flow; they score normally (client decision).
 - Known limit: a name an applicant types inside an answer reaches the jury; the form warns against it (§5.4). A blind award can't have its evidence files judged by the jury.
 - Accept when: in a blind award, no jury response ever contains an identity field, the applicant's name or a file, and a jury file download is refused; in a non-blind award jury see the answers and files.
@@ -352,7 +358,8 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 - Staff can change the minimum and maximum until the round is sent for approval for the first time. The maximum can't go below the number of jury an application already has; raising the minimum shows the applications that now need more jury.
 - Applications whose proof isn't verified, and disqualified applications, cannot be assigned.
 - **Conflicts:** the client says staff already know who is conflicted. To meet rule 2 at almost no cost, staff or the department head can record "jury member X has a conflict with organisation Y". Once recorded, the system refuses that assignment and hides that jury member in the assignment list. A conflict applies across all awards.
-- If a conflict is recorded after assignment, the assignment is removed if the evaluation is not submitted; otherwise it is flagged for staff. If that leaves the application below the minimum, staff assign another jury member.
+- If a conflict is recorded after assignment, the assignment is removed if the evaluation is not submitted; otherwise it is flagged for staff and still counts (decided 11 Oct). If that leaves the application below the minimum, staff assign another jury member.
+- A conflict recorded by mistake is removed by the award's staff or the department's head with a reason; it is kept with who, when and why (decided 11 Oct).
 - Jury get one email per assignment action, listing how many new applications they have.
 - Accept when: assigning a recorded conflict is refused by the server even if the UI is bypassed; an assignment before the deadline, above the maximum (also when two staff assign at once), to a juror who isn't on the department's list, or of an unverified application is refused; a maximum above the department's jury list is refused; the board's counts match the evaluations; an application with fewer jury than the minimum blocks sending for approval.
 
@@ -380,8 +387,8 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 ### 5.11 Approval (document review rounds)
 
 - Only document review rounds go to the department head. On-site rounds have no approval; staff close them (§5.16).
-- Staff can "Send for approval" only when every eligible application in the round has at least the round's minimum number of submitted evaluations and no assigned evaluation still unfinished. The batch is the whole round of the cycle, and it goes to the head of the award's department.
-- Before sending, staff can edit any score; a reason is required and recorded (rule 3).
+- Staff can "Send for approval" only when every eligible application in the round has at least the round's minimum number of submitted evaluations, no assigned evaluation is still unfinished, and every submitted application's proof has been checked (decided 11 Oct). The batch is the whole round of the cycle, and it goes to the head of the award's department. An application whose proof was rejected isn't judged and gets the round's not-advancing result.
+- Until the head approves (before sending and while the round waits for approval; decided 11 Oct), staff can edit any submitted score; a reason is required and recorded (rule 3).
 - The department head sees the ranked list per entry category: each application's final score (the average), every jury member's score and overall note, indicator details, and the disqualified list with reasons.
 - The department head can approve: the round is locked and no score can ever change again.
 - Or the department head can send back: an overall remark is required, and remarks on specific applications are optional. Scores stay as they are.
@@ -393,7 +400,7 @@ Each module below lists its rules and the acceptance checks that tell us it is d
 ### 5.12 Results of a round
 
 - Staff decide a round's results once its scores are locked: after the department head approves a document review round, or after staff close an on-site round. Assumption: no further approval is needed for the results.
-- Rankings use the official final score: the exact average of the jury's scores, rounded once to two decimals (§5.5, ADR 0019). The ranked list of a document review round is per entry category or overall. An on-site round's medals use the overall ranking of the round. Equal final scores share a rank and the next rank is skipped (1, 2, 2, 4); staff decide ties manually.
+- Rankings use the official final score: the exact average of the jury's scores, rounded once to two decimals (§5.5, ADR 0019). The ranked list of a document review round is per entry category (decided 11 Oct): "top N" is the top N of each category, and ties at the cut all get in. An on-site round's medals use the overall ranking of the round. Equal final scores share a rank and the next rank is skipped (1, 2, 2, 4); staff decide ties manually.
 - **Document review round:** staff give each application **Shortlisted** or **Rejected**, using top N, a minimum score or manual selection. Shortlisted applications move on to the next round, if the cycle has one.
 - **On-site round:** the system suggests **Gold, Silver and Bronze** for ranks 1 to 3 of the whole round (one set per award cycle, across all entry categories; decided 6 Oct 2026) and **Participated** for the rest. Staff can change any label before publishing.
 - A cycle can rename a round's labels, and mark which label moves an entry on to the next round, without any code change.
@@ -482,7 +489,7 @@ Before this platform, each award kept its own records, so the same organisation,
 
 Award organisers (for example the team behind FPO Awards) have their own brand and websites. On this platform every award gets its **own branded site** that its staff build and change themselves, with no developer. Applies to **all** awards (decided 7 Oct 2026). See ADR 0009.
 
-- **Brand kit (per department).** Logo, primary and accent colours, a font from a safe list, social links and footer text. The department head and department staff edit it. Every award site of the department uses it; an award site can override the colours and banner.
+- **Brand kit (per department).** Logo, primary and accent colours, a font from a safe list, social links and footer text. The department head chooses it (ADR 0020; Phase 1: the colours and footer text, with a preview). Every award site of the department uses it; an award site can override the colours and banner.
 - **Award site (per award).** A short address name (slug, e.g. `fpo`) at `/awards/<slug>`, a **Home** page and any number of **extra pages** (for example Categories, Process, Past winners, Gallery), shown in the site's menu.
 - **Pages are built from sections.** Staff decide **what to show and where**: which sections, on which page, in which order, and each section's layout choice (for example gallery as grid or slider; cards in 2, 3 or 4 columns). Section types:
 
@@ -560,24 +567,24 @@ Each journey starts from the person's real day, then lists what they do in the s
 
 ### Leader
 
-The single top authority, who sets up the structure, and watches everything without changing judging data. The leader's team (for example an assistant) does the same work from the leader's account.
+The platform's operator, who brings each department onto the platform and watches everything, changing nothing inside a department (ADR 0020). The leader's team (for example an assistant) does the same work from the leader's account.
 
 - After a call: creates the new "Water Conservation" department with its head, and passes on the head's temporary password.
-- Adds a staff member to two departments and assigns them three awards; creates a new award for a department's staff to configure.
+- Opens a department to see its people, theme and award pages; when a head is locked out, issues them a new temporary password.
 - Adds a new award domain to the master list, and retires a misspelt one; fixes an organisation's wrongly entered name, giving a reason.
-- Deactivates the account of a staff member who left, after moving their awards to someone else.
+- Deactivates the account of a department head who left, after appointing the new head.
 - Opens the dashboard: every award and cycle, applications by status, judging progress, rounds waiting for approval, deadlines.
 - Opens any award to read its applications, scores, notes and decisions; nothing can be edited.
 
 ### Department head
 
-The second-level leader: decides who runs the department's awards and has the final say on their judgements.
+The second-level leader: heads an award department, decides who runs its award and has the final say on its judgements.
 
 - (External organiser) Is appointed department head of the organiser's department by the leader, then runs everything alone.
-- Sets the department's brand kit: logo, colours, font, social links.
+- Chooses the department's theme (colours and footer in Phase 1; logo, font and social links from Phase 2) and manages its award pages with the staff.
 - Logs in with the temporary password from the leader and sets their own.
-- Creates the department's staff and jury (each gets a temporary password to pass on), and assigns staff to awards.
-- Follows the department's awards on the dashboard.
+- Creates and removes the department's staff and jury (each new one gets a temporary password to pass on), and issues them a new one when theirs is lost. Every staff member runs the department's award.
+- Follows the department's award on the dashboard.
 - Gets an email that a round is ready. Opens the ranked list, reads each application's average score, every jury member's score and overall note, and the disqualified list.
 - Approves, or sends back with a remark and optional remarks on specific applications.
 - Sometimes sits on an on-site panel and scores presentations like any other juror.
@@ -894,7 +901,7 @@ Every read and write goes through a service function that receives the acting us
 | Identity | getMyProfile, updateMyProfile, changePassword | Every user (own account) |
 | Identity | setIdentityDocument, removeIdentityDocument, setLinkedinUrl | Applicant (own profile) |
 | Departments | createDepartment (with its head), listDepartments, replaceDepartmentHead | Leader (list: dept head, own) |
-| Departments | addStaff, addJuror, listPeople, removeFromDepartment, issueTemporaryPassword, assignStaffToAward | Dept head (own), leader (any) |
+| Departments | addStaff, addJuror, removeFromDepartment, issueTemporaryPassword, assignStaffToAward, getTheme, updateTheme | Dept head (own); the leader only lists people and reads the theme (any), and issues a head's temporary password (ADR 0020) |
 | Master data | listAwardDomains, listOrganisationTypes | Everyone |
 | Master data | createValue, renameValue, retireValue | Leader |
 | Organisations | createOrganisation, joinOrganisation, getOrganisation, updateOrganisation | Applicant (member) |
@@ -905,7 +912,7 @@ Every read and write goes through a service function that receives the acting us
 | Scoring | editScoringSheet, validateWeights, computeScore | Staff (read: jury) |
 | Applications | startApplication, payFee (demo), saveAnswers, uploadFile, uploadEmploymentProof, submit, withdraw, releaseApplication | Applicant, staff |
 | Applications | checkProof (Verified or Rejected with a reason), entryCount | Staff (entryCount: public) |
-| Sites | editBrandKit, createSite, editPageDraft, uploadImage, previewPage, publishPage, restoreVersion, unpublishSite | Department head and staff (brand kit: department head and department staff) |
+| Sites | editBrandKit, createSite, editPageDraft, uploadImage, previewPage, publishPage, restoreVersion, unpublishSite | Department head and staff (brand kit: the department head, ADR 0020) |
 | Sites | getPublishedSite, getPublishedPage | Public |
 | Judging | recordConflict | Staff, dept head |
 | Judging | setJuryPerApplication, assign (one or more listed jury per application), revokeAssignment, assignmentBoard | Staff only |
@@ -953,13 +960,13 @@ The app has about 39 screens grouped by role. Each role sees only its own area a
 | Jury | Scoring | Answers and files, indicators with weights, question comments, overall note, submit, disqualify |
 | Jury | On-site scoring | Phone-friendly: the entry's organisation, team and slot; criteria with weights; overall note; submit |
 | Department head | Department awards | Awards in the department and their progress |
-| Department head | People | The staff and jury lists; add someone (a temporary password shown once); issue a new temporary password; remove someone with no work yet; assign staff to awards |
+| Department head | People | The staff and jury lists; add someone (a temporary password shown once); issue a new temporary password; remove someone with no work yet |
 | Department head | Approval queue | Rounds waiting for a decision |
 | Department head | Round review | Ranked list by average score, each jury member's score and note, disqualified list; approve or send back with remarks |
 | Leader | Dashboard | Every award and cycle with progress, approvals and deadlines |
-| Leader | Departments | Create a department with its head (a temporary password shown once); replace a head (Phase 2) |
-| Leader | People | Find any user; add staff to departments; assign staff to awards; resend invites; deactivate or reactivate |
-| Leader | Awards | Create an award in any department; award view (read-only) with its applications, scores, notes and decisions |
+| Leader | Departments | Create a department with its head (a temporary password shown once); see each department's people, theme and award pages, read-only; a new temporary password for a locked-out head; replace a head (Phase 2) |
+| Leader | People | Find any user and see where they work (read-only; each department's head manages its people, ADR 0020); resend heads' invites; deactivate or reactivate heads |
+| Leader | Awards | Award view (read-only) with its applications, scores, notes and decisions (only staff create awards, ADR 0020) |
 | Leader | Master data | Award domains and organisation types: add, rename, retire |
 | Leader | Organisations | Find an organisation; correct its record with a reason; see its history |
 
@@ -984,74 +991,9 @@ The load is small for a single PostgreSQL database, so the design favours correc
 | Browsers | Current Chrome, Edge, Firefox and Safari |
 | Backups | Managed database backups in production |
 
-## 14. Scope for the 10-day build
+## 14. Scope
 
-> **Changed 9 Oct 2026:** the build is delivered in three phases. **Phase 1 (10–15 Oct)** builds the part listed in [PLAN.md](PLAN.md#what-works-in-phase-1); on-site rounds, the full site builder, the leader's admin screens and all emails move to **Phase 2**; security, privacy, load, payments and domains to **Phase 3**. The lists below stay as the full product scope.
-
-> **Changed 11 Oct 2026:** departments, heads, staff and jury are created on screen in Phase 1 (ADR 0017); the masking workspace is dropped (ADR 0018).
-
-With about 40 working hours, the build covers the full cycle at its core and cuts depth, not steps. The priorities below decide what drops first if time runs short.
-
-### Must have
-
-- Branded award sites with the page builder (§5.19), the brand kit, and branded cards on Open awards.
-- Proof: the identity document and LinkedIn link once on the profile, a recent proof of employment with every application, and the staff check; the entry limit with its public counter (§5.20).
-- My profile for every user: name, phone, change password (§5.21).
-- The department head's dashboard (external organisers run their awards from it).
-- Login and roles with scopes; a seeded leader, with departments, department heads, staff and jury created through the hierarchy.
-- Data consistency rules: normalisation, case-insensitive uniqueness, controlled lists for award domains, organisation types and states, identity snapshots (§5.18).
-- Organisation profile with PAN and GSTIN checks.
-- Departments and department heads (leader), staff assignment to many awards (department head or leader), award and cycle setup (staff), all in the UI.
-- Questionnaire builder and immutable form versions (rule 4).
-- Scoring sheet builder with weight validation and the score formula.
-- Applicant flow: one application per organisation (blocked at start; colleagues read-only), demo fee, dynamic form, autosave, submit, edit until deadline, withdraw.
-- Deadline locking and blind judging without a masking step (rule 1; ADR 0018).
-- The department's jury list, conflicts and assignment by hand (rule 2), with several jury per application in document review rounds (a minimum and maximum per round) and the average as the final score.
-- Scoring, overall note, submit, staff edits with reason, audit history (rule 3).
-- Approval by the department head: send for approval, approve, send back with remarks, resubmit.
-- Shortlist and publish results.
-- On-site rounds (§5.16): slots, panels of 2 to 5, independent panel scoring, staff backup entry, averages, closing, and Gold, Silver and Bronze results.
-- Three seeded cycles with clearly different settings (blind document review with a fee; document review then on-site with medals; shop-floor on-site only), plus one more configured live in the UI during the walkthrough.
-
-### Should have
-
-- Releasing an application with a reason (staff).
-- Disqualify and reinstate.
-- Emails for: questionnaire updated, jury assigned, results published (others if time allows).
-- Leader dashboard with basic counts.
-- Master data screens (until built, the lists come from the seed).
-- Organisation record correction and account deactivation screens.
-
-### Could have
-
-- Leader drill-down screens beyond the dashboard.
-- A flag when the jury of one application disagree widely (for example more than 20 points between the highest and lowest score).
-- Remaining email templates.
-- Reminders the leader can send: to department heads with rounds waiting for approval, and to jury with unfinished evaluations.
-- Export of cross-award reports as CSV for the leader.
-- A "possible duplicate organisations" list for the leader (same name, different PAN) to clean up.
-
-### Designed for, not built (room kept)
-
-- A live scoreboard for on-site rounds.
-- Changing one's own email address (with a confirmation link to the new address).
-- Copying last year's cycle setup.
-- Transferring an application to another member of the organisation.
-- More organisation fields.
-- Own domains for award sites: a sub-domain first, then the organiser's own domain (slug and customDomain field already stored).
-- Drag-and-drop free layout, uploaded custom fonts, and page-visit analytics for award sites.
-- Named accounts for each member of the leader's team (ADR 0014).
-
-### Out of scope
-
-- Real payment gateway and refunds.
-- Automatic removal of names from documents.
-- Integration with the client's member portal or single sign-on.
-- Importing past cycles' data.
-- Multiple languages, a mobile app, feedback reports for applicants.
-- Virus scanning of uploads.
-- Offline scoring at venues without internet.
-- Booking of presentation slots by applicants.
+> Superseded on 9 Oct 2026 by the three-phase plan: what Phase 1 builds is in [PLAN.md](PLAN.md#what-works-in-phase-1), and Phases 2 and 3 carry the rest of this specification. The old 10-day scope lists were removed on 12 Oct 2026 (git history).
 
 ## 15. Testing strategy
 
@@ -1176,28 +1118,20 @@ Three lines: Done · Next · Stuck. Add Plan changed when the plan was updated, 
 
 ## 17. Build plan
 
-> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). Kept for history.
-
-Days 1 and 2 went to understanding, questions and design. Days 3 to 8 build one vertical slice per day, each ending with its rule tests green; days 9 and 10 finish. If the actual day count differs, shift the rows and note the change in plan.md.
-
-| Day | Focus | Done when |
-|---|---|---|
-| 3 | Project skeleton, CI, Prisma schema, seed, login, roles and scopes, departments and department heads, organisation profile | Seeded users log in and land on their role's area; PAN and GSTIN checks tested |
-| 4 | Award creation, staff assignment, cycle setup, questionnaire builder, form versions, scoring sheet builder | Staff publish a complete cycle in the UI; rule 4 and weight tests green |
-| 5 | Open awards, demo fee, form renderer with autosave, submit, edit, withdraw, duplicate flag | An applicant submits end to end; deadline and fee tests green |
-| 6 | Deadline lock, masking workspace, jury pool, conflicts, assignment | A blind application reaches its jury masked; rule 1 and 2 tests green |
-| 7 | Scoring screen, submit evaluation, staff edits with reason, disqualify and reinstate, audit history | A jury submits; staff corrections are audited; rule 3 tests green |
-| 8 | Approval and send back, shortlist, publish results, key emails, leader dashboard; configure a second award in the UI only | One full cycle runs for both awards with no code change |
-| 9 | README from a fresh clone, user journeys page, architecture drawing, testing.md, ai-notes.md, deploy | A stranger can run it; every brief deliverable is in the repo |
-| 10 | Self-review of every module, fixes, walkthrough rehearsal | The 20-minute walkthrough runs without surprises |
-
-Cut order if behind: remaining email templates → department head dashboard → duplicate resolution screen (keep the flag) → jury-side disqualification (keep staff-side). The four rules and the end-to-end cycle are never cut.
-
-Each day: open the issues for that day's slice, merge through pull requests into develop, merge develop into main when CI is green, write the daily update.
+> Superseded by [PLAN.md](PLAN.md) (the three phases) and [PHASES.md](PHASES.md) (the detailed steps). The original day-by-day table was removed on 12 Oct 2026 (git history).
 
 ## 18. Open questions and assumptions
 
 Sixteen questions were asked. The leader call on 5 October 2026 answered question 1 and part of question 3; the answers on 6 October answered questions 2, 7, 8, 14 and 15 (see below). The rest stay open with their defaults. Questions 1 to 7 change the data model or the roles, so they matter most.
+
+### Answered on 12 Oct 2026 (lead and owner)
+
+| # | Answer |
+|---|---|
+| New | **One award per department.** The leader creates an award department for each award, with its head; to announce a different award, the leader creates a new award department. Its staff create the award, and every staff member runs it. Jury and judging are unchanged (ADR 0021). |
+| New | The award runs year after year, but **one edition at a time**: the next edition starts once the current one's results are published (ADR 0021). |
+| New | The brief's "Another has 38 categories competing in the same cycle" means **38 separate awards** running in the same year, not 38 groups inside one award (the lead; GAPS G-K42). Entry categories inside one award stay as they are. |
+| Open | Should staff assign applications to jury **before the deadline**? Recommended answer in GAPS G-K43; not built yet. |
 
 ### Answered on 11 Oct 2026 (lead and owner)
 
@@ -1206,6 +1140,12 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | New | The lead's focus is the form builder, filling the form and judging. He doesn't want masking: blind awards hide identity, names and files automatically (ADR 0018). |
 | New | The leader creates departments and their heads, and the head creates their own staff and jury, on screen, in Phase 1. A new account gets a temporary password that must be changed at first login (ADR 0017). |
 | New | After the deadline staff assign applications to jury by hand, with a minimum per application, and see the counts per application and per juror. The final mark is the exact average of the jury's scores (ADR 0019). |
+| New (owner, Step 1.4) | Staff correct a submitted score, with a reason, **until the head approves** (also while the round waits for approval); the head sees every change in the history (GAPS G-K34). |
+| New (owner, Step 1.4) | Sending for approval **waits until every submitted application's proof is checked**; an application whose proof was rejected is never judged and gets the round's not-advancing result (G-K35). |
+| New (owner, Step 1.4) | Ranks, "top N" and the cut-off are **per entry category** (G-K36). |
+| New (owner, Step 1.4) | A conflict recorded after the juror submitted is **flagged for staff and still counts** (G-K37). |
+| New (owner, Step 1.4) | In an award that isn't blind, the jury see the organisation's **name, type, city and state**, the answers and the evidence files; never its PAN, GSTIN, contacts, address, the applicant or the proof documents (G-K38). |
+| New (owner, Step 1.4) | A conflict recorded by mistake can be **removed with a reason**; it is kept as history (G-K39). |
 
 ### Answered on 10 Oct 2026 (owner)
 
@@ -1238,7 +1178,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 | # | Answer |
 |---|---|
 | New | Award organisers keep their brand: every award gets a branded site built by its staff from ready-made sections, for **all** awards. Staff decide what to show and where, and can change the design after publishing. No approval from the leader. |
-| New | An external organiser is set up as a department and runs its awards alone; one person may head several departments. Only staff create awards. |
+| New | An external organiser is set up as a department and runs its awards alone; one person may head several departments. Only staff create awards. *(12 Oct: one award per award department, ADR 0021.)* |
 | New | Every application carries a photo identity document, a proof of employment and a LinkedIn link; staff check them. |
 | New | Staff can set an entry limit; the public sees the count, e.g. 499 / 500. |
 | New | The 10-day deadline can move: the plan is extended rather than cut, as long as every detail is covered. |
@@ -1262,7 +1202,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 |---|---|
 | 1 | The award goes to the organisation (legal entity, by PAN). Plants and units never apply separately. |
 | 3 | Staff accounts are created by the department head, or by the leader's PAs on the leader's behalf. *(9 Oct: no PA role; the team uses the leader's account.)* |
-| New | A staff member can be assigned to many awards. |
+| New | A staff member can be assigned to many awards. *(12 Oct: by being staff of several award departments, each running one award; ADR 0021.)* |
 | New | No signed authorisation letter. For now every application from a member of the organisation is accepted; proof of authority is to be decided. |
 | New | The leader has a personal team (PAs), created by the leader, who carry out the leader's organisational tasks. *(Changed 9 Oct: no separate role; they use the leader's account, ADR 0014.)* |
 | New | Data inconsistency across the old award systems was the main problem; the platform must keep shared data consistent. |
@@ -1273,7 +1213,7 @@ Sixteen questions were asked. The leader call on 5 October 2026 answered questio
 |---|---|---|
 | 1 | Does the award go to the legal company, or can each plant or unit apply separately? | **Answered:** the legal company (organisation, by PAN); one application per organisation per cycle |
 | 2 | Is the department head's approval final, or does the leader also sign off after it? | **Answered:** final, for document rounds; on-site rounds have no approval |
-| 3 | Who creates staff accounts: the department head or the leader? | **Answered:** the department head, or the leader (whose team uses the leader's account, 9 Oct) |
+| 3 | Who creates staff accounts: the department head or the leader? | **Answered:** the department head, or the leader (whose team uses the leader's account, 9 Oct). **Changed 11 Oct (ADR 0020):** only the department head |
 | 4 | Can a department head also create awards, or only staff? | Only staff |
 | 5 | Can a department head edit scores, or only approve and send back? | Only approve and send back |
 | 6 | Is there exactly one leader, or can there be a backup leader account? | Exactly one |

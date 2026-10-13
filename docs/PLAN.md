@@ -2,7 +2,7 @@
 
 > **For the lead and reviewers.** This page is the whole plan in plain words, from start to finish. It takes 5 minutes to read.
 > Agreed on 9 Oct 2026 after the lead call. Phase 1 started **Saturday 10 October**; re-planned on 11 Oct around the lead's focus (forms and judging) and the owner's request to create people on screen.
-> **Phase 1, day by day, for presenting:** [PHASE-1-ROADMAP.md](PHASE-1-ROADMAP.md). The detailed working steps are in [PHASES.md](PHASES.md), the technical design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), and live status in [PROGRESS.md](PROGRESS.md).
+> The detailed working steps are in [PHASES.md](PHASES.md), the technical design in [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), and live status in [PROGRESS.md](PROGRESS.md).
 
 ## The three phases at a glance
 
@@ -46,12 +46,12 @@ Both are set up **on screen by staff**. In the walkthrough, staff also set up a 
 
 | Who | What they can do |
 |---|---|
-| **Visitor** | See open awards as branded cards, and each award's page in its department's logo and colours (dates, categories, fee, places left) |
+| **Visitor** | See open awards as branded cards, and each award's page in its department's colours (dates, categories, fee, places left; the logo comes with image uploads in Phase 2, G-K30) |
 | **Applicant** | Register, then create or join their company (PAN and GSTIN checked and cleaned). Add a photo ID and LinkedIn link once, on **My profile**. Start an application (blocked if a colleague already did), pay the demo fee, fill the form with autosave, upload evidence and a recent proof of employment, then submit, and see their status and result. Change their password |
 | **Staff** | Create an award and set it up: dates, fee, blind, categories, entry limit, jury per application, questions (with versions) and the scoring sheet (weights must total 100%). Choose the award page's address. Check proof and record conflicts. After the deadline, **assign each application by hand** to jury from the department's list, with the counts in view: per application (assigned, against the minimum) and per juror (assigned, submitted). Follow progress, correct a score with a reason, send for approval, then shortlist and publish results |
 | **Jury** | Log in with the temporary password from their head, set their own, and see the departments they judge for. See their applications, score them (whole numbers 0–10 or Yes/No) with an overall note, and submit. In a blind award they never see the company, the applicant or any file |
-| **Department head** | **Create their department's staff and jury** (each gets a temporary password, changed at first login). Review the ranked results and approve the round |
-| **Leader** (and the leader's team, on the same account) | **Create departments and their heads.** A read-only dashboard across all awards and departments: applications, judging progress, rounds waiting for approval, deadlines |
+| **Department head** | **Run their department:** create and remove its staff and jury (each gets a temporary password, changed at first login), and **choose its theme** (the colours and footer of all its award pages, with a preview). Review the ranked results and approve the round |
+| **Leader** (and the leader's team, on the same account) | **Create departments and their heads**, then only look: each department's people, theme and award pages are its own (decided 11 Oct, [ADR 0020](decisions/0020-departments-run-themselves.md)); the one exception is a new temporary password for a locked-out head. A read-only dashboard across all awards and departments: applications, judging progress, rounds waiting for approval, deadlines |
 
 **Two kinds of account** (decided 10 Oct, [ADR 0016](decisions/0016-applicant-and-platform-accounts.md)). Applicants register their own account, and only they apply. The leader, department heads, staff and jury get their accounts from the platform and never apply from them; a juror who also wants to apply for their company registers a second account with another email.
 
@@ -81,7 +81,7 @@ Each step is tested on the `staging` branch as soon as its checklist is ticked, 
 
 ### Kept simple in Phase 1, on purpose
 
-- **People are created on screen, without email.** The leader or the head passes on a temporary password, which works once and must be changed at first login. Invitations by email come in Phase 2.
+- **People are created on screen, without email.** The leader (for a head) or the head (for staff and jury) passes on a temporary password, which works once and must be changed at first login. Invitations by email come in Phase 2.
 - **A simple page per award**, in its department's logo and colours, filled in automatically from the award's settings. The full drag-and-arrange site builder comes in Phase 2.
 - **Only production goes online.** The `staging` branch is tested by CI and on a laptop; the staging site comes in Phase 2.
 - **Emails** are written to an email log, and caught locally by a test mailbox. Real sending online needs an email provider, chosen in Phase 2.
@@ -99,8 +99,8 @@ On 10 Oct the full Phase 1 list came to about 100 hours of work against about 64
 | Editing a submitted application ("Save changes") and withdrawing | Applicants submit when ready; staff can release a wrong application |
 | A screen for releasing an application | The release works through the API, with its test |
 | The full scoring-sheet builder; date, multi-choice and team-member questions | A simpler builder and six question types cover both demo awards |
-| The award page's banner, about text and contacts; the brand-kit screen and image uploads (2.2) | The page shows the name, logo, colours, dates, categories, fee and counter; a new department's colours are set when it is created |
-| Invitations by email (2.3) | The leader or the head creates the account and passes on a temporary password |
+| The award page's banner, about text and contacts; the brand-kit screen and image uploads (2.2) | The page shows the name, colours, dates, categories, fee and counter (no logo until 2.2, G-K30); the department's head chooses its colours and footer on the department page |
+| Invitations by email (2.3) | The leader (heads) or the head (staff and jury) creates the account and passes on a temporary password |
 | The staging site online (2.9) | `staging` is tested by CI and on a laptop |
 | The applicant's status timeline | The status and result still show |
 | Edge-case tests beyond the four rules and the main flows (2.8) | Every rule keeps its tests |

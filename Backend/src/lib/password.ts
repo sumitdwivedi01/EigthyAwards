@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { env } from "../config/env.js";
@@ -17,6 +18,26 @@ export function hashPassword(password: string): Promise<string> {
 
 export function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
+}
+
+/** How long a temporary password works (ADR 0017). */
+export const TEMPORARY_PASSWORD_DAYS = 7;
+
+// No 0/o, 1/l/i: the password is read out or typed by hand.
+const TEMPORARY_ALPHABET = "23456789abcdefghjkmnpqrstuvwxyz";
+
+/**
+ * A one-time password for an account someone else creates (ADR 0017): four groups of four random
+ * characters, about 79 bits, such as "k7m2-q9xa-3fhp-w8rt".
+ */
+export function generateTemporaryPassword(): string {
+  const groups: string[] = [];
+  for (let group = 0; group < 4; group += 1) {
+    let text = "";
+    for (let i = 0; i < 4; i += 1) text += TEMPORARY_ALPHABET.charAt(randomInt(TEMPORARY_ALPHABET.length));
+    groups.push(text);
+  }
+  return groups.join("-");
 }
 
 let dummyHash: Promise<string> | undefined;

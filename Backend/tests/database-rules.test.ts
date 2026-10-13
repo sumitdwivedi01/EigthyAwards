@@ -99,6 +99,17 @@ describe("roles (ADR 0014: five roles, no PA)", () => {
     await expect(
       db.roleAssignment.create({ data: { userId: user.id, role: "LEADER", departmentId: department.id } }),
     ).rejects.toThrow(/role_assignments_scope_check/);
+    // A juror belongs to a department's jury list (ADR 0017), never to an award.
+    const { award } = await createCycle();
+    await expect(db.roleAssignment.create({ data: { userId: user.id, role: "JURY" } })).rejects.toThrow(
+      /role_assignments_scope_check/,
+    );
+    await expect(
+      db.roleAssignment.create({ data: { userId: user.id, role: "JURY", awardId: award.id } }),
+    ).rejects.toThrow(/role_assignments_scope_check/);
+    await expect(
+      db.roleAssignment.create({ data: { userId: user.id, role: "JURY", departmentId: department.id } }),
+    ).resolves.toBeTruthy();
   });
 
   it("refuses the same active role twice in the same scope, but allows many awards for one staff member", async () => {
@@ -123,12 +134,12 @@ describe("applicant and platform accounts (ADR 0016)", () => {
   it("gives roles and evaluations only to platform accounts", async () => {
     const applicant = await createApplicantAccount();
     const juror = await createPlatformAccount();
-    const { cycle, category } = await createCycle();
+    const { cycle, category, department } = await createCycle();
     await expect(
-      db.roleAssignment.create({ data: { userId: applicant.id, role: "JURY", cycleId: cycle.id } }),
+      db.roleAssignment.create({ data: { userId: applicant.id, role: "JURY", departmentId: department.id } }),
     ).rejects.toThrow(/Only platform accounts hold roles/);
     await expect(
-      db.roleAssignment.create({ data: { userId: juror.id, role: "JURY", cycleId: cycle.id } }),
+      db.roleAssignment.create({ data: { userId: juror.id, role: "JURY", departmentId: department.id } }),
     ).resolves.toBeTruthy();
     const round = await createRound(cycle.id);
     const application = await createApplication(cycle.id, category.id);
@@ -207,6 +218,18 @@ describe("data consistency (spec §5.18)", () => {
   it("refuses an unnormalised phone or PIN code", async () => {
     await expect(createOrganisation({ phone: "98765 43210" })).rejects.toThrow(/organisations_phone_check/);
     await expect(createOrganisation({ pincode: "011001" })).rejects.toThrow(/organisations_pincode_check/);
+  });
+});
+
+describe("temporary passwords (ADR 0017)", () => {
+  it("keeps the change-password flag and the temporary password's expiry together", async () => {
+    await expect(createPlatformAccount({ mustChangePassword: true })).rejects.toThrow(/users_temporary_password_check/);
+    await expect(
+      createPlatformAccount({ temporaryPasswordExpiresAt: new Date("2026-10-18T00:00:00Z") }),
+    ).rejects.toThrow(/users_temporary_password_check/);
+    await expect(
+      createPlatformAccount({ mustChangePassword: true, temporaryPasswordExpiresAt: new Date("2026-10-18T00:00:00Z") }),
+    ).resolves.toBeTruthy();
   });
 });
 
@@ -371,7 +394,13 @@ describe("proof documents (ADR 0010, 0012)", () => {
       createFile("EMPLOYMENT_PROOF", { applicationId: application.id, documentDate: new Date("2026-09-15") }),
     ).rejects.toThrow(/file_assets_consent_check/);
     // Ordinary evidence needs no proof consent.
-    await expect(createFile("EVIDENCE", { applicationId: application.id })).resolves.toBeTruthy();
+    await expect(createFile("EVIDENCE", { applicationId: application.id, questionKey: "q_a1b2c3d4e5" })).resolves.toBeTruthy();
+  });
+
+  it("refuses an evidence file that answers no question (Step 1.3)", async () => {
+    const { cycle, category } = await createCycle();
+    const application = await createApplication(cycle.id, category.id);
+    await expect(createFile("EVIDENCE", { applicationId: application.id })).rejects.toThrow(/file_assets_question_check/);
   });
 
   it("records who checked the proof and when, and why a rejection was made", async () => {
@@ -505,5 +534,81 @@ describe("judging guards", () => {
     await expect(round(3, "ON_SITE", 2, 5)).resolves.toBeTruthy();
     await expect(round(4, "ON_SITE", 1, 3)).rejects.toThrow(/rounds_jury_check/);
     await expect(round(4, "ON_SITE", 2, 6)).rejects.toThrow(/rounds_jury_check/);
+  });
+});
+
+describe("payments (spec §5.6)", () => {
+  it("records one payment per application, never zero or less", async () => {
+    const { cycle, category } = await createCycle();
+    const application = await createApplication(cycle.id, category.id);
+    await db.payment.create({ data: { applicationId: application.id, amountPaise: 100_000, status: "PAID", reference: "DEMO-1" } });
+    await expect(
+      db.payment.create({ data: { applicationId: application.id, amountPaise: 100_000, status: "PAID", reference: "DEMO-2" } }),
+    ).rejects.toThrow();
+    const other = await createApplication(cycle.id, category.id);
+    await expect(
+      db.payment.create({ data: { applicationId: other.id, amountPaise: 0, status: "PAID", reference: "DEMO-3" } }),
+    ).rejects.toThrow(/payments_amount_check/);
+  });
+});
+
+describe("award departments (ADR 0021)", () => {
+  it("holds one award per department", async () => {
+    const department = await createDepartment();
+    const domain = await db.awardDomain.create({ data: { name: `Domain ${department.id.slice(0, 6)}` } });
+    await db.award.create({ data: { departmentId: department.id, domainId: domain.id, name: "First", description: "x" } });
+    await expect(db.award.create({ data: { departmentId: department.id, domainId: domain.id, name: "Second", description: "x" } })).rejects.toThrow();
+    // Another department has its own.
+    const other = await createDepartment();
+    await expect(db.award.create({ data: { departmentId: other.id, domainId: domain.id, name: "First", description: "x" } })).resolves.toBeTruthy();
+  });
+});
+
+describe("judging (Step 1.4: rule R2, rule R3, ADR 0019)", () => {
+  it("keeps one active conflict per juror and organisation; a removed one says when, by whom and why", async () => {
+    const juror = await createPlatformAccount();
+    const staff = await createPlatformAccount();
+    const organisation = await createOrganisation();
+    const data = { juryUserId: juror.id, organisationId: organisation.id, recordedById: staff.id };
+    const first = await db.conflict.create({ data });
+    await expect(db.conflict.create({ data })).rejects.toThrow();
+    await expect(db.conflict.update({ where: { id: first.id }, data: { removedAt: new Date() } })).rejects.toThrow(/conflicts_removed_check/);
+    await db.conflict.update({ where: { id: first.id }, data: { removedAt: new Date(), removedById: staff.id, removeReason: "Recorded by mistake" } });
+    // Removed: the pair can be recorded again.
+    await expect(db.conflict.create({ data })).resolves.toBeTruthy();
+  });
+
+  it("holds a stored final score to F₂ = ⌊(ΣP + 5n) ÷ (10n)⌋ ÷ 100 of its stored ΣP and n", async () => {
+    const { cycle, category } = await createCycle();
+    const round = await createRound(cycle.id);
+    const result = async (finalScore: string | null, totalPoints: number | null, evaluationCount: number | null) =>
+      db.roundResult.create({
+        data: { cycleId: cycle.id, roundId: round.id, applicationId: (await createApplication(cycle.id, category.id)).id, finalScore, totalPoints, evaluationCount },
+      });
+    await expect(result("69.27", 207_800, 3)).resolves.toBeTruthy();
+    await expect(result("100.00", 100_000, 1)).resolves.toBeTruthy();
+    await expect(result(null, null, null)).resolves.toBeTruthy();
+    // Rounded the other way, or a score that doesn't match its points.
+    await expect(result("69.26", 207_800, 3)).rejects.toThrow(/round_results_score_check/);
+    await expect(result("70.00", 207_800, 3)).rejects.toThrow(/round_results_score_check/);
+    // All three or none, n at least 1, ΣP within 100,000 per evaluation.
+    await expect(result("69.27", null, null)).rejects.toThrow(/round_results_score_check/);
+    await expect(result("0.00", 0, 0)).rejects.toThrow();
+    await expect(result("100.01", 100_010, 1)).rejects.toThrow();
+  });
+
+  it("refuses a new evaluation in an approved round, and never deletes a result", async () => {
+    const { cycle, category } = await createCycle();
+    const round = await createRound(cycle.id);
+    const application = await createApplication(cycle.id, category.id, { status: "SUBMITTED" });
+    const juror = await createPlatformAccount();
+    await db.round.update({ where: { id: round.id }, data: { status: "APPROVED" } });
+    await expect(
+      db.evaluation.create({ data: { cycleId: cycle.id, roundId: round.id, applicationId: application.id, juryUserId: juror.id } }),
+    ).rejects.toThrow(/locked/);
+    const stored = await db.roundResult.create({ data: { cycleId: cycle.id, roundId: round.id, applicationId: application.id } });
+    await expect(db.roundResult.delete({ where: { id: stored.id } })).rejects.toThrow(/kept/);
+    // Labels and publishing still change.
+    await expect(db.roundResult.update({ where: { id: stored.id }, data: { resultLabel: "Rejected" } })).resolves.toBeTruthy();
   });
 });

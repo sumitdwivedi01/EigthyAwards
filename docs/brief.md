@@ -14,6 +14,8 @@ The awards work in different ways:
 
 - The largest one scores applicants on about 250 indicators across 15 areas. Its assessment runs six months, with two jury rounds.
 - Another has 38 categories competing in the same cycle.
+
+> **Note added 12 Oct 2026** (not part of the brief): the lead confirmed this line means 38 separate awards running in the same yearly cycle, not 38 groups of applicants inside one award. See the README, section 6, and ADR 0021.
 - Some charge an entry fee. Most do not.
 - The shop-floor competitions may not fit the usual "fill a form, upload evidence" shape.
 
@@ -89,7 +91,7 @@ If I can't see what I'm looking for along the way, I will tell you and we stop t
 
 ## Addendum (7 Oct 2026): new needs raised during the build
 
-*Not part of the original brief. Recorded from the owner's discussion with the mentor, so the requirements stay in one place. Analysis and proposals: [proposals/0.4-new-issues.md](proposals/0.4-new-issues.md).*
+*Not part of the original brief. Recorded from the owner's discussion with the mentor, so the requirements stay in one place. The analysis is in ADRs 0009–0010 and spec §5.19–§5.20 (the proposal file was removed on 12 Oct 2026; git history).*
 
 - Show how the platform will **look and flow** (UI screens for each user) before building it.
 - Award organisers who already have their own website and brand value (example: FPO Awards, face-cii.in/fpo-awards) must be able to **keep that brand** when their award is listed on the platform. Staff need the freedom to build rich award pages (photos, several pages, categories, the form) **without a developer**, unlike today's minimal award listings.

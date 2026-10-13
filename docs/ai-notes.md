@@ -73,3 +73,64 @@ The brief asks: *"Show me one place where it gave you something that looked righ
 - **How it was caught.** The owner logged in as the leader and found "Proof for applying" on My profile and an Applying link. The permission matrix in the same §3 gives applying and the profile proof to the Applicant column only, and PHASES Step 1.1 says "the proof tab for applicants": the code followed one sentence and missed the table.
 - **Fix.** The owner decided that applicants and the people who run and judge awards use separate accounts (ADR 0016): `User.accountType`, `requireApplicantAccount` in the services, triggers and a CHECK in the database, the applying screens shown only to applicant accounts, and tests for each kind of account.
 - **Lesson.** When a sentence and a table disagree, ask instead of picking the reading that is easiest to build; and look at every screen as each role, not only as the role the feature is for.
+
+## 11. An enum change that PostgreSQL refused because of CHECK constraints (Step 1.2, 11 Oct)
+
+- **What looked right.** Removing the masked-file kind from the `FileKind` enum the usual way: create `FileKind_new`, `ALTER COLUMN kind TYPE "FileKind_new" USING kind::text::"FileKind_new"`, drop the old type, rename. It is the pattern every guide shows, and the SQL is valid.
+- **How it was caught.** Running the migration locally failed with `operator does not exist: "FileKind_new" = "FileKind"`, and left both local databases half migrated.
+- **Why.** Three CHECK constraints on `file_assets` (the file's owner, the proof's document date, the consent) compare `kind` with literals typed as the **old** enum. While the column changes type, PostgreSQL re-checks them and can't compare the new type with the old one.
+- **Fix.** Inside one `BEGIN … COMMIT`, drop the three CHECKs, swap the enum, and create them again with the same rules. The half-applied local databases were finished by hand and marked applied (`prisma migrate resolve`); the drift check proves that the migrations still build the schema from nothing.
+- **Lesson.** A pattern that is right in general can still meet this database's own rules; run every migration against a database that has all its constraints before pushing.
+
+## 12. A seed that type-checked but no longer ran (Step 1.2, 11 Oct)
+
+- **What looked right.** After the jury role moved from a cycle to a department (ADR 0017), `tsc` was clean on the whole backend, the seed included.
+- **How it was caught.** Running `npm run db:seed` stopped with Prisma's "Unknown argument `cycleId`": the seed's `grant()` still looked roles up with `cycleId: null`, a column the migration had removed.
+- **Why.** Prisma's query methods are generic: the argument's type is inferred from the object and then compared with the allowed shape, and TypeScript's check for unknown properties only applies at the top level of that object. An unknown field inside `where` slips through; only Prisma's run-time validation sees it.
+- **Fix.** The field removed from the seed, and CI now seeds a fresh database **twice** (it must work, and be safe to repeat), so this kind of mistake fails the pull request.
+- **Lesson.** A clean type check doesn't prove a query is right; code that only runs by hand (seeds, scripts) needs to run in CI too.
+
+## 13. Two builders that each worked, but not on the same page (Step 1.2, 11 Oct)
+
+- **What looked right.** The question builder and the scoring-sheet builder each gave their inputs ids made from the item's path (`sections.0-title`), so every label was tied to its input. Each builder worked and passed lint and the type check.
+- **How it was caught.** In the browser check of the edition setup, a script listed the element ids on the page and found duplicates: both tabs stay mounted (so unsaved work survives switching tabs), and both had a `sections.0-title`. Clicking a label in one tab could focus an input in the hidden other tab.
+- **Fix.** Each builder prefixes its ids (`form-…`, `sheet-…`). The page check now finds no duplicate ids.
+- **Lesson.** Components that are fine alone can clash once composed; check the whole page, not each part.
+
+## 14. Stale seed passwords that weren't stale (Step 1.2, found in Step 1.3, 11 Oct)
+
+- **What looked right.** In the Step 1.2 browser check, logging in a seeded staff member with `DEMO_PASSWORD` failed. The seed never changes an existing account's password, and the local database had been seeded days before, so the AI concluded the password in `.env` had changed since. It wrote that down as G-K29 and suggested resetting the local database.
+- **How it was caught.** In Step 1.3 the same login failed on a database seeded minutes earlier from the same `.env`. Comparing the password as the helper script read it with `dotenv`'s own parse showed 39 characters against 17: the line has an inline comment, which `dotenv` (and so the seed) drops, and the script kept.
+- **Why.** The helper read `.env` by hand (split on the first "=", strip quotes) instead of with the library the app uses. The diagnosis then built on a fact nobody had checked.
+- **Fix.** The scripts read `.env` with `dotenv.parse`; the seeded hashes match `DEMO_PASSWORD` as `dotenv` reads it; G-K29 corrected.
+- **Lesson.** Parse configuration with the same library the application uses, and test a diagnosis (here: compare the stored hash) before writing it down as a cause.
+
+## 15. A trigger error code the repo had already fixed once (Step 1.4, 11 Oct)
+
+- **What looked right.** Step 1.4's new database triggers (scores locked after approval, results kept) raised their errors with `ERRCODE = 'restrict_violation'`, copied from the first guards migration. The services refused the same changes first, so every service test passed.
+- **How it was caught.** The rule tests that try a direct database update after approval expected the trigger's message ("locked") and got "Foreign key constraint violated" instead.
+- **Why.** Prisma's pg adapter maps SQLSTATE 23001 to a generic foreign-key error and drops the message. The repo had found and fixed exactly this on 6 Oct (`20261006120200_fix_guard_errors_and_null_checks` switched to the default `P0001`), but the AI copied the pattern from the older migration, not the fix.
+- **Fix.** The Step 1.4 triggers use the default SQLSTATE, with a comment pointing at the earlier fix; the step's local databases were recreated from the corrected migration (it had not left the branch).
+- **Lesson.** When copying a pattern, copy it from the newest place it appears and check for a later fix; and test the database's own refusal, not only the service's.
+
+## 16. A setup script that ran against someone else's API (Step 1.4, 11 Oct)
+
+- **What looked right.** For the browser check, the AI started the Step 1.4 API on port 4100, waited for `/api/health` to answer "ok", and ran a script that set up an award with applications.
+- **How it was caught.** The script failed on the third applicant ("Your organisation already has an application"), which couldn't happen in Step 1.4's fresh database. The process listening on 4100 was the owner's Step 1.3 API, started meanwhile from the same instructions; Step 1.4's API had failed to bind. The script had written an award and two applications into the owner's Step 1.3 test database.
+- **Why.** A health check says that *an* API answers, not *which*. Two worktrees had been given the same ports at different times.
+- **Fix.** Step 1.4 moved to ports 4200/3200; before running anything, the check now confirms that the process on the port belongs to the expected folder. The owner was told what was written to their database and decides whether to remove it.
+- **Lesson.** Before writing through an endpoint, check that it is the one you mean (here: the process behind the port), especially with several copies of the app running.
+
+## 17. A menu that closed itself from inside an effect (UI pass, 12 Oct)
+
+- **What looked right.** In the new phone navigation, the AI closed the open menu whenever the page changed with `useEffect(() => setOpen(false), [pathname])`: the common pattern in older React code.
+- **How it was caught.** The project's lint (React's compiler rules in Next.js 16) refused it: setting state synchronously inside an effect causes a second render on every page change.
+- **Fix.** The menu now remembers the path it was opened on and closes during render when the path differs (the "adjust state from the previous render" pattern), with no effect at all.
+- **Lesson.** Patterns that were idiomatic in React 17 can be wrong under the compiler rules; the lint is the source of truth, not memory.
+
+## 17. A weight field that kept showing what was typed (13 Oct)
+
+- **What looked right.** The auto-balancing weight field kept the typed text while the person typed (so a field could be emptied and retyped) and cleared it when the field lost focus. Typing and leaving the field worked.
+- **How it was caught.** In the browser check, after typing 40 and then pressing "automatic" or "Make equal" without leaving the field, the field still showed 40 while the weight was 35, then 34. A second attempt that showed typed text only while the field had focus failed in the check too: the focus events never arrived in a background browser pane, which a real person's browser might also miss.
+- **Fix.** Valid numbers are applied at once and the field shows the balanced weight; only half-typed text (an emptied field) is kept, tied to the weight it was typed over, so any other change to that weight replaces it. No focus events needed.
+- **Lesson.** Local "draft" state that shadows a value must be invalidated by the value changing, not only by an event the user may or may not cause.

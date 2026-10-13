@@ -36,14 +36,14 @@ flowchart LR
 | identity (login, roles, My profile, password, temporary passwords) | ✅ | invites by email, deactivation |
 | organisations (create, join, normalise) | ✅ | corrections by the leader |
 | master-data (award domains, organisation types) | read; lists seeded | admin screens |
-| departments (departments and their heads, staff and jury lists, brand colours) | ✅ created on screen (ADR 0017) | replace a head, more staff on an award, brand-kit screen |
+| departments (departments and their heads, staff and jury lists, the theme chosen by the head) | ✅ created on screen (ADR 0017); run by the head, viewed by the leader (ADR 0020) | replace a head, more staff on an award, brand-kit screen |
 | awards, forms (versions), scoring (weights, formula) | ✅ | copy last year's setup (Phase 3) |
 | sites | one branded page per award | full section builder, versions |
 | applications (start, fee, answers, files, proof, submit, release) | ✅ | edit after submit, withdraw, deadline extension, "questions changed" alerts |
 | judging (conflicts, assignment by hand with the board, several jury, scores, audit) | ✅ | disqualify and reinstate, reopen |
 | approval (approve), results | ✅ | send back |
 | reporting | leader dashboard | department dashboard |
-| onsite | tables only | ✅ slots, panels, close, medals |
+| onsite (no module folder yet) | tables only | ✅ the module: slots, panels, close, medals |
 | audit, notifications | ✅ (outbox, log) | real email provider |
 
 There is no masking module: blind awards leave identity and files out of the jury view, and the masking step is dropped (ADR 0018).
@@ -59,7 +59,7 @@ erDiagram
     ORGANISATION ||--o{ ORGANISATION_MEMBER : has
     DEPARTMENT ||--o| BRAND_KIT : has
     DEPARTMENT ||--o{ ROLE_ASSIGNMENT : "head, staff, jury list"
-    DEPARTMENT ||--o{ AWARD : runs
+    DEPARTMENT ||--o| AWARD : "runs one (ADR 0021)"
     AWARD ||--o| AWARD_SITE : "has a page"
     AWARD ||--o{ CYCLE : "edition per year"
     CYCLE ||--o{ ENTRY_CATEGORY : has
@@ -156,6 +156,7 @@ The services check everything first, with friendly errors. The database refuses 
 | One record per company, person, department (ignoring letter case) | Unique PAN; `citext` for emails and names |
 | Awards never mix | Foreign keys that include the cycle |
 | One active application per company per award | Partial unique index (Withdrawn and Released don't count) |
+| One award per award department | Unique index on the award's department (ADR 0021) |
 | A jury member gets an application only once | Partial unique index on active evaluations |
 | History can't be edited | Triggers refuse UPDATE and DELETE on audit events, form versions, published page versions and disqualification history |
 | Valid values | CHECKs: PAN and GSTIN format, scores 0–10, jury minimum ≤ maximum, file owner rules, money in whole paise, the jury role scoped to a department |
@@ -222,14 +223,14 @@ All routes live under `/api` and return view models. The full contract grows in 
 | Auth and profile | `POST /auth/register`, `/auth/login`, `/auth/logout`; `GET /me`; `PATCH /me/profile`; `POST /me/password` (also replaces a temporary password); `PUT /me/linkedin`; `POST /me/identity-document/uploads` (an upload link), then `PUT /me/identity-document` |
 | Master data (public) | `GET /master-data/organisation-types`, `/master-data/award-domains`, `/master-data/states` |
 | Organisations | `POST /organisations`, `POST /organisations/join`, `GET /organisations/mine`, `PATCH /organisations/:id` |
-| Departments and people (leader, head) | `POST /departments` (with its head), `GET /departments`, `GET /departments/:id/people`, `POST /departments/:id/staff`, `POST /departments/:id/jury`, `DELETE /departments/:id/people/:userId`, `POST /departments/:id/people/:userId/temporary-password` |
+| Departments and people (leader, head) | `POST /departments` (with its head), `GET /departments`, `GET /departments/:id/people`, `POST /departments/:id/staff`, `POST /departments/:id/jury`, `DELETE /departments/:id/people/:userId`, `POST /departments/:id/people/:userId/temporary-password`, `GET` and `PUT /departments/:id/theme` (the head changes; the leader views, ADR 0020) |
 | Public | `GET /public/awards` (open awards), `GET /public/awards/:slug` (branded page, live counter) |
 | Award setup (staff) | `POST /awards`, `POST /awards/:id/cycles`, `PATCH /cycles/:id`, `PUT /cycles/:id/form-draft`, `POST /cycles/:id/form-versions`, `PUT /rounds/:id/scoring-sheet`, `PATCH /rounds/:id` (jury per application), `POST /cycles/:id/publish`, `PUT /awards/:id/site` |
-| Applying | `POST /cycles/:id/applications`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files`, `POST /applications/:id/employment-proof`, `POST /applications/:id/submit`, `GET /applications/mine` |
-| Staff checks | `GET /cycles/:id/applications`, `POST /applications/:id/proof-check`, `POST /applications/:id/release` |
-| Assignment and judging | `POST /conflicts`, `GET /rounds/:id/assignment-board`, `POST /rounds/:id/assignments`, `POST /evaluations/:id/revoke`, `GET /jury/evaluations`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `POST /evaluations/:id/score-changes` |
-| Approval and results | `POST /rounds/:id/send-for-approval`, `POST /approvals/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
-| Leader | `GET /reports/leader-dashboard`; `GET /applications/:id/history` |
+| Applying | `GET /cycles/:id/apply`, `POST /cycles/:id/applications`, `GET /applications/mine`, `GET` and `PATCH /applications/:id`, `POST /applications/:id/payment`, `PUT /applications/:id/answers`, `POST /applications/:id/files` and `PUT`/`DELETE /applications/:id/files/:fileId`, `POST /applications/:id/employment-proof/uploads` and `PUT /applications/:id/employment-proof`, `POST /applications/:id/submit` (built in Step 1.3; [API.md](API.md)) |
+| Staff checks | `GET /cycles/:id/applications`, `GET /applications/:id/review`, `POST /applications/:id/proof-check`, `POST /applications/:id/release` |
+| Assignment and judging | `POST /cycles/:id/conflicts` and `/cycles/:id/conflicts/:conflictId/remove`, `GET /rounds/:id/assignment-board`, `POST /rounds/:id/assignments`, `POST /evaluations/:id/revoke`, `GET /jury/evaluations`, `GET /evaluations/:id`, `PUT /evaluations/:id/scores`, `POST /evaluations/:id/submit`, `GET /rounds/:id/judging`, `POST /evaluations/:id/score-changes` (built in Step 1.4; [API.md](API.md)) |
+| Approval and results | `POST /rounds/:id/send-for-approval`, `GET /approvals`, `POST /rounds/:id/approve`, `PUT /rounds/:id/results`, `POST /rounds/:id/publish-results` |
+| Leader | `GET /reports/dashboard` (the leader; a head for their departments); `GET /applications/:id/history` |
 | Files | `GET /files/:id` (checks who may read which kind, then answers with a short-lived signed link). Uploads get a signed link from the endpoint that owns the file, for example `PUT /me/identity-document` |
 
 ## 5. How it scales

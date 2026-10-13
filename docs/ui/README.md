@@ -2,17 +2,11 @@
 
 > **What this is.** The client asked to see the platform before anything is built. This folder shows every user's journey **screen by screen**. It's a prototype of the flow: no real data, nothing is saved, and the final visual design will differ.
 >
-> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PLAN.md) · [the spec](../requirements.md) · [re-plan options](../proposals/0.5-replan-options.md)
+> **Phase 0.5** · 8 Oct 2026, updated 9 Oct (Phase 0.7: proof once on the profile, My profile, several jury per application) · Related: [the plan](../PLAN.md) · [the spec](../requirements.md)
 
-## How to open it
+## What is here
 
-| File | What it is | How to open |
-|---|---|---|
-| [prototype.html](prototype.html) | **Clickable prototype**: 32 screens across 6 roles | Download the file (GitHub's "Download raw file" button) and open it in Chrome or Edge. Pick a role at the top, then use **Next →** or the arrow keys |
-| [brand-value.html](brand-value.html) | **How we keep the organiser's brand**: 3 pages and a live site-builder demo | The same way |
-| This page | The flows as diagrams, readable right here on GitHub | Scroll down |
-
-Each prototype screen has yellow notes (which decision it shows) and red notes (which of the four rules it enforces).
+The flows per role as diagrams and tables, readable on GitHub. The clickable prototype (`prototype.html`) and the branding presentation (`brand-value.html`) were removed on 12 Oct 2026 once the real screens existed; they are in git history (tag `phase-0.5-done`). The "Prototype" column keeps their screen ids for reference.
 
 ---
 
@@ -42,7 +36,7 @@ flowchart LR
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
-| 1 | Open awards | Each award as a card in its organiser's brand, with deadline and places left | `prototype.html#v-open` |
+| 1 | Open awards | Each award as a card in its organiser's brand, with deadline and places left | `#v-open` |
 | 2 | Award's branded site | Built by staff from sections; deadline, places left, categories and past winners are filled automatically | `#v-site` |
 | 3 | Sign in / register | One account per email, for every award and role | `#v-login` |
 
@@ -68,7 +62,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    S1["My awards<br/>many awards per person"] --> S2["Award setup<br/>dates, fee, limit, blind,<br/>rounds, questions, scoring"]
+    S1["My awards<br/>one per award department"] --> S2["Award setup<br/>dates, fee, limit, blind,<br/>rounds, questions, scoring"]
     S2 --> S3["Site builder<br/>pages, sections, publish, versions"]
     S3 --> S4["Applications<br/>proof status, release"]
     S4 --> S5["Proof check"] --> S7["Conflicts and<br/>the assignment board"]
@@ -114,8 +108,8 @@ flowchart LR
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
-| 1 | Department dashboard | An organiser running its awards on its own | `#h-dash` |
-| 2 | Brand kit | Logo, colours (readability checked), font, links, live preview | `#h-brand` |
+| 1 | Award department dashboard | An organiser running its award on its own (one award per award department, ADR 0021) | `#h-dash` |
+| 2 | Brand kit (theme) | Chosen by the head (ADR 0020). Phase 1: colours (text kept readable) and footer, with a preview; logo, font and links from Phase 2 | `#h-brand` |
 | 3 | Staff and awards | Invite staff, give them awards | `#h-staff` |
 | 4 | Approve a round | Ranked list by average, each jury member's score and note, disqualified list; approve locks scores (R3) | `#h-review` |
 
@@ -132,7 +126,7 @@ flowchart LR
 |---|---|---|---|
 | 1 | Leader dashboard | One view across every award and department | `#l-dash` |
 | 2 | Departments | Create a department for an external organiser and appoint its head | `#l-depts` |
-| 3 | People and awards | Find a person; assign staff to awards; resend invites; deactivate accounts; the leader's recent changes | `#l-people` |
+| 3 | People and awards | Find a person; see who works where (read-only: each department's head manages its people, ADR 0020); heads' accounts; the leader's recent changes | `#l-people` |
 | 4 | Master data | Shared lists (retire, never delete); organisation corrections with a reason | `#l-master` |
 
 ---

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Building2Icon, PencilIcon } from "lucide-react";
+import { Building2Icon, PencilIcon, PlusIcon } from "lucide-react";
+import { Details } from "@/components/layout/blocks";
+import { ErrorState, LoadingState } from "@/components/layout/states";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { messageOf } from "@/lib/api-client";
 import type { Organisation } from "@/lib/api-types";
 import { EditOrganisationForm, JoinOrganisationForm, RegisterOrganisationForm, useMyOrganisations } from "./organisation-forms";
 
@@ -23,36 +24,43 @@ function OrganisationsOfMine() {
   const organisations = useMyOrganisations();
   const [adding, setAdding] = useState(false);
 
-  if (organisations.isPending) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (organisations.error) return <p className="text-sm text-destructive">{messageOf(organisations.error)}</p>;
+  if (organisations.isPending) return <LoadingState label="Loading your organisation" lines={5} />;
+  if (organisations.error) return <ErrorState error={organisations.error} onRetry={() => void organisations.refetch()} />;
 
   const mine = organisations.data;
   return (
     <>
       <PageTitle
+        back={{ href: "/applicant", label: "Applying" }}
         title="My organisation"
         description="You apply on behalf of your organisation. Its details are kept once and used for every award."
+        actions={
+          mine.length > 0 &&
+          !adding && (
+            <Button variant="outline" onClick={() => setAdding(true)}>
+              <PlusIcon aria-hidden />
+              Add another organisation
+            </Button>
+          )
+        }
       />
       <div className="grid gap-6">
         {mine.map((organisation) => (
           <OrganisationCard key={organisation.id} organisation={organisation} />
         ))}
-        {mine.length === 0 || adding ? (
+        {(mine.length === 0 || adding) && (
           <Card>
             <CardHeader>
               <CardTitle>{mine.length === 0 ? "Add your organisation" : "Add another organisation"}</CardTitle>
               <CardDescription>
-                Is your organisation already on the platform (a colleague registered it)? Join it. Otherwise, register it.
+                Has a colleague already registered your organisation here? Then join it with its PAN and GSTIN. Otherwise, register it: you only do this
+                once.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <AddOrganisation />
             </CardContent>
           </Card>
-        ) : (
-          <Button variant="outline" className="justify-self-start" onClick={() => setAdding(true)}>
-            Add another organisation
-          </Button>
         )}
       </div>
     </>
@@ -64,11 +72,11 @@ function AddOrganisation() {
   const [joinPan, setJoinPan] = useState<string | undefined>();
   return (
     <Tabs value={tab} onValueChange={(value) => setTab(value === "join" ? "join" : "register")}>
-      <TabsList>
-        <TabsTrigger value="register">Register</TabsTrigger>
-        <TabsTrigger value="join">Join</TabsTrigger>
+      <TabsList variant="pills">
+        <TabsTrigger value="register">Register it (new here)</TabsTrigger>
+        <TabsTrigger value="join">Join it (already registered)</TabsTrigger>
       </TabsList>
-      <TabsContent value="register" className="pt-4">
+      <TabsContent value="register">
         <RegisterOrganisationForm
           onPanRegistered={(pan) => {
             setJoinPan(pan);
@@ -76,7 +84,7 @@ function AddOrganisation() {
           }}
         />
       </TabsContent>
-      <TabsContent value="join" className="pt-4">
+      <TabsContent value="join">
         <JoinOrganisationForm
           key={joinPan ?? "join"}
           initialPan={joinPan}
@@ -92,20 +100,22 @@ function OrganisationCard({ organisation }: { organisation: Organisation }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building2Icon className="size-5 text-muted-foreground" aria-hidden />
+        <CardTitle className="flex items-center gap-2.5">
+          <span className="grid size-10 place-items-center rounded-lg bg-primary-soft text-primary">
+            <Building2Icon className="size-5" aria-hidden />
+          </span>
           {organisation.legalName}
         </CardTitle>
-        <CardDescription className="flex flex-wrap gap-2">
+        <CardDescription className="flex flex-wrap gap-2 pt-1">
           <Badge variant="secondary">PAN {organisation.pan}</Badge>
           {organisation.gstin ? <Badge variant="secondary">GSTIN {organisation.gstin}</Badge> : <Badge variant="outline">No GSTIN</Badge>}
           {organisation.organisationType && <Badge variant="outline">{organisation.organisationType.name}</Badge>}
         </CardDescription>
         {!editing && (
           <CardAction>
-            <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+            <Button variant="outline" onClick={() => setEditing(true)}>
               <PencilIcon aria-hidden />
-              Edit
+              Edit details
             </Button>
           </CardAction>
         )}
@@ -114,24 +124,17 @@ function OrganisationCard({ organisation }: { organisation: Organisation }) {
         {editing ? (
           <EditOrganisationForm organisation={organisation} onDone={() => setEditing(false)} />
         ) : (
-          <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
-            <Detail label="Registered address" value={`${organisation.addressLine}, ${organisation.city}, ${organisation.state.name} ${organisation.pincode}`} />
-            <Detail label="Official email" value={organisation.officialEmail} />
-            <Detail label="Phone" value={organisation.phone} />
-            {organisation.cin && <Detail label="CIN" value={organisation.cin} />}
-            {organisation.website && <Detail label="Website" value={organisation.website} />}
-          </dl>
+          <Details
+            items={[
+              { label: "Registered address", value: `${organisation.addressLine}, ${organisation.city}, ${organisation.state.name} ${organisation.pincode}` },
+              { label: "Official email", value: organisation.officialEmail },
+              { label: "Phone", value: organisation.phone },
+              ...(organisation.cin ? [{ label: "CIN", value: organisation.cin }] : []),
+              ...(organisation.website ? [{ label: "Website", value: organisation.website }] : []),
+            ]}
+          />
         )}
       </CardContent>
     </Card>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-medium break-words">{value}</dd>
-    </div>
   );
 }

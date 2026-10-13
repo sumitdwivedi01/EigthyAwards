@@ -9,7 +9,9 @@ import { burnPasswordCheck, hashPassword, verifyPassword } from "../../lib/passw
 import { isUniqueViolation } from "../../lib/prisma-errors.js";
 import { signSession, verifySession } from "../../lib/session.js";
 import { storage } from "../../lib/storage/index.js";
+import { cleanFileName } from "../../lib/storage/file-names.js";
 import { detectType, readHead } from "../../lib/storage/sniff.js";
+import { followProfileProof } from "../applications/profile.js";
 import { recordAudit } from "../audit/service.js";
 import { queueEmail } from "../notifications/service.js";
 import type {
@@ -82,7 +84,14 @@ export async function register(input: RegisterInput): Promise<SessionResult> {
 export async function login(input: LoginInput): Promise<SessionResult> {
   const user = await db.user.findUnique({
     where: { email: normalizeEmail(input.email) },
-    select: { id: true, passwordHash: true, sessionVersion: true, deactivatedAt: true },
+    select: {
+      id: true,
+      passwordHash: true,
+      sessionVersion: true,
+      deactivatedAt: true,
+      mustChangePassword: true,
+      temporaryPasswordExpiresAt: true,
+    },
   });
   if (!user?.passwordHash) {
     await burnPasswordCheck(input.password);
@@ -93,6 +102,10 @@ export async function login(input: LoginInput): Promise<SessionResult> {
   }
   if (user.deactivatedAt) {
     throw new UnauthenticatedError("This account has been deactivated.");
+  }
+  // Said only to someone who knows the temporary password (it was checked above).
+  if (user.mustChangePassword && user.temporaryPasswordExpiresAt && user.temporaryPasswordExpiresAt <= clock.now()) {
+    throw new UnauthenticatedError("This temporary password has expired. Ask the person who added you for a new one.");
   }
   return startSession(user.id, user.sessionVersion);
 }
@@ -112,8 +125,9 @@ export async function actorFromSession(token: string): Promise<Actor | null> {
       accountType: true,
       name: true,
       sessionVersion: true,
+      mustChangePassword: true,
       deactivatedAt: true,
-      roles: { where: { revokedAt: null }, select: { role: true, departmentId: true, awardId: true, cycleId: true } },
+      roles: { where: { revokedAt: null }, select: { role: true, departmentId: true, awardId: true } },
       memberships: { select: { organisationId: true } },
     },
   });
@@ -123,6 +137,7 @@ export async function actorFromSession(token: string): Promise<Actor | null> {
     email: user.email,
     name: user.name,
     accountType: user.accountType,
+    mustChangePassword: user.mustChangePassword,
     roles: user.roles,
     organisationIds: user.memberships.map((m) => m.organisationId),
   };
@@ -156,14 +171,15 @@ export async function updateMyProfile(actor: Actor, input: UpdateProfileInput): 
 }
 
 /**
- * Needs the current password. In one transaction: the new hash, a higher session version (every
- * other session ends at once), an audit event without the password, and the "password changed"
- * email. The current session continues with a renewed token.
+ * Needs the current password (after a temporary one, that is the temporary password). In one
+ * transaction: the new hash, a higher session version (every other session ends at once), the
+ * temporary-password flag cleared, an audit event without the password, and the "password
+ * changed" email. The current session continues with a renewed token.
  */
 export async function changePassword(actor: Actor, input: ChangePasswordInput): Promise<SessionResult> {
   const user = await db.user.findUniqueOrThrow({
     where: { id: actor.userId },
-    select: { email: true, name: true, passwordHash: true },
+    select: { email: true, name: true, passwordHash: true, mustChangePassword: true },
   });
   if (!user.passwordHash || !(await verifyPassword(input.currentPassword, user.passwordHash))) {
     throw new ValidationError("The current password is wrong.", [
@@ -179,13 +195,20 @@ export async function changePassword(actor: Actor, input: ChangePasswordInput): 
   const updated = await db.$transaction(async (tx) => {
     const row = await tx.user.update({
       where: { id: actor.userId },
-      data: { passwordHash, passwordChangedAt: clock.now(), sessionVersion: { increment: 1 } },
+      data: {
+        passwordHash,
+        passwordChangedAt: clock.now(),
+        sessionVersion: { increment: 1 },
+        mustChangePassword: false,
+        temporaryPasswordExpiresAt: null,
+      },
       select: { sessionVersion: true },
     });
     await recordAudit(tx, {
       actorId: actor.userId,
       actorRole: primaryRole(actor),
-      action: "user.password_changed",
+      // The first password a person chooses after a temporary one is recorded as such.
+      action: user.mustChangePassword ? "user.password_set" : "user.password_changed",
       entityType: "user",
       entityId: actor.userId,
     });
@@ -202,6 +225,8 @@ export async function setLinkedinUrl(actor: Actor, input: LinkedinInput): Promis
   await db.$transaction(async (tx) => {
     const before = await tx.user.findUniqueOrThrow({ where: { id: actor.userId }, select: { linkedinUrl: true } });
     await tx.user.update({ where: { id: actor.userId }, data: { linkedinUrl: url } });
+    // Submitted applications whose proof isn't verified yet use the new link (spec §5.20).
+    await followProfileProof(tx, actor, { linkedinUrl: url }, clock.now());
     await recordAudit(tx, {
       actorId: actor.userId,
       actorRole: primaryRole(actor),
@@ -213,11 +238,6 @@ export async function setLinkedinUrl(actor: Actor, input: LinkedinInput): Promis
     });
   });
   return loadMe(actor.userId);
-}
-
-/** Keeps a file name readable but harmless: no folders, no control characters. */
-function cleanFileName(name: string): string {
-  return name.replace(/[\\/\p{Cc}]/gu, "_").trim().slice(0, 200) || "document";
 }
 
 /**
@@ -278,6 +298,8 @@ export async function setIdentityDocument(actor: Actor, input: SetIdentityDocume
     const before = await tx.user.findUniqueOrThrow({ where: { id: actor.userId }, select: { identityFileId: true } });
     await tx.fileAsset.update({ where: { id: file.id }, data: { status: "READY", sizeBytes: stored.sizeBytes } });
     await tx.user.update({ where: { id: actor.userId }, data: { identityFileId: file.id } });
+    // Submitted applications whose proof isn't verified yet use the new document (spec §5.20).
+    await followProfileProof(tx, actor, { identityFileId: file.id }, clock.now());
     await recordAudit(tx, {
       actorId: actor.userId,
       actorRole: primaryRole(actor),

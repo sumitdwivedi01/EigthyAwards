@@ -3,11 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
-import { CheckCircle2Icon, CircleIcon } from "lucide-react";
+import { ArrowRightIcon, Building2Icon, CircleCheckIcon, CircleIcon, ScaleIcon } from "lucide-react";
+import { NumberedSteps } from "@/components/layout/blocks";
 import { AreaPage, PageTitle } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MyApplications, OpenAwardsToApply } from "@/features/applying/my-applications";
+import { MyAwards } from "@/features/awards/my-awards";
 import { useMe } from "@/features/auth/use-me";
+import { ApprovalQueueCard, Dashboard } from "@/features/judging/dashboard";
+import { JuryAssignments } from "@/features/judging/jury-assignments";
 import type { Me, Role } from "@/lib/api-types";
 import { AREA_ROUTES } from "@/lib/areas";
 
@@ -20,10 +25,10 @@ export function HomeRedirect() {
     if (home) router.replace(AREA_ROUTES[home].href);
   }, [home, router]);
   if (me.data && !home) return <NothingAssignedYet />;
-  return <p className="text-sm text-muted-foreground">Loading…</p>;
+  return <p className="text-muted-foreground">Loading…</p>;
 }
 
-/** A platform account with no role yet: usually a juror before an award's staff add them to its jury. */
+/** A platform account with no role yet: usually a juror before a head adds them to a jury list. */
 function NothingAssignedYet() {
   return (
     <>
@@ -31,12 +36,10 @@ function NothingAssignedYet() {
       <Card className="max-w-xl">
         <CardHeader>
           <CardTitle>Nothing is assigned to you yet</CardTitle>
-          <CardDescription>
-            When an award&apos;s staff add you to its jury, or give you a role, your work appears here.
-          </CardDescription>
+          <CardDescription>When an award department&apos;s head adds you to its staff or jury, your work appears here. You can set up your profile meanwhile.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild size="sm" variant="outline">
+          <Button asChild variant="outline">
             <Link href="/me">My profile</Link>
           </Button>
         </CardContent>
@@ -45,38 +48,41 @@ function NothingAssignedYet() {
   );
 }
 
+function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function firstName(me: Me): string {
+  return me.name.split(" ")[0] ?? me.name;
+}
+
 function scopesOf(me: Me, role: Role): string[] {
   return me.roles
     .filter((r) => r.role === role)
-    .map((r) => r.department?.name ?? r.award?.name ?? (r.cycle ? `${r.cycle.awardName} ${r.cycle.label}` : ""))
+    .map((r) => r.department?.name ?? r.award?.name ?? "")
     .filter(Boolean);
 }
 
-function ComingNext({ step, children }: { step: string; children: ReactNode }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Coming next</CardTitle>
-        <CardDescription>{step}</CardDescription>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">{children}</CardContent>
-    </Card>
-  );
-}
-
-function ScopeList({ title, items, empty }: { title: string; items: string[]; empty: string }) {
+function ScopeList({ title, description, items, empty }: { title: string; description?: string; items: string[]; empty: string }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">{empty}</p>
         ) : (
-          <ul className="grid gap-1 text-sm">
+          <ul className="grid gap-2">
             {items.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={item} className="flex items-center gap-2 font-medium">
+                <Building2Icon className="size-4 text-muted-foreground" aria-hidden />
+                {item}
+              </li>
             ))}
           </ul>
         )}
@@ -85,15 +91,16 @@ function ScopeList({ title, items, empty }: { title: string; items: string[]; em
   );
 }
 
-function Check({ done, children }: { done: boolean; children: ReactNode }) {
+function Check({ done, children, href }: { done: boolean; children: ReactNode; href: string }) {
   return (
-    <li className="flex items-center gap-2">
-      {done ? (
-        <CheckCircle2Icon className="size-4 text-emerald-600" aria-label="Done" />
-      ) : (
-        <CircleIcon className="size-4 text-muted-foreground" aria-label="To do" />
+    <li className="flex items-center gap-3">
+      {done ? <CircleCheckIcon className="size-5 shrink-0 text-success" aria-label="Done" /> : <CircleIcon className="size-5 shrink-0 text-muted-foreground/60" aria-label="To do" />}
+      <span className={done ? "text-muted-foreground" : "font-medium"}>{children}</span>
+      {!done && (
+        <Link href={href} className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+          Add <ArrowRightIcon className="size-3.5" aria-hidden />
+        </Link>
       )}
-      {children}
     </li>
   );
 }
@@ -101,40 +108,50 @@ function Check({ done, children }: { done: boolean; children: ReactNode }) {
 export function ApplicantHome() {
   return (
     <AreaPage area="applicant">
-      {(me) => (
-        <>
-          <PageTitle title="Applying" description="Apply for awards on behalf of your organisation." />
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Before you apply</CardTitle>
-                <CardDescription>You do these once; every application in every award reuses them.</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4">
-                <ul className="grid gap-2 text-sm">
-                  <Check done={me.organisations.length > 0}>
-                    Your organisation{me.organisations.length > 0 && `: ${me.organisations.map((o) => o.legalName).join(", ")}`}
-                  </Check>
-                  <Check done={me.identityDocument !== null}>A photo identity document on your profile</Check>
-                  <Check done={me.linkedinUrl !== null}>Your LinkedIn profile link</Check>
-                </ul>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild size="sm" variant={me.organisations.length > 0 ? "outline" : "default"}>
-                    <Link href="/applicant/organisation">My organisation</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link href="/me">My profile</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            <ComingNext step="Step 1.3 (12 Oct)">
-              Open awards, starting an application (one per organisation), the form with autosave, a recent proof of
-              employment, and submitting.
-            </ComingNext>
-          </div>
-        </>
-      )}
+      {(me) => {
+        const ready = me.organisations.length > 0 && me.identityDocument !== null && me.linkedinUrl !== null;
+        return (
+          <>
+            <PageTitle
+              eyebrow={`${greeting()}, ${firstName(me)}`}
+              title="Applying"
+              description="Apply for awards on behalf of your organisation. Everything you fill in is saved as you go."
+            />
+            <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+              <div className="grid content-start gap-6">
+                <MyApplications />
+                <OpenAwardsToApply />
+              </div>
+              <Card className={ready ? "" : "border-primary/30"}>
+                <CardHeader>
+                  <CardTitle>Before you apply</CardTitle>
+                  <CardDescription>Three things, done once. Every application in every award reuses them.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <ul className="grid gap-3">
+                    <Check done={me.organisations.length > 0} href="/applicant/organisation">
+                      Your organisation{me.organisations.length > 0 && `: ${me.organisations.map((o) => o.legalName).join(", ")}`}
+                    </Check>
+                    <Check done={me.identityDocument !== null} href="/me?tab=proof">
+                      A photo identity document
+                    </Check>
+                    <Check done={me.linkedinUrl !== null} href="/me?tab=proof">
+                      Your LinkedIn profile link
+                    </Check>
+                  </ul>
+                  {ready ? (
+                    <p className="flex items-center gap-2 text-sm font-medium text-success">
+                      <CircleCheckIcon className="size-4" aria-hidden /> All set: pick an award and apply.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">You can start an application now and add these before you submit.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        );
+      }}
     </AreaPage>
   );
 }
@@ -144,18 +161,27 @@ export function StaffHome() {
     <AreaPage area="staff">
       {(me) => (
         <>
-          <PageTitle title="Staff" description="Set up and run your awards." />
-          <div className="grid gap-6 md:grid-cols-2">
-            <ScopeList
-              title="Your departments"
-              items={scopesOf(me, "DEPT_STAFF")}
-              empty="You aren't on a department's staff yet."
-            />
-            <ScopeList title="Your awards" items={scopesOf(me, "AWARD_STAFF")} empty="No awards yet: you create them here in Step 1.2." />
-            <ComingNext step="Step 1.2 (11 Oct)">
-              Create an award, set its dates, fee, categories and entry limit, build its questions and scoring sheet, fill in
-              its branded page, and publish it.
-            </ComingNext>
+          <PageTitle eyebrow={`${greeting()}, ${firstName(me)}`} title="Your awards" description="Set up each award's edition on screen, check the applications, and run the judging." />
+          <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+            <MyAwards departments={me.roles.flatMap((r) => (r.role === "DEPT_STAFF" && r.department ? [r.department] : []))} />
+            <div className="grid content-start gap-6">
+              <ScopeList title="Your award departments" items={scopesOf(me, "DEPT_STAFF")} empty="You aren't on an award department's staff yet." />
+              <Card>
+                <CardHeader>
+                  <CardTitle>How an award runs</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <NumberedSteps
+                    steps={[
+                      "Create your award department's award (one per department) and set up its edition: dates, fee, categories, questions and the scoring sheet. Publish it.",
+                      "Applicants submit before the deadline. Check each one's proof of employment.",
+                      "After the deadline, open Judging on the edition: assign each application to jury, follow their scores, and send the round to your department head.",
+                      "Once approved, give the results and publish them. Applicants see theirs at once.",
+                    ]}
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </>
       )}
@@ -166,17 +192,45 @@ export function StaffHome() {
 export function DepartmentHome() {
   return (
     <AreaPage area="department">
-      {(me) => (
-        <>
-          <PageTitle title="Department" description="Your department's awards, jury and approvals." />
-          <div className="grid gap-6 md:grid-cols-2">
-            <ScopeList title="Departments you head" items={scopesOf(me, "DEPT_HEAD")} empty="None." />
-            <ComingNext step="Step 1.4 (13 Oct)">
-              Adding jury to an award&apos;s pool, recording conflicts of interest, and approving a round&apos;s results.
-            </ComingNext>
-          </div>
-        </>
-      )}
+      {(me) => {
+        const departments = me.roles.filter((r) => r.role === "DEPT_HEAD" && r.department);
+        return (
+          <>
+            <PageTitle eyebrow={`${greeting()}, ${firstName(me)}`} title="Your award department" description="Your people, how your award's page looks, and the rounds waiting for your approval." />
+            <div className="grid gap-6">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{departments.length === 1 ? "Award department you head" : "Award departments you head"}</CardTitle>
+                    <CardDescription>Each runs one award. Add your staff and jury (each gets a temporary password to start with) and choose how the award&apos;s page looks.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {departments.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">You don&apos;t head an award department yet.</p>
+                    ) : (
+                      <ul className="grid gap-2">
+                        {departments.map((r) => (
+                          <li key={r.department?.id} className="flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+                            <span className="flex items-center gap-2 font-medium">
+                              <Building2Icon className="size-4 text-muted-foreground" aria-hidden />
+                              {r.department?.name}
+                            </span>
+                            <Button asChild size="sm">
+                              <Link href={`/department/${r.department?.id}`}>Manage</Link>
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </CardContent>
+                </Card>
+                <ApprovalQueueCard />
+              </div>
+              <Dashboard roundHref={(roundId) => `/department/rounds/${roundId}`} />
+            </div>
+          </>
+        );
+      }}
     </AreaPage>
   );
 }
@@ -186,10 +240,29 @@ export function JuryHome() {
     <AreaPage area="jury">
       {(me) => (
         <>
-          <PageTitle title="Jury" description="The applications assigned to you." />
-          <div className="grid gap-6 md:grid-cols-2">
-            <ScopeList title="Awards you judge" items={scopesOf(me, "JURY")} empty="None yet." />
-            <ComingNext step="Step 1.4 (13 Oct)">Your assignments and the scoring screen.</ComingNext>
+          <PageTitle eyebrow={`${greeting()}, ${firstName(me)}`} title="Your assignments" description="The applications assigned to you. Score each one on its own; your marks save as you go." />
+          <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+            <JuryAssignments />
+            <div className="grid content-start gap-6">
+              <ScopeList title="Award departments you judge for" items={scopesOf(me, "JURY")} empty="None yet." />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ScaleIcon className="size-5 text-muted-foreground" aria-hidden />
+                    How scoring works
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <NumberedSteps
+                    steps={[
+                      "Open an application and read its answers.",
+                      "Mark each indicator from 0 to 10 (or Yes / No). Your marks save by themselves.",
+                      "Write a short overall note and submit. After that, your marks are final.",
+                    ]}
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </>
       )}
@@ -200,13 +273,19 @@ export function JuryHome() {
 export function LeaderHome() {
   return (
     <AreaPage area="leader">
-      {() => (
+      {(me) => (
         <>
-          <PageTitle title="Leader" description="One view across every award and department." />
-          <ComingNext step="Step 1.4 (13 Oct)">
-            The dashboard: applications by status, judging progress, rounds waiting for approval and upcoming deadlines,
-            across every department. It is read-only: the leader never changes judging data.
-          </ComingNext>
+          <PageTitle
+            eyebrow={`${greeting()}, ${firstName(me)}`}
+            title="Across the platform"
+            description="Every award department and its award at a glance. Each runs one award and runs itself; you create them and watch."
+            actions={
+              <Button asChild>
+                <Link href="/leader/departments">Award departments</Link>
+              </Button>
+            }
+          />
+          <Dashboard roundHref={(roundId) => `/leader/rounds/${roundId}`} />
         </>
       )}
     </AreaPage>

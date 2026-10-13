@@ -2,7 +2,8 @@
 // Source of truth: docs/requirements.md §10, plus ADRs 0006 (data consistency), 0008 (on-site
 // rounds), 0009 (award sites), 0010 and 0012 (proof documents, entry limit, My profile),
 // 0011 (one application per organisation), 0013 (several jury per application), 0014 (no PA
-// role) and 0016 (applicant and platform accounts).
+// role), 0016 (applicant and platform accounts), 0017 (people created on screen, the
+// department's jury list) and 0018 (blind judging without masking).
 //
 // Ground rules:
 // - Every award-related row reaches its cycle through foreign keys. Where two rows must belong
@@ -83,12 +84,6 @@ enum ApplicationStatus {
   RELEASED
 }
 
-enum MaskingStatus {
-  NOT_REQUIRED
-  PENDING
-  DONE
-}
-
 enum ProofStatus {
   PENDING
   VERIFIED
@@ -97,7 +92,6 @@ enum ProofStatus {
 
 enum FileKind {
   EVIDENCE
-  MASKED_EVIDENCE
   IDENTITY_PROOF
   EMPLOYMENT_PROOF
 }
@@ -145,24 +139,28 @@ enum EmailStatus {
 // ───────────────────────── people and access ─────────────────────────
 
 model User {
-  id                String      @id @default(uuid()) @db.Uuid
-  email             String      @unique @db.Citext
-  accountType       AccountType
-  name              String
+  id                         String      @id @default(uuid()) @db.Uuid
+  email                      String      @unique @db.Citext
+  accountType                AccountType
+  name                       String
   /// "+91" and 10 digits, like organisation phones (a CHECK constraint guards the format).
-  phone             String?
-  passwordHash      String?
+  phone                      String?
+  passwordHash               String?
   /// Raised by a password change, reset or deactivation; sessions carrying an older value end.
-  sessionVersion    Int         @default(0)
-  passwordChangedAt DateTime?
+  sessionVersion             Int         @default(0)
+  passwordChangedAt          DateTime?
+  /// Set with a temporary password (ADR 0017): until the person sets their own, every endpoint
+  /// except setting a password refuses them. Both columns are set and cleared together.
+  mustChangePassword         Boolean     @default(false)
+  temporaryPasswordExpiresAt DateTime?
   /// The applicant's profile proof (§5.20): given once, reused by every application. Applicant
   /// accounts only (a CHECK constraint).
-  linkedinUrl       String?
+  linkedinUrl                String?
   /// The current identity document: an IDENTITY_PROOF file owned by this user.
-  identityFileId    String?     @unique @db.Uuid
-  deactivatedAt     DateTime?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  identityFileId             String?     @unique @db.Uuid
+  deactivatedAt              DateTime?
+  createdAt                  DateTime    @default(now())
+  updatedAt                  DateTime    @updatedAt
 
   identityFile FileAsset? @relation("UserIdentityFile", fields: [identityFileId], references: [id])
 
@@ -180,11 +178,11 @@ model User {
   applicationsCreated    Application[]           @relation("ApplicationCreator")
   applicationsReleased   Application[]           @relation("ApplicationReleaser")
   proofChecks            Application[]           @relation("ProofChecker")
-  maskedAnswers          MaskedAnswer[]
   filesUploaded          FileAsset[]             @relation("FileUploader")
   filesOwned             FileAsset[]             @relation("FileOwner")
   conflicts              Conflict[]              @relation("ConflictedJury")
   conflictsRecorded      Conflict[]              @relation("ConflictRecorder")
+  conflictsRemoved       Conflict[]              @relation("ConflictRemover")
   evaluations            Evaluation[]            @relation("EvaluationJury")
   evaluationsEntered     Evaluation[]            @relation("EvaluationEnteredBy")
   approvalsSubmitted     ApprovalRequest[]       @relation("ApprovalSubmitter")
@@ -199,16 +197,15 @@ model User {
   @@map("users")
 }
 
-/// A role held inside a scope. LEADER has no scope; DEPT_HEAD and DEPT_STAFF a department;
-/// AWARD_STAFF an award; JURY a cycle (a CHECK constraint enforces the shape).
-/// Removing a role sets revokedAt; rows are kept.
+/// A role held inside a scope. LEADER has no scope; DEPT_HEAD, DEPT_STAFF and JURY a department
+/// (JURY is the department's jury list, ADR 0017); AWARD_STAFF an award. A CHECK constraint
+/// enforces the shape. Removing a role sets revokedAt; rows are kept.
 model RoleAssignment {
   id           String    @id @default(uuid()) @db.Uuid
   userId       String    @db.Uuid
   role         Role
   departmentId String?   @db.Uuid
   awardId      String?   @db.Uuid
-  cycleId      String?   @db.Uuid
   grantedById  String?   @db.Uuid
   createdAt    DateTime  @default(now())
   revokedAt    DateTime?
@@ -219,13 +216,11 @@ model RoleAssignment {
   revokedBy  User?       @relation("RoleRevoker", fields: [revokedById], references: [id])
   department Department? @relation(fields: [departmentId], references: [id])
   award      Award?      @relation(fields: [awardId], references: [id])
-  cycle      Cycle?      @relation(fields: [cycleId], references: [id])
 
   // One active row per user, role and scope.
-  @@unique([userId, role], map: "role_assignments_unscoped_active_key", where: raw("\"revokedAt\" IS NULL AND \"departmentId\" IS NULL AND \"awardId\" IS NULL AND \"cycleId\" IS NULL"))
+  @@unique([userId, role], map: "role_assignments_unscoped_active_key", where: raw("\"revokedAt\" IS NULL AND \"departmentId\" IS NULL AND \"awardId\" IS NULL"))
   @@unique([userId, role, departmentId], map: "role_assignments_department_active_key", where: raw("\"revokedAt\" IS NULL AND \"departmentId\" IS NOT NULL"))
   @@unique([userId, role, awardId], map: "role_assignments_award_active_key", where: raw("\"revokedAt\" IS NULL AND \"awardId\" IS NOT NULL"))
-  @@unique([userId, role, cycleId], map: "role_assignments_cycle_active_key", where: raw("\"revokedAt\" IS NULL AND \"cycleId\" IS NOT NULL"))
   // Exactly one active leader on the platform.
   @@unique([role], map: "role_assignments_single_leader_key", where: raw("role = 'LEADER' AND \"revokedAt\" IS NULL"))
   @@index([userId])
@@ -250,12 +245,15 @@ model AuthToken {
   @@map("auth_tokens")
 }
 
-/// A unit that runs awards: part of the industry body, or an external award organiser.
+/// An award department (ADR 0021): the people who run one award (its head, staff and jury list),
+/// part of the industry body or an external award organiser. It holds at most one award.
 model Department {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @unique @db.Citext
-  createdById String?  @db.Uuid
-  createdAt   DateTime @default(now())
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String   @unique @db.Citext
+  /// A label only: an outside organiser running its awards on the platform (spec §3).
+  externalOrganiser Boolean  @default(false)
+  createdById       String?  @db.Uuid
+  createdAt         DateTime @default(now())
 
   createdBy   User?            @relation(fields: [createdById], references: [id])
   brandKit    BrandKit?
@@ -354,7 +352,8 @@ model Award {
   cycles     Cycle[]
   roles      RoleAssignment[]
 
-  @@unique([departmentId, name])
+  // One award per department (ADR 0021): a new award needs a new award department.
+  @@unique([departmentId])
   @@map("awards")
 }
 
@@ -375,12 +374,11 @@ model Cycle {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  award        Award            @relation(fields: [awardId], references: [id])
+  award        Award           @relation(fields: [awardId], references: [id])
   categories   EntryCategory[]
   formVersions FormVersion[]
   rounds       Round[]
   applications Application[]
-  roles        RoleAssignment[]
   auditEvents  AuditEvent[]
 
   @@unique([awardId, label])
@@ -422,7 +420,7 @@ model FormVersion {
 }
 
 /// One judging stage. juryMin..juryMax is the jury per application (ADR 0013): in a
-/// DOCUMENT_REVIEW round 1 <= min <= max (the service also caps max at the cycle's pool); in an
+/// DOCUMENT_REVIEW round 1 <= min <= max (the service also caps max at the department's jury list); in an
 /// ON_SITE round it is the panel size, 2 <= min <= max <= 5. Document rounds are approved by the
 /// department head; on-site rounds have no approval and are closed by staff.
 model Round {
@@ -577,7 +575,6 @@ model Application {
   categoryId       String            @db.Uuid
   formVersionId    String?           @db.Uuid
   status           ApplicationStatus @default(DRAFT)
-  maskingStatus    MaskingStatus     @default(NOT_REQUIRED)
   updateRequested  Boolean           @default(false)
   /// The organisation's identity fields, taken at submit and frozen at the deadline.
   identitySnapshot Json?
@@ -612,9 +609,8 @@ model Application {
   releasedBy     User?         @relation("ApplicationReleaser", fields: [releasedById], references: [id])
 
   answers          Answer[]
-  maskedAnswers    MaskedAnswer[]
   files            FileAsset[]             @relation("ApplicationFiles")
-  payments         Payment[]
+  payment          Payment?
   evaluations      Evaluation[]
   approvalRemarks  ApprovalRemark[]
   disqualification DisqualificationEvent[]
@@ -642,25 +638,13 @@ model Answer {
   @@map("answers")
 }
 
-/// The jury-safe copy of an answer (blind document rounds).
-model MaskedAnswer {
-  applicationId String   @db.Uuid
-  questionKey   String
-  value         Json
-  maskedById    String   @db.Uuid
-  maskedAt      DateTime @default(now())
-
-  application Application @relation(fields: [applicationId], references: [id])
-  maskedBy    User        @relation(fields: [maskedById], references: [id])
-
-  @@id([applicationId, questionKey])
-  @@map("masked_answers")
-}
-
 /// File metadata; the bytes live in storage under storageKey. Exactly one owner (a CHECK
 /// constraint enforces it): IDENTITY_PROOF belongs to a user (their profile), every other kind
-/// to an application. A "safe as is" masked copy points at the same storageKey as its original.
+/// to an application. In a blind award no file ever reaches the jury (ADR 0018).
 /// Proof files are deleted after the retention period; the row stays with purgedAt.
+/// An EVIDENCE file always answers a question (a CHECK constraint). A file the applicant takes off
+/// a draft answer, or an employment proof they replace, is kept with removedAt set (nothing an
+/// applicant produced is deleted).
 model FileAsset {
   id            String     @id @default(uuid()) @db.Uuid
   applicationId String?    @db.Uuid
@@ -668,8 +652,6 @@ model FileAsset {
   questionKey   String?
   kind          FileKind
   status        FileStatus @default(PENDING)
-  maskedFromId  String?    @db.Uuid
-  safeAsIs      Boolean    @default(false)
   /// The date printed on an EMPLOYMENT_PROOF (required for it; within 3 months, checked by the service).
   documentDate  DateTime?  @db.Date
   /// When the uploader consented to keeping this proof document (required for both proof kinds).
@@ -679,14 +661,13 @@ model FileAsset {
   mimeType      String
   sizeBytes     Int
   uploadedById  String     @db.Uuid
+  removedAt     DateTime?
   purgedAt      DateTime?
   createdAt     DateTime   @default(now())
 
   application        Application?  @relation("ApplicationFiles", fields: [applicationId], references: [id])
   owner              User?         @relation("FileOwner", fields: [ownerUserId], references: [id])
   uploadedBy         User          @relation("FileUploader", fields: [uploadedById], references: [id])
-  maskedFrom         FileAsset?    @relation("MaskedCopy", fields: [maskedFromId], references: [id])
-  maskedCopy         FileAsset[]   @relation("MaskedCopy")
   identityOfUser     User?         @relation("UserIdentityFile")
   usedByApplications Application[] @relation("ApplicationIdentityFile")
 
@@ -695,10 +676,11 @@ model FileAsset {
   @@map("file_assets")
 }
 
-/// Demo payments only: "Pay" writes a row with a fake reference.
+/// Demo payments only: "Pay" writes a row with a fake reference. One per application: the fee is
+/// paid once and never refunded (spec §5.6); a new application after a release pays again.
 model Payment {
   id            String        @id @default(uuid()) @db.Uuid
-  applicationId String        @db.Uuid
+  applicationId String        @unique @db.Uuid
   amountPaise   Int
   status        PaymentStatus
   reference     String        @unique
@@ -706,26 +688,33 @@ model Payment {
 
   application Application @relation(fields: [applicationId], references: [id])
 
-  @@index([applicationId])
   @@map("payments")
 }
 
 // ───────────────────────── jury, judging and results ─────────────────────────
 
-/// "This jury member has a conflict with this organisation". Applies across all awards.
+/// "Jury member X has a conflict with organisation Y" (spec §5.8, rule R2): it applies to every
+/// award. One recorded by mistake is removed with a reason and kept (removedAt, removedById and
+/// removeReason are set together; a CHECK constraint enforces it).
 model Conflict {
-  id             String   @id @default(uuid()) @db.Uuid
-  juryUserId     String   @db.Uuid
-  organisationId String   @db.Uuid
+  id             String    @id @default(uuid()) @db.Uuid
+  juryUserId     String    @db.Uuid
+  organisationId String    @db.Uuid
   note           String?
-  recordedById   String   @db.Uuid
-  createdAt      DateTime @default(now())
+  recordedById   String    @db.Uuid
+  createdAt      DateTime  @default(now())
+  removedAt      DateTime?
+  removedById    String?   @db.Uuid
+  removeReason   String?
 
   juryUser     User         @relation("ConflictedJury", fields: [juryUserId], references: [id])
   organisation Organisation @relation(fields: [organisationId], references: [id])
   recordedBy   User         @relation("ConflictRecorder", fields: [recordedById], references: [id])
+  removedBy    User?        @relation("ConflictRemover", fields: [removedById], references: [id])
 
-  @@unique([juryUserId, organisationId])
+  // One active conflict per jury member and organisation; removed ones stay as history.
+  @@unique([juryUserId, organisationId], map: "conflicts_one_active_key", where: raw("\"removedAt\" IS NULL"))
+  @@index([organisationId])
   @@map("conflicts")
 }
 
@@ -857,18 +846,24 @@ model PresentationSlot {
 }
 
 /// An application's outcome in one round: final score (the average of its submitted
-/// evaluations, rounded once), rank and result label. Snapshotted when the round's scores lock.
+/// evaluations, rounded once), rank and result label. Snapshotted when the round's scores lock
+/// (ADR 0019): totalPoints is ΣP and evaluationCount is n, so anyone can redo F₂ by hand; a CHECK
+/// constraint holds finalScore to exactly that formula, and a trigger keeps the three and the rank
+/// fixed once written. An application that wasn't judged (its proof was rejected) has no score.
 model RoundResult {
-  id            String    @id @default(uuid()) @db.Uuid
-  cycleId       String    @db.Uuid
-  roundId       String    @db.Uuid
-  applicationId String    @db.Uuid
-  finalScore    Decimal?  @db.Decimal(5, 2)
-  rank          Int?
-  resultLabel   String?
-  decidedById   String?   @db.Uuid
-  decidedAt     DateTime?
-  publishedAt   DateTime?
+  id              String    @id @default(uuid()) @db.Uuid
+  cycleId         String    @db.Uuid
+  roundId         String    @db.Uuid
+  applicationId   String    @db.Uuid
+  finalScore      Decimal?  @db.Decimal(5, 2)
+  totalPoints     Int?
+  evaluationCount Int?
+  /// Within the application's entry category (each category is its own competition, 11 Oct).
+  rank            Int?
+  resultLabel     String?
+  decidedById     String?   @db.Uuid
+  decidedAt       DateTime?
+  publishedAt     DateTime?
 
   round       Round       @relation(fields: [roundId, cycleId], references: [id, cycleId])
   application Application @relation(fields: [applicationId, cycleId], references: [id, cycleId])

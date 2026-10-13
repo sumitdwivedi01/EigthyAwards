@@ -1,6 +1,6 @@
 # 0017. Departments, heads, staff and jury are created on screen in Phase 1
 
-- Status: **Accepted** (owner, 2026-10-11)
+- Status: **Accepted** (owner, 2026-10-11); **changed by [ADR 0020](0020-departments-run-themselves.md)** the same day: the leader no longer adds staff or jury, sets colours, or issues their passwords
 - Date: 2026-10-11
 - Related: the brief's addendum ("the leader creates a department for it, makes the organiser's person its head, and they then add their own staff and jury"); spec §3, §5.1, §5.3, §5.8; [ADR 0013](0013-several-jury-per-application.md) (jury per application), [ADR 0016](0016-applicant-and-platform-accounts.md) (platform accounts); GAPS G-K14, G-K19, G-K23, G-K24
 
@@ -23,9 +23,9 @@ For the jury:
 
 Option 3, and B for the jury.
 
-- **The leader** creates a **department** (name, whether it is an external award organiser, its brand colours) together with its **head**: a new platform account (name and email) or an existing platform account (by email). One person may head several departments.
-- **The department head** adds **staff** and **jury** to their department: a new platform account, or an existing one by email (someone already in another department is added, not created again). The leader can do the same in any department.
-- **Temporary password.** A new account gets a strong, random, one-time password, shown **once** to the creator to pass on privately. It is stored only as a hash and is valid for 7 days. At first login the person must set their own password before anything else works. The creator (the leader for heads; the head or the leader for staff and jury) can issue a new temporary password if it is lost: the old one stops working, the person's sessions end, and it is audited.
+- **The leader** creates a **department** (name, whether it is an external award organiser; ~~its brand colours~~, chosen by the head since ADR 0020) together with its **head**: a new platform account (name and email) or an existing platform account (by email). One person may head several departments.
+- **The department head** adds **staff** and **jury** to their department: a new platform account, or an existing one by email (someone already in another department is added, not created again). ~~The leader can do the same in any department.~~ Only the head, since ADR 0020.
+- **Temporary password.** A new account gets a strong, random, one-time password, shown **once** to the creator to pass on privately. It is stored only as a hash and is valid for 7 days. At first login the person must set their own password before anything else works. The creator (the leader for heads; the head for staff and jury, since ADR 0020) can issue a new temporary password if it is lost: the old one stops working, the person's sessions end, and it is audited.
 - **Who can't be added.** An applicant account is refused (ADR 0016). On the jury list, the department's own head and staff are refused: the head approves the department's written rounds, and staff assign applications. The leader is never staff or jury.
 - **Removing** someone from a department is allowed while they have no work there yet (staff with no award, a juror with no assignment); otherwise it waits for package 2.3.
 - **What each person sees after logging in:** staff see the departments they work in and their awards; jury see the departments they judge for and the applications assigned to them, with counts; a head sees the departments they head and their people.

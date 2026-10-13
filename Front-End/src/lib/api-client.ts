@@ -39,6 +39,15 @@ export class ApiError extends Error {
     );
   }
 
+  /** The list of problems the API sent with a refusal, such as the publish check's (details.issues). */
+  get issues(): string[] {
+    const details = this.details;
+    if (typeof details === "object" && details !== null && "issues" in details && Array.isArray(details.issues)) {
+      return details.issues.filter((item): item is string => typeof item === "string");
+    }
+    return [];
+  }
+
   /** A machine-readable reason the API added to a 409, such as "PAN_REGISTERED". */
   get reason(): string | undefined {
     const details = this.details;
@@ -82,6 +91,7 @@ export const api = {
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, body ?? {}),
   put: <T>(path: string, body: unknown) => request<T>("PUT", path, body),
   patch: <T>(path: string, body: unknown) => request<T>("PATCH", path, body),
+  delete: <T = void>(path: string) => request<T>("DELETE", path),
 };
 
 /**

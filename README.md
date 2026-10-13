@@ -39,7 +39,7 @@ An industry body in India runs about **80 award programmes**, and each one runs 
 
 - An award receives about **300 to 500 applications**.
 - The largest award scores each applicant on about **250 indicators across 15 areas**, takes **six months**, and has **two jury rounds**; the second is a live presentation.
-- Another award has **38 categories** competing in the same cycle.
+- **38 awards** compete in the same yearly cycle. The brief puts it as "another has 38 categories competing in the same cycle"; we first read that as 38 groups of applicants inside one award, but the lead confirmed on 12 Oct that it means 38 separate awards (see [section 6](#6-what-we-know-what-we-assumed-what-is-still-open)).
 - Some awards charge an **entry fee**; most don't.
 - Shop-floor competitions don't fit "fill in a form, upload evidence": teams are judged on the spot.
 
@@ -105,7 +105,7 @@ A report counts these as three companies. Leadership can't say how many organisa
 |---|---|---|
 | **Award** | A programme that runs every year | Safety Excellence Award |
 | **Cycle** | One year's run of an award, with its own dates, questions and scoring | The 2026 cycle |
-| **Entry category** | A group of applicants who compete only with each other inside one cycle, each group ranked separately. "38 categories" means 38 such groups in the same cycle | Large manufacturing; small and medium businesses |
+| **Entry category** | A group of applicants who compete only with each other inside one award's cycle, each group ranked separately. (The brief's "38 categories" turned out to mean 38 separate awards, not 38 of these groups) | Large manufacturing; small and medium businesses |
 | **Area** | One part of the assessment, with its own share of the score. "15 areas" means the score is split into 15 parts | Training; Environment |
 | **Indicator** | One thing the jury marks inside an area: a mark from 0 to 10, or Yes/No, with its own weight. "250 indicators" means each juror gives about 250 marks per application | Share of workers trained |
 | **Question** | What the applicant answers in the form. Each indicator belongs to a question; applicants never see the indicators | "Describe your safety training" |
@@ -114,7 +114,7 @@ A report counts these as three companies. Leadership can't say how many organisa
 | **Blind judging** | The jury don't see which organisation applied, so the name can't sway the score | |
 | **Conflict of interest** | A link between a juror and an applicant, such as a former employer, that means they must not judge it | |
 | **Kaizen, 5S** | Shop-floor methods: Kaizen is many small, continuous improvements; 5S keeps a workplace sorted, orderly and clean | A team's Kaizen project |
-| **Department** | The team that runs a group of awards: part of the industry body, or an outside organiser running its own awards on the platform | The FPO Awards team (awards for farmer producer organisations) |
+| **Award department** | The home of **one award**: its head, its staff, its jury list and its look. The leader creates one for each award; a new award needs a new award department. It can be part of the industry body, or an outside organiser running its award on the platform | The FPO Awards team (an award for farmer producer organisations) |
 
 The full glossary is in [docs/requirements.md §2](docs/requirements.md#2-glossary).
 
@@ -124,7 +124,7 @@ The full glossary is in [docs/requirements.md §2](docs/requirements.md#2-glossa
 
 Is the problem that the awards follow different processes, or that separate software makes them hard to run? **Both, in different ways.**
 
-- **The differences between awards are real, and they stay.** An award with 38 categories, or 250 indicators and two rounds, genuinely works differently from a Kaizen competition.
+- **The differences between awards are real, and they stay.** An award with many entry categories, or 250 indicators and two rounds, genuinely works differently from a Kaizen competition.
 - **The separate software is what has to go.** Each system was built around one award, so the steps every award shares are rebuilt each time, shared data such as company details never matches, and every difference needs a developer.
 
 So the platform builds the shared parts once, and turns every difference into a **setting** that staff choose on screen:
@@ -153,6 +153,11 @@ So the platform builds the shared parts once, and turns every difference into a 
 
 **From the brief and the client's answers:** about 80 awards on separate systems (own websites, the member portal, one separate portal); the numbers in section 1; the four kinds of user and their days; the four rules; the award goes to the organisation, one application each; staff can cap the number of entries; the applicant proves they work for the organisation (photo ID, LinkedIn profile, recent proof of employment), with no signed letter; outside organisers keep their own brand and run their awards on their own.
 
+**Cleared up with the lead (12 Oct):**
+
+- The brief's line "another has 38 categories competing in the same cycle" was ambiguous. We had read it as one award with 38 entry categories; it means **38 separate awards** running in the same year. The platform handles both: each award runs in its own award department, and an award can still have several entry categories.
+- **One award per award department.** To announce a different award, the leader creates a new award department for it; its staff all run that one award, one edition (year) at a time ([ADR 0021](docs/decisions/0021-one-award-per-department.md)).
+
 **What we assumed** (to be confirmed):
 
 - How each current system works in detail; we haven't seen them. We read "done by hand" as forms, scores and results passed around as files and spreadsheets.
@@ -170,7 +175,7 @@ So the platform builds the shared parts once, and turns every difference into a 
 
 - **One record per organisation** (one PAN) and per person, cleaned when saved and shared by every award, so leadership's figures add up.
 - **Staff set up an award on screen:** questions (each published version is frozen), the scoring sheet with weights that must total 100%, dates, fee, blind judging, categories, rounds and an entry limit.
-- **The organiser's people are set up on screen:** the leader creates a department and its head; the head adds their staff and jury.
+- **The organiser's people are set up on screen:** the leader creates an award department (one per award) and its head; the head adds the staff and jury, and the staff create and run the award.
 - **Fair judging:** staff give each application to one or more jurors; each scores alone and never sees the others' marks; the final score is their exact average; every later change needs a reason; the department head approves.
 - **The four rules are enforced by the server**, not just hidden on screen, and automated tests check each one.
 
@@ -184,7 +189,7 @@ Two demo awards show it. They differ only in settings; no code mentions either:
 | Jurors per application | 2 to 3, averaged | 1 |
 | Entry limit | None | 500, shown as "499 / 500" |
 
-**How it is built:** `Front-End/` is a Next.js app on Vercel, with screens only and no business rules. `Backend/` is an Express and TypeScript API on Render, a modular monolith of 16 modules where every check happens on the server. PostgreSQL and file storage are on Supabase. More: [docs/overview/](docs/overview/) (in pictures) and [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
+**How it is built:** `Front-End/` is a Next.js app on Vercel, with screens only and no business rules. `Backend/` is an Express and TypeScript API on Render, a modular monolith of 15 modules where every check happens on the server. PostgreSQL and file storage are on Supabase. More: [docs/overview/](docs/overview/) (in pictures) and [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md).
 
 ---
 
@@ -198,7 +203,7 @@ The work is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)):
 | **2. Complete product** | On-site rounds and medals, the full site builder, invitations by email, all emails, end-to-end tests | About 23 working days |
 | **3. Launch-ready** | Security and privacy reviews, load testing, real payments, own web addresses, client testing | About 15 working days, plus client testing |
 
-**Now (11 Oct):** Step 1.1 is built and merged into `staging`: logins, roles, applicant and platform accounts, My profile and organisations, with 136 tests. Next is Step 1.2: departments and people on screen, then award setup. The walkthrough is on Thursday 15 October. Live status: [docs/PROGRESS.md](docs/PROGRESS.md) and [Daily.md](Daily.md).
+**Now (12 Oct):** Steps 1.1 to 1.4 are built and in `staging`: logins and accounts, departments and people on screen, award setup with frozen question versions, applying with the proof check, and judging from assignment to published results. On 12 Oct the lead's change followed: one award per award department (ADR 0021), on its own branch. Next is Step 1.5: production online and the brief's documents. We are about two days ahead of the plan; the walkthrough is on Thursday 15 October. Live status: [docs/PROGRESS.md](docs/PROGRESS.md) and [Daily.md](Daily.md).
 
 ---
 
@@ -207,9 +212,8 @@ The work is delivered in **three phases** ([docs/PLAN.md](docs/PLAN.md)):
 | You want… | Open |
 |---|---|
 | The plan: three phases, dates, what's in each | [docs/PLAN.md](docs/PLAN.md) |
-| Phase 1, day by day, and the walkthrough | [docs/PHASE-1-ROADMAP.md](docs/PHASE-1-ROADMAP.md) |
 | The platform in pictures | [docs/overview/](docs/overview/) |
-| What it looks like: clickable prototype, flows per role | [docs/ui/](docs/ui/README.md) |
+| The flows per role, screen by screen | [docs/ui/](docs/ui/README.md) |
 | How it's built: architecture, data model, API | [docs/TECHNICAL-DESIGN.md](docs/TECHNICAL-DESIGN.md), [docs/API.md](docs/API.md) |
 | Decisions, with the options and reasons | [docs/decisions/](docs/decisions/) |
 | What's missing, contradictory or undecided | [docs/GAPS.md](docs/GAPS.md) |
