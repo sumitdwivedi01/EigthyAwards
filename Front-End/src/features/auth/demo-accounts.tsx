@@ -33,7 +33,7 @@ const GROUPS: { role: string; accounts: DemoAccount[] }[] = [
   {
     role: "Staff",
     accounts: [
-      { email: "staff.imran@demo.test", name: "Imran Sheikh", does: "Energy: check proofs, assign jury, send for approval" },
+      { email: "staff.imran@demo.test", name: "Imran Sheikh", does: "Energy: judging in progress; check two proofs and assign them" },
       { email: "staff.karan@demo.test", name: "Karan Malhotra", does: "Design: give and publish results after approval" },
       { email: "staff.asha@demo.test", name: "Asha Rao", does: "Safety: the full story, from set-up to results" },
       { email: "staff.ravi@demo.test", name: "Ravi Kumar", does: "FPO: an award open for applications" },
@@ -43,9 +43,9 @@ const GROUPS: { role: string; accounts: DemoAccount[] }[] = [
   {
     role: "Jury",
     accounts: [
-      { email: "jury.rajesh@demo.test", name: "Rajesh Iyengar", does: "Energy: scores what staff assign" },
-      { email: "jury.shalini@demo.test", name: "Shalini Gupta", does: "Energy: scores what staff assign" },
-      { email: "jury.anil@demo.test", name: "Anil Mehta", does: "Safety (blind, submitted) and Energy" },
+      { email: "jury.rajesh@demo.test", name: "Rajesh Iyengar", does: "Energy: one application half scored, one to start" },
+      { email: "jury.shalini@demo.test", name: "Shalini Gupta", does: "Energy: two applications waiting to be scored" },
+      { email: "jury.anil@demo.test", name: "Anil Mehta", does: "Safety (blind) and Energy: all submitted" },
       { email: "jury.aditi@demo.test", name: "Aditi Bose", does: "Design: submitted evaluations" },
     ],
   },

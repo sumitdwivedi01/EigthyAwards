@@ -517,15 +517,25 @@ function noteFor(strength: number, seed: string): string {
   return options[hash(seed) % options.length] ?? options[0] ?? "";
 }
 
-/** Every juror in the plan scores their applications in this round and submits. */
-async function score(award: BuiltAward, plan: Record<string, string[]>): Promise<void> {
+/**
+ * Every juror in the plan scores their applications in this round and submits; with `progress`,
+ * a juror can instead stop half way through their first application ("partial": marks saved, not
+ * submitted) or not start at all ("none").
+ */
+async function score(award: BuiltAward, plan: Record<string, string[]>, progress: Record<string, "submit" | "partial" | "none"> = {}): Promise<void> {
   const byReference = new Map([...award.specs.entries()].map(([id, spec]) => [referenceOf(id), spec]));
   const jurors = [...new Set(Object.values(plan).flat())];
   for (const email of jurors) {
+    const mode = progress[email] ?? "submit";
+    if (mode === "none") {
+      log(`  ${email} hasn't started in ${award.spec.name}`);
+      continue;
+    }
     const session = await signIn(email);
     const bias = (hash(email) % 3) - 1;
     const home = await call<JuryHome>(session, "GET", "/jury/evaluations");
-    const items = home.departments.flatMap((d) => d.cycles).filter((c) => c.roundId === award.roundId).flatMap((c) => c.items);
+    const all = home.departments.flatMap((d) => d.cycles).filter((c) => c.roundId === award.roundId).flatMap((c) => c.items);
+    const items = mode === "partial" ? all.slice(0, 1) : all;
     for (const item of items) {
       const app = byReference.get(item.reference);
       if (!app) throw new Error(`Unknown application ${item.reference}`);
@@ -544,10 +554,16 @@ async function score(award: BuiltAward, plan: Record<string, string[]>): Promise
         }
       }
       for (const indicator of evaluation.otherIndicators) scores[indicator.key] = clamp(Math.round(2 + app.strength * 8), 0, 10);
+      if (mode === "partial") {
+        // Half the marks saved, no note, not submitted: the evaluation shows "In progress".
+        const half = Object.entries(scores).slice(0, Math.ceil(Object.keys(scores).length / 2));
+        await call(session, "PUT", `/evaluations/${item.evaluationId}/scores`, { scores: Object.fromEntries(half) });
+        continue;
+      }
       await call(session, "PUT", `/evaluations/${item.evaluationId}/scores`, { scores, overallNote: noteFor(app.strength, `${email}|${item.reference}`) });
       await call(session, "POST", `/evaluations/${item.evaluationId}/submit`);
     }
-    log(`  ${email} scored ${items.length} in ${award.spec.name}`);
+    log(`  ${email} ${mode === "partial" ? "is half way through 1" : `scored ${items.length}`} in ${award.spec.name}`);
   }
 }
 
@@ -654,9 +670,11 @@ async function main(): Promise<void> {
   await call(design.staff, "POST", `/rounds/${design.roundId}/send-for-approval`);
   log("Design Excellence: scored and waiting for the head's approval.");
 
-  // Energy: closed, some proofs checked, ready to judge live.
+  // Energy: judging in progress; two proofs left to check and assign live.
   for (const email of ENERGY_PLAN.verify) await checkProof(energy, email, "VERIFIED");
-  log("National Energy Efficiency: closed, ready for the proof check and assignment.");
+  await assign(energy, ENERGY_PLAN.assignments);
+  await score(energy, ENERGY_PLAN.assignments, ENERGY_PLAN.progress);
+  log("National Energy Efficiency: judging in progress (Rajesh half way, Shalini not started), two proofs to check.");
 
   for (const session of sessions.values()) await call(session, "POST", "/auth/logout").catch(() => undefined);
   log("Done. Open the site and follow docs/DEMO.md.");

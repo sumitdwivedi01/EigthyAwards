@@ -10,7 +10,7 @@ Five award departments, four awards at four different stages, so every step of a
 |---|---|---|---|
 | Safety, Health and Environment | **Safety Excellence Award 2026**: blind, ₹10,000 fee, one category, 2 to 3 jurors | **Results published** | The whole story: ranks and exact averages (ΣP ÷ n), a score corrected with its reason in the history, a recorded conflict, a rejected proof left unjudged, approval with a remark, applicants seeing their result |
 | Design and Innovation | **Design Excellence Award 2026**: two categories, 2 jurors | **Waiting for the head's approval** | The head approves (scores lock for good); staff give the results and publish them |
-| Energy and Climate | **National Energy Efficiency Award 2026**: category fees (₹5,000 and ₹1,000 for MSMEs), 2 jurors, evidence files | **Closed, ready to judge** | Staff check two pending proofs, record a conflict, assign jury from the board; two jurors score; staff send for approval; the head approves; staff publish |
+| Energy and Climate | **National Energy Efficiency Award 2026**: category fees (₹5,000 and ₹1,000 for MSMEs), 2 jurors, evidence files | **Judging in progress** | Four applications assigned: Anil and Vivek have submitted, Rajesh is half way through one (marks saved), Shalini hasn't started. Staff check the two pending proofs and assign them live; the jurors finish scoring; staff send for approval; the head approves; staff publish |
 | FPO Awards team (an external organiser) | **FPO Excellence Awards 2026**: free, four categories, entry limit 500, 1 juror | **Open until 30 Nov** | Applying live; "8 / 500" on the award page; a colleague blocked from a second application; a rejected proof the applicant can fix |
 | Quality and Productivity | none | **People only** | Staff set up a new award live, on screen, with no code |
 
@@ -30,12 +30,12 @@ Every account uses **the demo password**, except the leader, who has **the leade
 | Head, Safety | `head.she@demo.test` (Meera Iyer) | See an approved, published round; the department's people and theme |
 | Head, FPO | `head.fpo@demo.test` (Arjun Patil) | An external organiser's department and its own colours |
 | Head, Quality | `head.quality@demo.test` (Sanjay Gupta) | Add staff and jury (temporary passwords shown once) |
-| Staff, Energy | `staff.imran@demo.test` (Imran Sheikh) | Check proofs, record a conflict, **assign jury**, correct a score, send for approval, publish |
+| Staff, Energy | `staff.imran@demo.test` (Imran Sheikh) | Follow judging in progress; check the two pending proofs, record a conflict, **assign jury**, correct a score, send for approval, publish |
 | Staff, Design | `staff.karan@demo.test` (Karan Malhotra) | Give and publish results after the head approves |
 | Staff, Safety | `staff.asha@demo.test` (Asha Rao) | Walk through a finished award: board, judging, history, results |
 | Staff, FPO | `staff.ravi@demo.test` (Ravi Kumar) | The open award: applications list, filters, proof check |
 | Staff, Quality | `staff.divya@demo.test` (Divya Saxena) | **Create an award live**: questions, scoring sheet, publish |
-| Jury, Energy | `jury.rajesh@demo.test`, `jury.shalini@demo.test`, `jury.vivek@demo.test`, `jury.anil@demo.test` | Score Energy applications once assigned |
+| Jury, Energy | `jury.rajesh@demo.test` (one half scored, one to start), `jury.shalini@demo.test` (two to start), `jury.anil@demo.test` and `jury.vivek@demo.test` (all submitted) | **Score live**: open an assignment, mark 0 to 10, write the note, submit |
 | Jury, Safety | `jury.anil@demo.test`, `jury.priya@demo.test`, `jury.nandini@demo.test`, `jury.vikram@demo.test` | See submitted, blind evaluations (no company, no files) |
 | Jury, Design | `jury.aditi@demo.test`, `jury.manoj@demo.test`, `jury.priya@demo.test` | See submitted evaluations |
 | Jury, FPO | `jury.sunita@demo.test`, `jury.farhan@demo.test`, `jury.lakshmi@demo.test`, `jury.vikram@demo.test` | Judge FPO entries after its deadline |
@@ -60,8 +60,8 @@ The other applicants (`applicant.<first name>@demo.test`, listed in `Backend/scr
 | 2–5 | Leader | The dashboard across all departments. Create a department ("Water Conservation") with a head: the temporary password is shown once |
 | 5–9 | Divya (staff, Quality) | Create an award, an edition, a category, questions (publish version 1), a scoring sheet (weights balance themselves), publish: it appears on Open awards |
 | 9–12 | Srinivas (applicant) | Apply to FPO Excellence: autosave, the file upload, the proof step, submit; the counter moves to 9 / 500. Then Anita: blocked |
-| 12–16 | Imran (staff, Energy) | Verify the two pending proofs; record a conflict (the juror is greyed out); assign two jurors to each application from the board |
-| | Rajesh, then Shalini (jury) | Score one application each, write the note, submit. Imran: the exact average with ΣP and n; correct one mark with a reason; the history shows who, when, old, new, why |
+| 12–16 | Imran (staff, Energy) | Judging in progress on the board (who has submitted, who hasn't); verify the two pending proofs, record a conflict (the juror is greyed out), assign two jurors to each |
+| | Rajesh, then Shalini (jury) | Rajesh finishes his half-scored application (his marks were saved); Shalini scores one from the start. Imran: the exact average with ΣP and n; correct one mark with a reason; the history shows who, when, old, new, why |
 | 16–18 | Kavita (head, Design) | Approve the waiting round. Karan (staff): top 1 of each category, publish. Lotus or Kaveri's applicant sees the result |
 | 18–20 | Asha (staff, Safety) | A finished award end to end; the tests for the four rules |
 

@@ -611,9 +611,25 @@ export const DESIGN_PLAN = {
   } as Record<string, string[]>,
 };
 
-/** Energy: four proofs verified, two left for staff to check live; nothing assigned. */
+/**
+ * Energy: judging in progress. Four proofs verified and assigned; Anil and Vivek have submitted,
+ * Rajesh is half way through one application, Shalini hasn't started. Two proofs are left for
+ * staff to check and assign live.
+ */
 export const ENERGY_PLAN = {
   verify: ["applicant.kiran@demo.test", "applicant.suresh@demo.test", "applicant.prakash@demo.test", "applicant.ritu@demo.test"],
+  assignments: {
+    "applicant.kiran@demo.test": ["jury.anil@demo.test", "jury.vivek@demo.test"],
+    "applicant.suresh@demo.test": ["jury.anil@demo.test", "jury.rajesh@demo.test"],
+    "applicant.prakash@demo.test": ["jury.vivek@demo.test", "jury.shalini@demo.test"],
+    "applicant.ritu@demo.test": ["jury.rajesh@demo.test", "jury.shalini@demo.test"],
+  } as Record<string, string[]>,
+  progress: {
+    "jury.anil@demo.test": "submit",
+    "jury.vivek@demo.test": "submit",
+    "jury.rajesh@demo.test": "partial",
+    "jury.shalini@demo.test": "none",
+  } as Record<string, "submit" | "partial" | "none">,
 };
 
 /** FPO (open): a few proofs already checked, one rejected so the applicant can fix it. */
