@@ -5,7 +5,8 @@
 import { config as loadEnv } from "dotenv";
 import { defineConfig } from "prisma/config";
 
-loadEnv({ quiet: true });
+// ENV_FILE picks another file, such as .env.live for the production database (docs/DEMO.md).
+loadEnv({ path: process.env["ENV_FILE"] ?? ".env", quiet: true });
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
