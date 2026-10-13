@@ -99,6 +99,8 @@ The seed prints the demo accounts it created. The leader signs in with `LEADER_P
 | `npm run db:migrate` | Create a new migration while developing (interactive terminal) |
 | `npm run db:seed` | Add the starter data (safe to repeat: adds only what's missing, never resets a password) |
 | `npm run db:reset` | Drop and rebuild the local database |
+| `npm run db:wipe` | Empty every table, keeping the structure (asks for the database host first) |
+| `npm run demo:data` | Build the demo through the API: companies, four awards, applications, judging ([docs/DEMO.md](../docs/DEMO.md)) |
 
 Stop the services with `docker compose stop`; the data is kept.
 

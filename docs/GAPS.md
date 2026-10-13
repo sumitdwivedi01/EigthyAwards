@@ -386,6 +386,7 @@ From the lead call and the owner's answers on 9 Oct 2026. ADRs [0012](decisions/
 
 | Date | Change |
 |---|---|
+| 2026-10-13 | Demo data (`phase-1.5-demo`, docs/DEMO.md): four awards that work differently are built through the API on the live platform (G-F09 moves on; on-site rounds stay package 2.1). Production sends no email in Phase 1 (owner, 13 Oct): A4 stays open for package 2.6. No new gap. |
 | 2026-10-12 | One award per award department (ADR 0021): K41 decided and K42 answered with the lead ("38 categories" means 38 separate awards); K43 added (assigning before the deadline: decision needed, with the recommended answer); K44 added (one edition at a time and an unused draft edition). |
 | 2026-10-12 | Docs cleanup on the Step 1.4 branch: closed items folded into a collapsed table per section; G-C01 corrected to 15 modules (no `onsite` folder yet); G-F09 reworded to the Phase 1 scope (two written awards, on-site in 2.1); the proposal links point to git history. |
 | 2026-10-11 | Step 1.4 (assignment, judging and results): C14, K06, K07 and K25 fixed (built and tested); K34–K39 added and decided with the owner (score corrections until approval; sending waits for every proof check; ranks per category; a late conflict on submitted work is flagged and counts; the jury's view of a non-blind award; conflicts removed with a reason); K40 added (the proof check is fixed once judging starts). |

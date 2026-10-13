@@ -1,14 +1,16 @@
 /**
- * Starter data (PHASES.md Step 1.1): the master lists, the leader, two departments (one an
- * external award organiser) with their heads and brand kits, staff, jury accounts and demo
- * applicants. The leader, heads, staff and jury get platform accounts, the applicants applicant
+ * Starter data (PHASES.md Step 1.1): the master lists, the leader, five award departments (one an
+ * external award organiser) with their heads and brand kits, their staff and jury lists, and three
+ * demo applicants. Each award department runs one award (ADR 0021); `npm run demo:data` then builds
+ * the awards, applications and judging through the API (docs/DEMO.md). The leader, heads, staff and jury get platform accounts, the applicants applicant
  * accounts (ADR 0016). Safe to run again: it only adds what is missing, and never resets a password.
  * Everything goes through the same normalisers as the services (GAPS G-H09).
  *
  * Passwords come from the environment, never from the repository (GAPS G-B15):
  *   LEADER_EMAIL, LEADER_PASSWORD  the leader's account (the leader's team uses it, ADR 0014)
  *   DEMO_PASSWORD                  every other demo account
- * Awards are not seeded here: staff set them up on screen in Step 1.2, which is what the brief tests.
+ * Awards are not seeded here: staff set them up on screen (Step 1.2), or the demo script does it
+ * through the same API.
  */
 import { z } from "zod";
 import type { AccountType, Role } from "../src/generated/prisma/client.js";
@@ -69,6 +71,25 @@ const DEPARTMENTS = [
     head: { email: "head.fpo@demo.test", name: "Arjun Patil" },
     brand: { primaryColour: "#2E7D32", accentColour: "#F9A825", fontKey: "poppins", footerText: "FPO Awards: celebrating farmer producer organisations" },
   },
+  {
+    name: "Energy and Climate",
+    externalOrganiser: false,
+    head: { email: "head.energy@demo.test", name: "Rohan Kapoor" },
+    brand: { primaryColour: "#0F766E", accentColour: "#F59E0B", fontKey: "inter", footerText: "Energy and Climate department" },
+  },
+  {
+    name: "Design and Innovation",
+    externalOrganiser: false,
+    head: { email: "head.design@demo.test", name: "Kavita Sharma" },
+    brand: { primaryColour: "#6D28D9", accentColour: "#FBBF24", fontKey: "inter", footerText: "Design and Innovation department" },
+  },
+  {
+    // Kept without an award: staff set one up live in the walkthrough, on screen, with no code.
+    name: "Quality and Productivity",
+    externalOrganiser: false,
+    head: { email: "head.quality@demo.test", name: "Sanjay Gupta" },
+    brand: { primaryColour: "#9A3412", accentColour: "#1D4ED8", fontKey: "inter", footerText: "Quality and Productivity department" },
+  },
 ] as const;
 
 /** Staff and the departments they belong to; one works in both (spec §3: one staff, many awards). */
@@ -79,12 +100,19 @@ const STAFF: { person: Person; departments: string[] }[] = [
     person: { email: "staff.neha@demo.test", name: "Neha Singh" },
     departments: ["Safety, Health and Environment", "FPO Awards team"],
   },
+  { person: { email: "staff.imran@demo.test", name: "Imran Sheikh" }, departments: ["Energy and Climate"] },
+  { person: { email: "staff.pooja@demo.test", name: "Pooja Bhatt" }, departments: ["Energy and Climate"] },
+  { person: { email: "staff.karan@demo.test", name: "Karan Malhotra" }, departments: ["Design and Innovation"] },
+  { person: { email: "staff.divya@demo.test", name: "Divya Saxena" }, departments: ["Quality and Productivity"] },
 ];
 
-/** Jury on the departments' jury lists (ADR 0017); Vikram judges for both departments. */
+/**
+ * Jury on the departments' jury lists (ADR 0017). Anil, Priya and Vikram each judge for two
+ * departments; a department's own head and staff are never on its list.
+ */
 const JURY: { person: Person; departments: string[] }[] = [
-  { person: { email: "jury.anil@demo.test", name: "Anil Mehta" }, departments: ["Safety, Health and Environment"] },
-  { person: { email: "jury.priya@demo.test", name: "Priya Nair" }, departments: ["Safety, Health and Environment"] },
+  { person: { email: "jury.anil@demo.test", name: "Anil Mehta" }, departments: ["Safety, Health and Environment", "Energy and Climate"] },
+  { person: { email: "jury.priya@demo.test", name: "Priya Nair" }, departments: ["Safety, Health and Environment", "Design and Innovation"] },
   {
     person: { email: "jury.vikram@demo.test", name: "Vikram Joshi" },
     departments: ["Safety, Health and Environment", "FPO Awards team"],
@@ -92,9 +120,17 @@ const JURY: { person: Person; departments: string[] }[] = [
   { person: { email: "jury.sunita@demo.test", name: "Sunita Reddy" }, departments: ["FPO Awards team"] },
   { person: { email: "jury.farhan@demo.test", name: "Farhan Ali" }, departments: ["FPO Awards team"] },
   { person: { email: "jury.lakshmi@demo.test", name: "Lakshmi Menon" }, departments: ["FPO Awards team"] },
+  { person: { email: "jury.nandini@demo.test", name: "Nandini Rao" }, departments: ["Safety, Health and Environment"] },
+  { person: { email: "jury.rajesh@demo.test", name: "Rajesh Iyengar" }, departments: ["Energy and Climate"] },
+  { person: { email: "jury.shalini@demo.test", name: "Shalini Gupta" }, departments: ["Energy and Climate"] },
+  { person: { email: "jury.vivek@demo.test", name: "Vivek Chandra" }, departments: ["Energy and Climate"] },
+  { person: { email: "jury.aditi@demo.test", name: "Aditi Bose" }, departments: ["Design and Innovation"] },
+  { person: { email: "jury.manoj@demo.test", name: "Manoj Pillai" }, departments: ["Design and Innovation"] },
+  { person: { email: "jury.gopal@demo.test", name: "Gopal Krishnan" }, departments: ["Quality and Productivity"] },
+  { person: { email: "jury.rekha@demo.test", name: "Rekha Thomas" }, departments: ["Quality and Productivity"] },
 ];
 
-/** Kiran is a member of Acme Steel; Deepa, a colleague, joins it on screen; Rahul registers a new company. */
+/** Kiran is a member of Acme Steel; Deepa and Rahul register their own companies (the demo script does it through the API). */
 const APPLICANTS: Person[] = [
   { email: "applicant.kiran@demo.test", name: "Kiran Desai" },
   { email: "applicant.deepa@demo.test", name: "Deepa Kulkarni" },
