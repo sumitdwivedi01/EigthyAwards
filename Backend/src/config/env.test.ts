@@ -29,4 +29,26 @@ describe("environment validation (fail fast at start-up)", () => {
   it("refuses a short AUTH_SECRET", () => {
     expect(() => parseEnv({ ...valid, AUTH_SECRET: "short" })).toThrow(/AUTH_SECRET/);
   });
+
+  it("runs without an SMTP server (production writes emails to the log) and keeps the database connection unencrypted by default", () => {
+    const { SMTP_HOST: _host, SMTP_PORT: _port, MAIL_FROM: _from, ...noMail } = valid;
+    const env = parseEnv(noMail);
+    expect(env.SMTP_HOST).toBeUndefined();
+    expect(env.MAIL_FROM).toMatch(/Awards Platform/);
+    expect(env.DATABASE_SSL).toBe("off");
+    expect(parseEnv({ ...valid, DATABASE_SSL: "require" }).DATABASE_SSL).toBe("require");
+    expect(() => parseEnv({ ...valid, DATABASE_SSL: "maybe" })).toThrow(/DATABASE_SSL/);
+  });
+
+  it("needs the Supabase project and key for Supabase Storage, and refuses disk storage in production (Step 1.5)", () => {
+    expect(() => parseEnv({ ...valid, STORAGE_DRIVER: "supabase" })).toThrow(/SUPABASE_URL[\s\S]*SUPABASE_SERVICE_ROLE_KEY/);
+    const supabase = parseEnv({
+      ...valid,
+      STORAGE_DRIVER: "supabase",
+      SUPABASE_URL: "https://abcd.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY: "service-key",
+    });
+    expect(supabase).toMatchObject({ STORAGE_DRIVER: "supabase", SUPABASE_BUCKET: "applicant-files" });
+    expect(() => parseEnv({ ...valid, NODE_ENV: "production" })).toThrow(/STORAGE_DRIVER/);
+  });
 });

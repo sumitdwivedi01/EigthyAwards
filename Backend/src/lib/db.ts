@@ -5,9 +5,13 @@ import { env } from "../config/env.js";
 /**
  * The single Prisma client for this process (each client owns a connection pool).
  * DATABASE_URL may be a pooled connection (Supabase in production); migrations use DIRECT_URL
- * through prisma.config.ts.
+ * through prisma.config.ts. DATABASE_SSL=require encrypts the connection without checking the
+ * certificate (Supabase's pooler presents its own; libpq's sslmode=require does the same).
  */
-const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
+const adapter = new PrismaPg({
+  connectionString: env.DATABASE_URL,
+  ...(env.DATABASE_SSL === "require" && { ssl: { rejectUnauthorized: false } }),
+});
 
 export const db = new PrismaClient({ adapter });
 
