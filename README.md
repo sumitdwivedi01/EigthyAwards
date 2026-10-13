@@ -245,4 +245,4 @@ npm ci
 npm run dev              # http://localhost:3000
 ```
 
-Log in with a demo account (listed in [docs/PROGRESS.md](docs/PROGRESS.md#seeded-test-accounts)), or register as an applicant. More detail: [Backend/README.md](Backend/README.md) and [Front-End/README.md](Front-End/README.md). The live link comes with Step 1.5 (14–15 October).
+Log in with a demo account (listed in [docs/DEMO.md](docs/DEMO.md#2-the-accounts), which also builds the full demo: `npm run demo:data`), or register as an applicant. More detail: [Backend/README.md](Backend/README.md) and [Front-End/README.md](Front-End/README.md). The live link comes with Step 1.5 (14–15 October).

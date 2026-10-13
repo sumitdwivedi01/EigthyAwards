@@ -6,12 +6,12 @@
 
 | | |
 |---|---|
-| **Last updated** | 2026-10-13 · Day 11 (one award per award department, ADR 0021; weights that balance themselves) |
-| **Current phase** | **Change 1.4b: One award per award department** (🧪 built, tested and documented on its branch; pull request into `staging` next). Steps 1.2, 1.3 and 1.4 are in `staging` (sumitdwivedi01/EigthyAwards#16, sumitdwivedi01/EigthyAwards#18, sumitdwivedi01/EigthyAwards#19); Step 1.1 and the docs phases are on `main` |
-| **Current branch** | `phase-1.4b-one-award`, cut from `staging` after Step 1.4 merged, built in the third worktree (`../EightyAwards-1.4`, databases `awards14`, ports 4200/3200) |
+| **Last updated** | 2026-10-13 · Day 11 (demo data for the live platform: wipe, seed and build scripts, docs/DEMO.md) |
+| **Current phase** | **Step 1.5 follow-up: demo data** (🧪 built and rehearsed locally on its branch; pull request into `staging` next). Change 1.4b and Step 1.5 (production online) are on `main` (sumitdwivedi01/EigthyAwards#20 to sumitdwivedi01/EigthyAwards#23) |
+| **Current branch** | `phase-1.5-demo`, cut from `staging` (equal to `main`), in the third worktree (`../EightyAwards-1.4`, databases `awards14`, ports 4200/3200) |
 | **What runs today** | On the step branch, locally: the API (Step 1.1, plus departments and people with temporary passwords, award setup, questions with versions, scoring sheets with the exact arithmetic, award pages and Open awards, departments run by their heads (ADR 0020); then applying: starting (one per organisation), the demo fee, autosaved answers and files, the employment proof, submitting with the entry limit, the deadline lock, the proof check and release, file downloads; then judging: conflicts (R2), assigning by hand with the counts, the blind jury view (R1), scoring with autosave, the exact average, corrections with a reason (R3), approval, results and the dashboard; 338 tests; since 12 Oct one award per award department, run by all its staff, one edition at a time (ADR 0021)) and the web app (all of that on screen, including the round page for staff, the head and the leader, My assignments and the scoring screen, the approval queue and the dashboard), checked by hand in a browser. On 12 Oct the whole UI was redone for ease of use (one design system, larger type and controls, a sidebar, guidance on every home, a stepper for the form, a progress panel for scoring; no behaviour changed). `staging` holds Steps 1.2 to 1.4, `main` Step 1.1 |
 | **The plan** | [PLAN.md](PLAN.md), **re-planned 11 Oct**: Step 1.2 departments, people and award setup (Sun 11 – Mon 12), 1.3 applying (Mon 12 – Tue 13), 1.4 assignment and judging (Tue 13 – Wed 14), 1.5 production online (Wed 14 – Thu 15 morning), **walkthrough Thu 15 afternoon**; about 71 hours, no buffer left. Then Phase 2 (~23 working days) and Phase 3 (~15 + client testing) |
-| **Next action** | 1) The owner opens the pull request `phase-1.4b-one-award` → `staging` and merges it when CI is green (a local database where a department has two awards must be reset first: the migration says which). 2) `staging` → `main` and the tags. 3) **Step 1.5** (production online and the documents) on `phase-1.5-deploy`: the owner creates the Supabase, Render and Vercel accounts. 4) The lead decides G-K43 (assigning before the deadline; recommended answer there) |
+| **Next action** | 1) The owner merges `phase-1.5-demo` into `staging`, then `main` (no change to the API or the schema; the seed, two scripts, an optional login-page list and docs). 2) The owner fills production from a laptop, following [DEMO.md §4](DEMO.md#4-building-it-on-production-the-owner): wipe, seed, `npm run demo:data`. 3) Optionally `NEXT_PUBLIC_DEMO_ACCOUNTS=on` in Vercel. 4) Rehearse the walkthrough (DEMO.md §3) on the live site; Thursday 15 Oct: the walkthrough |
 | **Blockers** | None. Open but not blocking Phase 1: A4 (email provider, Phase 2); ask the leader: G-I08, G-H07 |
 | **Risk** | Phase 1 had no buffer (G-K13), but Steps 1.3 and 1.4 were built on Sunday instead of Mon 12 – Wed 14, so we are **about two days ahead**; the time goes to Step 1.5 (one production set-up to get right, G-K18) and the lead's changes. Cut order if needed: [PHASES.md §8](PHASES.md#8-if-a-phase-1-day-runs-late-cut-order) |
 
@@ -38,8 +38,8 @@ The live version of the tables in [PHASES.md §2](PHASES.md#2-timeline-at-a-glan
 | **1.2** | Departments, people and award setup · **Sun 11 – Mon 12 Oct** | `phase-1.2-setup` | ✅ In `staging`; checked there, then `main` | sumitdwivedi01/EigthyAwards#16 → `staging` | — | 203 backend (were 136); frontend: lint, type check, build |
 | **1.3** | Applying and proof check · **Mon 12 – Tue 13 Oct** | `phase-1.3-apply` | ✅ In `staging`; checked there, then `main` | sumitdwivedi01/EigthyAwards#18 → `staging` | — | 271 backend (were 203); frontend: lint, type check, build |
 | **1.4** | Assignment, judging and results · **Tue 13 – Wed 14 Oct** | `phase-1.4-judging` | ✅ In `staging`; checked there, then `main` | sumitdwivedi01/EigthyAwards#19 → `staging` | — | 332 backend (were 271); frontend: lint, type check, build |
-| **1.4b** | One award per award department (the lead, 12 Oct; ADR 0021) · **Mon 12 Oct** | `phase-1.4b-one-award` | 🧪 Built, tested and documented; pull request next | — | — | 338 backend (were 332); frontend: lint, type check, build |
-| **1.5** | Online (production) and documents · **Wed 14 – Thu 15 Oct** (morning) | `phase-1.5-deploy` | ⬜ | — | — | — |
+| **1.4b** | One award per award department (the lead, 12 Oct; ADR 0021) · **Mon 12 Oct** | `phase-1.4b-one-award` | ✅ Merged | sumitdwivedi01/EigthyAwards#20 → `staging`, sumitdwivedi01/EigthyAwards#21 → `main` | 2026-10-13 | 338 backend; frontend: lint, type check, build |
+| **1.5** | Online (production) and documents · **Wed 14 – Thu 15 Oct** (morning) | `phase-1.5-deploy`, then `phase-1.5-demo` (demo data) | ✅ Online; demo data 🧪 | sumitdwivedi01/EigthyAwards#22 → `staging`, sumitdwivedi01/EigthyAwards#23 → `main`; demo data: next | 2026-10-13 | backend lint and type check; the demo built end to end locally |
 | — | Walkthrough with the lead · **Thu 15 Oct** (afternoon) | — | ⬜ | — | `phase-1-done` | — |
 | 2 | Complete product (~23 working days) | per package | ⬜ | — | — | — |
 | 3 | Launch-ready (~15 working days + client testing) | per package | ⬜ | — | — | — |
@@ -239,7 +239,7 @@ Filled in as things get built. Never put secrets here; only names and where they
 
 ## Seeded test accounts
 
-Created by `npm run db:seed` (Step 1.1). The leader signs in with `LEADER_PASSWORD`, every other account with `DEMO_PASSWORD`; both live only in `Backend/.env` (online: the hosting dashboards), never in this file or in Git.
+Created by `npm run db:seed` (Step 1.1; five award departments since 13 Oct). The full demo, with every applicant and what each account is for: [DEMO.md](DEMO.md#2-the-accounts). The leader signs in with `LEADER_PASSWORD`, every other account with `DEMO_PASSWORD`; both live only in `Backend/.env` (online: the hosting dashboards), never in this file or in Git.
 
 | Account | Role |
 |---|---|

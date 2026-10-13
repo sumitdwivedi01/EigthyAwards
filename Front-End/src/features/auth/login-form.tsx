@@ -15,6 +15,7 @@ import { api } from "@/lib/api-client";
 import type { Me } from "@/lib/api-types";
 import { AREA_ROUTES, safeNextPath } from "@/lib/areas";
 import { showApiErrors } from "@/lib/forms";
+import { DEMO_ACCOUNTS_ON, DemoAccounts } from "./demo-accounts";
 import { ME_KEY } from "./use-me";
 
 const schema = z.object({
@@ -77,6 +78,14 @@ export function LoginForm() {
           Create an applicant account
         </Link>
       </p>
+      {DEMO_ACCOUNTS_ON && (
+        <DemoAccounts
+          onPick={(email) => {
+            form.setValue("email", email, { shouldValidate: true });
+            form.setFocus("password");
+          }}
+        />
+      )}
     </form>
   );
 }
