@@ -99,7 +99,7 @@ async function boardView(actor: Actor, round: RoundContext): Promise<BoardView> 
   const organisationIds = [...new Set(applications.map((a) => a.organisation.id))];
   const allJurorIds = [...new Set([...jury.map((j) => j.id), ...evaluations.map((e) => e.juryUser.id)])];
   const conflicts = await conflictPairs(db, allJurorIds, organisationIds);
-  const staff = isStaffOfAward(actor, award.id);
+  const staff = isStaffOfAward(actor, award);
   const blocked = assignBlockedReason(round);
   const assignable = round.status === "NOT_STARTED" || round.status === "JUDGING";
 

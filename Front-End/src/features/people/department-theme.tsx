@@ -62,7 +62,7 @@ function ThemeForm({ theme }: { theme: DepartmentTheme }) {
       queryClient.setQueryData(themeKey(theme.department.id), saved);
       await queryClient.invalidateQueries({ queryKey: ["public"] });
       form.reset(valuesOf(saved));
-      setNotice("Saved. Every award page of the department shows it now.");
+      setNotice("Saved. The award's page shows it now.");
     } catch (error) {
       showApiErrors(error, form.setError, ["primaryColour", "accentColour", "footerText"]);
     }
@@ -157,15 +157,15 @@ function AwardPages({ theme }: { theme: DepartmentTheme }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Award pages</CardTitle>
+        <CardTitle>Award page</CardTitle>
         <CardDescription>
-          Each award has one public page in the department&apos;s theme, live once an edition is published. The award&apos;s staff
+          The award has one public page in this theme, live once an edition is published. The award&apos;s staff
           {theme.canEdit ? " and you" : " and the department's head"} choose its address.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {theme.awards.length === 0 ? (
-          <EmptyState compact title="No awards yet" description="The department's staff create them." />
+          <EmptyState compact title="No award yet" description="The department's staff create its award." />
         ) : (
           <ul className="grid gap-2">
             {theme.awards.map((award) => (

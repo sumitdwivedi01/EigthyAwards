@@ -134,11 +134,22 @@ function NewEdition({ award }: { award: AwardDetail }) {
     }
   }
 
+  if (award.newEditionBlockedReason) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>New edition</CardTitle>
+          <CardDescription>{award.newEditionBlockedReason}</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>New edition</CardTitle>
-        <CardDescription>Times are India time. You set everything else up on the next screen.</CardDescription>
+        <CardDescription>The award runs one edition at a time. Times are India time; you set everything else up on the next screen.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>

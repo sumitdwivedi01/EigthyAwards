@@ -67,6 +67,9 @@ describe("saving the scoring sheet", () => {
       '"Quality" scores a question that isn\'t in the published questions.',
     ]);
     expect(res.body.questions[0]).toMatchObject({ key: questionKey, published: false });
+    // Each question names its section, so the builder can start a sheet that mirrors the form.
+    expect(res.body.questions.map((q: { section: { title: string } }) => q.section.title)).toEqual(["Training", "Training", "Incidents"]);
+    expect(res.body.questions[0].section.key).toMatch(/^sec_/);
   });
 
   it("refuses weights that aren't whole percentages from 1 to 100, and a question that isn't in the form", async () => {

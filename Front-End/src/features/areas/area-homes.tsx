@@ -36,7 +36,7 @@ function NothingAssignedYet() {
       <Card className="max-w-xl">
         <CardHeader>
           <CardTitle>Nothing is assigned to you yet</CardTitle>
-          <CardDescription>When a department head adds you to their staff or jury, or gives you a role, your work appears here. You can set up your profile meanwhile.</CardDescription>
+          <CardDescription>When an award department&apos;s head adds you to its staff or jury, your work appears here. You can set up your profile meanwhile.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
@@ -163,9 +163,9 @@ export function StaffHome() {
         <>
           <PageTitle eyebrow={`${greeting()}, ${firstName(me)}`} title="Your awards" description="Set up each award's edition on screen, check the applications, and run the judging." />
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-            <MyAwards canCreate={scopesOf(me, "DEPT_STAFF").length > 0} />
+            <MyAwards departments={me.roles.flatMap((r) => (r.role === "DEPT_STAFF" && r.department ? [r.department] : []))} />
             <div className="grid content-start gap-6">
-              <ScopeList title="Your departments" items={scopesOf(me, "DEPT_STAFF")} empty="You aren't on a department's staff yet." />
+              <ScopeList title="Your award departments" items={scopesOf(me, "DEPT_STAFF")} empty="You aren't on an award department's staff yet." />
               <Card>
                 <CardHeader>
                   <CardTitle>How an award runs</CardTitle>
@@ -173,7 +173,7 @@ export function StaffHome() {
                 <CardContent>
                   <NumberedSteps
                     steps={[
-                      "Create the award and set up its edition: dates, fee, categories, questions and the scoring sheet. Publish it.",
+                      "Create your award department's award (one per department) and set up its edition: dates, fee, categories, questions and the scoring sheet. Publish it.",
                       "Applicants submit before the deadline. Check each one's proof of employment.",
                       "After the deadline, open Judging on the edition: assign each application to jury, follow their scores, and send the round to your department head.",
                       "Once approved, give the results and publish them. Applicants see theirs at once.",
@@ -196,17 +196,17 @@ export function DepartmentHome() {
         const departments = me.roles.filter((r) => r.role === "DEPT_HEAD" && r.department);
         return (
           <>
-            <PageTitle eyebrow={`${greeting()}, ${firstName(me)}`} title="Your department" description="Your people, how your award pages look, and the rounds waiting for your approval." />
+            <PageTitle eyebrow={`${greeting()}, ${firstName(me)}`} title="Your award department" description="Your people, how your award's page looks, and the rounds waiting for your approval." />
             <div className="grid gap-6">
               <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{departments.length === 1 ? "Department you head" : "Departments you head"}</CardTitle>
-                    <CardDescription>Add your staff and jury (each gets a temporary password to start with) and choose how your award pages look.</CardDescription>
+                    <CardTitle>{departments.length === 1 ? "Award department you head" : "Award departments you head"}</CardTitle>
+                    <CardDescription>Each runs one award. Add your staff and jury (each gets a temporary password to start with) and choose how the award&apos;s page looks.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {departments.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">You don&apos;t head a department yet.</p>
+                      <p className="text-sm text-muted-foreground">You don&apos;t head an award department yet.</p>
                     ) : (
                       <ul className="grid gap-2">
                         {departments.map((r) => (
@@ -244,7 +244,7 @@ export function JuryHome() {
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <JuryAssignments />
             <div className="grid content-start gap-6">
-              <ScopeList title="Departments you judge for" items={scopesOf(me, "JURY")} empty="None yet." />
+              <ScopeList title="Award departments you judge for" items={scopesOf(me, "JURY")} empty="None yet." />
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -278,10 +278,10 @@ export function LeaderHome() {
           <PageTitle
             eyebrow={`${greeting()}, ${firstName(me)}`}
             title="Across the platform"
-            description="Every department and award at a glance. Departments run themselves; you create them and watch."
+            description="Every award department and its award at a glance. Each runs one award and runs itself; you create them and watch."
             actions={
               <Button asChild>
-                <Link href="/leader/departments">Departments</Link>
+                <Link href="/leader/departments">Award departments</Link>
               </Button>
             }
           />

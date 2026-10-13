@@ -106,7 +106,7 @@ export async function judgingView(actor: Actor, round: RoundContext): Promise<Ju
   const award = round.cycle.award;
   const sections = await roundSheet(db, round.id);
   const indicators = indicatorsOf(sections);
-  const staff = isStaffOfAward(actor, award.id);
+  const staff = isStaffOfAward(actor, award);
   const locked = LOCKED.has(round.status);
   const correctable = round.status === "JUDGING" || round.status === "PENDING_APPROVAL";
 

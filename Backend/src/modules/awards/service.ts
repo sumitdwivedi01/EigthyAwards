@@ -24,6 +24,7 @@ import {
   awardView,
   cycleSetupInclude,
   cycleState,
+  newEditionBlocker,
   type AwardView,
   type CycleSetupRecord,
   type CycleSetupView,
@@ -64,11 +65,24 @@ async function juryAvailable(departmentId: string): Promise<number> {
   return db.roleAssignment.count({ where: { departmentId, role: "JURY", revokedAt: null } });
 }
 
-/** Staff of a department create its awards (spec §3: "only staff create awards"). */
+function alreadyHasAward(name: string): StateError {
+  return new StateError(
+    `This award department already runs its award, "${name}". A new award needs a new award department, which the leader creates.`,
+    { reason: "DEPARTMENT_HAS_AWARD" },
+  );
+}
+
+/**
+ * Staff of an award department create its one award (spec §3, ADR 0021): a second is refused,
+ * and a unique index decides when two staff create one at the same moment. Every staff member of
+ * the department then runs it.
+ */
 export async function createAward(actor: Actor, input: CreateAwardInput): Promise<AwardView> {
   if (!isStaffOfDepartment(actor, input.departmentId)) {
-    throw new ForbiddenError("Only the department's staff create its awards.");
+    throw new ForbiddenError("Only the award department's staff create its award.");
   }
+  const existing = await db.award.findUnique({ where: { departmentId: input.departmentId }, select: { name: true } });
+  if (existing) throw alreadyHasAward(existing.name);
   const domain = await db.awardDomain.findUnique({ where: { id: input.domainId }, select: { retiredAt: true } });
   if (!domain || domain.retiredAt) throw fieldIssue("domainId", "Pick a subject area from the list.");
   const name = normalizeName(input.name);
@@ -77,10 +91,6 @@ export async function createAward(actor: Actor, input: CreateAwardInput): Promis
       const created = await tx.award.create({
         data: { departmentId: input.departmentId, name, domainId: input.domainId, description: input.description, createdById: actor.userId },
         select: { id: true },
-      });
-      // The creator runs the award (spec A4).
-      await tx.roleAssignment.create({
-        data: { userId: actor.userId, role: "AWARD_STAFF", awardId: created.id, grantedById: actor.userId },
       });
       const slug = await createSiteForAward(tx, created.id, name);
       await recordAudit(tx, {
@@ -97,35 +107,62 @@ export async function createAward(actor: Actor, input: CreateAwardInput): Promis
     const award = await db.award.findUniqueOrThrow({ where: { id: awardId }, include: awardInclude });
     return awardView(award, clock.now());
   } catch (error) {
-    if (isUniqueViolation(error)) throw fieldIssue("name", "The department already has an award with this name.");
+    if (isUniqueViolation(error)) {
+      const taken = await db.award.findUnique({ where: { departmentId: input.departmentId }, select: { name: true } });
+      throw alreadyHasAward(taken?.name ?? name);
+    }
     throw error;
   }
 }
 
-/** Every award the person runs, across departments (spec §3: one staff member, many awards). */
+/**
+ * Every award the person runs (spec §3: one staff member, many awards): the award of each award
+ * department they are staff of, and any award they were given before ADR 0021.
+ */
 export async function listMyAwards(actor: Actor): Promise<AwardView[]> {
+  const departmentIds = actor.roles.filter((r) => r.role === "DEPT_STAFF" && r.departmentId).map((r) => r.departmentId as string);
   const awardIds = actor.roles.filter((r) => r.role === "AWARD_STAFF" && r.awardId).map((r) => r.awardId as string);
-  const awards = await db.award.findMany({ where: { id: { in: awardIds } }, include: awardInclude, orderBy: { name: "asc" } });
+  const awards = await db.award.findMany({
+    where: { OR: [{ departmentId: { in: departmentIds } }, { id: { in: awardIds } }] },
+    include: awardInclude,
+    orderBy: { name: "asc" },
+  });
   const now = clock.now();
   return awards.map((award) => awardView(award, now));
 }
 
-export async function getAward(actor: Actor, awardId: string): Promise<AwardView> {
-  requireStaffOfAward(actor, awardId);
-  const award = await db.award.findUnique({ where: { id: awardId }, include: awardInclude });
+/** The award, for its staff; anyone else gets 403 (or 404 when it doesn't exist). */
+async function requireAwardStaff(actor: Actor, awardId: string): Promise<{ id: string; departmentId: string }> {
+  const award = await db.award.findUnique({ where: { id: awardId }, select: { id: true, departmentId: true } });
   if (!award) throw new NotFoundError("Award not found.");
+  requireStaffOfAward(actor, award);
+  return award;
+}
+
+export async function getAward(actor: Actor, awardId: string): Promise<AwardView> {
+  await requireAwardStaff(actor, awardId);
+  const award = await db.award.findUniqueOrThrow({ where: { id: awardId }, include: awardInclude });
   return awardView(award, clock.now());
 }
 
 /**
  * A new edition of the award, in draft: its dates, no fee, not blind, no entry limit, one written
  * round with 1 juror per application and the results Shortlisted / Rejected, an empty
- * questionnaire and an empty scoring sheet. Staff fill in the rest.
+ * questionnaire and an empty scoring sheet. Staff fill in the rest. One edition runs at a time
+ * (ADR 0021): the next one starts once the current one's results are published, checked under a
+ * lock on the award so two staff can't start two at once.
  */
 export async function createCycle(actor: Actor, awardId: string, input: CreateCycleInput): Promise<CycleSetupView> {
-  requireStaffOfAward(actor, awardId);
+  await requireAwardStaff(actor, awardId);
   try {
     const cycleId = await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM awards WHERE id = ${awardId}::uuid FOR UPDATE`;
+      const editions = await tx.cycle.findMany({
+        where: { awardId },
+        select: { label: true, status: true, deadlineAt: true, _count: { select: { applications: { where: { status: "SUBMITTED" } } } } },
+      });
+      const blocker = newEditionBlocker(editions.map((e) => ({ ...e, submitted: e._count.applications })), clock.now());
+      if (blocker) throw new StateError(blocker, { reason: "EDITION_RUNNING" });
       const cycle = await tx.cycle.create({
         data: {
           awardId,

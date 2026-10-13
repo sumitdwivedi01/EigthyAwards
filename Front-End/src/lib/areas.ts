@@ -3,7 +3,7 @@ import type { Area } from "./api-types";
 /** Where each area of the app lives. Which areas a person may open comes from the API (/me). */
 export const AREA_ROUTES: Record<Area, { href: string; label: string }> = {
   leader: { href: "/leader", label: "Leader" },
-  department: { href: "/department", label: "Department" },
+  department: { href: "/department", label: "Award department" },
   staff: { href: "/staff", label: "Staff" },
   jury: { href: "/jury", label: "Jury" },
   applicant: { href: "/applicant", label: "Applying" },

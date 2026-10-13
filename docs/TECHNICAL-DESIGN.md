@@ -59,7 +59,7 @@ erDiagram
     ORGANISATION ||--o{ ORGANISATION_MEMBER : has
     DEPARTMENT ||--o| BRAND_KIT : has
     DEPARTMENT ||--o{ ROLE_ASSIGNMENT : "head, staff, jury list"
-    DEPARTMENT ||--o{ AWARD : runs
+    DEPARTMENT ||--o| AWARD : "runs one (ADR 0021)"
     AWARD ||--o| AWARD_SITE : "has a page"
     AWARD ||--o{ CYCLE : "edition per year"
     CYCLE ||--o{ ENTRY_CATEGORY : has
@@ -156,6 +156,7 @@ The services check everything first, with friendly errors. The database refuses 
 | One record per company, person, department (ignoring letter case) | Unique PAN; `citext` for emails and names |
 | Awards never mix | Foreign keys that include the cycle |
 | One active application per company per award | Partial unique index (Withdrawn and Released don't count) |
+| One award per award department | Unique index on the award's department (ADR 0021) |
 | A jury member gets an application only once | Partial unique index on active evaluations |
 | History can't be edited | Triggers refuse UPDATE and DELETE on audit events, form versions, published page versions and disqualification history |
 | Valid values | CHECKs: PAN and GSTIN format, scores 0–10, jury minimum ≤ maximum, file owner rules, money in whole paise, the jury role scoped to a department |

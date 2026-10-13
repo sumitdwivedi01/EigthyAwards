@@ -119,7 +119,7 @@ async function staffView(actor: Actor, applicationId: string): Promise<StaffAppl
   const identity = identityFileId
     ? await db.fileAsset.findUnique({ where: { id: identityFileId }, select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true } })
     : null;
-  const staff = isStaffOfAward(actor, application.cycle.award.id);
+  const staff = isStaffOfAward(actor, application.cycle.award);
   return {
     id: application.id,
     status: application.status,

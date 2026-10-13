@@ -25,7 +25,7 @@ type AwardScope = { id: string; departmentId: string };
 
 /** The award's staff, its department's head or the leader: they may read its applications. */
 export function canReadAsOrganiser(actor: Actor, award: AwardScope): boolean {
-  return isStaffOfAward(actor, award.id) || headsDepartment(actor, award.departmentId) || isLeader(actor);
+  return isStaffOfAward(actor, award) || headsDepartment(actor, award.departmentId) || isLeader(actor);
 }
 
 export function requireOrganiserReader(actor: Actor, award: AwardScope): void {
@@ -34,7 +34,7 @@ export function requireOrganiserReader(actor: Actor, award: AwardScope): void {
 
 /** Only the award's staff check proof and release applications (spec §3). */
 export function requireAwardStaff(actor: Actor, award: AwardScope): Role {
-  if (!isStaffOfAward(actor, award.id)) {
+  if (!isStaffOfAward(actor, award)) {
     throw new ForbiddenError("Only the award's staff can do this.");
   }
   return "AWARD_STAFF";

@@ -24,14 +24,14 @@ type ListKind = "staff" | "jury";
 const LISTS: Record<ListKind, { title: string; description: string; add: string; empty: string; work: (n: number) => string }> = {
   staff: {
     title: "Staff",
-    description: "Staff create and run the department's awards.",
+    description: "Every staff member sets up and runs the department's award.",
     add: "Add a staff member",
-    empty: "No staff yet. Add the people who will set up and run your awards.",
-    work: (n) => (n === 1 ? "1 award" : `${n} awards`),
+    empty: "No staff yet. Add the people who will set up and run your award.",
+    work: (n) => (n > 0 ? "has worked on the award" : "no work on the award yet"),
   },
   jury: {
     title: "Jury",
-    description: "The experts who judge the department's awards. After each deadline, staff assign applications to people on this list.",
+    description: "The experts who judge the department's award. After each deadline, staff assign applications to people on this list.",
     add: "Add a juror",
     empty: "No jury yet. Add the experts who will score applications.",
     work: (n) => (n === 1 ? "1 assignment" : `${n} assignments`),
@@ -39,8 +39,8 @@ const LISTS: Record<ListKind, { title: string; description: string; add: string;
 };
 
 /**
- * A department's page (ADR 0017, ADR 0020): its head(s), its staff and jury lists, its theme and
- * its award pages. The head keeps them; the leader only sees them (and can give a locked-out head
+ * An award department's page (ADR 0017, ADR 0020, ADR 0021): its head(s), its staff and jury
+ * lists, its theme and its award's page. The head keeps them; the leader only sees them (and can give a locked-out head
  * a new temporary password). The API says which actions the viewer has; this page shows only those.
  */
 export function PeoplePage({ departmentId, area }: { departmentId: string; area: Extract<Area, "department" | "leader"> }) {
@@ -57,21 +57,21 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
   const people = usePeople(departmentId);
   const [issued, setIssued] = useState<Issued | null>(null);
 
-  if (people.isPending) return <LoadingState label="Loading the department" lines={6} />;
+  if (people.isPending) return <LoadingState label="Loading the award department" lines={6} />;
   if (people.error) return <ErrorState error={people.error} onRetry={() => void people.refetch()} />;
   const { department, canManage, heads, staff, jury } = people.data;
-  const back = area === "leader" ? { href: "/leader/departments", label: "All departments" } : { href: "/department", label: "Your department" };
+  const back = area === "leader" ? { href: "/leader/departments", label: "All award departments" } : { href: "/department", label: "Your award department" };
 
   return (
     <>
       <PageTitle
         back={back}
-        eyebrow={department.externalOrganiser ? "External award organiser" : "Department"}
+        eyebrow={department.externalOrganiser ? "External award organiser" : "Award department"}
         title={department.name}
         description={
           canManage
-            ? "Your staff, your jury and your award pages. New people get a temporary password, shown to you once; they choose their own at the first login."
-            : "The department's people, theme and award pages, to see. Its head manages them."
+            ? "Your staff, your jury and your award's page. New people get a temporary password, shown to you once; they choose their own at the first login."
+            : "The award department's people, theme and award page, to see. Its head manages them."
         }
       />
       <div className="grid gap-6">
@@ -79,7 +79,7 @@ function People({ departmentId, area }: { departmentId: string; area: "departmen
         <Card>
           <CardHeader>
             <CardTitle>Head</CardTitle>
-            <CardDescription>Runs the department and approves its judged rounds.</CardDescription>
+            <CardDescription>Runs the award department and approves its award&apos;s judged rounds.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
             {heads.map((head) => (

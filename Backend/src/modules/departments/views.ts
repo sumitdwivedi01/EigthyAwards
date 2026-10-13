@@ -28,6 +28,8 @@ export interface DepartmentSummaryView {
   colours: { primary: string; accent: string } | null;
   heads: PersonView[];
   counts: { staff: number; jury: number; awards: number };
+  /** The department's one award (ADR 0021), once its staff have created it. */
+  award: { id: string; name: string } | null;
 }
 
 export interface PeopleView {
@@ -84,6 +86,7 @@ export const departmentSummaryInclude = {
   brandKit: { select: { primaryColour: true, accentColour: true } },
   roles: { where: { revokedAt: null }, select: { role: true, user: { select: personSelect } } },
   _count: { select: { awards: true } },
+  awards: { select: { id: true, name: true }, take: 1 },
 } satisfies Prisma.DepartmentInclude;
 
 type DepartmentSummaryRecord = Prisma.DepartmentGetPayload<{ include: typeof departmentSummaryInclude }>;
@@ -99,5 +102,6 @@ export function departmentSummaryView(department: DepartmentSummaryRecord): Depa
       : null,
     heads: department.roles.filter((r) => r.role === "DEPT_HEAD").map((r) => personView(r.user)),
     counts: { staff: count("DEPT_STAFF"), jury: count("JURY"), awards: department._count.awards },
+    award: department.awards[0] ?? null,
   };
 }

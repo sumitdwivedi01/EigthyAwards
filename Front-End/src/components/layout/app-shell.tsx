@@ -26,8 +26,8 @@ import type { Area, Me } from "@/lib/api-types";
 
 /** What each area is for, in a few words, next to its icon in the navigation. */
 const AREA_META: Record<Area, { hint: string; icon: typeof AwardIcon }> = {
-  leader: { hint: "Every department and award", icon: LayoutDashboardIcon },
-  department: { hint: "Your people, theme and approvals", icon: Building2Icon },
+  leader: { hint: "Every award department", icon: LayoutDashboardIcon },
+  department: { hint: "Your award's people, theme and approvals", icon: Building2Icon },
   staff: { hint: "Set up and run awards", icon: ClipboardListIcon },
   jury: { hint: "Applications to score", icon: ScaleIcon },
   applicant: { hint: "Your applications", icon: FileTextIcon },

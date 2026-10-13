@@ -1,6 +1,6 @@
 # 0020. Departments run themselves; the leader brings them on and only watches
 
-- Status: **Accepted** (owner, 2026-10-11)
+- Status: **Accepted** (owner, 2026-10-11); changed by [ADR 0021](0021-one-award-per-department.md) (one award per department, run by all its staff)
 - Date: 2026-10-11
 - Changes: [ADR 0017](0017-people-created-on-screen.md) (the leader no longer adds staff or jury, sets a department's colours, or issues passwords to its staff and jury); spec §3, §5.1, §5.3, §5.19, §7, §15
 - Related: [ADR 0009](0009-branded-award-sites.md) (branded award sites; external organisers as departments, spec §3); GAPS G-E03, G-J06, G-K24, G-K31

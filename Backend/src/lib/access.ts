@@ -51,8 +51,15 @@ export function isStaffOfDepartment(actor: Actor, departmentId: string): boolean
   return holds(actor, (r) => r.role === "DEPT_STAFF" && r.departmentId === departmentId);
 }
 
-export function isStaffOfAward(actor: Actor, awardId: string): boolean {
-  return holds(actor, (r) => r.role === "AWARD_STAFF" && r.awardId === awardId);
+/**
+ * The award's staff (ADR 0021): every staff member of its award department runs its one award.
+ * An AWARD_STAFF row from before that decision still counts.
+ */
+export function isStaffOfAward(actor: Actor, award: { id: string; departmentId: string }): boolean {
+  return holds(
+    actor,
+    (r) => (r.role === "DEPT_STAFF" && r.departmentId === award.departmentId) || (r.role === "AWARD_STAFF" && r.awardId === award.id),
+  );
 }
 
 /** On the department's jury list. Which applications a juror judges is decided by assignments. */
@@ -84,8 +91,8 @@ export function requireDeptHead(actor: Actor, departmentId: string): void {
   if (!headsDepartment(actor, departmentId)) throw new ForbiddenError();
 }
 
-export function requireStaffOfAward(actor: Actor, awardId: string): void {
-  if (!isStaffOfAward(actor, awardId)) throw new ForbiddenError();
+export function requireStaffOfAward(actor: Actor, award: { id: string; departmentId: string }): void {
+  if (!isStaffOfAward(actor, award)) throw new ForbiddenError();
 }
 
 export function requireJuryOfDepartment(actor: Actor, departmentId: string): void {

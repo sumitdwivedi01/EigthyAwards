@@ -52,7 +52,7 @@ flowchart LR
 | **The same company written ten ways** | Leadership can't trust a combined view. This was the biggest problem |
 | **A developer for every change** | Staff can't start a new award or change its questions on their own |
 
-The awards also work differently. The largest scores about **250 indicators in 15 areas** over six months and two rounds. Another has **38 categories**. Some charge a fee, most don't. Shop-floor competitions are judged **live, on the shop floor**.
+The awards also work differently. The largest scores about **250 indicators in 15 areas** over six months and two rounds. **38 separate awards** compete in the same year (the brief says "38 categories"; the lead confirmed on 12 Oct that it means separate awards). Some charge a fee, most don't. Shop-floor competitions are judged **live, on the shop floor**.
 
 ---
 
@@ -95,7 +95,7 @@ flowchart TD
 | **Applicant** | Comes once or twice a year, close to the deadline, with a long form | A branded award site that explains everything, with the places left. One company profile reused for every award. The form saves as they type. Gives a photo ID and LinkedIn link once, on their profile; uploads a recent proof of working there with each application. Can change their password |
 | **Jury member** | A senior person scoring between meetings | Stop anytime and continue later. On site, they score on their phone |
 | **Staff** | Works in the system every day while a cycle runs | Set up awards and build each award's branded site on screens, check applicants' proof, track progress, publish results |
-| **Department head** | Owns a group of awards, or leads an **outside organiser** (e.g. the FPO Awards team) that runs its awards here on its own | Sets the brand kit, adds staff and jury, reviews the ranked results, then approves or sends them back |
+| **Department head** | Heads an **award department**, the home of one award (ADR 0021), or leads an **outside organiser** (e.g. the FPO Awards team) that runs its award here on its own | Sets the brand kit, adds staff and jury, reviews the ranked results, then approves or sends them back |
 | **Leader** (and the leader's team, on the same account) | Wants one view of everything | One dashboard across all awards; sets up departments and their heads, then leaves each department to run itself |
 
 The award always goes to the **organisation** (identified by its PAN), never to one of its plants or units. One real entry per organisation per award.

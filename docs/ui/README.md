@@ -62,7 +62,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    S1["My awards<br/>many awards per person"] --> S2["Award setup<br/>dates, fee, limit, blind,<br/>rounds, questions, scoring"]
+    S1["My awards<br/>one per award department"] --> S2["Award setup<br/>dates, fee, limit, blind,<br/>rounds, questions, scoring"]
     S2 --> S3["Site builder<br/>pages, sections, publish, versions"]
     S3 --> S4["Applications<br/>proof status, release"]
     S4 --> S5["Proof check"] --> S7["Conflicts and<br/>the assignment board"]
@@ -108,7 +108,7 @@ flowchart LR
 
 | # | Screen | Shows | Prototype |
 |---|---|---|---|
-| 1 | Department dashboard | An organiser running its awards on its own | `#h-dash` |
+| 1 | Award department dashboard | An organiser running its award on its own (one award per award department, ADR 0021) | `#h-dash` |
 | 2 | Brand kit (theme) | Chosen by the head (ADR 0020). Phase 1: colours (text kept readable) and footer, with a preview; logo, font and links from Phase 2 | `#h-brand` |
 | 3 | Staff and awards | Invite staff, give them awards | `#h-staff` |
 | 4 | Approve a round | Ranked list by average, each jury member's score and note, disqualified list; approve locks scores (R3) | `#h-review` |

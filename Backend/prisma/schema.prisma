@@ -245,7 +245,8 @@ model AuthToken {
   @@map("auth_tokens")
 }
 
-/// A unit that runs awards: part of the industry body, or an external award organiser.
+/// An award department (ADR 0021): the people who run one award (its head, staff and jury list),
+/// part of the industry body or an external award organiser. It holds at most one award.
 model Department {
   id                String   @id @default(uuid()) @db.Uuid
   name              String   @unique @db.Citext
@@ -351,7 +352,8 @@ model Award {
   cycles     Cycle[]
   roles      RoleAssignment[]
 
-  @@unique([departmentId, name])
+  // One award per department (ADR 0021): a new award needs a new award department.
+  @@unique([departmentId])
   @@map("awards")
 }
 

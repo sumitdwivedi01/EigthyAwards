@@ -59,6 +59,8 @@ export interface DepartmentSummary {
   colours: { primary: string; accent: string } | null;
   heads: Person[];
   counts: { staff: number; jury: number; awards: number };
+  /** The department's one award (ADR 0021), once its staff have created it. */
+  award: { id: string; name: string } | null;
 }
 
 export interface People {
@@ -117,6 +119,8 @@ export interface AwardDetail {
   domain: { id: string; name: string };
   siteSlug: string | null;
   cycles: CycleSummary[];
+  /** Why a new edition can't start yet: the award runs one edition at a time (ADR 0021). */
+  newEditionBlockedReason: string | null;
 }
 
 export interface ResultLabel {
@@ -215,7 +219,8 @@ export interface ScoringSheet {
   locked: boolean;
   totals: { sections: number; bySection: Record<string, number> };
   issues: string[];
-  questions: { key: string; label: string; type: string; published: boolean }[];
+  /** The form's questions, each with its section (so a sheet can start from the form). */
+  questions: { key: string; label: string; type: string; published: boolean; section: { key: string; title: string } }[];
 }
 
 /** An award as visitors see it: on Open awards and on its page. */
