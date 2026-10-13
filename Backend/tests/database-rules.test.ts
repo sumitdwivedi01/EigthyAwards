@@ -552,6 +552,19 @@ describe("payments (spec §5.6)", () => {
   });
 });
 
+describe("Supabase's table API (Step 1.5, GAPS G-B04)", () => {
+  it("has row-level security on every table, so the public key can read nothing", async () => {
+    const open = await db.$queryRaw<{ tablename: string }[]>`
+      SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND NOT rowsecurity`;
+    expect(open.map((t) => t.tablename)).toEqual([]);
+  });
+
+  it("still lets the API, as the tables' owner, read and write", async () => {
+    const department = await createDepartment();
+    expect(await db.department.findUnique({ where: { id: department.id } })).not.toBeNull();
+  });
+});
+
 describe("award departments (ADR 0021)", () => {
   it("holds one award per department", async () => {
     const department = await createDepartment();
