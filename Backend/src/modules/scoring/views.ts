@@ -10,6 +10,6 @@ export interface ScoringSheetView {
   totals: { sections: number; bySection: Record<string, number> };
   /** Empty when the sheet is ready for publishing. */
   issues: string[];
-  /** The form's questions an indicator can score, and whether each is published yet. */
-  questions: { key: string; label: string; type: string; published: boolean }[];
+  /** The form's questions an indicator can score, whether each is published yet, and its section. */
+  questions: { key: string; label: string; type: string; published: boolean; section: { key: string; title: string } }[];
 }

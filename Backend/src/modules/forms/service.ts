@@ -313,11 +313,20 @@ export async function latestPublishedForm(cycleId: string): Promise<{ version: n
 }
 
 /** Every question the staff can point an indicator at: the draft's, and whether each is published. */
-export async function questionsForScoring(cycleId: string): Promise<{ key: string; label: string; type: string; published: boolean }[]> {
+export async function questionsForScoring(
+  cycleId: string,
+): Promise<{ key: string; label: string; type: string; published: boolean; section: { key: string; title: string } }[]> {
   const cycle = await db.cycle.findUniqueOrThrow({ where: { id: cycleId }, select: { draftFormSchema: true } });
   const latest = await latestPublishedForm(cycleId);
   const published = new Set(latest ? latest.definition.sections.flatMap((s) => s.questions.map((q) => q.key)) : []);
+  // The section travels with each question, so the builder can start a sheet that mirrors the form.
   return readDraft(cycle.draftFormSchema).sections.flatMap((section) =>
-    section.questions.map((q) => ({ key: q.key, label: q.label, type: q.type, published: published.has(q.key) })),
+    section.questions.map((q) => ({
+      key: q.key,
+      label: q.label,
+      type: q.type,
+      published: published.has(q.key),
+      section: { key: section.key, title: section.title },
+    })),
   );
 }

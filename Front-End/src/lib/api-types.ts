@@ -219,7 +219,8 @@ export interface ScoringSheet {
   locked: boolean;
   totals: { sections: number; bySection: Record<string, number> };
   issues: string[];
-  questions: { key: string; label: string; type: string; published: boolean }[];
+  /** The form's questions, each with its section (so a sheet can start from the form). */
+  questions: { key: string; label: string; type: string; published: boolean; section: { key: string; title: string } }[];
 }
 
 /** An award as visitors see it: on Open awards and on its page. */
